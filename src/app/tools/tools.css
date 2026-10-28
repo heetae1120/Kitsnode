@@ -115,7 +115,7 @@
   align-items: center;
   gap: 3px;
 }
-.profit-tool .tool-nav a:first-child {
+.profit-tool .tool-nav a[aria-current="page"] {
   color: #1d2521;
   font-weight: 700;
 }
@@ -1760,5 +1760,93 @@
     display: block;
     margin: 8px 0 0;
     font-size: 9px;
+  }
+}
+@media (max-width: 760px) {
+  .profit-tool .tool-mobile-menu {
+    display: block;
+    background: transparent;
+    border: 0;
+    color: #758174;
+    padding: 3px;
+  }
+  .profit-tool .tool-mobile-menu svg {
+    width: 20px;
+  }
+  .profit-tool .tool-demo-pill {
+    margin-left: auto;
+  }
+  .profit-tool .tool-nav {
+    display: none;
+  }
+  .profit-tool .tool-nav.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    z-index: 20;
+    top: 65px;
+    right: 0;
+    background: #fff;
+    width: 100%;
+    padding: 24px;
+    box-shadow: 0 12px 20px #0001;
+    align-items: flex-start;
+  }
+}
+.profit-tool .tool-keyword-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 23px 26px;
+  margin-top: 24px;
+  border: 1px solid #dce7d7;
+  border-radius: 12px;
+  background: #f2f7ed;
+  color: #779b60;
+}
+.profit-tool .tool-keyword-shortcut > svg {
+  flex-shrink: 0;
+}
+.profit-tool .tool-keyword-shortcut h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #587f40;
+}
+.profit-tool .tool-keyword-shortcut p {
+  font-size: 11px;
+  color: #8ba477;
+  margin-top: 7px;
+  line-height: 1.8;
+}
+.profit-tool .tool-keyword-shortcut > a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+  font-size: 11px;
+  color: #6d9650;
+  margin-left: auto;
+}
+@media (max-width: 600px) {
+  .profit-tool .tool-keyword-shortcut {
+    padding: 20px 18px;
+    gap: 11px;
+    flex-wrap: wrap;
+  }
+  .profit-tool .tool-keyword-shortcut > div {
+    flex: 1;
+    min-width: 0;
+  }
+  .profit-tool .tool-keyword-shortcut h3 {
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  .profit-tool .tool-keyword-shortcut p {
+    font-size: 10px;
+  }
+  .profit-tool .tool-keyword-shortcut > a {
+    margin-left: 34px;
+    font-size: 10px;
+    margin-top: 4px;
   }
 }

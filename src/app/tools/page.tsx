@@ -1,22 +1,20 @@
 "use client";
-import Link from "next/link";
+import { ToolsHeader } from "@/components/tools-header";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   ArrowRight,
-  ArrowUpRight,
+  Search,
   BarChart3,
   ChevronDown,
   CircleHelp,
   FlaskConical,
   Layers3,
-  Menu,
   MousePointer2,
   RotateCcw,
   ShieldCheck,
   Sparkles,
   TrendingUp,
   Wallet,
-  X,
 } from "lucide-react";
 import {
   CartesianGrid,
@@ -38,7 +36,7 @@ import {
   won,
   type ProductInput,
 } from "@/lib/calculator";
-import { demoKeywords, type KeywordResult } from "@/lib/keyword-data";
+import Link from "next/link";
 type Draft = {
   name: string;
   price: string;
@@ -55,7 +53,6 @@ const initialDraft: Draft = {
   other: "",
   feePercent: "",
 };
-const demo = demoKeywords(SAMPLE.name);
 const statuses = {
   good: "수익성 양호",
   "break-even": "손익분기 수준",
@@ -153,11 +150,9 @@ export default function Home() {
   ]);
   const [details, setDetails] = useState(false);
   const [error, setError] = useState("");
-  const [keywords, setKeywords] = useState<KeywordResult>(demo);
   const [cpcSource, setCpcSource] = useState("데모 데이터");
   const [cvrSource, setCvrSource] = useState("추정값");
   const [controlError, setControlError] = useState("");
-  const [mobileNav, setMobileNav] = useState(false);
   const results = useRef<HTMLDivElement>(null);
   const r = useMemo(() => calculate(input), [input]);
   const scenarios = [1, 2, 3].map((cvrPercent) => ({
@@ -209,7 +204,6 @@ export default function Home() {
         .filter(([key]) => draft[key] === "")
         .map(([, label]) => label),
     );
-    setKeywords(demoKeywords(next.name));
     requestAnimationFrame(() =>
       results.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
     );
@@ -234,7 +228,6 @@ export default function Home() {
     setResetKey((k) => k + 1);
     setDraft(initialDraft);
     setInput(SAMPLE);
-    setKeywords(demo);
     setCpcSource("데모 데이터");
     setCvrSource("추정값");
     setError("");
@@ -245,42 +238,7 @@ export default function Home() {
     n === null ? "계산 불가" : `${num(n)}%`;
   return (
     <>
-      <header className="tool-topbar">
-        <Link className="tool-brand" href="/" aria-label="KITS 브랜드 홈으로">
-          <span className="tool-brand-icon">
-            <Layers3 size={20} />
-          </span>
-          KITS
-          <span className="tool-brand-divider" />
-          <span className="tool-brand-caption">Tools · 광고 수익성 진단</span>
-        </Link>
-        <nav
-          aria-label="도구 메뉴"
-          className={mobileNav ? "tool-nav open" : "tool-nav"}
-        >
-          <a href="#analysis" onClick={() => setMobileNav(false)}>
-            수익성 분석
-          </a>
-          <a href="#simulation" onClick={() => setMobileNav(false)}>
-            예산 시뮬레이션
-          </a>
-          <Link href="/" onClick={() => setMobileNav(false)}>
-            브랜드 홈 <ArrowUpRight size={13} />
-          </Link>
-        </nav>
-        <span className="tool-demo-pill">
-          <span />
-          DEMO VERSION
-        </span>
-        <button
-          className="tool-mobile-menu"
-          aria-label={mobileNav ? "메뉴 닫기" : "메뉴 열기"}
-          aria-expanded={mobileNav}
-          onClick={() => setMobileNav(!mobileNav)}
-        >
-          {mobileNav ? <X /> : <Menu />}
-        </button>
-      </header>
+      <ToolsHeader active="profit" />
       <main>
         <div className="tool-hero">
           <div>
@@ -1047,76 +1005,19 @@ export default function Home() {
             })}
           </div>
         </section>
-        <details className="tool-api-disclosure">
-          <summary>
-            참고용 검색 키워드{" "}
-            <span>선택 기능 · API 없이도 수익성 진단 가능</span>
-          </summary>
-          <section className="tool-card tool-keywords">
-            <div className="tool-keywords-title">
-              <SectionTitle
-                number="05"
-                title="상품과 관련된 검색 키워드"
-                description="키워드 데이터와 광고비 가정을 구분해서 살펴보세요."
-              />
-              <span
-                className={`tool-data-badge ${keywords.source === "\uC2E4\uC81C \uB370\uC774\uD130" ? "real" : ""}`}
-              >
-                <FlaskConical size={13} />
-                {keywords.source}
-              </span>
-            </div>
-            <p className="tool-data-notice">
-              {keywords.message} 검색량·클릭 수는 CPC 또는 구매전환율이
-              아닙니다.
+        <section className="tool-keyword-shortcut">
+          <Search size={23} />
+          <div>
+            <h3>상품의 검색 수요도 함께 확인해 보세요.</h3>
+            <p>
+              키워드 도구에서 PC·모바일 검색량과 연관 키워드를 비교할 수
+              있습니다.
             </p>
-            <div className="tool-table-scroll">
-              <table className="tool-keyword-table">
-                <thead>
-                  <tr>
-                    <th>검색·연관 키워드</th>
-                    <th>월간 PC 검색량</th>
-                    <th>월간 모바일 검색량</th>
-                    <th>월평균 PC 클릭 수</th>
-                    <th>월평균 모바일 클릭 수</th>
-                    <th>경쟁 정도</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {keywords.keywords.map((k, i) => (
-                    <tr key={`${k.keyword}-${i}`}>
-                      <td>
-                        {k.keyword}
-                        {i === 0 && <span className="tool-seed-tag">기준</span>}
-                      </td>
-                      <td>
-                        {typeof k.pcSearches === "number"
-                          ? num(k.pcSearches)
-                          : k.pcSearches}
-                      </td>
-                      <td>
-                        {typeof k.mobileSearches === "number"
-                          ? num(k.mobileSearches)
-                          : k.mobileSearches}
-                      </td>
-                      <td>{num(k.pcClicks)}</td>
-                      <td>{num(k.mobileClicks)}</td>
-                      <td>
-                        <span className="tool-competition">
-                          {k.competition}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="tool-keyword-footnote">
-              CPC: {cpcSource} · 구매전환율: {cvrSource} · 수익 지표: 위 입력과
-              가정에 따른 계산값
-            </p>
-          </section>
-        </details>
+          </div>
+          <Link href="/tools/keywords/">
+            키워드 도구 열기 <ArrowRight size={15} />
+          </Link>
+        </section>
         <section id="guide" className="tool-guide">
           <ShieldCheck size={21} />
           <div>

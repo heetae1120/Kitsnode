@@ -1,0 +1,9 @@
+{
+  "framework": null,
+  "functions": {
+    "api/keywords.js": {
+      "maxDuration": 15
+    }
+  },
+  "outputDirectory": "public"
+}

@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "serve out --listen tcp://0.0.0.0:3000",
     "test": "tsx --test tests/*.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "keywords:server": "node --env-file-if-exists=keyword-api/.env.local keyword-api/server.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.0",
