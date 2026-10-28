@@ -1,119 +1,71 @@
-# Kitsnord · 스마트스토어 광고 수익성 진단 MVP
+# KITS — Sensible Everyday Kits
 
-네이버 스마트스토어 판매자의 영업 시연을 위한 반응형 웹사이트입니다. 상품명·판매가·원가를 입력하면 개당 광고 수익, 손익분기점, 예산별 예상 판매량을 계산합니다. 로그인·DB·결제 없이 사용할 수 있습니다.
+시대의 유산부터 동시대의 트렌드, 내일의 감각까지. 삶과 브랜드의 순간을 완성하는 **오브제 큐레이션 & 크리에이티브 랩 KITS**의 반응형 브랜드 사이트입니다.
 
-## GitHub Pages에서 확인하기
+## 사이트 구성
 
-이 프로젝트는 Next.js 정적 내보내기(`output: "export"`)로 빌드됩니다. 계산과 차트는 브라우저에서 실행되므로 GitHub Pages에서 별도 서버·도메인·API 키 없이 동작합니다.
+- **Brand introduction**: 브랜드 슬로건, Kit의 정의, 고객과 파트너를 위한 관점
+- **Our spectrum**: Heritage / Present / Next 전환형 콘텐츠, 방향별 오브제 스터디 연결
+- **Object studies**: 카테고리 필터와 상세 모달. 일러스트는 오리지널 벡터 콘셉트이며 실제 판매 제품·클라이언트 작업으로 표시하지 않습니다.
+- **The way we make**: Essential Kit, Trend & Futurity, Heritage Reinterpretation, Sensible Realization
+- **For partners**: 본질의 발견 → 해답 설계 → 제품 실체화의 프로젝트 프로세스
+- **Manifesto**: 과거·현재·미래를 잇는 브랜드 선언
+- **Project brief**: 프로젝트 유형·연락 정보·아이디어를 작성하고 텍스트 복사 또는 파일로 저장
 
-1. GitHub 저장소의 **Settings → Pages → Build and deployment → Source**를 **GitHub Actions**로 선택합니다. 최초 한 번만 설정합니다. GitHub 요금제·저장소 공개 범위에 따라 Pages 사용 권한이 필요할 수 있습니다.
-2. `main`에 push하면 **Deploy to GitHub Pages** 워크플로가 테스트·빌드 후 자동 게시합니다. 설정을 나중에 활성화했다면 **Actions → Deploy to GitHub Pages → Run workflow**로 재실행합니다.
-3. 배포 성공 후 사이트 주소는 **https://heetae1120.github.io/Kitsnode/** 입니다. 이 주소는 워크플로가 성공하기 전에는 열리지 않을 수 있습니다.
+공식 연락처가 제공되지 않아 프로젝트 브리프는 **서버 전송 없이** 사용자가 복사·저장하도록 구성했습니다. 실제 문의가 전송됐다는 완료 메시지를 표시하지 않습니다. 입력 정보는 브라우저 저장소에 보관하지 않습니다. 공식 문의 주소나 처리 서버를 정한 후 실제 접수 기능을 연결할 수 있습니다.
 
-워크플로가 `/Kitsnode` 기본 경로를 자동 설정하므로 JavaScript와 CSS도 저장소 하위 경로에서 정상적으로 로드됩니다. `public/.nojekyll`을 함께 내보내 `_next` 파일이 제외되지 않게 합니다. `.nvmrc`는 Node.js 24를 지정합니다.
+기존 광고 수익성 계산기 화면·계산 모듈·API 예시·차트 의존성은 브랜드 사이트로 교체했습니다. 이전 구현은 Git 이력에 남아 있습니다.
 
-로컬에서 수정하려면 저장소를 열고 다음 명령을 사용합니다. 이미 체크아웃이 있으면 다시 복제할 필요가 없습니다.
+## 개발과 검증
 
-```sh
-git clone https://github.com/heetae1120/Kitsnode.git
-cd Kitsnode
-npm ci
-npm run dev
-```
-
-공개 배포 없이 앱 내부 브라우저나 로컬 개발 서버에서 수정 내용을 확인할 수도 있습니다. 저장한 변경은 `main`에 push할 때 Pages에 반영됩니다.
-
-## 실행
-
-Node.js 24 / npm 11에서 검증했습니다. Node.js 20.9 이상이 필요합니다.
+Node.js 24 / npm 11에서 검증합니다. 저장소 루트에서 실행합니다.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-브라우저에서 개발 서버의 3000번 포트를 엽니다. 최초 화면에 샘플 상품과 데모 결과가 표시됩니다. 개발 서버는 `0.0.0.0`에 바인딩됩니다.
+개발 서버는 3000번 포트를 사용합니다. 다른 포트는 `npm run dev -- --port 3001`로 지정합니다.
 
 ```sh
-npm test           # 계산 경계 조건 및 API 서비스 테스트
-npm run typecheck  # TypeScript 검사
-npm run build     # 프로덕션 빌드
-npm start         # 내보낸 정적 사이트 확인 (기본 포트 3000)
+npm test
+npm run build
+npm run typecheck
+npm start
 ```
 
-다른 개발 포트: `npm run dev -- --port 3001`. `npm run build` 결과는 `out/`에 생성되며 Node.js 서버 없이 정적 호스팅에 올릴 수 있습니다.
+- 테스트: 제안서 검증, 길이 제한, 연락처 형식, 브리프 생성
+- `build`: `out/`에 HTML/CSS/JS 정적 사이트 생성
+- `start`: 생성된 `out/`을 3000번 포트에서 제공
+- 브라우저 점검: 스펙트럼 키보드 탐색, 콘셉트 필터, 상세 창, Esc 닫기, 브리프 복사·다운로드, 모바일 메뉴와 레이아웃
 
-## 데모 시연
+## GitHub Pages
 
-1. 샘플 상품(판매가 39,000원, 원가 12,000원)의 결과를 확인합니다.
-2. 상품 정보 변경 후 **내 상품 광고 수익성 분석하기**를 누릅니다.
-3. CPC·전환율을 설정한 뒤, 같은 크기로 표시된 예상 ROAS와 손익분기 ROAS를 비교합니다. 손익분기 클릭 수는 예산과 무관하게 공헌이익과 CPC로 계산됩니다. CPC·전환율을 수정합니다. 상품 정보는 분석 시 반영되고 광고 조건과 예산은 즉시 반영됩니다.
-4. 예산을 숫자·슬라이더·프리셋으로 조정하고 예상 판매량과 최소 판매량을 비교합니다.
-5. 원가율 30%·70% 비교 예시에서 ROAS 200%라도 순이익이 각각 +8,000원·−8,000원임을 확인합니다. 참고용 검색 키워드는 선택 영역으로 접혀 있으며 API 없이 핵심 진단을 사용할 수 있습니다. 전환율별 그래프와 보수적·기본·낙관적 시나리오를 확인합니다.
-6. 상세 비용 설정에서 택배비·기타 비용·수수료를 추가합니다. 미입력은 0으로 처리하며 제외 비용을 화면 하단에 표시합니다.
+사이트 주소: **https://heetae1120.github.io/Kitsnode/**
 
-샘플 기준: 공헌이익 27,000원, CPC 450원, CVR 2%, CPA 22,500원, 개당 순이익 4,500원, 손익분기 클릭 60회. 예산 100,000원으로 222클릭 / 실제 예상 광고비 99,900원 / 미사용 100원 / 예상 주문 4.44개 / 최소 판매 4개 / 예상 총순이익 19,980원입니다.
+`.github/workflows/pages.yml`이 `main` 변경 시 테스트·정적 빌드·Pages 게시를 실행합니다. 저장소 설정에서 Pages의 Source가 **GitHub Actions**로 지정되어 있어야 합니다. 저장소 공개 범위와 요금제에 따라 Pages 사용 가능 여부가 달라집니다.
 
-## 네이버 API는 다음 단계
+빌드 시 `PAGES_BASE_PATH`가 저장소 이름(`/Kitsnode`)으로 자동 설정됩니다. 로컬 루트 미리보기는 환경변수 없이 빌드합니다. Pages 경로를 직접 검증하려면 다음처럼 빌드한 `out/`을 `/Kitsnode/`에 마운트해 정적 서버로 제공합니다.
 
-현재 Pages 버전은 서버 API를 호출하지 않습니다. 상품 분석 시 `src/lib/keyword-data.ts`가 명시적인 **데모 데이터**를 생성합니다. CPC·CVR·수익·손익분기점은 사용자 입력과 가정값을 기준으로 계산합니다. 실제 네이버 데이터를 조회한 것처럼 표시하지 않습니다.
+```sh
+PAGES_BASE_PATH=/Kitsnode npm run build
+```
 
-향후 서버를 추가할 때 사용할 서비스와 라우트 예시는 보존했습니다.
+외부 폰트, 외부 이미지, 서버 API 없이 사이트가 동작합니다. 그래픽이 SVG로 포함되어 Pages 하위 경로에서도 이미지 주소 설정이 필요하지 않습니다.
 
-- `src/services/keywords.ts`: HMAC 서명, 실제 필드 매핑, 실패 시 데모 전환. 현재 사이트에서는 호출하지 않습니다.
-- `server/keyword-route.example.ts`: 향후 서버 호스팅으로 전환할 때 사용할 라우트 예시. 현재 Next.js 라우트로 등록되지 않았습니다.
-- `.env.example`: 서버용 `NAVER_SEARCHAD_API_KEY`, `NAVER_SEARCHAD_SECRET_KEY`, `NAVER_SEARCHAD_CUSTOMER_ID` 이름. Pages에 환경변수를 추가하는 것만으로 실연동되지는 않습니다.
-
-실연동 시에는 별도의 서버·서버리스 API를 마련하거나 `output: "export"`를 해제하고 Next.js 서버 호스팅으로 전환해야 합니다. 인증 정보는 반드시 서버에만 저장하고 `NEXT_PUBLIC_` 변수나 정적 빌드 파일에 포함하지 마세요. 서명·필드 매핑·오류 fallback은 모의 응답 테스트로 검증했으며 실제 계정 인증은 검증하지 않았습니다.
-
-공식 API 문서: https://github.com/naver/searchad-apidoc
-
-## 계산 기준
-
-`src/lib/calculator.ts`는 UI나 네트워크에 의존하지 않는 단일 계산 모듈입니다. 모든 화면은 이 모듈을 공유합니다. 금액은 KRW이며 내부 계산은 중간 반올림 없이 수행하고 화면에 원 단위로 반올림합니다.
-
-P=판매가, C=원가, O=택배비+기타 비용, F=수수료율(소수), A=CPC, R=CVR(소수), B=예산.
-
-| 지표               | 공식                               |
-| ------------------ | ---------------------------------- |
-| 광고 전 공헌이익 M | P − C − O − P × F                  |
-| CPA                | A ÷ R                              |
-| 개당 순이익        | M − CPA                            |
-| 예상 ROAS          | P ÷ CPA × 100                      |
-| 손익분기 ROAS      | P ÷ M × 100                        |
-| 손익분기 CVR       | A ÷ M (화면에서는 %)               |
-| 손익분기 클릭      | floor(M ÷ A)                       |
-| 예산 내 클릭       | floor(B ÷ A)                       |
-| 실제 예상 광고비   | 클릭 × A                           |
-| 미사용 예산        | B − 실제 예상 광고비               |
-| 예상 주문          | 클릭 × R                           |
-| 예상 매출          | 예상 주문 × P                      |
-| 예상 총순이익      | 예상 주문 × M − 실제 예상 광고비   |
-| 최소 필요 판매량   | ceil(실제 예상 광고비 ÷ M)         |
-| 시뮬레이션 ROAS    | 예상 매출 ÷ 실제 예상 광고비 × 100 |
-
-- 클릭 수는 내림, 최소 판매량은 올림, 예상 주문은 소수점 기대값입니다. 클릭 수는 실제 곱셈 비용이 마진·예산을 초과하지 않도록 검증합니다.
-- 개당 순이익 ±1원 이내를 손익분기 수준으로 정의합니다. 이를 초과하면 양수는 수익성 양호, 음수는 적자 예상입니다.
-- M ≤ 0이면 광고 집행 비추천이며 손익분기 지표는 달성 불가로 처리합니다.
-- CPC=0은 유료 광고 모델이 정의되지 않아 CPA·개당 순이익·손익분기 클릭을 계산하지 않습니다. 클릭과 광고비는 0이며 예산 전액을 잔액으로 표시합니다.
-- CVR=0은 예상 주문과 매출이 0입니다. CPA·개당 순이익은 계산 불가이며 총손실은 광고비입니다.
-- 예산=0 또는 예산<CPC이면 클릭·광고비·예상 주문은 0, 시뮬레이션 ROAS는 계산 불가입니다.
-- 마진이 양수라도 CPC가 마진보다 크면 손익분기 클릭은 0, 손익분기 전환율은 100%를 넘을 수 있습니다.
-- 음수, 비유한 숫자, 판매가 0, 100% 초과 수수료·CVR, 10억 원 초과 금액은 거절합니다. 안전한 정수 범위를 초과하는 클릭 수 역시 거절합니다.
-- 세금·반품·환불·할인·미입력 비용은 제외합니다. 자연 유입과 광고 외 판매 효과는 포함하지 않습니다. 실제 수익을 보장하지 않습니다.
-
-## 구조와 확장
+## 주요 파일
 
 ```text
-src/app/page.tsx              한국어 반응형 분석 화면
-src/app/globals.css           디자인 및 PC·모바일 레이아웃
-server/keyword-route.example.ts  향후 서버 API 라우트 예시
-src/services/keywords.ts      향후 서버용 네이버 서명·필드 매핑
-src/lib/calculator.ts         입력 검증·공통 계산 엔진·표시 형식
-src/components/ui/            shadcn/ui 패턴의 Button·Radix Tooltip
- tests/                       계산 엔진·서비스 테스트
+src/app/page.tsx                브랜드 화면과 상호작용
+src/app/globals.css             디자인 시스템·반응형·모션
+src/app/layout.tsx              한국어 문서·SEO·공유 메타데이터
+src/components/kit-scene.tsx    오리지널 오브제 벡터 그래픽
+src/lib/brand.ts                브랜드 콘텐츠·제안서 검증과 텍스트 생성
+src/components/ui/             확장 가능한 UI 컴포넌트 기반
+ tests/brand.test.ts             제안서 기능 테스트
+.github/workflows/pages.yml    GitHub Pages 자동 배포
 ```
 
-Next.js App Router, TypeScript, Tailwind CSS 4, shadcn/ui 호환 구성, Radix UI, Recharts를 사용합니다. `components.json`에 UI 확장을 위한 별칭이 설정되어 있습니다. UI에서 인증 정보를 직접 취급하지 않습니다. 상품 URL 분석, 광고계정 연결, 실제 성과 수집, 상품 비교, 목표 역산, PDF와 상담은 추후 확장 범위이며 현재 구현하지 않았습니다.
+Next.js App Router, TypeScript, Tailwind CSS 4, Lucide 아이콘을 사용합니다. 스크롤 등장 모션은 `prefers-reduced-motion`을 존중하며, 탭은 방향키·Home·End, 네이티브 모달은 Esc와 키보드 포커스 탐색을 지원합니다.
 
-입력 정보는 DB·브라우저 저장소에 보관하지 않습니다. 현재 정적 사이트는 외부 키워드 API에 상품 정보를 전송하지 않습니다. 운영 환경에 공개하기 전에는 API 호출 제한, 자격 증명 운영 정책 등 공개 서비스 요건을 별도로 마련하세요.
+디자인 참고로 제공된 bklit.com과 21st.dev는 작업 환경의 네트워크 제한으로 직접 열지 못했습니다. 전달받은 브랜드 정의를 기준으로 차콜·아이보리·세이지, 큰 타이포그래피, 오브제 중심의 독자적인 비주얼을 구성했습니다.

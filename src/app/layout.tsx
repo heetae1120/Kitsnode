@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
 import "./globals.css";
 export const metadata: Metadata = {
-  title: "킷츠노드 | 내 상품 광고 수익성 진단",
+  title: "KITS — Sensible Everyday Kits",
   description:
-    "판매가와 원가로 살펴보는 네이버 검색광고 예상 수익성. 손익분기점과 광고 예산을 직접 시뮬레이션하세요.",
+    "시대의 유산부터 동시대의 트렌드, 내일의 감각까지. 삶과 브랜드의 순간을 완성하는 오브제 큐레이션 & 크리에이티브 랩, KITS.",
+  openGraph: {
+    title: "KITS — Sensible Everyday Kits",
+    description:
+      "어제의 가치를 잇고, 오늘의 트렌드를 담으며, 내일의 감각을 제안합니다.",
+    type: "website",
+    locale: "ko_KR",
+  },
+  robots: { index: true, follow: true },
 };
 export default function RootLayout({
   children,

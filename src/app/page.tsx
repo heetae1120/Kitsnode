@@ -1,1137 +1,909 @@
 "use client";
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+
 import {
-  ArrowRight,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from "react";
+import {
+  ArrowDown,
+  ArrowDownRight,
   ArrowUpRight,
-  BarChart3,
-  ChevronDown,
-  CircleHelp,
-  FlaskConical,
-  Layers3,
+  Check,
+  Copy,
+  Download,
   Menu,
-  MousePointer2,
-  RotateCcw,
-  ShieldCheck,
-  Sparkles,
-  TrendingUp,
-  Wallet,
+  Plus,
   X,
 } from "lucide-react";
+import { KitScene } from "@/components/kit-scene";
 import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { Button } from "@/components/ui/button";
-import { Help } from "@/components/ui/tooltip";
-import {
-  calculate,
-  num,
-  SAMPLE,
-  validateInput,
-  won,
-  type ProductInput,
-} from "@/lib/calculator";
-import { demoKeywords, type KeywordResult } from "@/lib/keyword-data";
+  spectrum,
+  studies,
+  projectTypes,
+  validateBrief,
+  formatBrief,
+  type SpectrumId,
+  type ProjectBrief,
+} from "@/lib/brand";
 
-type Draft = {
-  name: string;
-  price: string;
-  cost: string;
-  shipping: string;
-  other: string;
-  feePercent: string;
-};
-const initialDraft: Draft = {
-  name: SAMPLE.name,
-  price: "39000",
-  cost: "12000",
-  shipping: "",
-  other: "",
-  feePercent: "",
-};
-const demo = demoKeywords(SAMPLE.name);
-const statuses = {
-  good: "수익성 양호",
-  "break-even": "손익분기 수준",
-  loss: "적자 예상",
-  "not-recommended": "광고 집행 비추천",
-  unavailable: "CPC 입력 필요",
-};
-function Metric({
-  label,
-  value,
-  help,
-  sub,
-  className = "",
-}: {
-  label: string;
-  value: string;
-  help: string;
-  sub?: React.ReactNode;
-  className?: string;
-}) {
+function BrandMark({ className = "" }: { className?: string }) {
   return (
-    <div className={`metric ${className}`}>
-      <div className="metric-label">
-        {label}
-        <Help label={label} text={help} />
-      </div>
-      <strong>{value}</strong>
-      {sub && <span className="metric-sub">{sub}</span>}
-    </div>
+    <span className={`wordmark ${className}`} aria-label="KITS">
+      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <path
+          d="M2 3h7v9L19 3h8L15 14l12 11h-9l-9-9v9H2V3Z"
+          fill="currentColor"
+        />
+      </svg>
+      <span>
+        KITS
+        <span className="wordmark-dot" aria-hidden="true">
+          +
+        </span>
+      </span>
+    </span>
   );
 }
-function SectionTitle({
+function SectionLabel({
   number,
-  title,
-  description,
+  children,
+  light = false,
 }: {
   number: string;
-  title: string;
-  description?: string;
+  children: React.ReactNode;
+  light?: boolean;
 }) {
   return (
-    <div className="section-title">
-      <span className="section-number">{number}</span>
-      <div>
-        <h2>{title}</h2>
-        {description && <p>{description}</p>}
-      </div>
+    <div className={`section-label ${light ? "light" : ""}`}>
+      <span className="label-square" />
+      <span>{children}</span>
+      <span className="section-index">({number})</span>
     </div>
   );
 }
-function moneyText(value: string) {
-  return value === "" ? "" : Number(value).toLocaleString("ko-KR");
-}
-function NumericInput({
-  value,
-  onValueChange,
-  formatMoney = false,
-  ...props
-}: Omit<React.ComponentProps<"input">, "value" | "onChange"> & {
-  value: number;
-  onValueChange: (value: string) => void;
-  formatMoney?: boolean;
-}) {
-  const [text, setText] = useState(String(value));
-  const [focused, setFocused] = useState(false);
-  useEffect(() => setText(String(value)), [value]);
-  const display =
-    formatMoney && !focused && text.trim() && Number.isFinite(Number(text))
-      ? Number(text).toLocaleString("ko-KR", { maximumFractionDigits: 6 })
-      : text;
-  return (
-    <input
-      {...props}
-      type={formatMoney ? "text" : props.type}
-      inputMode={formatMoney ? "decimal" : props.inputMode}
-      value={display}
-      onFocus={() => setFocused(true)}
-      onBlur={() => setFocused(false)}
-      onChange={(e) => {
-        const raw = e.target.value.replaceAll(",", "");
-        setText(raw);
-        onValueChange(raw);
-      }}
-    />
-  );
-}
+const initialBrief: ProjectBrief = {
+  name: "",
+  email: "",
+  company: "",
+  type: "",
+  description: "",
+};
+
 export default function Home() {
-  const [resetKey, setResetKey] = useState(0);
-  const [draft, setDraft] = useState<Draft>(initialDraft);
-  const [input, setInput] = useState<ProductInput>(SAMPLE);
-  const [omitted, setOmitted] = useState([
-    "택배비",
-    "포장·기타 비용",
-    "판매 수수료",
-  ]);
-  const [details, setDetails] = useState(false);
-  const [error, setError] = useState("");
-  const [keywords, setKeywords] = useState<KeywordResult>(demo);
-  const [cpcSource, setCpcSource] = useState("데모 데이터");
-  const [cvrSource, setCvrSource] = useState("추정값");
-  const [controlError, setControlError] = useState("");
-  const [mobileNav, setMobileNav] = useState(false);
-  const results = useRef<HTMLDivElement>(null);
-  const r = useMemo(() => calculate(input), [input]);
-  const scenarios = [1, 2, 3].map((cvrPercent) => ({
-    cvrPercent,
-    ...calculate({ ...input, cvrPercent }),
-  }));
-  const chart = Array.from({ length: 20 }, (_, i) => {
-    const cvr = (i + 1) * 0.5;
-    return { cvr, profit: calculate({ ...input, cvrPercent: cvr }).unitProfit };
-  });
-  const pending =
-    Object.keys(draft).some(
-      (k) =>
-        String(Number(draft[k as keyof Draft])) !==
-          String(input[k as keyof ProductInput]) && k !== "name",
-    ) || draft.name !== input.name;
-  function analyze(event: FormEvent) {
-    event.preventDefault();
-    if (!draft.price.trim() || !draft.cost.trim()) {
-      setError(
-        "판매가와 상품 원가를 모두 입력해 주세요. 원가가 없다면 0을 입력하세요.",
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeSpectrum, setActiveSpectrum] = useState<SpectrumId>("heritage");
+  const [filter, setFilter] = useState<"all" | SpectrumId>("all");
+  const [study, setStudy] = useState<(typeof studies)[number] | null>(null);
+  const [briefOpen, setBriefOpen] = useState(false);
+  const [brief, setBrief] = useState<ProjectBrief>(initialBrief);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [prepared, setPrepared] = useState("");
+  const [notice, setNotice] = useState("");
+  const [scrolled, setScrolled] = useState(false);
+  const studyDialog = useRef<HTMLDialogElement>(null);
+  const briefDialog = useRef<HTMLDialogElement>(null);
+  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
+  const current = spectrum.find((s) => s.id === activeSpectrum)!;
+  const shown = studies.filter(
+    (s) => filter === "all" || s.category === filter,
+  );
+  useEffect(() => {
+    document.documentElement.dataset.hydrated = "true";
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    let observer: IntersectionObserver | undefined;
+    if (!reduced) {
+      document.documentElement.classList.add("has-motion");
+      observer = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add("is-visible");
+              observer?.unobserve(e.target);
+            }
+          }),
+        { threshold: 0.08 },
       );
-      return;
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer!.observe(el));
     }
-    const next: ProductInput = {
-      ...input,
-      ...Object.fromEntries(
-        Object.entries(draft).map(([k, v]) => [
-          k,
-          k === "name" ? v : Number(v),
-        ]),
-      ),
-    } as ProductInput;
-    const validation = validateInput(next);
-    if (validation) {
-      setError(validation);
-      return;
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      observer?.disconnect();
+      document.documentElement.classList.remove("has-motion");
+    };
+  }, []);
+  useEffect(() => {
+    if (study) studyDialog.current?.showModal();
+    else studyDialog.current?.close();
+  }, [study]);
+  useEffect(() => {
+    if (briefOpen) briefDialog.current?.showModal();
+    else briefDialog.current?.close();
+  }, [briefOpen]);
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    if (study || briefOpen) document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [study, briefOpen]);
+  function startProject(description = "") {
+    setStudy(null);
+    setBrief({ ...initialBrief, description });
+    setPrepared("");
+    setErrors({});
+    setNotice("");
+    setBriefOpen(true);
+  }
+  function handleTabKey(e: KeyboardEvent<HTMLButtonElement>, index: number) {
+    let next = index;
+    if (e.key === "ArrowRight") next = (index + 1) % 3;
+    else if (e.key === "ArrowLeft") next = (index + 2) % 3;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = 2;
+    else return;
+    e.preventDefault();
+    setActiveSpectrum(spectrum[next].id);
+    tabs.current[next]?.focus();
+  }
+  function prepare() {
+    const validation = validateBrief(brief);
+    setErrors(validation);
+    if (Object.keys(validation).length) {
+      setNotice("입력 내용을 확인해 주세요.");
+      return null;
     }
-    setError("");
-    setInput(next);
-    setOmitted(
-      (
-        [
-          ["shipping", "택배비"],
-          ["other", "포장·기타 비용"],
-          ["feePercent", "판매 수수료"],
-        ] as const
-      )
-        .filter(([key]) => draft[key] === "")
-        .map(([, label]) => label),
+    const text = formatBrief(brief);
+    setPrepared(text);
+    return text;
+  }
+  async function copyBrief(e: FormEvent) {
+    e.preventDefault();
+    const text = prepare();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      setNotice("제안 내용을 복사했습니다. 원하는 채널로 전달해 주세요.");
+    } catch {
+      setNotice(
+        "브리프가 준비되었습니다. 아래 내용을 직접 복사하거나 파일로 저장해 주세요.",
+      );
+    }
+  }
+  function downloadBrief() {
+    const text = prepare();
+    if (!text) return;
+    const url = URL.createObjectURL(
+      new Blob([text], { type: "text/plain;charset=utf-8" }),
     );
-    setKeywords(demoKeywords(next.name));
-    requestAnimationFrame(() =>
-      results.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
-    );
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "KITS-project-brief.txt";
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setNotice("프로젝트 브리프를 파일로 저장했습니다.");
   }
-  function updateControl(key: "cpc" | "cvrPercent" | "budget", raw: string) {
-    if (raw.trim() === "") {
-      setControlError("값을 입력해 주세요.");
-      return;
-    }
-    const next = { ...input, [key]: Number(raw) };
-    const e = validateInput(next);
-    if (e) {
-      setControlError(e);
-      return;
-    }
-    setControlError("");
-    setInput(next);
-    if (key === "cpc") setCpcSource("사용자 입력");
-    if (key === "cvrPercent") setCvrSource("사용자 입력");
+  function updateBrief(key: keyof ProjectBrief, value: string) {
+    setBrief((b) => ({ ...b, [key]: value }));
+    setPrepared("");
+    setNotice("");
+    setErrors((e) => ({ ...e, [key]: "" }));
   }
-  function reset() {
-    setResetKey((k) => k + 1);
-    setDraft(initialDraft);
-    setInput(SAMPLE);
-    setKeywords(demo);
-    setCpcSource("데모 데이터");
-    setCvrSource("추정값");
-    setError("");
-    setControlError("");
-    setOmitted(["택배비", "포장·기타 비용", "판매 수수료"]);
-  }
-  const percent = (n: number | null) =>
-    n === null ? "계산 불가" : `${num(n)}%`;
   return (
     <>
-      <header className="topbar">
-        <a className="brand" href="#">
-          <span className="brand-icon">
-            <Layers3 size={20} />
-          </span>
-          kitsnord
-          <span className="brand-divider" />
-          <span className="brand-caption">광고 수익성 진단</span>
-        </a>
-        <nav className={mobileNav ? "nav open" : "nav"}>
-          <a href="#analysis" onClick={() => setMobileNav(false)}>
-            수익성 분석
+      <a className="skip-link" href="#main">
+        본문으로 건너뛰기
+      </a>
+      <header className={`site-header ${scrolled ? "is-scrolled" : ""}`}>
+        <div className="nav-inner">
+          <a href="#" aria-label="KITS 홈" className="home-link">
+            <BrandMark />
           </a>
-          <a href="#simulation" onClick={() => setMobileNav(false)}>
-            예산 시뮬레이션
-          </a>
-          <a href="#guide" onClick={() => setMobileNav(false)}>
-            이용 가이드 <ArrowUpRight size={13} />
-          </a>
-        </nav>
-        <span className="demo-pill">
-          <span />
-          DEMO VERSION
-        </span>
-        <button
-          className="mobile-menu"
-          aria-label="메뉴 열기"
-          onClick={() => setMobileNav(!mobileNav)}
-        >
-          {mobileNav ? <X /> : <Menu />}
-        </button>
+          <nav
+            aria-label="주 메뉴"
+            className={menuOpen ? "main-nav is-open" : "main-nav"}
+          >
+            {[
+              ["About", "about"],
+              ["Our spectrum", "spectrum"],
+              ["Object studies", "studies"],
+            ].map(([label, id]) => (
+              <a href={`#${id}`} key={id} onClick={() => setMenuOpen(false)}>
+                {label}
+              </a>
+            ))}
+          </nav>
+          <button className="nav-contact" onClick={() => startProject()}>
+            Let’s make a kit <ArrowUpRight size={14} />
+          </button>
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "메뉴 닫기" : "메뉴 열기"}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <X /> : <Menu />}
+          </button>
+        </div>
       </header>
-      <main>
-        <div className="hero">
-          <div>
-            <div className="eyebrow">
-              <span /> SELL SMARTER, GROW BETTER
-            </div>
-            <h1>
-              내 상품, 광고 돌리면
-              <br />
-              얼마 <span>남을까?</span>
-            </h1>
-            <p>
-              판매가와 원가만 입력하면
-              <br className="mobile-break" /> 네이버 검색광고 예상 수익성을
-              분석해드립니다.
-            </p>
-          </div>
-          <div className="hero-note">
-            <div className="hero-note-icon">
-              <TrendingUp size={26} />
-            </div>
-            <div>
-              <strong>감이 아닌, 숫자로 시작하세요.</strong>
-              <p>
-                광고를 시작하기 전,
-                <br />내 상품의 손익분기점을 먼저 확인하세요.
-              </p>
-            </div>
-            <span className="note-decoration">↗</span>
-          </div>
-        </div>
-        <div className="workspace" id="analysis">
-          <aside className="input-panel">
-            <div className="panel-heading">
-              <span className="step-label">STEP 01</span>
-              <button type="button" onClick={reset} className="text-button">
-                <RotateCcw size={13} /> 샘플로 초기화
-              </button>
-            </div>
-            <h2>어떤 상품을 판매하시나요?</h2>
-            <p className="panel-intro">
-              상품 정보를 입력하고 수익성을 확인하세요.
-            </p>
-            <form onSubmit={analyze} noValidate>
-              <label className="field">
-                <span>
-                  상품명 <b>*</b>
-                </span>
-                <input
-                  aria-label="상품명"
-                  maxLength={80}
-                  value={draft.name}
-                  onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-                  placeholder="예: 무선 미니 가습기"
-                />
-              </label>
-              {(["price", "cost"] as const).map((key) => (
-                <label className="field" key={key}>
-                  <span>
-                    {key === "price" ? "판매가" : "상품 원가"} <b>*</b>
-                    <Help
-                      label={key === "price" ? "판매가" : "상품 원가"}
-                      text={
-                        key === "price"
-                          ? "고객이 상품 1개를 구매할 때 지불하는 가격입니다."
-                          : "상품 1개를 매입하거나 생산하는 데 드는 비용입니다."
-                      }
-                    />
-                  </span>
-                  <div className="input-unit">
-                    <input
-                      aria-label={key === "price" ? "판매가" : "상품 원가"}
-                      inputMode="numeric"
-                      value={moneyText(draft[key])}
-                      onChange={(e) => {
-                        const v = e.target.value.replaceAll(",", "");
-                        if (/^\d*$/.test(v)) setDraft({ ...draft, [key]: v });
-                      }}
-                    />
-                    <span>원</span>
-                  </div>
-                </label>
-              ))}
-              <button
-                type="button"
-                className="details-toggle"
-                aria-expanded={details}
-                aria-controls="details"
-                onClick={() => setDetails(!details)}
-              >
-                상세 비용 설정{" "}
-                <span>
-                  선택{" "}
-                  <ChevronDown size={15} className={details ? "rotate" : ""} />
-                </span>
-              </button>
-              {details && (
-                <div id="details" className="details">
-                  {(
-                    [
-                      ["shipping", "개당 택배비", "원"],
-                      ["other", "개당 포장·기타 비용", "원"],
-                      ["feePercent", "판매 수수료", "%"],
-                    ] as const
-                  ).map(([key, label, unit]) => (
-                    <label className="field" key={key}>
-                      <span>{label}</span>
-                      <div className="input-unit">
-                        <input
-                          aria-label={label}
-                          inputMode="decimal"
-                          placeholder="0"
-                          value={draft[key]}
-                          onChange={(e) =>
-                            setDraft({ ...draft, [key]: e.target.value })
-                          }
-                        />
-                        <span>{unit}</span>
-                      </div>
-                    </label>
-                  ))}
-                  <label className="field">
-                    <span>
-                      광고 예산{" "}
-                      <Help
-                        label="광고 예산"
-                        text="기본 100,000원. 아래 예산 시뮬레이션과 같은 값을 사용합니다."
-                      />
-                    </span>
-                    <div className="input-unit">
-                      <NumericInput
-                        key={resetKey}
-                        formatMoney
-                        aria-label="상세 광고 예산"
-                        type="number"
-                        min="0"
-                        max="1000000000"
-                        value={input.budget}
-                        onValueChange={(v) => updateControl("budget", v)}
-                      />
-                      <span>원</span>
-                    </div>
-                  </label>
-                </div>
-              )}
-              {error && (
-                <p role="alert" className="error">
-                  {error}
-                </p>
-              )}
-              <Button type="submit" className="analyze-button">
-                <Sparkles size={17} /> 내 상품 광고 수익성 분석하기{" "}
-                <ArrowRight size={16} />
-              </Button>
-              <p className="privacy-note">
-                <ShieldCheck size={13} /> 입력한 상품 정보는 저장되지 않습니다.
-              </p>
-            </form>
-            <div className="input-tip">
-              <div className="tip-title">
-                <CircleHelp size={16} /> 아직 판매 전이어도 괜찮아요
+      <main id="main">
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="hero-grid-lines" aria-hidden="true" />
+          <div className="hero-inner shell">
+            <div className="hero-copy">
+              <div className="eyebrow hero-eyebrow">
+                <span className="status-dot" /> OBJECT CURATION & CREATIVE LAB
               </div>
-              <p>
-                판매 예정 가격과 예상 원가로
+              <h1 id="hero-title">
+                Sensible
                 <br />
-                광고 수익성을 미리 살펴보세요.
-              </p>
-            </div>
-            <div className="sample-note">
-              <FlaskConical size={14} />
-              <span>
-                샘플 상품이 입력되어 있어요.
+                <span className="hero-line">
+                  Everyday{" "}
+                  <span className="hero-star" aria-hidden="true">
+                    ✳
+                  </span>
+                </span>
+                <span className="hero-kits">
+                  Kits<span className="hero-period">.</span>
+                </span>
+              </h1>
+              <p className="hero-description">
+                삶과 브랜드의 순간을 완성하는
                 <br />
-                지금 바로 데모 결과를 확인해 보세요.
-              </span>
-            </div>
-          </aside>
-          <div className="results" ref={results}>
-            <div className="results-top">
-              <div>
-                <span className="step-label">STEP 02</span>
-                <h2>내 상품의 광고 수익성</h2>
-              </div>
-              <span className="live-label">
-                <span /> 실시간 계산
-              </span>
-            </div>
-            <div className="product-line">
-              <span>{input.name}</span>
-              <span>
-                판매가 <strong>{won(input.price)}</strong>
-              </span>
-            </div>
-            {pending && (
-              <p className="pending">
-                상품 정보를 수정했습니다. 분석 버튼을 눌러 결과에 반영해 주세요.
+                <strong>가장 감각적인 해답, KITS.</strong>
               </p>
-            )}
-            <div className="assumptions">
-              <div className="assumptions-heading">
-                <h3>
-                  <MousePointer2 size={15} /> CPC와 전환율을 설정하세요
-                </h3>
-                <span>변경하면 즉시 반영됩니다</span>
-              </div>
-              <div className="assumption-fields">
-                <label>
-                  <span>
-                    예상 클릭당 비용 (CPC)
-                    <Help
-                      label="CPC"
-                      text="광고 클릭 1회당 비용. 키워드 검색량이나 입찰가가 아닌 별도의 시나리오 값입니다."
-                    />
-                  </span>
-                  <div className="input-unit">
-                    <NumericInput
-                      key={resetKey}
-                      type="number"
-                      formatMoney
-                      aria-label="예상 CPC"
-                      min="0"
-                      max="1000000000"
-                      value={input.cpc}
-                      onValueChange={(v) => updateControl("cpc", v)}
-                    />
-                    <span>원</span>
-                  </div>
-                  <small className="source">{cpcSource}</small>
-                </label>
-                <label>
-                  <span>
-                    예상 구매전환율 (CVR)
-                    <Help
-                      label="CVR"
-                      text="광고 클릭 중 구매로 이어질 비율. 기본 2%는 검증된 실제 성과가 아닌 가정값입니다."
-                    />
-                  </span>
-                  <div className="input-unit">
-                    <NumericInput
-                      key={resetKey}
-                      type="number"
-                      aria-label="예상 구매전환율"
-                      min="0"
-                      max="100"
-                      step="0.1"
-                      value={input.cvrPercent}
-                      onValueChange={(v) => updateControl("cvrPercent", v)}
-                    />
-                    <span>%</span>
-                  </div>
-                  <small className="source">
-                    {cvrSource}
-                    {cvrSource === "추정값" ? " · 기본 가정" : ""}
-                  </small>
-                </label>
-              </div>
-              <div className="preset-row">
-                <span>데모 CPC</span>
-                {[300, 450, 700].map((v) => (
-                  <button
-                    key={v}
-                    className={
-                      input.cpc === v && cpcSource === "데모 데이터"
-                        ? "selected"
-                        : ""
-                    }
-                    onClick={() => {
-                      setInput({ ...input, cpc: v });
-                      setCpcSource("데모 데이터");
-                      setControlError("");
-                    }}
-                  >
-                    {num(v)}원
-                  </button>
-                ))}
-              </div>
-              {controlError && (
-                <p role="alert" className="error">
-                  {controlError}
-                </p>
-              )}
+              <a href="#spectrum" className="pill-button lime">
+                Explore our spectrum <ArrowUpRight size={17} />
+              </a>
             </div>
-            <div className={`diagnosis ${r.status}`}>
-              <div className="diagnosis-top">
-                <span className="status-badge">
-                  {r.status === "good" ? (
-                    <TrendingUp size={13} />
-                  ) : (
-                    <BarChart3 size={13} />
-                  )}{" "}
-                  {statuses[r.status]}
-                </span>
-                <span>광고 기여 판매 1건 기준</span>
+            <div className="hero-visual">
+              <div className="visual-corner top-left" />
+              <div className="visual-corner top-right" />
+              <div className="scene-meta">
+                <span>THE ESSENTIAL EDIT</span>
+                <span>OBJECT STUDY — 001 / 003</span>
               </div>
-              <div className="diagnosis-main">
-                <div>
-                  <p>광고비를 빼고, 1개 팔 때마다</p>
-                  <strong>
-                    {r.unitProfit === null ? (
-                      "계산할 수 없어요"
-                    ) : (
-                      <>
-                        {won(Math.abs(r.unitProfit))}
-                        <span>
-                          {" "}
-                          {r.unitProfit >= 0 ? "남아요" : "손실이에요"}
-                        </span>
-                      </>
-                    )}
-                  </strong>
-                </div>
-                <div className="diagnosis-symbol">
-                  <TrendingUp size={40} />
-                </div>
-              </div>
-              <p className="diagnosis-description">
-                {r.margin <= 0
-                  ? "광고 없이도 공헌이익이 0원 이하입니다. 판매가와 원가 구조를 먼저 점검하세요."
-                  : input.cpc === 0
-                    ? "CPC가 0원이면 유료 광고 성과를 계산할 수 없습니다. 0원보다 큰 CPC를 입력하세요."
-                    : input.cvrPercent === 0
-                      ? "전환율 0%에서는 판매가 발생하지 않고 광고비만 지출됩니다. CPA와 개당 순이익은 계산할 수 없습니다."
-                      : r.status === "break-even"
-                        ? "예상 개당 순이익이 ±1원 이내인 손익분기 수준입니다. 비용 누락에 유의하세요."
-                        : r.status === "good"
-                          ? "현재 가정에서는 광고를 통한 판매가 수익으로 이어질 수 있습니다."
-                          : `현재 예상 전환율보다 ${num(Math.max(0, (r.breakEvenCvr ?? 0) - input.cvrPercent), 2)}%p 높은 전환율이 필요합니다. CPC를 낮추거나 전환율을 개선해 보세요.`}
-              </p>
-            </div>
-            <div className="core-metrics">
-              <Metric
-                label="상품 기본 마진"
-                value={won(r.margin)}
-                help="판매가 − 원가 − 배송·기타 비용 − 판매 수수료. 광고 전 공헌이익입니다."
-                sub={`마진율 ${num((r.margin / input.price) * 100)}%`}
-              />
-              <Metric
-                label="판매 1건당 광고비"
-                value={won(r.cpa)}
-                help="CPA = CPC ÷ 구매전환율. 1건의 판매에 필요한 예상 광고비입니다."
-                sub="예상 CPA"
-              />
-            </div>
-            <div className="roas-comparison">
-              <Metric
-                label="예상 광고 ROAS"
-                value={percent(r.roas)}
-                help="판매가 ÷ 예상 CPA × 100. 광고비 대비 매출 비율입니다."
-                sub="현재 CPC·전환율 기준"
-              />
-              <Metric
-                label="손익분기 ROAS"
-                value={percent(r.breakEvenRoas)}
-                help="판매가 ÷ 광고 전 공헌이익 × 100. 원가와 입력된 비용을 회수하는 데 필요한 최소 ROAS입니다."
-                sub="이 상품이 손해를 피하는 기준"
-              />
-              <p className="roas-verdict">
-                {r.margin <= 0 ? (
-                  "공헌이익이 0원 이하라 ROAS를 높여도 광고 수익을 낼 수 없습니다."
-                ) : r.roas === null ? (
-                  "CPC와 0%보다 큰 전환율을 설정하면 두 ROAS를 비교할 수 있어요."
-                ) : (
-                  <>
-                    예상 ROAS가 손익분기 기준보다{" "}
-                    <strong>
-                      {num(Math.abs(r.roas - r.breakEvenRoas!))}%p{" "}
-                      {r.roas >= r.breakEvenRoas! ? "높습니다" : "낮습니다"}
-                    </strong>
-                    . 원가와 비용에 따라 필요한 ROAS가 달라져요.
-                  </>
-                )}
-              </p>
-            </div>
-            <div className="breakeven-strip">
-              <div className="break-icon">
-                <MousePointer2 size={20} />
-              </div>
-              <div>
-                <strong>
-                  {r.breakEvenClicks === null ? (
-                    "손익분기점을 계산할 수 없어요"
-                  ) : r.breakEvenClicks === 0 ? (
-                    "클릭 1회 비용도 기본 마진을 초과해요"
-                  ) : (
-                    <>
-                      클릭 <em>{num(r.breakEvenClicks, 0)}회</em> 이내에 1개가
-                      팔려야 해요
-                    </>
-                  )}
-                </strong>
-                <p>
-                  예산과 무관 · 공헌이익 ÷ CPC로 계산{" "}
-                  <Help
-                    label="손익분기 클릭 수"
-                    text="광고비가 공헌이익을 넘지 않는 최대 정수 클릭 수: floor(공헌이익 ÷ CPC)."
-                  />{" "}
-                  · 손익분기 전환율 <b>{percent(r.breakEvenCvr)}</b>
-                  <Help
-                    label="손익분기 구매전환율"
-                    text="CPC ÷ 공헌이익 × 100. 100%를 초과하면 해당 CPC로는 수익을 낼 수 없습니다."
-                  />
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <section className="card simulation" id="simulation">
-          <SectionTitle
-            number="03"
-            title="이 광고 예산, 몇 개를 팔아야 본전일까요?"
-            description="설정한 예산에서 실제 지출할 광고비를 기준으로 최소 판매량을 계산합니다."
-          />
-          {controlError && (
-            <p role="alert" className="error">
-              {controlError} 마지막 유효한 값으로 계산한 결과입니다.
-            </p>
-          )}
-          <div className="simulation-layout">
-            <div className="budget-control">
-              <label htmlFor="budget">
-                광고 예산{" "}
-                <Help
-                  label="광고 예산"
-                  text="정수 클릭 수 × CPC만 지출하며, 나머지는 미사용 잔액으로 구분합니다."
-                />
-              </label>
-              <div className="budget-input">
-                <NumericInput
-                  key={resetKey}
-                  id="budget"
-                  formatMoney
-                  aria-label="광고 예산"
-                  type="number"
-                  min="0"
-                  max="1000000000"
-                  step="1000"
-                  value={input.budget}
-                  onValueChange={(v) => updateControl("budget", v)}
-                />
-                <span>원</span>
-              </div>
-              <input
-                className="slider"
-                aria-label="광고 예산 슬라이더"
-                type="range"
-                min="0"
-                max={Math.max(1000000, input.budget)}
-                step="1000"
-                value={input.budget}
-                onChange={(e) => updateControl("budget", e.target.value)}
-              />
-              <div className="range-labels">
-                <span>0원</span>
-                <span>{won(Math.max(1000000, input.budget))}</span>
-              </div>
-              <div className="budget-presets">
-                {[50000, 100000, 300000].map((v) => (
-                  <button
-                    key={v}
-                    onClick={() => {
-                      setInput({ ...input, budget: v });
-                      setControlError("");
-                    }}
-                    className={input.budget === v ? "selected" : ""}
-                  >
-                    {v / 10000}만 원
-                  </button>
-                ))}
-              </div>
-              <div className="budget-summary">
-                <Wallet size={18} />
-                <p>
-                  {r.requiredOrders === null ? (
-                    "공헌이익이 0원 이하라 손익분기 판매량이 없습니다."
-                  ) : (
-                    <>
-                      이 예산에서는 최소{" "}
-                      <strong>{num(r.requiredOrders, 0)}개</strong>를<br />
-                      판매해야 손해를 피할 수 있어요.
-                    </>
-                  )}
-                </p>
-              </div>
-            </div>
-            <div className="simulation-results">
-              <div className="simulation-metrics">
-                <Metric
-                  label="예상 확보 클릭 수"
-                  value={`${num(r.clicks, 0)}회`}
-                  help="floor(광고 예산 ÷ CPC). CPC가 0원이면 계산하지 않습니다."
-                />
-                <Metric
-                  label="예상 판매 건수"
-                  value={`${num(r.orders, 2)}개`}
-                  help="정수 클릭 수 × 구매전환율. 실제 주문 수가 아닌 기대값입니다."
-                />
-                <Metric
-                  label="예상 총매출"
-                  value={won(r.revenue)}
-                  help="예상 판매 건수 × 판매가."
-                />
-                <Metric
-                  label="실제 예상 광고비"
-                  value={won(r.adSpend)}
-                  help="정수 클릭 수 × CPC. 전체 예산과 다를 수 있습니다."
-                  sub={`미사용 잔액 ${won(r.remainingBudget)}`}
-                />
-                <Metric
-                  label="예상 ROAS"
-                  value={percent(r.simulatedRoas)}
-                  help="예상 매출 ÷ 실제 예상 광고비 × 100. 광고비가 0원이면 계산 불가."
-                />
-                <Metric
-                  label="손익분기 최소 판매량"
-                  value={
-                    r.requiredOrders === null
-                      ? "달성 불가"
-                      : `${num(r.requiredOrders, 0)}개`
-                  }
-                  help="ceil(실제 예상 광고비 ÷ 공헌이익). 판매량은 올림 처리합니다."
-                />
-              </div>
-              <div
-                className={`total-profit ${r.totalProfit < 0 ? "negative" : ""}`}
-              >
-                <div>
-                  <span>
-                    예상 총순이익{" "}
-                    <Help
-                      label="예상 총순이익"
-                      text="예상 판매 건수 × 광고 전 공헌이익 − 실제 예상 광고비."
-                    />
-                  </span>
-                  <small>입력된 비용과 광고비 차감 후</small>
-                </div>
-                <strong>
-                  {r.totalProfit > 0 ? "+" : ""}
-                  {won(r.totalProfit)}
-                </strong>
-              </div>
-              <p className="simulation-insight">
-                {input.cpc === 0 ? (
-                  "유효한 CPC를 입력하면 예산 시뮬레이션이 시작됩니다."
-                ) : r.adSpend === 0 ? (
-                  "예산으로 확보 가능한 클릭이 없습니다. CPC 이상의 예산을 설정해 주세요."
-                ) : (
-                  <>
-                    현재 전환율 기준 예상 판매량은 <b>{num(r.orders, 2)}개</b>
-                    로,{" "}
-                    {r.totalProfit >= 0
-                      ? "입력한 조건에서는 광고비를 회수할 수 있습니다."
-                      : "광고 수익성이 부족합니다."}
-                  </>
-                )}
-              </p>
-            </div>
-          </div>
-        </section>
-        <section className="card scenario-section">
-          <SectionTitle
-            number="04"
-            title="전환율이 달라지면, 수익도 달라져요"
-            description="같은 상품과 CPC로 비교한 전환율별 수익 시나리오입니다."
-          />
-          <div className="scenario-layout">
-            <div className="chart-area">
-              <div className="chart-heading">
-                <h3>
-                  전환율별 개당 순이익{" "}
-                  <Help
-                    label="전환율별 개당 순이익"
-                    text="가로축은 구매전환율, 세로축은 광고비 차감 후 개당 순이익. 점선은 순이익 0원과 손익분기 전환율입니다."
-                  />
-                </h3>
+              <div className="hero-orbit" aria-hidden="true" />
+              <KitScene />
+              <div className="scene-caption">
+                <span className="small-cross">+</span>
                 <span>
-                  <i /> 예상 순이익
-                </span>
-              </div>
-              <div
-                className="chart"
-                role="img"
-                aria-label="전환율 0.5%부터 10%까지 개당 순이익 변화. 상세 수치는 옆 시나리오 표에서 확인하세요."
-              >
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={chart}
-                    margin={{ top: 20, right: 18, bottom: 5, left: 0 }}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 5"
-                      vertical={false}
-                      stroke="#ebeeed"
-                    />
-                    <XAxis
-                      dataKey="cvr"
-                      type="number"
-                      domain={[0, 10]}
-                      ticks={[0, 2, 4, 6, 8, 10]}
-                      tickFormatter={(v) => `${v}%`}
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 11, fill: "#818784" }}
-                    />
-                    <YAxis
-                      tickFormatter={(v) => `${num(v / 10000)}만`}
-                      width={48}
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 11, fill: "#818784" }}
-                    />
-                    <Tooltip
-                      formatter={(v) => [
-                        won(typeof v === "number" ? v : null),
-                        "개당 순이익",
-                      ]}
-                      labelFormatter={(v) => `구매전환율 ${v}%`}
-                      contentStyle={{
-                        borderRadius: 10,
-                        border: "1px solid #e5e7eb",
-                        fontSize: 12,
-                      }}
-                    />
-                    <ReferenceLine
-                      y={0}
-                      stroke="#a5aba8"
-                      strokeDasharray="4 4"
-                    />
-                    {r.breakEvenCvr !== null && r.breakEvenCvr <= 10 && (
-                      <ReferenceLine
-                        x={r.breakEvenCvr}
-                        stroke="#059669"
-                        strokeDasharray="4 4"
-                        label={{
-                          value: `손익분기 ${num(r.breakEvenCvr, 2)}%`,
-                          position: "insideTopRight",
-                          fill: "#059669",
-                          fontSize: 10,
-                        }}
-                      />
-                    )}
-                    <Line
-                      type="monotone"
-                      dataKey="profit"
-                      stroke="#059669"
-                      strokeWidth={3}
-                      dot={false}
-                      isAnimationActive={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <p className="chart-note">
-                표시 구간 0.5~10% ·{" "}
-                {input.cpc === 0
-                  ? "CPC 0원으로 그래프 계산 불가"
-                  : r.breakEvenCvr !== null && r.breakEvenCvr > 10
-                    ? "손익분기점이 그래프 범위 밖에 있습니다."
-                    : "0원 선 위에서는 광고비 차감 후 수익이 발생합니다."}
-              </p>
-            </div>
-            <div className="scenario-table-wrap">
-              <table className="scenario-table">
-                <caption>전환율별 광고 수익 비교 · 추정값</caption>
-                <thead>
-                  <tr>
-                    <th>시나리오</th>
-                    <th>예상 CPA / ROAS</th>
-                    <th>개당 순이익</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {scenarios.map((s, i) => (
-                    <tr key={s.cvrPercent}>
-                      <td>
-                        <strong>{["보수적", "기본", "낙관적"][i]}</strong>
-                        <small>전환율 {s.cvrPercent}%</small>
-                      </td>
-                      <td>
-                        {won(s.cpa)}
-                        <small>{percent(s.roas)}</small>
-                      </td>
-                      <td
-                        className={
-                          s.unitProfit !== null && s.unitProfit >= 0
-                            ? "positive-text"
-                            : "negative-text"
-                        }
-                      >
-                        <strong>{won(s.unitProfit)}</strong>
-                        <small>
-                          {s.unitProfit === null
-                            ? "계산 불가"
-                            : Math.abs(s.unitProfit) <= 1
-                              ? "손익분기"
-                              : s.unitProfit > 0
-                                ? "흑자 예상"
-                                : "적자 예상"}
-                        </small>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="scenario-tip">
-                <Sparkles size={15} />
-                <p>
-                  전환율은 작은 차이로도 수익에 큰 영향을 줍니다.
+                  ESSENTIAL IN FORM.
                   <br />
-                  상세페이지와 구매 경험도 함께 점검해 보세요.
+                  SENSIBLE IN EVERY WAY.
+                </span>
+                <span className="scene-coordinate">K/S — 37° N</span>
+              </div>
+              <div className="visual-corner bottom-left" />
+              <div className="visual-corner bottom-right" />
+            </div>
+          </div>
+          <div className="hero-bottom shell">
+            <span>HERITAGE. PRESENT. NEXT.</span>
+            <span>어제의 가치를 잇고, 내일의 감각을 제안합니다.</span>
+            <a href="#about" aria-label="브랜드 소개로 내려가기">
+              SCROLL TO DISCOVER <ArrowDown size={12} />
+            </a>
+          </div>
+        </section>
+        <div className="brand-ribbon" aria-hidden="true">
+          <div>
+            {Array.from({ length: 4 }, (_, i) => (
+              <span key={i}>
+                ESSENTIAL BY DESIGN <span>✳</span> SENSIBLE BY NATURE{" "}
+                <span>✳</span>
+              </span>
+            ))}
+          </div>
+        </div>
+        <section className="about-section shell section-space" id="about">
+          <div className="about-top reveal">
+            <SectionLabel number="01">THE IDEA OF KITS</SectionLabel>
+            <span className="muted-caption">
+              A TOOL. A MOMENT. A BETTER EVERYDAY.
+            </span>
+          </div>
+          <div className="about-grid">
+            <div className="about-heading reveal">
+              <h2>
+                더 많이가 아닌,
+                <br />
+                <span>더 본질적인 것.</span>
+              </h2>
+              <div className="kit-definition">
+                <span>kit</span>
+                <span>
+                  /kɪt/ <i>noun.</i>
+                </span>
+                <p>
+                  어떤 순간을 온전히 누리기 위해,
+                  <br />
+                  가장 필요한 본질만 정제해 담은 도구.
                 </p>
+              </div>
+            </div>
+            <div className="about-body reveal">
+              <p className="lead-korean">
+                우리의 매일을 채우는 사물들은
+                <br />
+                우리가 누구인지, 어떤 시대를
+                <br className="desktop-break" /> 살아가는지를 말해줍니다.
+              </p>
+              <p>
+                KITS는 시대의 유산부터 동시대의 트렌드, 내일의 감각까지 탐구하는
+                오브제 큐레이션 & 크리에이티브 랩입니다.
+              </p>
+              <p>
+                불필요한 것은 덜어내고, 분명한 쓰임과 정제된 디자인을 남깁니다.
+                일상의 작은 조각부터 브랜드의 새로운 가능성까지, 가장
+                감각적이면서도 쓸모 있는 형태로 완성합니다.
+              </p>
+              <a className="text-link" href="#manifesto">
+                Read our manifesto <ArrowUpRight size={15} />
+              </a>
+            </div>
+          </div>
+        </section>
+        <section className="spectrum-section" id="spectrum">
+          <div className="shell section-space">
+            <div className="section-heading-row reveal">
+              <div>
+                <SectionLabel number="02">OUR SPECTRUM</SectionLabel>
+                <h2>
+                  시대를 넘나드는 시선.
+                  <br />
+                  <span>일상에 닿는 세 가지 감각.</span>
+                </h2>
+              </div>
+              <p>
+                하나의 카테고리나 시대에 머물지 않습니다.
+                <br />
+                어제와 오늘, 내일에서 발견한 가능성을
+                <br />
+                손에 잡히는 해답으로 만듭니다.
+              </p>
+            </div>
+            <div
+              className="spectrum-tabs reveal"
+              role="tablist"
+              aria-label="KITS의 세 가지 스펙트럼"
+            >
+              {spectrum.map((s, i) => (
+                <button
+                  key={s.id}
+                  ref={(el) => {
+                    tabs.current[i] = el;
+                  }}
+                  role="tab"
+                  type="button"
+                  id={`tab-${s.id}`}
+                  aria-controls="spectrum-panel"
+                  aria-selected={activeSpectrum === s.id}
+                  tabIndex={activeSpectrum === s.id ? 0 : -1}
+                  onClick={() => setActiveSpectrum(s.id)}
+                  onKeyDown={(e) => handleTabKey(e, i)}
+                >
+                  <span>{s.number}</span>
+                  <strong>{s.title}</strong>
+                  <ArrowUpRight size={18} />
+                </button>
+              ))}
+            </div>
+            <div
+              className={`spectrum-panel ${activeSpectrum}`}
+              role="tabpanel"
+              id="spectrum-panel"
+              aria-labelledby={`tab-${activeSpectrum}`}
+              key={activeSpectrum}
+            >
+              <div className="spectrum-art">
+                <span className="art-label">
+                  KITS / {current.title.toUpperCase()} STUDY
+                </span>
+                <KitScene variant={activeSpectrum} />
+                <span className="art-footnote">
+                  FORM EXPLORATION — CONCEPT ONLY
+                </span>
+              </div>
+              <div className="spectrum-copy">
+                <span className="eyebrow">{current.era}</span>
+                <h3>
+                  {current.korean.split("\n").map((line, i) => (
+                    <span key={line}>
+                      {line}
+                      {i === 0 && <br />}
+                    </span>
+                  ))}
+                </h3>
+                <p>{current.description}</p>
+                <div className="tag-list">
+                  {current.tags.map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+                <button
+                  className="text-link"
+                  onClick={() => {
+                    setFilter(activeSpectrum);
+                    document
+                      .getElementById("studies")
+                      ?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  이 감각의 오브제 살펴보기 <ArrowUpRight size={16} />
+                </button>
               </div>
             </div>
           </div>
         </section>
-        <section className="card roas-explainer">
-          <SectionTitle
-            number="WHY"
-            title="같은 ROAS 200%, 수익은 정반대일 수 있어요"
-            description="판매가 40,000원 · CPC 400원 · 전환율 2% · 추가 비용 0원으로 비교한 가상 예시입니다."
-          />
-          <div className="cost-examples">
-            {[30, 70].map((costRate) => {
-              const example = calculate({
-                ...SAMPLE,
-                price: 40000,
-                cost: (40000 * costRate) / 100,
-                cpc: 400,
-                cvrPercent: 2,
-              });
-              return (
-                <div className="cost-example" key={costRate}>
-                  <span>원가율 {costRate}% 상품</span>
-                  <strong
-                    className={
-                      example.unitProfit! > 0
-                        ? "positive-text"
-                        : "negative-text"
-                    }
-                  >
-                    {won(example.unitProfit)} <small>/ 판매 1건</small>
-                  </strong>
-                  <dl>
-                    <div>
-                      <dt>예상 ROAS</dt>
-                      <dd>{percent(example.roas)}</dd>
-                    </div>
-                    <div>
-                      <dt>손익분기 ROAS</dt>
-                      <dd>{percent(example.breakEvenRoas)}</dd>
-                    </div>
-                  </dl>
-                  <p>
-                    {example.unitProfit! > 0
-                      ? "광고비를 회수하고 이익이 남습니다."
-                      : "매출이 광고비의 2배여도 손실이 발생합니다."}
-                  </p>
+        <section className="studies-section shell section-space" id="studies">
+          <div className="section-heading-row reveal">
+            <div>
+              <SectionLabel number="03">OBJECT STUDIES</SectionLabel>
+              <h2>생각이, 형태가 되는 순간.</h2>
+            </div>
+            <p>
+              정제된 형태와 새로운 쓰임을 탐구하는
+              <br />
+              KITS의 콘셉트 스터디.
+            </p>
+          </div>
+          <div className="study-controls reveal">
+            <span>EXPLORATIONS, NOT LIMITATIONS.</span>
+            <div className="study-filters" aria-label="콘셉트 스터디 필터">
+              {(["all", "heritage", "present", "next"] as const).map((v) => (
+                <button
+                  key={v}
+                  aria-pressed={filter === v}
+                  onClick={() => setFilter(v)}
+                >
+                  {v === "all"
+                    ? "All objects"
+                    : v[0].toUpperCase() + v.slice(1)}
+                  {filter === v && <span />}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="study-grid" aria-live="polite">
+            {shown.map((s) => (
+              <button
+                className={`study-card ${s.category}`}
+                key={s.id}
+                onClick={() => setStudy(s)}
+                aria-label={`${s.title} 콘셉트 상세 보기`}
+              >
+                <div className="study-visual">
+                  <div className="study-card-top">
+                    <span>{s.category.toUpperCase()}</span>
+                    <span>CONCEPT {s.id}</span>
+                  </div>
+                  <KitScene variant={s.category} />
+                  <span className="study-open">
+                    <ArrowUpRight size={20} />
+                  </span>
+                  <span className="study-material">{s.material}</span>
                 </div>
-              );
-            })}
+                <div className="study-caption">
+                  <div>
+                    <h3>{s.title}</h3>
+                    <p>{s.subtitle}</p>
+                  </div>
+                  <span>({s.id})</span>
+                </div>
+              </button>
+            ))}
           </div>
         </section>
-        <details className="api-disclosure">
-          <summary>
-            참고용 검색 키워드{" "}
-            <span>선택 기능 · API 없이도 수익성 진단 가능</span>
-          </summary>
-          <section className="card keywords">
-            <div className="keywords-title">
-              <SectionTitle
-                number="05"
-                title="상품과 관련된 검색 키워드"
-                description="키워드 데이터와 광고비 가정을 구분해서 살펴보세요."
-              />
-              <span
-                className={`data-badge ${keywords.source === "실제 데이터" ? "real" : ""}`}
-              >
-                <FlaskConical size={13} />
-                {keywords.source}
+        <section className="principles-section" id="approach">
+          <div className="shell section-space">
+            <div className="section-heading-row reveal">
+              <div>
+                <SectionLabel number="04" light>
+                  THE WAY WE MAKE
+                </SectionLabel>
+                <h2>감각에는 기준이 있습니다.</h2>
+              </div>
+              <p>
+                아름다운 생각을 넘어, 선택받는 실물까지.
+                <br />
+                KITS가 지키는 네 가지 태도.
+              </p>
+            </div>
+            <div className="principle-grid">
+              {[
+                [
+                  "01",
+                  "Essential Kit",
+                  "정제된 완결성",
+                  "복잡함을 덜어내고, 그 사물이 존재하는 목적에 가장 충실한 형태와 기능을 남깁니다.",
+                ],
+                [
+                  "02",
+                  "Trend & Futurity",
+                  "동시대성과 미래 감각",
+                  "라이프스타일의 변화, 새로운 소재와 기술을 포착해 한발 앞선 경험을 설계합니다.",
+                ],
+                [
+                  "03",
+                  "Heritage\nReinterpretation",
+                  "유산과 상징의 현대화",
+                  "고유의 미학과 이야기를 과거에 두지 않고, 오늘의 일상에서 살아 있는 오브제로 번역합니다.",
+                ],
+                [
+                  "04",
+                  "Sensible\nRealization",
+                  "감각적 실체화",
+                  "추상적인 아이디어를 높은 만듦새와 분명한 쓰임을 가진 실물 제품으로 구현합니다.",
+                ],
+              ].map(([n, en, ko, desc]) => (
+                <article className="principle-card reveal" key={n}>
+                  <div>
+                    <span>{n}</span>
+                    <Plus size={16} />
+                  </div>
+                  <h3>
+                    {en.split("\n").map((line, i) => (
+                      <span key={line}>
+                        {line}
+                        {i === 0 && en.includes("\n") && <br />}
+                      </span>
+                    ))}
+                  </h3>
+                  <h4>{ko}</h4>
+                  <p>{desc}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section className="partners-section shell section-space" id="partners">
+          <div className="partner-intro reveal">
+            <SectionLabel number="05">FOR YOUR BRAND, WITH KITS</SectionLabel>
+            <h2>
+              브랜드의 가능성을,
+              <br />
+              감각적인 실물로.
+            </h2>
+            <p>
+              고유한 철학을 담은 시그니처 제품부터
+              <br />
+              동시대의 감각을 읽어낸 새로운 라이프스타일 도구까지.
+              <br />
+              당신의 브랜드가 상상하는 다음을 함께 만듭니다.
+            </p>
+            <button className="pill-button dark" onClick={() => startProject()}>
+              프로젝트 이야기 나누기 <ArrowUpRight size={17} />
+            </button>
+          </div>
+          <div className="partner-process reveal">
+            {[
+              [
+                "01",
+                "Read the essence",
+                "본질을 읽습니다",
+                "브랜드의 철학, 고객의 일상, 시장의 흐름을 연결합니다.",
+              ],
+              [
+                "02",
+                "Shape the idea",
+                "해답을 설계합니다",
+                "컨셉과 쓰임, 소재와 형태를 하나의 방향으로 정제합니다.",
+              ],
+              [
+                "03",
+                "Make it tangible",
+                "실물로 완성합니다",
+                "OEM / ODM, 브랜디드 굿즈, 시그니처 제품으로 구현합니다.",
+              ],
+            ].map(([n, en, title, desc]) => (
+              <div className="process-step" key={n}>
+                <span>{n}</span>
+                <div>
+                  <span>{en}</span>
+                  <h3>{title}</h3>
+                  <p>{desc}</p>
+                </div>
+                <ArrowDownRight size={21} />
+              </div>
+            ))}
+            <div className="service-tags">
+              <span>PRODUCT PLANNING</span>
+              <span>OEM / ODM</span>
+              <span>BRANDED OBJECTS</span>
+            </div>
+          </div>
+        </section>
+        <section className="manifesto-section" id="manifesto">
+          <div className="manifesto-inner shell reveal">
+            <div className="manifesto-top">
+              <SectionLabel number="06" light>
+                OUR MANIFESTO
+              </SectionLabel>
+              <span className="manifesto-star" aria-hidden="true">
+                ✳
               </span>
             </div>
-            <p className="data-notice">
-              {keywords.message} 검색량·클릭 수는 CPC 또는 구매전환율이
-              아닙니다.
+            <p className="manifesto-statement">
+              어제의 가치를 잇고,
+              <br />
+              오늘의 트렌드를 담으며,
+              <br />
+              <span>내일의 감각을 제안합니다.</span>
             </p>
-            <div className="table-scroll">
-              <table className="keyword-table">
-                <thead>
-                  <tr>
-                    <th>검색·연관 키워드</th>
-                    <th>월간 PC 검색량</th>
-                    <th>월간 모바일 검색량</th>
-                    <th>월평균 PC 클릭 수</th>
-                    <th>월평균 모바일 클릭 수</th>
-                    <th>경쟁 정도</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {keywords.keywords.map((k, i) => (
-                    <tr key={`${k.keyword}-${i}`}>
-                      <td>
-                        {k.keyword}
-                        {i === 0 && <span className="seed-tag">기준</span>}
-                      </td>
-                      <td>
-                        {typeof k.pcSearches === "number"
-                          ? num(k.pcSearches)
-                          : k.pcSearches}
-                      </td>
-                      <td>
-                        {typeof k.mobileSearches === "number"
-                          ? num(k.mobileSearches)
-                          : k.mobileSearches}
-                      </td>
-                      <td>{num(k.pcClicks)}</td>
-                      <td>{num(k.mobileClicks)}</td>
-                      <td>
-                        <span className="competition">{k.competition}</span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="manifesto-bottom">
+              <p>
+                일상을 채우는 작은 조각 하나가 하루의 감도를 바꾸고,
+                <br />
+                정교하게 기획된 사물 하나가 브랜드의 미래를 증명하기에.
+              </p>
+              <span>SENSIBLE EVERYDAY KITS.</span>
             </div>
-            <p className="keyword-footnote">
-              CPC: {cpcSource} · 구매전환율: {cvrSource} · 수익 지표: 위 입력과
-              가정에 따른 계산값
-            </p>
-          </section>
-        </details>
-        <section id="guide" className="guide">
-          <ShieldCheck size={21} />
-          <div>
-            <h3>분석 결과를 확인하기 전에</h3>
-            <p>
-              본 서비스는 영업 시연용 MVP이며 네이버 공식 서비스가 아닙니다.
-              결과는 순수 광고 기여 판매를 가정한 시뮬레이션으로 실제 성과를
-              보장하지 않습니다. 세금, 반품, 환불, 할인 및 입력되지 않은 비용은
-              포함하지 않습니다.
-            </p>
-            <p>
-              {omitted.length
-                ? `미입력으로 제외된 비용: ${omitted.join(", ")} (각 0원 또는 0% 적용).`
-                : "추가 비용은 입력된 범위에서만 반영됩니다."}{" "}
-              예상 판매량은 소수점 기대값이며 실제 판매량과 다를 수 있습니다.
-            </p>
           </div>
         </section>
-        <footer>
-          <a href="#" className="footer-brand">
-            <Layers3 size={17} /> kitsnord
-          </a>
-          <span>더 나은 판매의 시작, 숫자로 확인하세요.</span>
-          <span>© {new Date().getFullYear()} Kitsnord · Demo MVP</span>
+        <section className="contact-section shell reveal" id="contact">
+          <div>
+            <span className="eyebrow">
+              <span className="status-dot" /> OPEN TO NEW POSSIBILITIES
+            </span>
+            <h2>
+              What’s your
+              <br />
+              <span>next kit?</span>
+            </h2>
+          </div>
+          <div className="contact-copy">
+            <p>
+              당신의 브랜드가 가진 이야기,
+              <br />
+              아직 형태가 되지 않은 아이디어.
+              <br />
+              KITS와 함께 다음을 만들어보세요.
+            </p>
+            <button
+              className="contact-circle"
+              onClick={() => startProject()}
+              aria-label="프로젝트 제안서 작성하기"
+            >
+              <ArrowUpRight size={34} />
+            </button>
+            <button className="text-link" onClick={() => startProject()}>
+              프로젝트 제안서 작성하기 <ArrowUpRight size={15} />
+            </button>
+          </div>
+        </section>
+        <footer className="site-footer">
+          <div className="shell">
+            <div className="footer-top">
+              <a href="#" aria-label="KITS 홈으로">
+                <BrandMark />
+              </a>
+              <span>OBJECT CURATION & CREATIVE LAB</span>
+              <a href="#" className="back-top">
+                Back to top <ArrowUpRight size={14} />
+              </a>
+            </div>
+            <div className="footer-bottom">
+              <span>
+                © {new Date().getFullYear()} KITS. All rights reserved.
+              </span>
+              <span>Heritage, present, and everything next.</span>
+              <button onClick={() => startProject()}>
+                Let’s make something sensible. <ArrowUpRight size={12} />
+              </button>
+            </div>
+          </div>
         </footer>
       </main>
+      <dialog
+        ref={studyDialog}
+        className="study-dialog"
+        aria-labelledby="study-dialog-title"
+        onClose={() => setStudy(null)}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setStudy(null);
+        }}
+      >
+        {study && (
+          <div className="study-dialog-inner">
+            <button
+              className="dialog-close"
+              onClick={() => setStudy(null)}
+              aria-label="상세 보기 닫기"
+            >
+              <X size={21} />
+            </button>
+            <div className={`dialog-art ${study.category}`}>
+              <KitScene variant={study.category} />
+            </div>
+            <div className="dialog-study-copy">
+              <span className="eyebrow">
+                {study.category.toUpperCase()} / CONCEPT {study.id}
+              </span>
+              <h2 id="study-dialog-title">{study.title}</h2>
+              <h3>{study.subtitle}</h3>
+              <p>{study.detail}</p>
+              <p className="concept-note">
+                브랜드의 방향을 표현한 오리지널 콘셉트 스터디입니다. 실제 판매
+                제품 또는 진행된 클라이언트 프로젝트를 의미하지 않습니다.
+              </p>
+              <button
+                className="pill-button dark"
+                onClick={() =>
+                  startProject(
+                    `${study.title}의 방향을 바탕으로 프로젝트를 함께 기획하고 싶습니다.`,
+                  )
+                }
+              >
+                이런 프로젝트 함께 만들기 <ArrowUpRight size={15} />
+              </button>
+            </div>
+          </div>
+        )}
+      </dialog>
+      <dialog
+        ref={briefDialog}
+        className="brief-dialog"
+        aria-labelledby="brief-title"
+        onClose={() => setBriefOpen(false)}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) setBriefOpen(false);
+        }}
+      >
+        <div className="brief-inner">
+          <button
+            className="dialog-close"
+            onClick={() => setBriefOpen(false)}
+            aria-label="프로젝트 제안 닫기"
+          >
+            <X size={21} />
+          </button>
+          <span className="eyebrow">LET’S MAKE IT TANGIBLE</span>
+          <h2 id="brief-title">
+            당신의 다음 Kit은
+            <br />
+            무엇인가요?
+          </h2>
+          <p className="brief-intro">
+            아이디어를 간단한 프로젝트 브리프로 정리해 보세요.
+            <br />
+            내용을 복사하거나 파일로 저장할 수 있습니다.
+          </p>
+          <form noValidate onSubmit={copyBrief}>
+            <div className="brief-fields">
+              {(
+                [
+                  ["name", "이름", "홍길동", "text", true],
+                  ["email", "이메일", "name@brand.com", "email", true],
+                  [
+                    "company",
+                    "브랜드 / 회사",
+                    "브랜드명 또는 회사명",
+                    "text",
+                    false,
+                  ],
+                ] as const
+              ).map(([key, label, placeholder, type, required]) => (
+                <label key={key} className={key === "company" ? "wide" : ""}>
+                  {label} {required && <span>*</span>}
+                  <input
+                    name={key}
+                    type={type}
+                    autoComplete={
+                      key === "name"
+                        ? "name"
+                        : key === "email"
+                          ? "email"
+                          : "organization"
+                    }
+                    placeholder={placeholder}
+                    value={brief[key]}
+                    maxLength={
+                      key === "name" ? 60 : key === "email" ? 254 : 100
+                    }
+                    required={required}
+                    aria-invalid={!!errors[key]}
+                    aria-describedby={errors[key] ? `${key}-error` : undefined}
+                    onChange={(e) => updateBrief(key, e.target.value)}
+                  />
+                  {errors[key] && (
+                    <small className="field-error" id={`${key}-error`}>
+                      {errors[key]}
+                    </small>
+                  )}
+                </label>
+              ))}
+              <label className="wide">
+                프로젝트 유형 <span>*</span>
+                <select
+                  value={brief.type}
+                  required
+                  aria-invalid={!!errors.type}
+                  aria-describedby={errors.type ? "type-error" : undefined}
+                  onChange={(e) => updateBrief("type", e.target.value)}
+                >
+                  <option value="">어떤 프로젝트를 생각하고 계신가요?</option>
+                  {projectTypes.map((type) => (
+                    <option key={type}>{type}</option>
+                  ))}
+                </select>
+                {errors.type && (
+                  <small className="field-error" id="type-error">
+                    {errors.type}
+                  </small>
+                )}
+              </label>
+              <label className="wide">
+                프로젝트 이야기 <span>*</span>
+                <textarea
+                  value={brief.description}
+                  rows={4}
+                  maxLength={2000}
+                  required
+                  placeholder="브랜드의 이야기, 만들고 싶은 제품, 일정이나 수량 등 자유롭게 들려주세요. (10자 이상)"
+                  aria-invalid={!!errors.description}
+                  aria-describedby={
+                    errors.description ? "description-error" : undefined
+                  }
+                  onChange={(e) => updateBrief("description", e.target.value)}
+                />
+                {errors.description && (
+                  <small className="field-error" id="description-error">
+                    {errors.description}
+                  </small>
+                )}
+                <span className="character-count">
+                  {brief.description.length} / 2,000
+                </span>
+              </label>
+            </div>
+            <p className="brief-local-note">
+              입력 내용은 서버에 전송되지 않습니다. 파일 저장이나 복사 후 원하는
+              채널로 직접 전달해 주세요.
+            </p>
+            <div className="brief-actions">
+              <button type="submit" className="pill-button dark">
+                <Copy size={15} /> 제안 내용 복사하기
+              </button>
+              <button
+                type="button"
+                className="brief-download"
+                onClick={downloadBrief}
+                aria-label="프로젝트 제안서 파일 저장"
+              >
+                <Download size={18} />
+              </button>
+            </div>
+            {notice && (
+              <p role="status" className="brief-status">
+                {prepared && <Check size={15} />} {notice}
+              </p>
+            )}
+            {prepared && (
+              <label className="prepared-brief">
+                완성된 프로젝트 브리프
+                <textarea
+                  aria-label="완성된 프로젝트 브리프"
+                  readOnly
+                  value={prepared}
+                  rows={7}
+                  onFocus={(e) => e.currentTarget.select()}
+                />
+              </label>
+            )}
+          </form>
+        </div>
+      </dialog>
     </>
   );
 }

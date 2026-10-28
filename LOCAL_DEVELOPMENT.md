@@ -1,60 +1,18 @@
-# PC에서 실행하며 개발하기
+# KITS 로컬 개발
 
-공개 배포, 도메인 구매, Vercel 계정, 네이버 API 키 없이 사용할 수 있습니다.
-이 ZIP은 실행 가능한 소스 코드입니다. HTML 파일을 더블클릭하는 대신 개발 서버를 실행해야 합니다.
-
-## 처음 실행할 때
-
-1. PC에 Node.js 24 LTS를 설치합니다: https://nodejs.org/
-2. ZIP을 압축 해제하고, 안의 `Kitsnord` 폴더를 VS Code로 엽니다.
-3. VS Code 메뉴에서 **터미널 → 새 터미널**을 열고 다음 명령을 한 줄씩 실행합니다.
+1. Node.js 24 LTS를 설치합니다.
+2. GitHub 저장소를 내려받고 해당 폴더를 VS Code로 엽니다.
+3. 터미널에서 다음 명령을 실행합니다.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-4. 브라우저 주소창에 `http://localhost:3000`을 입력합니다.
+브라우저 주소창에 `http://localhost:3000`을 입력합니다. 브라우저는 자동으로 열리지 않습니다. 서버를 실행한 PC에서 접속해야 하며, 터미널의 `Ready` 표시를 확인하세요. 종료는 `Ctrl+C`입니다.
 
-터미널에 `Ready`가 표시되면 준비된 상태입니다. 처음 설치할 때는 패키지 다운로드를 위한 인터넷 연결이 필요합니다. 키 설정 없이도 데모 분석 화면을 사용할 수 있습니다.
+다른 포트는 `npm run dev -- --port 3001`을 사용합니다. Windows PowerShell의 실행 정책으로 npm.ps1 오류가 나면 `npm.cmd ci`, `npm.cmd run dev`를 사용하세요.
 
-Windows PowerShell에서 `npm.ps1` 실행 정책 오류가 난다면 같은 명령을 `npm.cmd ci`, `npm.cmd run dev`로 실행하세요.
+화면은 `src/app/page.tsx`, 디자인은 `src/app/globals.css`, 브랜드 콘텐츠와 제안서 로직은 `src/lib/brand.ts`에서 수정합니다. 저장하면 개발 화면에 반영됩니다.
 
-## 다음부터 실행할 때
-
-같은 폴더에서 다음 명령만 실행합니다.
-
-```sh
-npm run dev
-```
-
-코드를 저장하면 브라우저에 자동으로 반영됩니다. 서버 종료는 터미널에서 `Ctrl+C`를 누릅니다. 의존성이나 잠금 파일을 바꿨다면 서버를 종료하고 `npm ci`를 다시 실행하세요.
-
-3000번 포트를 다른 프로그램이 사용 중이면 다음 명령으로 실행하고 주소창에 `http://localhost:3001`을 입력합니다.
-
-```sh
-npm run dev -- --port 3001
-```
-
-## 수정할 파일
-
-- `src/app/page.tsx`: 상품 입력, CPC 설정, 수익 진단, 예산 시뮬레이션 화면
-- `src/app/globals.css`: PC·모바일 디자인
-- `src/lib/calculator.ts`: 공헌이익·순이익·손익분기 ROAS·클릭 수·판매량 계산
-- `tests/calculator.test.ts`: 계산 로직 테스트
-
-## 확인할 흐름
-
-상품 입력 → CPC·전환율 설정 → 예상 ROAS와 손익분기 ROAS 비교 → 개당 허용 클릭 수 확인 → 예산 변경 → 손익분기 최소 판매량 확인.
-
-샘플 상품에서는 개당 예상 순이익 4,500원, 예상 ROAS 173.3%, 손익분기 ROAS 144.4%, 허용 클릭 60회가 표시됩니다. 예산만 바꾸면 개당 허용 클릭 수는 그대로이고 최소 필요 판매량이 달라집니다.
-
-## 테스트와 빌드
-
-```sh
-npm test
-npm run build
-npm run typecheck
-```
-
-전체 구조, 계산 기준, 다음 단계 네이버 API 환경변수는 `README.md`에 정리되어 있습니다. 개발하는 PC와 이 채팅의 클라우드 환경은 별도이므로 PC의 브라우저로 보려면 PC에서 위 명령을 실행해야 합니다.
+검증은 `npm test`, `npm run build`, `npm run typecheck` 순서로 실행합니다. 변경을 `main`에 push하면 설정된 GitHub Pages 워크플로가 사이트를 새로 게시합니다. 프로젝트의 전체 구조와 배포 방식은 `README.md`를 확인하세요.
