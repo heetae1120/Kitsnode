@@ -8,7 +8,7 @@
   --dark: #1b1e18;
   --lime: #d6e8ac;
   --green: #526449;
-  --font-sans: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-sans: var(--font-pretendard), sans-serif;
   color-scheme: light;
 }
 * {
@@ -259,7 +259,7 @@ textarea:focus {
   color: var(--lime);
   position: relative;
   top: -7px;
-  font-family: Arial, sans-serif;
+  font-family: var(--font-pretendard), sans-serif;
   font-weight: 300;
   animation: turn 45s linear infinite;
 }
@@ -552,14 +552,14 @@ textarea:focus {
   border-top: 1px solid var(--line);
 }
 .kit-definition > span:first-child {
-  font-family: Georgia, serif;
+  font-family: var(--font-pretendard), sans-serif;
   font-size: 36px;
   font-style: italic;
   letter-spacing: -2px;
   color: #5a6750;
 }
 .kit-definition > span:nth-child(2) {
-  font-family: Georgia, serif;
+  font-family: var(--font-pretendard), sans-serif;
   font-size: 11px;
   color: #9ba28e;
   letter-spacing: 1px;
@@ -2658,4 +2658,16 @@ dialog:not([open]) {
 }
 .dialog-study-copy .concept-note {
   color: #7e8c71;
+}
+
+.main-nav .tools-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--lime);
+}
+.footer-tools-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }

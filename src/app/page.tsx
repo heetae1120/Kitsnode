@@ -18,6 +18,7 @@ import {
   Plus,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { KitScene } from "@/components/kit-scene";
 import {
   spectrum,
@@ -221,6 +222,13 @@ export default function Home() {
                 {label}
               </a>
             ))}
+            <Link
+              href="/tools/"
+              className="tools-nav-link"
+              onClick={() => setMenuOpen(false)}
+            >
+              Tools <ArrowUpRight size={12} />
+            </Link>
           </nav>
           <button className="nav-contact" onClick={() => startProject()}>
             Let’s make a kit <ArrowUpRight size={14} />
@@ -698,6 +706,9 @@ export default function Home() {
                 © {new Date().getFullYear()} KITS. All rights reserved.
               </span>
               <span>Heritage, present, and everything next.</span>
+              <Link href="/tools/" className="footer-tools-link">
+                광고 수익성 진단 <ArrowUpRight size={12} />
+              </Link>
               <button onClick={() => startProject()}>
                 Let’s make something sensible. <ArrowUpRight size={12} />
               </button>

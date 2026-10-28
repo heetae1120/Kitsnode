@@ -134,7 +134,7 @@ export function KitScene({
               fontSize="10"
               letterSpacing="2.8"
               fill="#666c58"
-              fontFamily="Arial"
+              fontFamily="var(--font-pretendard), sans-serif"
             >
               THE EVERYDAY SERIES
             </text>
@@ -142,7 +142,7 @@ export function KitScene({
               x="21"
               y="145"
               fill="#343a2d"
-              fontFamily="Arial"
+              fontFamily="var(--font-pretendard), sans-serif"
               fontSize="69"
               fontWeight="700"
               letterSpacing="-5"
