@@ -62,3 +62,13 @@ npm run keywords:server
 - 네이버 요청은 최대 8초, 반환 목록은 최대 1,000개입니다. 잘린 응답은 표시합니다.
 - 인증 실패·할당량·타임아웃·응답 오류는 명시적인 오류를 반환합니다. 자동으로 데모 결과로 바꾸거나 인증 값·상류 오류 원문을 응답에 노출하지 않습니다.
 - CORS는 허용 origin만 응답합니다. CORS 자체가 API 이용 인증을 대신하지는 않습니다.
+
+## 쇼핑 검색 결과 상품 수 (선택 연결)
+
+`GET /api/keywords?mode=shopping&keywords=키워드`는 네이버 개발자센터의 쇼핑 검색 API(`https://openapi.naver.com/v1/search/shop.json`)를 호출합니다. `total`을 검색 결과 상품 수로 표시하며 고유 판매자 수나 스마트스토어 전용 상품 수로 표현하지 않습니다.
+
+별도 서버 환경변수 **NAVER_OPENAPI_CLIENT_ID**, **NAVER_OPENAPI_CLIENT_SECRET**을 등록해야 합니다. 검색광고 API 키·비밀 키와 다르며 개발자센터 앱에 쇼핑 검색 API 사용 권한이 필요합니다. 브라우저에는 등록하지 마세요.
+
+응답은 `{source: "naver-shopping", products: [{keyword, count}], fetchedAt}`입니다. 미등록 시 `503 SHOPPING_NOT_CONFIGURED`를 반환합니다. 한 요청의 힌트가 여러 개이면 쇼핑 API를 키워드별로 호출하므로 그 수만큼 상류 호출 한도를 차감합니다. 캐시와 CORS 정책은 키워드 조회와 같습니다. 실제 키 인증은 미검증이며 모의 응답으로 헤더·상품 수·한도·캐시를 검사했습니다.
+
+키워드 통계 응답에는 제공된 경우 `pcCtr`, `mobileCtr`, `adDepth`를 추가로 매핑합니다. 각각 `monthlyAvePcCtr`, `monthlyAveMobileCtr`, `plAvgDepth`에서 읽으며 월간 검색량이나 클릭 수로 임의 역산하지 않습니다.

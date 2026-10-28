@@ -55,7 +55,14 @@ export function createKeywordHandler({
         405,
         { Allow: "GET, OPTIONS" },
       );
-    const raw = new URL(request.url).searchParams.get("keywords") || "";
+    const params = new URL(request.url).searchParams;
+    const mode = params.get("mode") || "keywords";
+    if (!["keywords", "shopping"].includes(mode))
+      return json(
+        { code: "INVALID_MODE", error: "지원하지 않는 조회 유형입니다." },
+        400,
+      );
+    const raw = params.get("keywords") || "";
     const seeds = [
       ...new Set(
         raw
@@ -78,14 +85,25 @@ export function createKeywordHandler({
         },
         400,
       );
-    const key = env.NAVER_SEARCHAD_API_KEY,
-      secret = env.NAVER_SEARCHAD_SECRET_KEY,
-      customer = env.NAVER_SEARCHAD_CUSTOMER_ID;
+    const key =
+      mode === "shopping"
+        ? env.NAVER_OPENAPI_CLIENT_ID
+        : env.NAVER_SEARCHAD_API_KEY;
+    const secret =
+      mode === "shopping"
+        ? env.NAVER_OPENAPI_CLIENT_SECRET
+        : env.NAVER_SEARCHAD_SECRET_KEY;
+    const customer =
+      mode === "shopping" ? "shopping" : env.NAVER_SEARCHAD_CUSTOMER_ID;
     if (!key || !secret || !customer)
       return json(
         {
-          code: "NOT_CONFIGURED",
-          error: "조회 서버에 네이버 API 인증 정보가 아직 설정되지 않았습니다.",
+          code:
+            mode === "shopping" ? "SHOPPING_NOT_CONFIGURED" : "NOT_CONFIGURED",
+          error:
+            mode === "shopping"
+              ? "상품 수 자동 조회용 네이버 개발자센터 Client ID / Client Secret이 아직 서버에 설정되지 않았습니다. 검색광고 API 키와는 별도입니다."
+              : "조회 서버에 네이버 API 인증 정보가 아직 설정되지 않았습니다.",
         },
         503,
       );
@@ -106,13 +124,15 @@ export function createKeywordHandler({
         429,
         { "Retry-After": "60" },
       );
-    const cacheKey = String(customer) + ":" + seeds.join(",");
+    const cacheKey =
+      mode + ":" + String(customer) + ":" + String(key) + ":" + seeds.join(",");
     const hit = cache.get(cacheKey);
     if (hit && time - hit.time < cacheTtl)
       return json({ ...hit.data, cached: true });
     if (time - globalWindow.start >= 60000)
       globalWindow = { start: time, count: 0 };
-    if (++globalWindow.count > globalLimit)
+    globalWindow.count += mode === "shopping" ? seeds.length : 1;
+    if (globalWindow.count > globalLimit)
       return json(
         {
           code: "RATE_LIMIT",
@@ -122,6 +142,53 @@ export function createKeywordHandler({
         { "Retry-After": "60" },
       );
     try {
+      if (mode === "shopping") {
+        const responses = await Promise.all(
+          seeds.map(async (keyword) => {
+            const url = new URL(
+              "https://openapi.naver.com/v1/search/shop.json",
+            );
+            url.searchParams.set("query", keyword);
+            url.searchParams.set("display", "1");
+            url.searchParams.set("start", "1");
+            const res = await fetcher(url, {
+              headers: {
+                "X-Naver-Client-Id": key,
+                "X-Naver-Client-Secret": secret,
+              },
+              signal: AbortSignal.timeout(8000),
+              cache: "no-store",
+            });
+            if (!res.ok) return { error: res.status };
+            const payload = await res.json();
+            if (
+              !Number.isSafeInteger(payload.total) ||
+              payload.total < 0 ||
+              payload.total > 1e12
+            )
+              throw new Error("invalid shopping response");
+            return { keyword, count: payload.total };
+          }),
+        );
+        const failed = responses.find((row) => "error" in row);
+        if (failed)
+          return json(
+            {
+              code: "SHOPPING_ERROR",
+              error:
+                "네이버 쇼핑 검색 API 요청에 실패했습니다. 개발자센터 키·쇼핑 검색 사용 권한·조회 한도를 확인해 주세요.",
+            },
+            failed.error === 429 ? 429 : 502,
+          );
+        const data = {
+          source: "naver-shopping",
+          products: responses,
+          fetchedAt: new Date(time).toISOString(),
+        };
+        if (cache.size >= 100) cache.delete(cache.keys().next().value);
+        cache.set(cacheKey, { time, data });
+        return json({ ...data, cached: false });
+      }
       const timestamp = String(time);
       const path = "/keywordstool";
       const signature = createHmac("sha256", secret)
@@ -195,6 +262,9 @@ export function createKeywordHandler({
           pcSearches: count(row.monthlyPcQcCnt),
           mobileSearches: count(row.monthlyMobileQcCnt),
           pcClicks: clicks(row.monthlyAvePcClkCnt),
+          pcCtr: clicks(row.monthlyAvePcCtr),
+          mobileCtr: clicks(row.monthlyAveMobileCtr),
+          adDepth: clicks(row.plAvgDepth),
           mobileClicks: clicks(row.monthlyAveMobileClkCnt),
           competition: comp(row.compIdx),
         });

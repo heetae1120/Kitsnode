@@ -25,6 +25,9 @@ const payload = {
       monthlyMobileQcCnt: "<10",
       monthlyAvePcClkCnt: "12.3",
       monthlyAveMobileClkCnt: "2.1",
+      monthlyAvePcCtr: "1.25",
+      monthlyAveMobileCtr: "2.4",
+      plAvgDepth: "6.2",
       compIdx: "high",
     },
   ],
@@ -100,6 +103,8 @@ test("signs the official endpoint and maps only actual provided fields", async (
   assert.equal(data.keywords[0].pcSearches, "3200");
   assert.equal(data.keywords[0].mobileSearches, "<10");
   assert.equal(data.keywords[0].pcClicks, 12.3);
+  assert.equal(data.keywords[0].pcCtr, 1.25);
+  assert.equal(data.keywords[0].adDepth, 6.2);
   assert.equal(data.keywords[0].competition, "높음");
   assert.equal(data.keywords[1].pcSearches, null);
   assert.equal(data.keywords[1].pcClicks, null);
@@ -190,4 +195,86 @@ test("caps result size and tells the client when a response was truncated", asyn
   const data = await (await handler(request(), env)).json();
   assert.equal(data.keywords.length, 1000);
   assert.equal(data.truncated, true);
+});
+
+test("shopping mode needs separate developer credentials rather than Search Ad keys", async () => {
+  const handler = createKeywordHandler({
+    fetcher: async () => {
+      throw new Error("must not query");
+    },
+  });
+  const r = await handler(
+    new Request(
+      "https://api.example.com/api/keywords?mode=shopping&keywords=test",
+    ),
+    env,
+  );
+  assert.equal(r.status, 503);
+  assert.equal((await r.json()).code, "SHOPPING_NOT_CONFIGURED");
+});
+test("shopping mode sends developer headers and keeps product total separate from search volume", async () => {
+  let calls = 0;
+  const handler = createKeywordHandler({
+    fetcher: async (input, init) => {
+      calls++;
+      const url = new URL(String(input));
+      assert.equal(url.origin, "https://openapi.naver.com");
+      assert.equal(url.pathname, "/v1/search/shop.json");
+      assert.equal(url.searchParams.get("display"), "1");
+      assert.equal(
+        (init!.headers as Record<string, string>)["X-Naver-Client-Id"],
+        "test-developer",
+      );
+      assert.equal(
+        (init!.headers as Record<string, string>)["X-API-KEY"],
+        undefined,
+      );
+      return Response.json({ total: 12345, items: [] });
+    },
+  });
+  const shoppingEnv = {
+    NAVER_OPENAPI_CLIENT_ID: "test-developer",
+    NAVER_OPENAPI_CLIENT_SECRET: "test-developer-secret",
+  };
+  const req = new Request(
+    "https://api.example.com/api/keywords?mode=shopping&keywords=keyword",
+  );
+  const first = await handler(req, shoppingEnv);
+  const data = await first.json();
+  assert.equal(first.status, 200);
+  assert.equal(data.source, "naver-shopping");
+  assert.deepEqual(data.products, [{ keyword: "keyword", count: 12345 }]);
+  assert.equal(data.keywords, undefined);
+  assert.equal((await (await handler(req, shoppingEnv)).json()).cached, true);
+  assert.equal(calls, 1);
+});
+test("shopping mode validates totals, protects quotas and returns controlled upstream errors", async () => {
+  const shoppingEnv = {
+    NAVER_OPENAPI_CLIENT_ID: "test",
+    NAVER_OPENAPI_CLIENT_SECRET: "test-secret",
+  };
+  const req = new Request(
+    "https://api.example.com/api/keywords?mode=shopping&keywords=one",
+  );
+  for (const fetcher of [
+    async () => Response.json({ total: -1 }),
+    async () => new Response("private", { status: 403 }),
+  ])
+    assert.equal(
+      (await createKeywordHandler({ fetcher })(req, shoppingEnv)).status,
+      502,
+    );
+  const handler = createKeywordHandler({
+    globalLimit: 1,
+    fetcher: async () => {
+      throw new Error("must not query");
+    },
+  });
+  const response = await handler(
+    new Request(
+      "https://api.example.com/api/keywords?mode=shopping&keywords=one,two",
+    ),
+    shoppingEnv,
+  );
+  assert.equal(response.status, 429);
 });

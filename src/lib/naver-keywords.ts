@@ -7,6 +7,9 @@ export type KeywordRow = {
   pcClicks: number | null;
   mobileClicks: number | null;
   competition: string;
+  pcCtr?: number | null;
+  mobileCtr?: number | null;
+  adDepth?: number | null;
 };
 export type KeywordData = {
   source: "demo" | "naver";
@@ -128,6 +131,9 @@ export function demoKeywordData(seeds: string[]): KeywordData {
         pcClicks: Number((pc[i] * 0.014).toFixed(1)),
         mobileClicks: Number((mobile[i] * 0.018).toFixed(1)),
         competition: i < 3 ? "높음" : i < 6 ? "중간" : "낮음",
+        pcCtr: 1.4,
+        mobileCtr: 1.8,
+        adDepth: 6.2,
       });
     }),
   );
@@ -202,6 +208,9 @@ export function validateKeywordResponse(value: unknown): KeywordData {
       pcSearches: count(r.pcSearches),
       mobileSearches: count(r.mobileSearches),
       pcClicks: clicks(r.pcClicks),
+      pcCtr: clicks(r.pcCtr),
+      mobileCtr: clicks(r.mobileCtr),
+      adDepth: clicks(r.adDepth),
       mobileClicks: clicks(r.mobileClicks),
       competition:
         typeof r.competition === "string" ? r.competition.slice(0, 30) : "—",

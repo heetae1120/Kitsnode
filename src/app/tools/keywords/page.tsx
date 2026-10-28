@@ -12,6 +12,9 @@ import {
 } from "recharts";
 import {
   ArrowUpRight,
+  Bookmark,
+  GitCompareArrows,
+  SlidersHorizontal,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -28,6 +31,16 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
+import {
+  KeywordResearch,
+  useKeywordResearch,
+} from "@/components/keyword-research";
+import {
+  filterResearchKeywords,
+  productSearchRatio,
+  exactVolume,
+  researchKeywordsCsv,
+} from "@/lib/keyword-research";
 import { ToolsHeader } from "@/components/tools-header";
 import { Help } from "@/components/ui/tooltip";
 import {
@@ -51,6 +64,8 @@ const configuredEndpoint = process.env.NEXT_PUBLIC_KEYWORD_API_URL || "";
 const storageKey = "kits.keyword-api-url";
 const decimal = (v: number | null) =>
   v === null ? "—" : v.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
+const formatRatio = (v: number | null) =>
+  v === null ? "—" : v.toLocaleString("ko-KR", { maximumFractionDigits: 3 });
 const deviceName = { all: "전체", pc: "PC", mobile: "모바일" };
 export default function KeywordTool() {
   const [query, setQuery] = useState("미니가습기");
@@ -61,6 +76,13 @@ export default function KeywordTool() {
   const [filter, setFilter] = useState("");
   const [competition, setCompetition] = useState("all");
   const [page, setPage] = useState(1);
+  const [advanced, setAdvanced] = useState({
+    exclude: "",
+    minVolume: "",
+    maxVolume: "",
+    minMobileShare: "",
+  });
+  const research = useKeywordResearch(data);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [endpoint, setEndpoint] = useState("");
@@ -82,17 +104,19 @@ export default function KeywordTool() {
     }
     return () => controller.current?.abort();
   }, []);
-  const filtered = useMemo(
+  const filterResult = useMemo(
     () =>
-      sortKeywords(
-        data.keywords.filter(
-          (r) =>
-            (!filter || r.keyword.includes(filter.trim())) &&
-            (competition === "all" || r.competition === competition),
-        ),
+      filterResearchKeywords(data.keywords, {
+        ...advanced,
+        text: filter,
+        competition,
         device,
-      ),
-    [data, filter, competition, device],
+      }),
+    [data, advanced, filter, competition, device],
+  );
+  const filtered = useMemo(
+    () => sortKeywords(filterResult.rows, device),
+    [filterResult, device],
   );
   const pages = Math.max(1, Math.ceil(filtered.length / 25));
   const currentPage = Math.min(page, pages);
@@ -124,6 +148,12 @@ export default function KeywordTool() {
     }
   })();
   function resetFilters() {
+    setAdvanced({
+      exclude: "",
+      minVolume: "",
+      maxVolume: "",
+      minMobileShare: "",
+    });
     setFilter("");
     setCompetition("all");
     setPage(1);
@@ -224,7 +254,11 @@ export default function KeywordTool() {
     }
   }
   function download() {
-    const csv = keywordCsv(filtered, device, data.source, data.fetchedAt);
+    const csv = researchKeywordsCsv(
+      filtered.map(research.snapshot),
+      research.products,
+      device,
+    );
     const url = URL.createObjectURL(
       new Blob([csv], { type: "text/csv;charset=utf-8" }),
     );
@@ -645,6 +679,15 @@ export default function KeywordTool() {
             <span className="kw-result-count">
               총 <b>{filtered.length.toLocaleString("ko-KR")}</b>개
             </span>
+            {research.selected.length > 0 && (
+              <button
+                className="kr-compare-trigger"
+                onClick={research.openCompare}
+              >
+                <GitCompareArrows size={14} /> 선택 비교 (
+                {research.selected.length}/5)
+              </button>
+            )}
             <button
               className="kw-csv-button"
               type="button"
@@ -655,6 +698,48 @@ export default function KeywordTool() {
               {data.source === "demo" ? "데모 CSV" : "CSV 다운로드"}
             </button>
           </div>
+          <details className="kr-advanced">
+            <summary>
+              <SlidersHorizontal size={13} /> 상세 필터
+            </summary>
+            <div className="kr-advanced-fields">
+              {(
+                [
+                  ["exclude", "제외 키워드", "추천,중고"],
+                  ["minVolume", "최소 검색량", "0"],
+                  ["maxVolume", "최대 검색량", "100000"],
+                  ["minMobileShare", "최소 모바일 비중 (%)", "0"],
+                ] as const
+              ).map(([key, label, placeholder]) => (
+                <label key={key}>
+                  {label}
+                  <input
+                    aria-label={label}
+                    type={key === "exclude" ? "text" : "number"}
+                    min={key === "exclude" ? undefined : 0}
+                    max={key === "minMobileShare" ? 100 : undefined}
+                    placeholder={placeholder}
+                    value={advanced[key]}
+                    onChange={(e) => {
+                      setAdvanced((old) => ({ ...old, [key]: e.target.value }));
+                      setPage(1);
+                    }}
+                  />
+                </label>
+              ))}
+              <button onClick={resetFilters}>필터 초기화</button>
+            </div>
+            <p>
+              포함 키워드는 쉼표로 나눈 단어를 모두 포함해야 하며, 제외 단어는
+              하나라도 포함되면 빠집니다. 범위값은 전체 범위가 검색량 조건 안에
+              들어올 때만 포함합니다.
+            </p>
+          </details>
+          {filterResult.error && (
+            <p role="alert" className="kr-error">
+              {filterResult.error}
+            </p>
+          )}
           <div className="kw-table-scroll">
             <table className={`kw-table device-${device}`}>
               <caption>
@@ -676,6 +761,12 @@ export default function KeywordTool() {
                   <th>
                     합계<small>PC + 모바일</small>
                   </th>
+                  <th>
+                    상품 수<small>직접 입력 / 쇼핑 API</small>
+                  </th>
+                  <th>
+                    상품 / 검색 비율<small>선택 기기 기준</small>
+                  </th>
                   <th>모바일 비중</th>
                   <th>
                     월평균 광고 클릭 수<small>PC / 모바일 · 최근 4주</small>
@@ -683,11 +774,15 @@ export default function KeywordTool() {
                   <th>
                     경쟁 정도<small>PC 광고 기준</small>
                   </th>
+                  <th>비교 · 저장</th>
                 </tr>
               </thead>
               <tbody>
                 {visible.map((r, i) => (
-                  <tr key={r.keyword}>
+                  <tr
+                    key={r.keyword}
+                    className={research.isSelected(r) ? "kr-row-selected" : ""}
+                  >
                     <td>
                       <span
                         className={
@@ -698,7 +793,12 @@ export default function KeywordTool() {
                       </span>
                     </td>
                     <th scope="row">
-                      {r.keyword}
+                      <button
+                        className="kr-keyword-link"
+                        onClick={() => research.inspect(r.keyword)}
+                      >
+                        {r.keyword}
+                      </button>
                       {data.queriedKeywords.some(
                         (seed) =>
                           seed.toLocaleLowerCase() ===
@@ -713,6 +813,21 @@ export default function KeywordTool() {
                     </td>
                     <td>
                       <strong>{formatRange(rowVolume(r, "all"))}</strong>
+                    </td>
+                    <td>
+                      {decimal(
+                        research.products.find((p) => p.keyword === r.keyword)
+                          ?.count ?? null,
+                      )}
+                    </td>
+                    <td>
+                      {formatRatio(
+                        productSearchRatio(
+                          research.products.find((p) => p.keyword === r.keyword)
+                            ?.count ?? null,
+                          exactVolume(r, device),
+                        ),
+                      )}
                     </td>
                     <td>
                       {mobileShare(r) === null
@@ -730,11 +845,31 @@ export default function KeywordTool() {
                         {r.competition}
                       </span>
                     </td>
+                    <td className="kr-row-actions">
+                      <input
+                        type="checkbox"
+                        aria-label={`${r.keyword} 비교 선택`}
+                        checked={research.isSelected(r)}
+                        onChange={() =>
+                          research.toggleSelected(research.snapshot(r))
+                        }
+                      />
+                      <button
+                        aria-label={`${r.keyword} 관심 키워드 ${research.isSaved(r) ? "저장 해제" : "저장"}`}
+                        aria-pressed={research.isSaved(r)}
+                        onClick={() => research.toggleSaved(r)}
+                      >
+                        <Bookmark
+                          size={15}
+                          fill={research.isSaved(r) ? "currentColor" : "none"}
+                        />
+                      </button>
+                    </td>
                   </tr>
                 ))}
                 {!visible.length && (
                   <tr>
-                    <td colSpan={8} className="kw-no-results">
+                    <td colSpan={11} className="kw-no-results">
                       {data.keywords.length
                         ? "필터에 맞는 키워드가 없습니다. 조건을 바꿔보세요."
                         : "조회된 연관 키워드가 없습니다. 다른 키워드로 검색해 보세요."}
@@ -773,6 +908,16 @@ export default function KeywordTool() {
             </div>
           </div>
         </section>
+        <KeywordResearch
+          model={research}
+          data={data}
+          device={device}
+          endpoint={endpoint}
+          onQuery={(value) => {
+            setQuery(value);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
         <section className="kw-guide">
           <Info size={19} />
           <div>

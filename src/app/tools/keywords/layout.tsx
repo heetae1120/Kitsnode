@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./keywords.css";
+import "./research.css";
 export const metadata: Metadata = {
   title: "네이버 키워드 도구 | KITS Tools",
   description:
