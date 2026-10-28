@@ -8,15 +8,15 @@
 
 1. GitHub 저장소의 **Settings → Pages → Build and deployment → Source**를 **GitHub Actions**로 선택합니다. 최초 한 번만 설정합니다. GitHub 요금제·저장소 공개 범위에 따라 Pages 사용 권한이 필요할 수 있습니다.
 2. `main`에 push하면 **Deploy to GitHub Pages** 워크플로가 테스트·빌드 후 자동 게시합니다. 설정을 나중에 활성화했다면 **Actions → Deploy to GitHub Pages → Run workflow**로 재실행합니다.
-3. 배포 성공 후 사이트 주소는 **https://heetae1120.github.io/Kitsnord/** 입니다. 이 주소는 워크플로가 성공하기 전에는 열리지 않을 수 있습니다.
+3. 배포 성공 후 사이트 주소는 **https://heetae1120.github.io/Kitsnode/** 입니다. 이 주소는 워크플로가 성공하기 전에는 열리지 않을 수 있습니다.
 
-워크플로가 `/Kitsnord` 기본 경로를 자동 설정하므로 JavaScript와 CSS도 저장소 하위 경로에서 정상적으로 로드됩니다. `public/.nojekyll`을 함께 내보내 `_next` 파일이 제외되지 않게 합니다. `.nvmrc`는 Node.js 24를 지정합니다.
+워크플로가 `/Kitsnode` 기본 경로를 자동 설정하므로 JavaScript와 CSS도 저장소 하위 경로에서 정상적으로 로드됩니다. `public/.nojekyll`을 함께 내보내 `_next` 파일이 제외되지 않게 합니다. `.nvmrc`는 Node.js 24를 지정합니다.
 
 로컬에서 수정하려면 저장소를 열고 다음 명령을 사용합니다. 이미 체크아웃이 있으면 다시 복제할 필요가 없습니다.
 
 ```sh
-git clone https://github.com/heetae1120/Kitsnord.git
-cd Kitsnord
+git clone https://github.com/heetae1120/Kitsnode.git
+cd Kitsnode
 npm ci
 npm run dev
 ```
