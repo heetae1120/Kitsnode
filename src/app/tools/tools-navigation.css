@@ -221,29 +221,12 @@
   .profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .menu-motion { transform: none; }
 }
 
-/* Video reference: layered waves pass across the dashboard between menu pages. */
-.profit-tool .tools-wave-transition {
-  position: fixed;
-  z-index: 100;
-  top: -45vh;
-  left: 0;
-  width: 100%;
-  height: 190vh;
-  pointer-events: auto;
-  will-change: transform;
-}
-.profit-tool .tools-wave-transition svg { width: 100%; height: 100%; display: block; }
-.profit-tool .tools-wave-transition.covering { animation: kits-wave-cover 240ms cubic-bezier(.4,0,.2,1) both; }
-.profit-tool .tools-wave-transition.revealing { animation: kits-wave-exit 320ms cubic-bezier(.4,0,.2,1) both; }
-.profit-tool .tools-wave-line { fill: none; stroke: #93b4f5; stroke-width: 1.5; opacity: .35; }
+/* Keep the card entrance motion without a full-screen transition. */
 .profit-tool .tools-route-content main > * { animation: kits-dashboard-enter 420ms cubic-bezier(.2,.8,.2,1) both; }
 .profit-tool .tools-route-content main > :nth-child(2) { animation-delay: 40ms; }
 .profit-tool .tools-route-content main > :nth-child(3) { animation-delay: 80ms; }
 .profit-tool .tools-route-content main > :nth-child(n+4) { animation-delay: 120ms; }
-@keyframes kits-wave-cover { from { transform: translateY(110%); } to { transform: translateY(0); } }
-@keyframes kits-wave-exit { from { transform: translateY(0); } to { transform: translateY(-110%); } }
 @keyframes kits-dashboard-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) {
-  .profit-tool .tools-wave-transition { display: none; }
   .profit-tool .tools-route-content main > * { animation: none !important; }
 }

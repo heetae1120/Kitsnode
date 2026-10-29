@@ -4,7 +4,6 @@ import { toolLinks, type ToolId } from "@/lib/tool-navigation";
 import Link from "next/link";
 import { ChevronDown, Layers3 } from "lucide-react";
 import { MenuMotion } from "@/components/menu-motion";
-import { useToolsMotion } from "@/components/tools-motion";
 
 const groups = [
   { id: "store", label: "스토어 분석", ids: ["rankings", "seo", "traffic"] },
@@ -12,7 +11,6 @@ const groups = [
 ] as const;
 
 export function ToolsHeader({ active }: { active: ToolId }) {
-  const navigate = useToolsMotion();
   const [open, setOpen] = useState(false);
   const [group, setGroup] = useState<string | null>(null);
   const header = useRef<HTMLElement>(null);
@@ -62,7 +60,6 @@ export function ToolsHeader({ active }: { active: ToolId }) {
               href={tool.href}
               aria-current={active === tool.id ? "page" : undefined}
               onClick={close}
-              onNavigate={(event) => { if (navigate(tool.href)) event.preventDefault(); }}
             >
               <MenuMotion kind={tool.id === "profit" ? "profit" : "keywords"} />
               <span className="tool-nav-label">{tool.id === "keywords" ? "키워드 도구" : tool.label}</span>
@@ -90,7 +87,6 @@ export function ToolsHeader({ active }: { active: ToolId }) {
                   href={tool.href}
                   aria-current={active === tool.id ? "page" : undefined}
                   onClick={close}
-                  onNavigate={(event) => { if (navigate(tool.href)) event.preventDefault(); }}
                 >
                   {tool.label}
                 </Link>
