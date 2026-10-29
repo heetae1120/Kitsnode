@@ -1,56 +1,89 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toolLinks, type ToolId } from "@/lib/tool-navigation";
 import Link from "next/link";
-import { ArrowUpRight, Layers3, Menu, X } from "lucide-react";
+import { ChevronDown, Layers3, Menu, X } from "lucide-react";
+
+const groups = [
+  { id: "store", label: "스토어 분석", ids: ["rankings", "seo", "traffic"] },
+  { id: "ads", label: "광고 관리", ids: ["bidding", "negative-search"] },
+] as const;
+
 export function ToolsHeader({ active }: { active: ToolId }) {
   const [open, setOpen] = useState(false);
+  const [group, setGroup] = useState<string | null>(null);
+  const header = useRef<HTMLElement>(null);
+  const groupButtons = useRef<Record<string, HTMLButtonElement | null>>({});
+  function close() {
+    setOpen(false);
+    setGroup(null);
+  }
+  useEffect(() => {
+    function outside(event: PointerEvent) {
+      if (event.target instanceof Node && !header.current?.contains(event.target)) {
+        setOpen(false);
+        setGroup(null);
+      }
+    }
+    function escape(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      if (group) {
+        setGroup(null);
+        groupButtons.current[group]?.focus();
+      } else if (open) {
+        setOpen(false);
+        header.current?.querySelector<HTMLButtonElement>(".tool-mobile-menu")?.focus();
+      }
+    }
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [group, open]);
   return (
-    <header className="tool-topbar expanded-tools">
-      <Link className="tool-brand" href="/" aria-label="KITS 브랜드 홈으로">
-        <span className="tool-brand-icon">
-          <Layers3 size={20} />
-        </span>
+    <header ref={header} className="tool-topbar expanded-tools">
+      <Link className="tool-brand" href="/" aria-label="KITS 브랜드 홈으로" onClick={close}>
+        <span className="tool-brand-icon"><Layers3 size={20} /></span>
         KITS
         <span className="tool-brand-divider" />
         <span className="tool-brand-caption">Tools · 비즈니스 도구</span>
       </Link>
-      <nav
-        id="tools-navigation"
-        aria-label="도구 메뉴"
-        className={open ? "tool-nav open" : "tool-nav"}
-      >
-        {toolLinks.map((tool) => (
-          <Link
-            key={tool.id}
-            href={tool.href}
-            aria-current={active === tool.id ? "page" : undefined}
-            onClick={() => setOpen(false)}
-          >
-            {tool.label}
-          </Link>
+      <nav id="tools-navigation" aria-label="도구 메뉴" className={open ? "tool-nav open" : "tool-nav"}>
+        {["profit", "keywords"].map((id) => {
+          const tool = toolLinks.find((item) => item.id === id)!;
+          return (
+            <Link key={tool.id} href={tool.href} aria-current={active === tool.id ? "page" : undefined} onClick={close}>
+              {tool.id === "keywords" ? "키워드 도구" : tool.label}
+            </Link>
+          );
+        })}
+        {groups.map((item) => (
+          <div key={item.id} className="tool-nav-group">
+            <button
+              ref={(element) => { groupButtons.current[item.id] = element; }}
+              type="button"
+              aria-expanded={group === item.id}
+              aria-controls={`tool-group-${item.id}`}
+              data-active={item.ids.some((id) => id === active) || undefined}
+              onClick={() => setGroup(group === item.id ? null : item.id)}
+            >
+              {item.label}<ChevronDown size={14} aria-hidden="true" />
+            </button>
+            <div id={`tool-group-${item.id}`} className="tool-subnav" hidden={group !== item.id}>
+              {toolLinks.filter((tool) => item.ids.some((id) => id === tool.id)).map((tool) => (
+                <Link key={tool.id} href={tool.href} aria-current={active === tool.id ? "page" : undefined} onClick={close}>
+                  {tool.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         ))}
-        {active === "profit" && (
-          <a href="#simulation" onClick={() => setOpen(false)}>
-            예산 시뮬레이션
-          </a>
-        )}
-        <Link href="/" onClick={() => setOpen(false)}>
-          브랜드 홈 <ArrowUpRight size={13} />
-        </Link>
       </nav>
-      <span className="tool-demo-pill">
-        <span />
-        KITS TOOLS
-      </span>
-      <button
-        className="tool-mobile-menu"
-        type="button"
-        aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
-        aria-expanded={open}
-        aria-controls="tools-navigation"
-        onClick={() => setOpen(!open)}
-      >
+      <span className="tool-demo-pill"><span />KITS TOOLS</span>
+      <button className="tool-mobile-menu" type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
+        aria-expanded={open} aria-controls="tools-navigation" onClick={() => { setOpen(!open); setGroup(null); }}>
         {open ? <X /> : <Menu />}
       </button>
     </header>
