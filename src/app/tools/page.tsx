@@ -1,4 +1,5 @@
 "use client";
+import { FinanceBento } from "@/components/ui/finance-bento";
 import { ToolsHeader } from "@/components/tools-header";
 import { ProductResearch } from "@/components/product-research";
 import { safeProductUrl } from "@/lib/product-research";
@@ -274,6 +275,7 @@ export default function Home() {
             <span className="tool-note-decoration">↗</span>
           </div>
         </div>
+        <FinanceBento inputHref="#analysis" input={input} sourceLabel={`CPC ${cpcSource} · CVR ${cvrSource}`} />
         <div className="tool-workspace" id="analysis">
           <aside className="tool-input-panel">
             <div className="tool-panel-heading">

@@ -1,0 +1,219 @@
+.profit-bento {
+  font-family: var(--font-pretendard), sans-serif;
+  min-width: 0;
+  margin-bottom: 4px;
+}
+.profit-bento .pb-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+  margin-bottom: 18px;
+}
+.profit-bento .pb-heading span {
+  color: #64748b;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+.profit-bento .pb-heading h2 {
+  font-size: 23px;
+  margin-top: 8px;
+  color: #17243b;
+}
+.profit-bento .pb-heading p {
+  font-size: 11px;
+  color: #64748b;
+}
+.profit-bento .pb-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+}
+.profit-bento .pb-card {
+  min-width: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 24px;
+  background: #fff;
+}
+.profit-bento .pb-forecast {
+  grid-column: span 8;
+  background: radial-gradient(ellipse at top left, #294670, #142543 70%);
+  color: #fff;
+}
+.profit-bento .pb-card-top {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #c3d0e6;
+  font-size: 12px;
+}
+.profit-bento .pb-forecast > strong {
+  display: block;
+  font-size: clamp(30px, 4vw, 48px);
+  margin: 12px 0 7px;
+  letter-spacing: -1.5px;
+  font-variant-numeric: tabular-nums;
+}
+.profit-bento .pb-gain {
+  color: #86efac;
+}
+.profit-bento .pb-loss {
+  color: #fda4af;
+}
+.profit-bento .pb-forecast > p {
+  color: #c3d0e6;
+  font-size: 11px;
+}
+.profit-bento .pb-chart {
+  height: 190px;
+  margin-top: 14px;
+  min-width: 0;
+}
+.profit-bento .pb-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 10px;
+  color: #93b4ff;
+}
+.profit-bento .pb-legend > span:nth-child(2) {
+  color: #f3c77a;
+}
+.profit-bento .pb-legend small {
+  color: #bfcee3;
+  margin-left: auto;
+}
+.profit-bento .pb-costs {
+  grid-column: span 4;
+  background: #edf2fc;
+}
+.profit-bento .pb-costs > span {
+  color: #526581;
+  font-size: 12px;
+}
+.profit-bento .pb-costs h3 {
+  margin: 12px 0 24px;
+  color: #17243b;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+.profit-bento .pb-cost {
+  margin-bottom: 18px;
+}
+.profit-bento .pb-cost > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: #52627a;
+}
+.profit-bento .pb-cost b {
+  color: #17243b;
+}
+.profit-bento .pb-track {
+  height: 6px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #dce5f5;
+  margin-top: 8px;
+}
+.profit-bento .pb-track > span {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+}
+.profit-bento .pb-costs > p {
+  color: #64748b;
+  line-height: 1.8;
+  font-size: 11px;
+}
+.profit-bento .pb-kpi {
+  grid-column: span 3;
+}
+.profit-bento .pb-kpi > span,
+.profit-bento .pb-kpi small {
+  display: block;
+  color: #64748b;
+  font-size: 11px;
+}
+.profit-bento .pb-kpi strong {
+  display: block;
+  margin: 12px 0 8px;
+  font-size: clamp(22px, 2.5vw, 32px);
+  color: #1d4ed8;
+  font-variant-numeric: tabular-nums;
+}
+.profit-bento .pb-kpi.pb-positive strong {
+  color: #15803d;
+}
+.profit-bento .pb-kpi.pb-negative strong {
+  color: #b91c1c;
+}
+.profit-bento .pb-click-target {
+  padding: 18px 22px;
+  background: #e6eefb;
+  color: #234577;
+  border: 1px solid #d4e2f8;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.8;
+  margin-top: 16px;
+}
+.profit-bento .pb-click-target small {
+  display: block;
+  color: #526581;
+  font-size: 11px;
+  font-weight: 400;
+}
+@media (max-width: 1000px) {
+  .profit-bento .pb-forecast,
+  .profit-bento .pb-costs {
+    grid-column: span 12;
+  }
+  .profit-bento .pb-kpi {
+    grid-column: span 6;
+  }
+}
+@media (max-width: 520px) {
+  .profit-bento .pb-card {
+    padding: 20px 16px;
+    border-radius: 18px;
+  }
+  .profit-bento .pb-grid {
+    gap: 10px;
+  }
+  .profit-bento .pb-kpi {
+    padding: 18px 12px;
+  }
+  .profit-bento .pb-heading {
+    align-items: start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .profit-bento .pb-heading h2 {
+    font-size: 21px;
+  }
+  .profit-bento .pb-click-target {
+    padding: 16px;
+  }
+}
+
+.profit-bento .pb-kpi strong,
+.profit-bento .pb-forecast > strong {
+  overflow-wrap: anywhere;
+}
+
+.profit-bento .pb-heading a {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 8px 10px;
+  border: 1px solid #cbdffd;
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-radius: 8px;
+  white-space: nowrap;
+}

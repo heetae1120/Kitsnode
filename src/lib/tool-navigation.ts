@@ -1,4 +1,5 @@
 export const toolLinks = [
+  { id: "start", href: "/tools/start/", label: "맞춤 진단" },
   { id: "profit", href: "/tools/", label: "수익성 분석" },
   { id: "rankings", href: "/tools/rankings/", label: "상품 순위 조회" },
   { id: "seo", href: "/tools/seo/", label: "SEO 분석" },

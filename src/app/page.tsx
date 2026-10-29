@@ -223,7 +223,7 @@ export default function Home() {
               </a>
             ))}
             <Link
-              href="/tools/"
+              href="/tools/start/"
               className="tools-nav-link"
               onClick={() => setMenuOpen(false)}
             >

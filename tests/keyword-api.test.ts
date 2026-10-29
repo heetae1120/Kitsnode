@@ -469,3 +469,59 @@ test("shopping mode validates totals, protects quotas and returns controlled ups
   );
   assert.equal(response.status, 429);
 });
+
+test("bid estimate signs a read-only estimate POST and separates devices in cache", async () => {
+  let calls = 0;
+  const handler = createKeywordHandler({ now: () => 1793145600000, fetcher: async (url, init) => {
+    calls++;
+    assert.equal(String(url), "https://api.searchad.naver.com/estimate/average-position-bid/keyword");
+    assert.equal(init!.method, "POST");
+    const headers = init!.headers as Record<string, string>;
+    assert.equal(headers["X-Signature"], createHmac("sha256", env.NAVER_SEARCHAD_SECRET_KEY).update("1793145600000.POST./estimate/average-position-bid/keyword").digest("base64"));
+    const body = JSON.parse(String(init!.body));
+    assert.deepEqual(body.items, [{ key: "가습기", position: 3 }]);
+    return Response.json({ device: body.device, estimate: [{ keyword: "가습기", position: 3, bid: 700 }] });
+  } });
+  for (const device of ["PC", "PC", "MOBILE"]) {
+    const res = await handler(new Request(`https://api.example.com/api/keywords?mode=bid-estimate&device=${device}&keywords=${encodeURIComponent("가습기")}`), env);
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.source, "naver-bid-estimate");
+    assert.equal(data.device, device);
+    assert.deepEqual(data.bids, [{ keyword: "가습기", bid: 700 }]);
+    for (const value of Object.values(env)) assert.ok(!JSON.stringify(data).includes(value));
+  }
+  assert.equal(calls, 2);
+});
+
+test("invalid estimate targets never call Naver and missing bids stay unknown", async () => {
+  let calls = 0;
+  const handler = createKeywordHandler({ fetcher: async () => { calls++; return Response.json({ estimate: [] }); } });
+  for (const query of ["device=TABLET", "device=MOBILE&position=6", "position=0", "position=2.5"]) {
+    const res = await handler(new Request(`https://api.example.com/api/keywords?mode=bid-estimate&keywords=test&${query}`), env);
+    assert.equal(res.status, 400);
+  }
+  assert.equal(calls, 0);
+  const data = await (await handler(new Request("https://api.example.com/api/keywords?mode=bid-estimate&keywords=test"), env)).json();
+  assert.deepEqual(data.bids, [{ keyword: "test", bid: null }]);
+});
+
+test("shopping details return safe product candidates and do not reuse count-only cache", async () => {
+  let calls = 0;
+  const handler = createKeywordHandler({ fetcher: async (url) => {
+    calls++;
+    return Response.json({ total: 12, items: [
+      { title: "<b>가습기</b> &amp; 필터", lprice: "39000", mallName: "공식몰", link: "https://example.com/product" },
+      { title: "다른 상품", lprice: "unknown", link: "javascript:alert(1)" },
+    ] });
+  } });
+  const vars = { NAVER_OPENAPI_CLIENT_ID: "developer", NAVER_OPENAPI_CLIENT_SECRET: "secret" };
+  const base = "https://api.example.com/api/keywords?mode=shopping&keywords=test";
+  const count = await (await handler(new Request(base), vars)).json();
+  assert.equal(count.products[0].items, undefined);
+  const data = await (await handler(new Request(base + "&details=1"), vars)).json();
+  assert.deepEqual(data.products[0].items[0], { title: "가습기 & 필터", price: 39000, mallName: "공식몰", url: "https://example.com/product" });
+  assert.equal(data.products[0].items[1].price, null);
+  assert.equal(data.products[0].items[1].url, null);
+  assert.equal(calls, 2);
+});

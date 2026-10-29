@@ -45,11 +45,11 @@ export function ToolsHeader({ active }: { active: ToolId }) {
   }, [group, open]);
   return (
     <header ref={header} className="tool-topbar expanded-tools">
-      <Link className="tool-brand" href="/" aria-label="KITS 브랜드 홈으로" onClick={close}>
+      <Link className="tool-brand" href="/tools/start/" aria-label="KITS 도구 메인으로" aria-current={active === "start" ? "page" : undefined} onClick={close}>
         <span className="tool-brand-icon"><Layers3 size={20} /></span>
         KITS
         <span className="tool-brand-divider" />
-        <span className="tool-brand-caption">Tools · 비즈니스 도구</span>
+        <span className="tool-brand-caption">Tools · 맞춤 진단</span>
       </Link>
       <nav id="tools-navigation" aria-label="도구 메뉴" className={open ? "tool-nav open" : "tool-nav"}>
         {["profit", "keywords"].map((id) => {

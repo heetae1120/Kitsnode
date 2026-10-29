@@ -75,12 +75,23 @@ Vercel에서 실제 호출 중인 배포의 Production/Preview 환경에 세 변
 - 인증 실패·할당량·타임아웃·응답 오류는 명시적인 오류를 반환합니다. 자동으로 데모 결과로 바꾸거나 인증 값·상류 오류 원문을 응답에 노출하지 않습니다.
 - CORS는 허용 origin만 응답합니다. CORS 자체가 API 이용 인증을 대신하지는 않습니다.
 
-## 쇼핑 검색 결과 상품 수 (선택 연결)
+## 쇼핑 검색 결과 상품 수 (기존 API 권한 보유자용, 선택 연결)
 
 `GET /api/keywords?mode=shopping&keywords=키워드`는 네이버 개발자센터의 쇼핑 검색 API(`https://openapi.naver.com/v1/search/shop.json`)를 호출합니다. `total`을 검색 결과 상품 수로 표시하며 고유 판매자 수나 스마트스토어 전용 상품 수로 표현하지 않습니다.
 
-별도 서버 환경변수 **NAVER_OPENAPI_CLIENT_ID**, **NAVER_OPENAPI_CLIENT_SECRET**을 등록해야 합니다. 검색광고 API 키·비밀 키와 다르며 개발자센터 앱에 쇼핑 검색 API 사용 권한이 필요합니다. 브라우저에는 등록하지 마세요.
+이 절은 기존 쇼핑 검색 API 권한을 보유한 앱 기준입니다. 신규 신청 경로와 호환성 제한은 문서 아래의 **쇼핑 API 신규 신청 안내 정정**을 먼저 확인하세요. 기존 앱의 별도 서버 환경변수 **NAVER_OPENAPI_CLIENT_ID**, **NAVER_OPENAPI_CLIENT_SECRET**을 등록해야 합니다. 검색광고 API 키·비밀 키와 다르며 개발자센터 앱에 쇼핑 검색 API 사용 권한이 필요합니다. 브라우저에는 등록하지 마세요.
 
 응답은 `{source: "naver-shopping", products: [{keyword, count}], fetchedAt}`입니다. 미등록 시 `503 SHOPPING_NOT_CONFIGURED`를 반환합니다. 한 요청의 힌트가 여러 개이면 쇼핑 API를 키워드별로 호출하므로 그 수만큼 상류 호출 한도를 차감합니다. 캐시와 CORS 정책은 키워드 조회와 같습니다. 실제 키 인증은 미검증이며 모의 응답으로 헤더·상품 수·한도·캐시를 검사했습니다.
 
 키워드 통계 응답에는 제공된 경우 `pcCtr`, `mobileCtr`, `adDepth`를 추가로 매핑합니다. 각각 `monthlyAvePcCtr`, `monthlyAveMobileCtr`, `plAvgDepth`에서 읽으며 월간 검색량이나 클릭 수로 임의 역산하지 않습니다.
+
+## 조회 전용 추정 입찰가와 경쟁 상품 후보
+
+- `GET /api/keywords?mode=bid-estimate&keywords=키워드&device=PC&position=3`: 검색광고 Estimate API를 서명한 POST로 조회합니다. 외부 클라이언트에는 GET만 허용하며 실제 입찰 변경 API는 호출하지 않습니다. PC 위치는 1~10, MOBILE은 1~5입니다. 결과는 `source: "naver-bid-estimate"`, `bids: [{keyword, bid}]`이며 미제공 입찰가는 null입니다. 이 값은 시장 전체의 실제 평균 CPC가 아닙니다.
+- 기존 `mode=shopping`에 `details=1`을 더하면 상품 수와 함께 최대 10개 상품의 `title`, `price`, `mallName`, `url`을 반환합니다. 제목 태그와 안전하지 않은 URL을 제거하며, 누락 가격은 null로 둡니다. 기존 상품 수 응답은 유지하고 별도 캐시로 구분합니다. 검색 결과 순서는 광고 순위·전체 판매자 순위가 아닙니다.
+
+### 쇼핑 API 신규 신청 안내 정정 (2026-10-29)
+
+위 Client ID/Secret과 `openapi.naver.com/v1/search/shop.json` 연동은 기존 쇼핑 검색 API 권한을 가진 앱을 위한 방식입니다. 네이버 공식 검색 소개의 신규 이용 신청은 현재 [NAVER API HUB](https://www.ncloud.com/product/applicationService/naverApiHub)로 연결됩니다. API HUB는 호출 주소와 인증 헤더가 다르므로 신규 API HUB 키를 현재 어댑터에 그대로 넣으면 안 됩니다. 확인한 공식 제공 목록에는 상품 검색이 없으며, 쇼핑 인사이트는 상대 클릭 추이 API여서 경쟁 상품 목록을 대체하지 않습니다. 신규 상품 검색의 제공·신청 가능 여부를 확인하기 전에는 자동 목록을 사용할 수 있다고 안내하지 않습니다.
+
+[공식 이관 가이드](https://guide.ncloud-docs.com/docs/apihub-migration), [API HUB 제공 API](https://api.ncloud-docs.com/docs/naver-api-hub-overview) 및 [기능 검토](../docs/naver-api-capabilities.md)를 참조하세요.

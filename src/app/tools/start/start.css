@@ -1,0 +1,459 @@
+.business-intake .intake-hero > span,
+.business-intake .intake-section-heading > div > span,
+.business-intake .intake-report-heading > div > span {
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+}
+.business-intake .intake-hero h1 {
+  margin: 14px 0;
+}
+.business-intake .intake-hero h1 em {
+  font-style: normal;
+  color: #2563eb;
+}
+.business-intake .intake-hero p {
+  color: #64748b;
+  line-height: 1.8;
+}
+.business-intake .intake-panel {
+  min-width: 0;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 28px;
+  border-radius: 22px;
+}
+.business-intake h2 {
+  font-size: 20px;
+  color: #17243b;
+}
+.business-intake .intake-question {
+  display: flex;
+  gap: 18px;
+  padding: 24px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+.business-intake .intake-question:first-child {
+  padding-top: 0;
+}
+.business-intake .intake-step {
+  display: grid;
+  place-items: center;
+  flex: 0 0 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #2563eb;
+  background: #eff6ff;
+  font-size: 12px;
+}
+.business-intake .intake-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 18px;
+}
+.business-intake button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #dce3ed;
+  border-radius: 10px;
+  background: #fff;
+  color: #475569;
+  font: inherit;
+  font-size: 13px;
+}
+.business-intake button[aria-pressed="true"] {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #93b4ff;
+}
+.business-intake button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.business-intake .intake-choices button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.business-intake .intake-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+.business-intake .intake-section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.business-intake .intake-section-heading h2 {
+  margin-top: 9px;
+}
+.business-intake .intake-section-heading > a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #2563eb;
+  font-size: 12px;
+}
+.business-intake .intake-market-form {
+  display: flex;
+  gap: 12px;
+}
+.business-intake .intake-market-form label {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid #dce3ed;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 0 14px;
+  color: #2563eb;
+}
+.business-intake .intake-market-form input {
+  min-width: 0;
+  width: 100%;
+  height: 48px;
+  background: transparent;
+  border: 0;
+  color: #17243b;
+}
+.business-intake .intake-market-form > button,
+.business-intake .intake-build {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+.business-intake .intake-note {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.9;
+  margin-top: 12px;
+}
+.business-intake .intake-market-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+.business-intake .intake-market-stats article {
+  padding: 22px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  min-width: 0;
+}
+.business-intake .intake-market-stats span,
+.business-intake .intake-market-stats small {
+  color: #64748b;
+  display: block;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.business-intake .intake-market-stats strong {
+  color: #1d4ed8;
+  display: block;
+  font-size: 30px;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.business-intake .intake-market-stats button {
+  margin-top: 12px;
+  color: #1d4ed8;
+  background: #eff6ff;
+  font-size: 11px;
+}
+.business-intake .intake-data-notice {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #fffbeb;
+  color: #854d0e;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.business-intake .intake-data-notice p {
+  margin: 5px 0;
+  overflow-wrap: anywhere;
+}
+.business-intake .intake-competitors {
+  margin-top: 24px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 20px;
+}
+.business-intake .intake-competitors summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+}
+.business-intake .intake-product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+.business-intake .intake-product-grid article {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  min-width: 0;
+}
+.business-intake .intake-product-grid span {
+  font-size: 10px;
+  color: #64748b;
+}
+.business-intake .intake-product-grid h3 {
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 10px 0;
+  overflow-wrap: anywhere;
+}
+.business-intake .intake-product-grid strong {
+  color: #1d4ed8;
+}
+.business-intake .intake-product-grid p {
+  color: #64748b;
+  font-size: 11px;
+  margin-top: 8px;
+}
+.business-intake .intake-manual-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 10px;
+  margin-top: 18px;
+}
+.business-intake .intake-manual-row input {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #dce3ed;
+  border-radius: 8px;
+}
+.business-intake .intake-manual-product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  font-size: 12px;
+}
+.business-intake .intake-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px 16px;
+}
+.business-intake .intake-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 0;
+}
+.business-intake .intake-name {
+  grid-column: 1 / -1;
+}
+.business-intake .intake-form input,
+.business-intake .intake-form select {
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  height: 46px;
+  border: 1px solid #dce3ed;
+  background: #f8fafc;
+  color: #17243b;
+  border-radius: 8px;
+  font: inherit;
+}
+.business-intake .intake-input-unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.business-intake .intake-input-unit small {
+  color: #64748b;
+  font-weight: 400;
+}
+.business-intake .intake-build {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.business-intake .intake-error {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-radius: 8px;
+  padding: 12px;
+}
+.business-intake .intake-report {
+  scroll-margin-top: 24px;
+  display: grid;
+  gap: 24px;
+}
+.business-intake .intake-report-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.business-intake .intake-report-heading h2 {
+  margin: 10px 0;
+  font-size: 26px;
+}
+.business-intake .intake-report-heading p {
+  color: #64748b;
+  font-size: 12px;
+}
+.business-intake .intake-report-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.business-intake .intake-report-actions button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.business-intake .intake-report-inputs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #64748b;
+  font-size: 12px;
+}
+.business-intake .intake-next p {
+  color: #52627a;
+  line-height: 1.9;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.business-intake .intake-connection-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+.business-intake .intake-connection-grid article {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 18px;
+  font-size: 12px;
+}
+.business-intake .intake-connection-grid span {
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.8;
+}
+.business-intake .intake-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #64748b;
+  font-size: 12px;
+}
+@media (max-width: 900px) {
+  .business-intake .intake-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .business-intake .intake-connection-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .business-intake .intake-panel {
+    padding: 22px 16px;
+    border-radius: 16px;
+  }
+  .business-intake .intake-market-stats,
+  .business-intake .intake-product-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .business-intake .intake-section-heading,
+  .business-intake .intake-report-heading {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .business-intake .intake-question {
+    gap: 12px;
+  }
+  .business-intake h2 {
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  .business-intake .intake-manual-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .business-intake .intake-market-form {
+    flex-direction: column;
+  }
+  .business-intake .intake-choices {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .business-intake .intake-form {
+    gap: 18px 12px;
+  }
+  .business-intake .intake-footer {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+@media print {
+  .business-intake .tool-topbar,
+  .business-intake .intake-questions,
+  .business-intake .intake-form-panel,
+  .business-intake .intake-footer,
+  .business-intake .intake-market-form,
+  .business-intake .intake-manual-row,
+  .business-intake button,
+  .business-intake .intake-hero {
+    display: none !important;
+  }
+  .business-intake main {
+    padding: 0 !important;
+    display: block !important;
+  }
+  .business-intake .intake-panel,
+  .business-intake .pb-card {
+    break-inside: avoid;
+    box-shadow: none;
+    margin: 12px 0;
+  }
+  .business-intake .pb-chart {
+    display: none;
+  }
+  .business-intake .pb-forecast {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+  }
+  .business-intake .pb-forecast *,
+  .business-intake .pb-card-top {
+    color: #17243b !important;
+  }
+  .business-intake .intake-report > * {
+    animation: none !important;
+  }
+  .business-intake .pb-legend {
+    display: none;
+  }
+}
+
+.business-intake .intake-manual-product > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.business-intake .intake-manual-product > button {
+  flex-shrink: 0;
+}

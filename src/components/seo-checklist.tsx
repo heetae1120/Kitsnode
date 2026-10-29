@@ -6,7 +6,7 @@ const statuses = [
   { id: "normal", label: "보통", text: "추가 점검할 부분이 있습니다." },
   { id: "improve", label: "개선 필요", text: "수정할 항목이 있습니다." },
 ] as const;
-export function SeoChecklist() {
+export function SeoChecklist({ onValuesChange }: { onValuesChange?: (values: Record<string, string>) => void } = {}) {
   const [values, setValues] = useState<Record<string, string>>({});
   return (
     <section className="workspace-panel" aria-labelledby="seo-checklist-title">
@@ -29,7 +29,7 @@ export function SeoChecklist() {
               aria-label={check}
               className={values[check] || ""}
               value={values[check] || ""}
-              onChange={(e) => setValues({ ...values, [check]: e.target.value })}
+              onChange={(e) => { const next = { ...values, [check]: e.target.value };setValues(next);onValuesChange?.(next); }}
             >
               <option value="">미평가</option>
               {statuses.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}

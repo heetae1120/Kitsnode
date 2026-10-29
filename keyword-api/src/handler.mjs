@@ -122,7 +122,7 @@ export function createKeywordHandler({
       );
     const params = new URL(request.url).searchParams;
     const mode = params.get("mode") || "keywords";
-    if (!["keywords", "shopping"].includes(mode))
+    if (!["keywords", "shopping", "bid-estimate"].includes(mode))
       return json(
         { code: "INVALID_MODE", error: "지원하지 않는 조회 유형입니다." },
         400,
@@ -150,6 +150,13 @@ export function createKeywordHandler({
         },
         400,
       );
+    const details = mode === "shopping" && params.get("details") === "1";
+    const device = params.get("device") || "PC";
+    const position = Number(params.get("position") || "3");
+    if (mode === "bid-estimate" && (
+      !["PC", "MOBILE"].includes(device) || !Number.isInteger(position) ||
+      position < 1 || position > (device === "PC" ? 10 : 5)
+    )) return json({ code: "INVALID_ESTIMATE", error: "기기와 목표 광고 위치를 확인해 주세요." }, 400);
     const key =
       mode === "shopping"
         ? env.NAVER_OPENAPI_CLIENT_ID
@@ -160,7 +167,7 @@ export function createKeywordHandler({
         : env.NAVER_SEARCHAD_SECRET_KEY;
     const customer =
       mode === "shopping" ? "shopping" : env.NAVER_SEARCHAD_CUSTOMER_ID;
-    const credentials = mode === "keywords"
+    const credentials = mode !== "shopping"
       ? {
           NAVER_SEARCHAD_API_KEY: credentialIssues(key),
           NAVER_SEARCHAD_SECRET_KEY: credentialIssues(secret),
@@ -205,7 +212,7 @@ export function createKeywordHandler({
             mode === "shopping" ? "SHOPPING_NOT_CONFIGURED" : "NOT_CONFIGURED",
           error:
             mode === "shopping"
-              ? "상품 수 자동 조회용 네이버 개발자센터 Client ID / Client Secret이 아직 서버에 설정되지 않았습니다. 검색광고 API 키와는 별도입니다."
+              ? "상품 검색 API가 연결되지 않았습니다. 기존 쇼핑 검색 API 사용 권한이 있는 Client ID / Secret이 필요하며, NAVER API HUB 신규 키는 기존 호출 방식과 호환되지 않습니다. 검색광고 키와는 별도입니다."
               : "조회 서버에 네이버 API 인증 정보가 아직 설정되지 않았습니다.",
         },
         503,
@@ -228,7 +235,8 @@ export function createKeywordHandler({
         { "Retry-After": "60" },
       );
     const cacheKey =
-      mode + ":" + String(customer) + ":" + String(key) + ":" + seeds.join(",");
+      mode + ":" + String(customer) + ":" + String(key) + ":" + seeds.join(",") +
+      (mode === "bid-estimate" ? `:${device}:${position}` : details ? ":details" : "");
     const hit = cache.get(cacheKey);
     if (hit && time - hit.time < cacheTtl)
       return json({ ...hit.data, cached: true });
@@ -252,7 +260,7 @@ export function createKeywordHandler({
               "https://openapi.naver.com/v1/search/shop.json",
             );
             url.searchParams.set("query", keyword);
-            url.searchParams.set("display", "1");
+            url.searchParams.set("display", details ? "10" : "1");
             url.searchParams.set("start", "1");
             const res = await fetcher(url, {
               headers: {
@@ -270,7 +278,23 @@ export function createKeywordHandler({
               payload.total > 1e12
             )
               throw new Error("invalid shopping response");
-            return { keyword, count: payload.total };
+            if (!details) return { keyword, count: payload.total };
+            const cleanText = (value) => typeof value === "string"
+              ? value.replace(/<[^>]*>/g, "").replace(/&amp;/g, "&").replace(/&quot;/g, '"').slice(0, 250)
+              : "";
+            const safeUrl = (value) => {
+              try {
+                const u = new URL(value);
+                return ["http:", "https:"].includes(u.protocol) && !u.username && !u.password ? u.href : null;
+              } catch { return null; }
+            };
+            const items = (Array.isArray(payload.items) ? payload.items : []).slice(0, 10).map((item) => ({
+              title: cleanText(item.title), mallName: cleanText(item.mallName),
+              url: safeUrl(item.link),
+              price: /^\d+$/.test(String(item.lprice)) && Number.isSafeInteger(Number(item.lprice))
+                ? Number(item.lprice) : null,
+            })).filter((item) => item.title);
+            return { keyword, count: payload.total, items };
           }),
         );
         const failed = responses.find((row) => "error" in row);
@@ -293,16 +317,18 @@ export function createKeywordHandler({
         return json({ ...data, cached: false });
       }
       const timestamp = String(time);
-      const path = "/keywordstool";
-      const method = "GET";
+      const path = mode === "bid-estimate" ? "/estimate/average-position-bid/keyword" : "/keywordstool";
+      const method = mode === "bid-estimate" ? "POST" : "GET";
       // Official SearchAd format: raw UTF-8 secret (no Base64 decoding),
       // millisecond timestamp, uppercase method, path WITHOUT query parameters.
       const signature = createHmac("sha256", secret)
         .update(`${timestamp}.${method}.${path}`, "utf8")
         .digest("base64");
       const url = new URL("https://api.searchad.naver.com" + path);
-      url.searchParams.set("hintKeywords", seeds.join(","));
-      url.searchParams.set("showDetail", "1");
+      if (mode === "keywords") {
+        url.searchParams.set("hintKeywords", seeds.join(","));
+        url.searchParams.set("showDetail", "1");
+      }
       const response = await fetcher(url, {
         method,
         headers: {
@@ -310,7 +336,9 @@ export function createKeywordHandler({
           "X-API-KEY": key,
           "X-Customer": String(customer),
           "X-Signature": signature,
+          ...(mode === "bid-estimate" ? { "Content-Type": "application/json" } : {}),
         },
+        ...(mode === "bid-estimate" ? { body: JSON.stringify({ device, items: seeds.map((key) => ({ key, position })) }) } : {}),
         signal: AbortSignal.timeout(8000),
         cache: "no-store",
       });
@@ -353,6 +381,19 @@ export function createKeywordHandler({
       const text = await response.text();
       if (text.length > 2000000) throw new Error("oversized");
       const payload = JSON.parse(text);
+      if (mode === "bid-estimate") {
+        if (!Array.isArray(payload.estimate)) throw new Error("invalid estimate");
+        const data = {
+          source: "naver-bid-estimate", device, position, fetchedAt: new Date(time).toISOString(),
+          bids: seeds.map((keyword) => {
+            const row = payload.estimate.find((item) => item?.keyword === keyword);
+            return { keyword, bid: Number.isSafeInteger(row?.bid) && row.bid > 0 && row.bid <= 1e9 ? row.bid : null };
+          }),
+        };
+        if (cache.size >= 100) cache.delete(cache.keys().next().value);
+        cache.set(cacheKey, { time, data });
+        return json({ ...data, cached: false });
+      }
       if (!Array.isArray(payload.keywordList)) throw new Error("invalid");
       const count = (v) => {
         if (typeof v === "number")
