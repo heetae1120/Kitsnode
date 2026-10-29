@@ -40,7 +40,7 @@
 .profit-tool .expanded-tools .tool-nav a:hover,
 .profit-tool .expanded-tools .tool-nav-group > button:hover { background: #f1f5f9; }
 .profit-tool .expanded-tools .tool-nav-group { position: relative; }
-.profit-tool .expanded-tools .tool-nav-group > button[aria-expanded="true"] svg { transform: rotate(180deg); }
+.profit-tool .expanded-tools .tool-nav-group > button[aria-expanded="true"] .tool-nav-chevron { transform: rotate(180deg); }
 .profit-tool .expanded-tools .tool-subnav {
   position: absolute;
   top: calc(100% + 8px);
@@ -104,4 +104,119 @@
     background: #f8fafc;
   }
   .profit-tool .expanded-tools .tool-mobile-menu { display: block; background: transparent; border: 0; padding: 4px; }
+}
+
+/* Small SVG scenes give each menu its own motion without external assets. */
+.profit-tool .expanded-tools .tool-nav > a,
+.profit-tool .expanded-tools .tool-nav-group > button {
+  position: relative;
+  gap: 9px;
+  padding: 7px 11px;
+  transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+.profit-tool .expanded-tools .tool-nav > a:hover,
+.profit-tool .expanded-tools .tool-nav-group > button:hover {
+  background: #eff6ff;
+  box-shadow: 0 3px 12px #2563eb0a;
+}
+.profit-tool .expanded-tools .menu-motion {
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: #526b92;
+  background: #eaf0f8;
+  overflow: hidden;
+  transition: color 200ms ease, background-color 200ms ease, transform 250ms cubic-bezier(.2,.8,.2,1);
+}
+.profit-tool .expanded-tools .menu-motion svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible, [aria-current="page"], [data-active="true"]) .menu-motion {
+  color: #2563eb;
+  background: #dbeafe;
+}
+.profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .menu-motion { transform: translateY(-2px); }
+.profit-tool .expanded-tools .tool-nav-label {
+  position: relative;
+  transition: transform 200ms ease;
+}
+.profit-tool .expanded-tools .tool-nav-label::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 2px;
+  border-radius: 2px;
+  background: #2563eb;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 250ms cubic-bezier(.2,.8,.2,1);
+}
+.profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .tool-nav-label::after { transform: scaleX(1); }
+.profit-tool .expanded-tools .glyph-bar { fill: currentColor; stroke: none; transform-origin: 12px 18px; }
+.profit-tool .expanded-tools .bar-one { --glyph-delay: 0ms; }
+.profit-tool .expanded-tools .bar-two { --glyph-delay: 100ms; }
+.profit-tool .expanded-tools .bar-three { --glyph-delay: 200ms; }
+.profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .glyph-bar {
+  animation: kits-bars 1100ms ease-in-out var(--glyph-delay) infinite;
+}
+.profit-tool .expanded-tools .glyph-orbit { transform-origin: 10px 10px; fill: currentColor; stroke: #eff6ff; }
+.profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .glyph-orbit { animation: kits-orbit 1600ms linear infinite; }
+.profit-tool .expanded-tools .glyph-tile { fill: currentColor; fill-opacity: .12; transform-box: fill-box; transform-origin: center; }
+.profit-tool .expanded-tools .tile-one { --glyph-delay: 0ms; }
+.profit-tool .expanded-tools .tile-two { --glyph-delay: 100ms; }
+.profit-tool .expanded-tools .tile-three { --glyph-delay: 300ms; }
+.profit-tool .expanded-tools .tile-four { --glyph-delay: 200ms; }
+.profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .glyph-tile { animation: kits-tiles 1400ms ease-in-out var(--glyph-delay) infinite; }
+.profit-tool .expanded-tools .glyph-ring { opacity: .45; transform-origin: 12px 12px; }
+.profit-tool .expanded-tools .glyph-arrow { stroke-dasharray: 24; stroke-dashoffset: 0; }
+.profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .glyph-ring { animation: kits-target 1400ms ease-in-out infinite; }
+.profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .glyph-arrow { animation: kits-arrow 1400ms ease-in-out infinite; }
+.profit-tool .expanded-tools .tool-nav-chevron { transition: transform 240ms cubic-bezier(.2,.8,.2,1); }
+.profit-tool .expanded-tools .tool-subnav:not([hidden]) { animation: kits-menu-reveal 230ms cubic-bezier(.2,.8,.2,1) both; transform-origin: top center; }
+.profit-tool .expanded-tools .tool-subnav:not([hidden]) a { animation: kits-menu-item 220ms ease-out both; }
+.profit-tool .expanded-tools .tool-subnav a:nth-child(1) { animation-delay: 30ms; }
+.profit-tool .expanded-tools .tool-subnav a:nth-child(2) { animation-delay: 65ms; }
+.profit-tool .expanded-tools .tool-subnav a:nth-child(3) { animation-delay: 100ms; }
+.profit-tool .expanded-tools .tool-subnav a { transition: background-color 160ms ease, color 160ms ease, padding-left 180ms ease; }
+.profit-tool .expanded-tools .tool-subnav a:hover { padding-left: 17px; color: #1d4ed8; }
+.profit-tool .expanded-tools .tool-menu-toggle { display: block; position: relative; width: 22px; height: 22px; }
+.profit-tool .expanded-tools .tool-menu-toggle > span { position: absolute; left: 1px; width: 20px; height: 1.7px; border-radius: 2px; background: currentColor; transition: transform 230ms ease, opacity 160ms ease; }
+.profit-tool .expanded-tools .tool-menu-toggle > span:nth-child(1) { top: 4px; }
+.profit-tool .expanded-tools .tool-menu-toggle > span:nth-child(2) { top: 10px; }
+.profit-tool .expanded-tools .tool-menu-toggle > span:nth-child(3) { top: 16px; }
+.profit-tool .expanded-tools .tool-mobile-menu[aria-expanded="true"] .tool-menu-toggle > span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.profit-tool .expanded-tools .tool-mobile-menu[aria-expanded="true"] .tool-menu-toggle > span:nth-child(2) { opacity: 0; transform: scaleX(.3); }
+.profit-tool .expanded-tools .tool-mobile-menu[aria-expanded="true"] .tool-menu-toggle > span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+@keyframes kits-bars { 0%, 100% { transform: scaleY(1); } 45% { transform: scaleY(.45); } }
+@keyframes kits-orbit { to { transform: rotate(360deg); } }
+@keyframes kits-tiles { 0%, 65%, 100% { transform: scale(.95); fill-opacity: .12; } 25% { transform: scale(.76); fill-opacity: .65; } }
+@keyframes kits-target { 0%, 100% { transform: scale(1); opacity: .45; } 50% { transform: scale(.84); opacity: .9; } }
+@keyframes kits-arrow { 0%, 100% { stroke-dashoffset: 0; } 35% { stroke-dashoffset: 24; } 70% { stroke-dashoffset: 0; } }
+@keyframes kits-menu-reveal { from { opacity: 0; transform: translateY(-7px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes kits-menu-item { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 1000px) {
+  .profit-tool .expanded-tools .tool-nav.open { animation: kits-menu-reveal 230ms cubic-bezier(.2,.8,.2,1) both; }
+  .profit-tool .expanded-tools .tool-nav.open > a,
+  .profit-tool .expanded-tools .tool-nav.open > .tool-nav-group { animation: kits-menu-item 240ms ease-out both; }
+  .profit-tool .expanded-tools .tool-nav.open > :nth-child(2) { animation-delay: 30ms; }
+  .profit-tool .expanded-tools .tool-nav.open > :nth-child(3) { animation-delay: 60ms; }
+  .profit-tool .expanded-tools .tool-nav.open > :nth-child(4) { animation-delay: 90ms; }
+  .profit-tool .expanded-tools .tool-nav-group > button { justify-content: flex-start; }
+  .profit-tool .expanded-tools .tool-nav-chevron { margin-left: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .profit-tool .expanded-tools *,
+  .profit-tool .expanded-tools *::before,
+  .profit-tool .expanded-tools *::after { animation: none !important; transition: none !important; }
+  .profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .menu-motion { transform: none; }
 }

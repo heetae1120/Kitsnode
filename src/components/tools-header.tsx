@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { toolLinks, type ToolId } from "@/lib/tool-navigation";
 import Link from "next/link";
-import { ChevronDown, Layers3, Menu, X } from "lucide-react";
+import { ChevronDown, Layers3 } from "lucide-react";
+import { MenuMotion } from "@/components/menu-motion";
 
 const groups = [
   { id: "store", label: "스토어 분석", ids: ["rankings", "seo", "traffic"] },
@@ -55,7 +56,8 @@ export function ToolsHeader({ active }: { active: ToolId }) {
           const tool = toolLinks.find((item) => item.id === id)!;
           return (
             <Link key={tool.id} href={tool.href} aria-current={active === tool.id ? "page" : undefined} onClick={close}>
-              {tool.id === "keywords" ? "키워드 도구" : tool.label}
+              <MenuMotion kind={tool.id === "profit" ? "profit" : "keywords"} />
+              <span className="tool-nav-label">{tool.id === "keywords" ? "키워드 도구" : tool.label}</span>
             </Link>
           );
         })}
@@ -69,7 +71,9 @@ export function ToolsHeader({ active }: { active: ToolId }) {
               data-active={item.ids.some((id) => id === active) || undefined}
               onClick={() => setGroup(group === item.id ? null : item.id)}
             >
-              {item.label}<ChevronDown size={14} aria-hidden="true" />
+              <MenuMotion kind={item.id} />
+              <span className="tool-nav-label">{item.label}</span>
+              <ChevronDown className="tool-nav-chevron" size={14} aria-hidden="true" />
             </button>
             <div id={`tool-group-${item.id}`} className="tool-subnav" hidden={group !== item.id}>
               {toolLinks.filter((tool) => item.ids.some((id) => id === tool.id)).map((tool) => (
@@ -84,7 +88,7 @@ export function ToolsHeader({ active }: { active: ToolId }) {
       <span className="tool-demo-pill"><span />KITS TOOLS</span>
       <button className="tool-mobile-menu" type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
         aria-expanded={open} aria-controls="tools-navigation" onClick={() => { setOpen(!open); setGroup(null); }}>
-        {open ? <X /> : <Menu />}
+        <span className="tool-menu-toggle" aria-hidden="true"><span /><span /><span /></span>
       </button>
     </header>
   );
