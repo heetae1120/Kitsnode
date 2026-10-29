@@ -1,5 +1,8 @@
 "use client";
 import { ToolsHeader } from "@/components/tools-header";
+import { ProductResearch } from "@/components/product-research";
+import { safeProductUrl } from "@/lib/product-research";
+import "./product-research.css";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   ArrowRight,
@@ -142,6 +145,7 @@ function NumericInput({
 export default function Home() {
   const [resetKey, setResetKey] = useState(0);
   const [draft, setDraft] = useState<Draft>(initialDraft);
+  const [sellingUrl, setSellingUrl] = useState("");
   const [input, setInput] = useState<ProductInput>(SAMPLE);
   const [omitted, setOmitted] = useState([
     "택배비",
@@ -227,6 +231,7 @@ export default function Home() {
   function reset() {
     setResetKey((k) => k + 1);
     setDraft(initialDraft);
+    setSellingUrl("");
     setInput(SAMPLE);
     setCpcSource("데모 데이터");
     setCvrSource("추정값");
@@ -298,6 +303,25 @@ export default function Home() {
                   onChange={(e) => setDraft({ ...draft, name: e.target.value })}
                   placeholder="예: 무선 미니 가습기"
                 />
+              </label>
+              <label className="tool-field">
+                <span>
+                  판매 링크 <small>선택</small>
+                </span>
+                <input
+                  aria-label="판매 링크 (선택)"
+                  type="url"
+                  maxLength={2000}
+                  placeholder="https://smartstore.naver.com/…"
+                  value={sellingUrl}
+                  onChange={(event) => setSellingUrl(event.target.value)}
+                />
+                <small>참고 링크로만 사용합니다. 상품 자동 수집 · 미연결</small>
+                {sellingUrl && !safeProductUrl(sellingUrl) && (
+                  <small className="pr-error">
+                    http 또는 https 주소를 입력하세요.
+                  </small>
+                )}
               </label>
               {(["price", "cost"] as const).map((key) => (
                 <label className="tool-field" key={key}>
@@ -1005,17 +1029,17 @@ export default function Home() {
             })}
           </div>
         </section>
+        <ProductResearch price={input.price} sellingUrl={sellingUrl} />
         <section className="tool-keyword-shortcut">
           <Search size={23} />
           <div>
-            <h3>상품의 검색 수요도 함께 확인해 보세요.</h3>
+            <h3>키워드·검색량 연동은 보류 중입니다.</h3>
             <p>
-              키워드 도구에서 PC·모바일 검색량과 연관 키워드를 비교할 수
-              있습니다.
+              검색량·실시간 광고순위 데이터는 수익성 계산에 연결되지 않습니다.
             </p>
           </div>
           <Link href="/tools/keywords/">
-            키워드 도구 열기 <ArrowRight size={15} />
+            기존 키워드 도구 <ArrowRight size={15} />
           </Link>
         </section>
         <section id="guide" className="tool-guide">

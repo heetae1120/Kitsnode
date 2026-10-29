@@ -1,0 +1,318 @@
+.profit-tool .pr-workspace {
+  margin-top: 32px;
+  padding: 30px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.profit-tool .pr-heading,
+.profit-tool .pr-section-heading,
+.profit-tool .pr-card-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+.profit-tool .pr-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--green);
+}
+.profit-tool .pr-heading h2 {
+  font-size: 23px;
+  letter-spacing: -1px;
+  margin-top: 10px;
+}
+.profit-tool .pr-workspace p {
+  color: #65736b;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.profit-tool .pr-heading p {
+  margin-top: 8px;
+}
+.profit-tool .pr-connections {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 280px;
+}
+.profit-tool .pr-connections span,
+.profit-tool .pr-card-title > span {
+  color: #59665f;
+  background: #f0f3f1;
+  border: 1px solid #e1e7e3;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.profit-tool .pr-notice {
+  background: #f2f8f4;
+  color: #42624e;
+  padding: 15px 18px;
+  margin-top: 22px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.profit-tool .pr-section-heading {
+  margin: 30px 0 16px;
+}
+.profit-tool .pr-section-heading h3 {
+  font-size: 17px;
+  margin-bottom: 6px;
+}
+.profit-tool .pr-section-heading > span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.profit-tool .pr-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+.profit-tool .pr-table-wrap table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+.profit-tool .pr-table-wrap caption {
+  text-align: left;
+  padding: 12px 14px;
+  color: #65736b;
+  font-size: 11px;
+}
+.profit-tool .pr-table-wrap th,
+.profit-tool .pr-table-wrap td {
+  padding: 14px;
+  border-top: 1px solid var(--line);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+  max-width: 240px;
+}
+.profit-tool .pr-table-wrap thead {
+  background: #f6f8f6;
+}
+.profit-tool .pr-table-wrap small,
+.profit-tool .pr-table-wrap a {
+  display: block;
+  font-weight: 400;
+  margin-top: 6px;
+  line-height: 1.6;
+}
+.profit-tool .pr-workspace a {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.profit-tool .pr-workspace .pr-footnote {
+  font-size: 11px;
+  margin-top: 10px;
+}
+.profit-tool .pr-editors {
+  margin-top: 18px;
+}
+.profit-tool .pr-editors summary {
+  font-size: 13px;
+  cursor: pointer;
+  padding: 12px 0;
+  font-weight: 600;
+}
+.profit-tool .pr-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.profit-tool .pr-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  background: #fcfdfc;
+}
+.profit-tool .pr-card h3,
+.profit-tool .pr-card h4 {
+  margin: 0;
+  font-size: 15px;
+}
+.profit-tool .pr-card-title {
+  align-items: center;
+  gap: 8px;
+}
+.profit-tool .pr-card label,
+.profit-tool .pr-target {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 12px;
+}
+.profit-tool .pr-workspace input,
+.profit-tool .pr-workspace textarea,
+.profit-tool .pr-workspace select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid #dbe3dd;
+  border-radius: 6px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+}
+.profit-tool .pr-workspace textarea {
+  resize: vertical;
+  line-height: 1.7;
+}
+.profit-tool .pr-workspace input:focus-visible,
+.profit-tool .pr-workspace select:focus-visible,
+.profit-tool .pr-workspace textarea:focus-visible,
+.profit-tool .pr-workspace summary:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
+.profit-tool .pr-workspace button {
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid #dbe3dd;
+  background: white;
+  padding: 7px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.profit-tool .pr-workspace button:hover {
+  background: #edf5ef;
+}
+.profit-tool .pr-workspace .pr-primary {
+  padding: 12px;
+  background: var(--green);
+  color: white;
+  border-color: var(--green);
+}
+.profit-tool .pr-workspace .pr-primary:hover {
+  background: #066347;
+}
+.profit-tool .pr-target {
+  width: min(100%, 360px);
+  margin-bottom: 18px;
+}
+.profit-tool .pr-review-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.4fr);
+  gap: 24px;
+  align-items: start;
+}
+.profit-tool .pr-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.profit-tool .pr-summary > div {
+  padding: 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  background: #f7faf8;
+}
+.profit-tool .pr-summary strong {
+  font-size: 24px;
+  color: var(--green);
+}
+.profit-tool .pr-summary span {
+  font-size: 11px;
+  color: #65736b;
+}
+.profit-tool .pr-themes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 18px 0;
+}
+.profit-tool .pr-themes > div {
+  border: 1px solid var(--line);
+  padding: 16px;
+  border-radius: 9px;
+  min-width: 0;
+}
+.profit-tool .pr-themes h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+.profit-tool .pr-themes ul {
+  padding-left: 18px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.profit-tool .pr-empty {
+  padding: 32px 18px;
+  text-align: center;
+  background: #fafbf9;
+  border: 1px dashed #d9e3db;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #65736b;
+}
+.profit-tool .pr-review {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 16px;
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+}
+.profit-tool .pr-review .pr-review-text {
+  color: var(--ink);
+  white-space: pre-wrap;
+  margin-bottom: 10px;
+}
+.profit-tool .pr-review small {
+  font-size: 11px;
+  color: #65736b;
+}
+.profit-tool .pr-review button {
+  margin-top: 10px;
+}
+.profit-tool .pr-workspace .pr-error,
+.profit-tool .pr-error {
+  color: #b33838;
+}
+@media (max-width: 1000px) {
+  .profit-tool .pr-card-grid {
+    grid-template-columns: 1fr;
+  }
+  .profit-tool .pr-heading {
+    flex-direction: column;
+  }
+  .profit-tool .pr-connections {
+    justify-content: flex-start;
+    max-width: none;
+  }
+}
+@media (max-width: 650px) {
+  .profit-tool .pr-workspace {
+    padding: 20px 16px;
+  }
+  .profit-tool .pr-heading h2 {
+    font-size: 20px;
+    line-height: 1.5;
+  }
+  .profit-tool .pr-review-grid,
+  .profit-tool .pr-themes {
+    grid-template-columns: 1fr;
+  }
+  .profit-tool .pr-section-heading {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
