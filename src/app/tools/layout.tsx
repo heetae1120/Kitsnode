@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ToolsMotion } from "@/components/tools-motion";
 import "./tools.css";
 import "./tools-navigation.css";
 export const metadata: Metadata = {
@@ -9,5 +10,9 @@ export const metadata: Metadata = {
 export default function ToolsLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <div className="profit-tool">{children}</div>;
+  return (
+    <div className="profit-tool">
+      <ToolsMotion>{children}</ToolsMotion>
+    </div>
+  );
 }

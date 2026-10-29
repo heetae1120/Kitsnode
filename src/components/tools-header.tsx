@@ -4,6 +4,7 @@ import { toolLinks, type ToolId } from "@/lib/tool-navigation";
 import Link from "next/link";
 import { ChevronDown, Layers3 } from "lucide-react";
 import { MenuMotion } from "@/components/menu-motion";
+import { useToolsMotion } from "@/components/tools-motion";
 
 const groups = [
   { id: "store", label: "스토어 분석", ids: ["rankings", "seo", "traffic"] },
@@ -11,6 +12,7 @@ const groups = [
 ] as const;
 
 export function ToolsHeader({ active }: { active: ToolId }) {
+  const navigate = useToolsMotion();
   const [open, setOpen] = useState(false);
   const [group, setGroup] = useState<string | null>(null);
   const header = useRef<HTMLElement>(null);
@@ -55,7 +57,13 @@ export function ToolsHeader({ active }: { active: ToolId }) {
         {["profit", "keywords"].map((id) => {
           const tool = toolLinks.find((item) => item.id === id)!;
           return (
-            <Link key={tool.id} href={tool.href} aria-current={active === tool.id ? "page" : undefined} onClick={close}>
+            <Link
+              key={tool.id}
+              href={tool.href}
+              aria-current={active === tool.id ? "page" : undefined}
+              onClick={close}
+              onNavigate={(event) => { if (navigate(tool.href)) event.preventDefault(); }}
+            >
               <MenuMotion kind={tool.id === "profit" ? "profit" : "keywords"} />
               <span className="tool-nav-label">{tool.id === "keywords" ? "키워드 도구" : tool.label}</span>
             </Link>
@@ -77,7 +85,13 @@ export function ToolsHeader({ active }: { active: ToolId }) {
             </button>
             <div id={`tool-group-${item.id}`} className="tool-subnav" hidden={group !== item.id}>
               {toolLinks.filter((tool) => item.ids.some((id) => id === tool.id)).map((tool) => (
-                <Link key={tool.id} href={tool.href} aria-current={active === tool.id ? "page" : undefined} onClick={close}>
+                <Link
+                  key={tool.id}
+                  href={tool.href}
+                  aria-current={active === tool.id ? "page" : undefined}
+                  onClick={close}
+                  onNavigate={(event) => { if (navigate(tool.href)) event.preventDefault(); }}
+                >
                   {tool.label}
                 </Link>
               ))}
