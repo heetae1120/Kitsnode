@@ -52,7 +52,7 @@ npm run keywords:server
 
 필요하면 프런트엔드 빌드에 비밀 값이 아닌 `NEXT_PUBLIC_KEYWORD_API_URL=https://your-api.vercel.app/api/keywords`를 지정해 기본 주소를 고정할 수도 있습니다. 그 외 네이버 키에는 절대 `NEXT_PUBLIC_`을 붙이지 마세요.
 
-키 등록과 외부 서버 배포는 아직 하지 않았습니다. 현재 인스턴스의 네이버 인증 변수도 없으므로 **실제 계정의 조회 성공은 미검증**입니다. 서버 서명·매핑·CORS·캐시·오류 처리는 모의 응답 테스트로 검증합니다.
+조회 서버는 **https://kitsnode.vercel.app/api/keywords**에 배포되어 있습니다. GitHub Pages 빌드는 이 주소를 기본 조회 서버로 사용하며, 브라우저에서 별도로 저장한 서버 주소가 있으면 해당 설정을 우선합니다. CORS와 배포 응답은 확인했으며, **실제 계정의 조회 성공은 아직 미검증**입니다. Production에 등록된 검색광고 인증 정보는 네이버에서 유효한 조합이어야 합니다. 서버 서명·매핑·CORS·캐시·오류 처리는 모의 응답 테스트로 검증합니다.
 
 ## 동작과 제한
 
@@ -62,7 +62,7 @@ npm run keywords:server
 
 상류 오류 응답과 검색광고 설정 오류에는 `diagnosticId`가 포함됩니다. Vercel Runtime Logs에서 이 ID 또는 `naver_searchad_error`를 검색하세요. 서버 로그에는 변수 이름별 이상 유형, 상류 HTTP 상태, 고정 서명 방식과 경로, 밀리초 타임스탬프, `clockSkewMs`가 남습니다. `clockSkewMs`는 로컬 시각에서 네이버 응답의 `Date`를 뺀 대략적인 값이며 네트워크 지연과 초 단위 반올림을 포함합니다. `Date`가 없거나 유효하지 않으면 `null`입니다.
 
-네이버 오류 JSON의 `code`와 `message`만 `upstreamError`에 추출해 **서버 로그에만** 기록합니다. 인증 키·비밀 키·고객 ID·서명과 그 URL 인코딩/Base64 표현, 입력 키워드·요청 URL을 `[REDACTED]`로 마스킹하고 인증 헤더 표현도 제거합니다. 마스킹 후 제어문자를 제거하고 code는 80자, message는 500자로 제한합니다. 전체 응답이나 다른 JSON 필드, 헤더 원문은 기록하지 않으며 클라이언트에는 네이버 code/message를 전달하지 않습니다. 본문은 최대 16KB까지만 읽습니다. `parseStatus`가 `parsed`면 추출 성공이며, 비문자열·비숫자 필드는 `null`입니다. `empty`, `invalid_json`, `too_large`, `unavailable`이면 두 필드는 `null`로 남고 기존 오류 응답은 유지됩니다.
+네이버 오류 JSON의 `code`와 `message`를 `upstreamError`에 추출해 **서버 로그에만** 기록합니다. RFC 7807 오류는 `type`과 `title`·`detail`을 각각 같은 두 진단 필드로 매핑하며, 동일한 마스킹·길이 제한을 적용합니다. 인증 키·비밀 키·고객 ID·서명과 그 URL 인코딩/Base64 표현, 입력 키워드·요청 URL을 `[REDACTED]`로 마스킹하고 인증 헤더 표현도 제거합니다. 마스킹 후 제어문자를 제거하고 code는 80자, message는 500자로 제한합니다. 전체 응답이나 다른 JSON 필드, 헤더 원문은 기록하지 않으며 클라이언트에는 네이버 code/message를 전달하지 않습니다. 본문은 최대 16KB까지만 읽습니다. `parseStatus`가 `parsed`면 추출 성공이며, 비문자열·비숫자 필드는 `null`입니다. `empty`, `invalid_json`, `too_large`, `unavailable`이면 두 필드는 `null`로 남고 기존 오류 응답은 유지됩니다.
 
 `NAVER_AUTH_ERROR`(상류 401/403)이고 설정 이상이 없다면, 같은 검색광고 계정에서 발급한 API 라이선스 키·원문 비밀 키·고객 ID 조합인지, API 사용 권한이 있는지 확인하세요. 개발자센터 Client Secret이나 네이버 클라우드 인증 방식과 혼용하면 안 됩니다. 비밀 키가 Base64처럼 보여도 디코딩하지 않습니다. 서명은 [공식 예제](https://github.com/naver/searchad-apidoc/blob/master/python-sample/examples/signaturehelper.py)와 같이 원문 UTF-8 키로 `timestamp.GET./keywordstool`을 HMAC-SHA256 처리하고 결과를 Base64로 인코딩합니다. 쿼리 문자열은 서명에서 제외합니다.
 

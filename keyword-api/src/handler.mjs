@@ -44,10 +44,14 @@ async function readUpstreamError(response, sensitive) {
     const payload = JSON.parse(Buffer.concat(chunks).toString("utf8"));
     if (!payload || typeof payload !== "object" || Array.isArray(payload))
       return { ...empty, parseStatus: "invalid_json" };
-    // Only these two scalar fields are permitted. Never log payload or errors.
+    // Naver also returns RFC 7807 problems (type/title/detail). Whitelist only
+    // scalar diagnostics and apply the same redaction before logging either form.
+    const problemMessage = [payload.title, payload.detail]
+      .filter((value) => typeof value === "string")
+      .join(": ") || null;
     return {
-      code: maskDiagnostic(payload.code, sensitive, 80),
-      message: maskDiagnostic(payload.message, sensitive, 500),
+      code: maskDiagnostic(payload.code ?? payload.type, sensitive, 80),
+      message: maskDiagnostic(payload.message ?? problemMessage, sensitive, 500),
       parseStatus: "parsed",
     };
   } catch {

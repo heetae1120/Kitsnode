@@ -154,6 +154,33 @@ test("masks Naver code and message before logging while keeping them out of clie
   assert.ok(!JSON.stringify(data).includes("Signature invalid"));
 });
 
+test("logs redacted RFC 7807 Naver problems without exposing them to the client", async () => {
+  const logs: { upstreamError: { code: string; message: string; parseStatus: string } }[] = [];
+  const handler = createKeywordHandler({
+    logger: (entry) => logs.push(entry),
+    fetcher: async () => Response.json({
+      type: "urn:naver:api:problem:invalid-api-key",
+      title: "Forbidden",
+      detail: `Invalid API key ${env.NAVER_SEARCHAD_API_KEY}; customer ${env.NAVER_SEARCHAD_CUSTOMER_ID}; secret ${env.NAVER_SEARCHAD_SECRET_KEY}`,
+      status: 403,
+      instance: "private-instance",
+      nested: { detail: "private-extra" },
+    }, { status: 403 }),
+  });
+  const res = await handler(request(), env);
+  const data = await res.json();
+  assert.equal(res.status, 502);
+  assert.equal(data.code, "NAVER_AUTH_ERROR");
+  assert.equal(data.upstreamError, undefined);
+  assert.equal(logs[0].upstreamError.code, "urn:naver:api:problem:invalid-api-key");
+  assert.match(logs[0].upstreamError.message, /^Forbidden: Invalid API key \[REDACTED\]/);
+  assert.equal(logs[0].upstreamError.parseStatus, "parsed");
+  const output = JSON.stringify({ data, logs });
+  for (const value of [...Object.values(env), "private-instance", "private-extra"])
+    assert.ok(!output.includes(value), "private problem fields were logged");
+  assert.ok(!JSON.stringify(data).includes("Forbidden"));
+});
+
 test("redacts credentials crossing the message length limit before truncation", async () => {
   const logs: { upstreamError: { message: string } }[] = [];
   const handler = createKeywordHandler({
