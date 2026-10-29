@@ -87,7 +87,7 @@ Vercel에서 실제 호출 중인 배포의 Production/Preview 환경에 세 변
 
 ## 조회 전용 추정 입찰가와 경쟁 상품 후보
 
-- `GET /api/keywords?mode=bid-estimate&keywords=키워드&device=PC&position=3`: 검색광고 Estimate API를 서명한 POST로 조회합니다. 외부 클라이언트에는 GET만 허용하며 실제 입찰 변경 API는 호출하지 않습니다. PC 위치는 1~10, MOBILE은 1~5입니다. 결과는 `source: "naver-bid-estimate"`, `bids: [{keyword, bid}]`이며 미제공 입찰가는 null입니다. 이 값은 시장 전체의 실제 평균 CPC가 아닙니다.
+- `GET /api/keywords?mode=bid-estimate&keywords=키워드&device=PC&position=3`: **파워링크** Estimate API를 서명한 POST로 조회합니다. 외부 클라이언트에는 GET만 허용하며 실제 입찰 변경 API는 호출하지 않습니다. PC 위치는 1~10, MOBILE은 1~5입니다. 결과는 `source: "naver-bid-estimate"`, `bids: [{keyword, bid}]`이며 미제공 입찰가는 null입니다. 이 값은 시장 전체의 실제 평균 CPC가 아닙니다.
 - 기존 `mode=shopping`에 `details=1`을 더하면 상품 수와 함께 최대 10개 상품의 `title`, `price`, `mallName`, `url`을 반환합니다. 제목 태그와 안전하지 않은 URL을 제거하며, 누락 가격은 null로 둡니다. 기존 상품 수 응답은 유지하고 별도 캐시로 구분합니다. 검색 결과 순서는 광고 순위·전체 판매자 순위가 아닙니다.
 
 ### 쇼핑 API 신규 신청 안내 정정 (2026-10-29)
@@ -95,3 +95,11 @@ Vercel에서 실제 호출 중인 배포의 Production/Preview 환경에 세 변
 위 Client ID/Secret과 `openapi.naver.com/v1/search/shop.json` 연동은 기존 쇼핑 검색 API 권한을 가진 앱을 위한 방식입니다. 네이버 공식 검색 소개의 신규 이용 신청은 현재 [NAVER API HUB](https://www.ncloud.com/product/applicationService/naverApiHub)로 연결됩니다. API HUB는 호출 주소와 인증 헤더가 다르므로 신규 API HUB 키를 현재 어댑터에 그대로 넣으면 안 됩니다. 확인한 공식 제공 목록에는 상품 검색이 없으며, 쇼핑 인사이트는 상대 클릭 추이 API여서 경쟁 상품 목록을 대체하지 않습니다. 신규 상품 검색의 제공·신청 가능 여부를 확인하기 전에는 자동 목록을 사용할 수 있다고 안내하지 않습니다.
 
 [공식 이관 가이드](https://guide.ncloud-docs.com/docs/apihub-migration), [API HUB 제공 API](https://api.ncloud-docs.com/docs/naver-api-hub-overview) 및 [기능 검토](../docs/naver-api-capabilities.md)를 참조하세요.
+
+### 쇼핑검색광고 추정 입찰가
+
+`GET /api/keywords?mode=shopping-bid-estimate&targetType=id&targetId=광고소재ID&device=PC&position=3`
+
+`targetType=id`는 `nad-`로 시작하는 광고 소재 ID, `targetType=product`는 네이버 쇼핑 상품 ID를 받습니다. 스마트스토어 상품번호와 다를 수 있습니다. 기존 검색광고 인증으로 공식 `POST /npla-estimate/average-position-bid/{type}`를 조회하며 쇼핑 검색 OpenAPI 인증은 필요하지 않습니다. 기기·목표 위치 범위는 파워링크와 같습니다. 응답은 `source: "naver-shopping-bid-estimate"`, `adType: "shopping-search"`, `targetType`, `targetId`, `device`, `position`, `bid`, `fetchedAt`입니다. 미제공·다른 ID·다른 위치의 결과는 `bid: null`이며 파워링크 추정가로 대체하지 않습니다. 광고 유형·ID 유형·기기·목표 위치별 캐시를 분리합니다.
+
+2026-10-29 운영 인증으로 소재 ID의 PC 목표 3위 추정값 조회(HTTP 200)를 검증했습니다. 개인 소재 ID는 문서·공개 화면의 기본값에 저장하지 않았습니다. 추정가는 실시간 낙찰가나 실제 평균 CPC가 아니며, 이 API는 입찰을 변경하지 않습니다. 조회 모드 추가로 자동입찰 기능이 활성화되는 것은 아닙니다.

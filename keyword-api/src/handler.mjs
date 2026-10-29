@@ -122,12 +122,18 @@ export function createKeywordHandler({
       );
     const params = new URL(request.url).searchParams;
     const mode = params.get("mode") || "keywords";
-    if (!["keywords", "shopping", "bid-estimate"].includes(mode))
+    if (!["keywords", "shopping", "bid-estimate", "shopping-bid-estimate"].includes(mode))
       return json(
         { code: "INVALID_MODE", error: "지원하지 않는 조회 유형입니다." },
         400,
       );
-    const raw = params.get("keywords") || "";
+    const shoppingBid = mode === "shopping-bid-estimate";
+    const estimateMode = shoppingBid || mode === "bid-estimate";
+    const targetType = params.get("targetType") || "product";
+    const raw = (shoppingBid ? params.get("targetId") : params.get("keywords")) || "";
+    if (shoppingBid && (!(["id", "product"].includes(targetType)) ||
+      !(targetType === "id" ? /^nad-[A-Za-z0-9-]{1,95}$/.test(raw) : /^\d{1,30}$/.test(raw))))
+      return json({ code: "INVALID_TARGET", error: "쇼핑 상품 ID 또는 광고 소재 ID를 확인해 주세요." }, 400);
     const seeds = [
       ...new Set(
         raw
@@ -140,7 +146,7 @@ export function createKeywordHandler({
       raw.length > 300 ||
       !seeds.length ||
       seeds.length > 5 ||
-      seeds.some((s) => s.length > 50 || /[\x00-\x1f\x7f]/.test(s))
+      seeds.some((s) => s.length > (shoppingBid ? 100 : 50) || /[\x00-\x1f\x7f]/.test(s))
     )
       return json(
         {
@@ -153,7 +159,7 @@ export function createKeywordHandler({
     const details = mode === "shopping" && params.get("details") === "1";
     const device = params.get("device") || "PC";
     const position = Number(params.get("position") || "3");
-    if (mode === "bid-estimate" && (
+    if (estimateMode && (
       !["PC", "MOBILE"].includes(device) || !Number.isInteger(position) ||
       position < 1 || position > (device === "PC" ? 10 : 5)
     )) return json({ code: "INVALID_ESTIMATE", error: "기기와 목표 광고 위치를 확인해 주세요." }, 400);
@@ -236,7 +242,7 @@ export function createKeywordHandler({
       );
     const cacheKey =
       mode + ":" + String(customer) + ":" + String(key) + ":" + seeds.join(",") +
-      (mode === "bid-estimate" ? `:${device}:${position}` : details ? ":details" : "");
+      (estimateMode ? `:${device}:${position}:${shoppingBid ? targetType : "keyword"}` : details ? ":details" : "");
     const hit = cache.get(cacheKey);
     if (hit && time - hit.time < cacheTtl)
       return json({ ...hit.data, cached: true });
@@ -317,8 +323,8 @@ export function createKeywordHandler({
         return json({ ...data, cached: false });
       }
       const timestamp = String(time);
-      const path = mode === "bid-estimate" ? "/estimate/average-position-bid/keyword" : "/keywordstool";
-      const method = mode === "bid-estimate" ? "POST" : "GET";
+      const path = shoppingBid ? `/npla-estimate/average-position-bid/${targetType}` : mode === "bid-estimate" ? "/estimate/average-position-bid/keyword" : "/keywordstool";
+      const method = estimateMode ? "POST" : "GET";
       // Official SearchAd format: raw UTF-8 secret (no Base64 decoding),
       // millisecond timestamp, uppercase method, path WITHOUT query parameters.
       const signature = createHmac("sha256", secret)
@@ -336,9 +342,9 @@ export function createKeywordHandler({
           "X-API-KEY": key,
           "X-Customer": String(customer),
           "X-Signature": signature,
-          ...(mode === "bid-estimate" ? { "Content-Type": "application/json" } : {}),
+          ...(estimateMode ? { "Content-Type": "application/json" } : {}),
         },
-        ...(mode === "bid-estimate" ? { body: JSON.stringify({ device, items: seeds.map((key) => ({ key, position })) }) } : {}),
+        ...(estimateMode ? { body: JSON.stringify({ device, items: seeds.map((key) => ({ key, position })) }) } : {}),
         signal: AbortSignal.timeout(8000),
         cache: "no-store",
       });
@@ -381,10 +387,24 @@ export function createKeywordHandler({
       const text = await response.text();
       if (text.length > 2000000) throw new Error("oversized");
       const payload = JSON.parse(text);
+      if (shoppingBid) {
+        const rows = Array.isArray(payload.estimate) ? payload.estimate
+          : payload && ("product" in payload || "nccAdId" in payload) ? [payload] : null;
+        if (!rows) throw new Error("invalid shopping estimate");
+        const row = rows.find(item => String(targetType === "id" ? item?.nccAdId : item?.product) === raw && item?.position === position);
+        const data = {
+          source: "naver-shopping-bid-estimate", adType: "shopping-search", targetType, targetId: raw,
+          device, position, fetchedAt: new Date(time).toISOString(),
+          bid: Number.isSafeInteger(row?.bid) && row.bid > 0 && row.bid <= 1e9 ? row.bid : null,
+        };
+        if (cache.size >= 100) cache.delete(cache.keys().next().value);
+        cache.set(cacheKey, { time, data });
+        return json({ ...data, cached: false });
+      }
       if (mode === "bid-estimate") {
         if (!Array.isArray(payload.estimate)) throw new Error("invalid estimate");
         const data = {
-          source: "naver-bid-estimate", device, position, fetchedAt: new Date(time).toISOString(),
+          source: "naver-bid-estimate", adType: "powerlink", device, position, fetchedAt: new Date(time).toISOString(),
           bids: seeds.map((keyword) => {
             const row = payload.estimate.find((item) => item?.keyword === keyword);
             return { keyword, bid: Number.isSafeInteger(row?.bid) && row.bid > 0 && row.bid <= 1e9 ? row.bid : null };

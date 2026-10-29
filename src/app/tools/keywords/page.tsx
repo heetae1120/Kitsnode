@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   Bar,
@@ -421,7 +422,7 @@ export default function KeywordTool() {
           <p>
             {data.source === "demo"
               ? "실제 네이버 검색량이 아닌 가상 예시입니다. API 연결 전에도 화면과 정렬 기능을 체험할 수 있습니다."
-              : "네이버 검색광고 키워드 도구에서 조회한 값입니다. 검색량은 최근 30일, 월평균 광고 클릭 수는 최근 4주 기준입니다."}
+              : "네이버 검색광고 키워드 도구의 검색량(최근 30일)과 파워링크 광고 클릭 통계(최근 4주)입니다. 쇼핑검색광고의 클릭·경쟁 통계가 아닙니다."}
           </p>
         </div>
         <section className="kw-stat-grid" aria-label="조회 결과 요약">
@@ -767,10 +768,10 @@ export default function KeywordTool() {
                   </th>
                   <th>모바일 비중</th>
                   <th>
-                    월평균 광고 클릭 수<small>PC / 모바일 · 최근 4주</small>
+                    월평균 광고 클릭 수<small>파워링크 PC / 모바일 · 최근 4주</small>
                   </th>
                   <th>
-                    경쟁 정도<small>PC 광고 기준</small>
+                    경쟁 정도<small>파워링크 PC 기준</small>
                   </th>
                   <th>비교 · 저장</th>
                 </tr>
@@ -920,9 +921,10 @@ export default function KeywordTool() {
           <Info size={19} />
           <div>
             <h3>데이터를 읽기 전에</h3>
+            <p>쇼핑검색광고 추정 입찰가는 <Link href="/tools/start/">맞춤 진단에서 상품·소재 ID로 조회</Link>하세요. 키워드 검색량은 쇼핑광고 전용 검색량이 아닙니다.</p>
             <p>
               검색량은 최근 30일의 검색 횟수이며 실시간 인기 검색어 순위나
-              검색자 수가 아닙니다. 월평균 클릭 수는 키워드 광고의 최근 4주
+              검색자 수가 아닙니다. 월평균 클릭 수는 파워링크 광고의 최근 4주
               지표이며 CPC·입찰가·구매전환율과 다릅니다. &lt;10은 0~9회 범위로
               보존하고 임의의 정확한 수치로 바꾸지 않습니다.
             </p>

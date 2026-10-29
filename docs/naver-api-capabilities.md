@@ -34,3 +34,10 @@
 공식 검색 API 소개의 이용신청 링크는 현재 [NAVER API HUB](https://www.ncloud.com/product/applicationService/naverApiHub)로 연결됩니다. 기존 NAVER Developers의 신규 앱 API 선택 화면에는 검색이 표시되지 않는 사례를 확인했습니다. [이관 가이드](https://guide.ncloud-docs.com/docs/apihub-migration)는 새 Client ID/Secret과 `X-NCP-APIGW-API-KEY-ID`, `X-NCP-APIGW-API-KEY`, `naverapihub.apigw.ntruss.com`으로의 변경을 설명합니다. 기존 `X-Naver-Client-Id/Secret` 및 `openapi.naver.com`과 호환되지 않습니다.
 
 [API HUB 공식 제공 목록](https://api.ncloud-docs.com/docs/naver-api-hub-overview)에서 뉴스·백과사전·블로그·이미지·지식iN·지역·카페글 등의 검색, 검색어 트렌드와 쇼핑 인사이트는 확인했으나, 상품·가격 목록을 반환하는 쇼핑 상품 검색은 확인하지 못했습니다. 이것만으로 기존 쇼핑 검색 API의 종료를 단정할 수는 없습니다. 현재 자동 경쟁 상품 목록 어댑터는 **기존 쇼핑 검색 권한이 있는 앱**을 대상으로 하며, 신규 가입자에게 발급·연동이 가능하다고 보장하지 않습니다. 쇼핑 인사이트의 상대 클릭 지수는 상품 목록·전체 방문자 수나 부정검색 판정을 대체하지 않습니다.
+
+## 쇼핑검색광고와 파워링크 추정가 분리
+
+맞춤 진단은 쇼핑검색광고를 기본으로 선택합니다. 쇼핑검색광고는 검색광고 API의 `POST /npla-estimate/average-position-bid/{type}`에 소재 ID(`id`) 또는 네이버 쇼핑 상품 ID(`product`)와 기기·목표 위치를 전달해 추정합니다. 파워링크의 키워드 기반 `/estimate/average-position-bid/keyword`와 별도 경로·응답·캐시를 사용합니다. 키워드만으로 쇼핑검색광고 추정값을 만들거나 두 유형의 CPC 가정을 자동으로 공유하지 않습니다. 조회 결과는 실제 과금 CPC가 아닙니다.
+
+공식 문서: https://naver.github.io/searchad-apidoc/
+명세 원본: https://github.com/naver/searchad-apidoc/blob/gh-pages/assets/json/estimate.json

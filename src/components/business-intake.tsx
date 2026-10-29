@@ -2,6 +2,11 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
+  AdTypeSwitch,
+  adTypeName,
+  type AdType,
+} from "@/components/ad-type-switch";
+import {
   ArrowRight,
   Check,
   Download,
@@ -49,7 +54,8 @@ type ShoppingData = {
   products: { keyword: string; count: number; items?: ProductCandidate[] }[];
 };
 type BidData = {
-  source: "naver-bid-estimate";
+  source: "naver-bid-estimate" | "naver-shopping-bid-estimate";
+  bid?: number | null;
   fetchedAt: string;
   device: string;
   position: number;
@@ -101,6 +107,11 @@ export function BusinessIntake() {
     agency: null,
   });
   const path = diagnosisPath(answers);
+  const [adType, setAdType] = useState<AdType>("shopping-search");
+  const [targetType, setTargetType] = useState("id");
+  const [targetId, setTargetId] = useState("");
+  const [device, setDevice] = useState("PC");
+  const [position, setPosition] = useState(3);
   const [query, setQuery] = useState("");
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [report, setReport] = useState<ProductInput | null>(null);
@@ -143,6 +154,25 @@ export function BusinessIntake() {
       setCpcKind("manual");
     }
   }
+  function clearEstimate() {
+    controller.current?.abort();
+    controller.current = null;
+    setLoading(false);
+    setBid(null);
+    setReport(null);
+    setMarketErrors([]);
+    if (cpcKind === "estimate") {
+      setDraft((d) => ({ ...d, cpc: "" }));
+      setCpcKind("manual");
+    }
+  }
+  function changeAdType(value: AdType) {
+    if (value === adType) return;
+    clearEstimate();
+    setAdType(value);
+    setDraft((d) => ({ ...d, cpc: "", cvrPercent: "" }));
+    setCpcKind("manual");
+  }
   async function lookup(event: FormEvent) {
     event.preventDefault();
     controller.current?.abort();
@@ -183,6 +213,18 @@ export function BusinessIntake() {
       const url = new URL(endpoint);
       url.searchParams.set("keywords", keyword);
       url.searchParams.set("mode", mode);
+      if (mode === "shopping-bid-estimate") {
+        if (!targetId.trim())
+          throw new Error(
+            "쇼핑 상품 ID 또는 광고 소재 ID를 입력해야 추정가를 조회할 수 있습니다.",
+          );
+        url.searchParams.set("targetId", targetId.trim());
+        url.searchParams.set("targetType", targetType);
+      }
+      if (mode.includes("bid-estimate")) {
+        url.searchParams.set("device", device);
+        url.searchParams.set("position", String(position));
+      }
       if (mode === "shopping") url.searchParams.set("details", "1");
       const response = await fetch(url, {
         signal: current.signal,
@@ -201,7 +243,11 @@ export function BusinessIntake() {
     try {
       const results = await Promise.allSettled([
         call("keywords"),
-        call("bid-estimate"),
+        call(
+          adType === "shopping-search"
+            ? "shopping-bid-estimate"
+            : "bid-estimate",
+        ),
         call("shopping"),
       ]);
       if (controller.current !== current || current.signal.aborted) return;
@@ -217,7 +263,27 @@ export function BusinessIntake() {
         try {
           const data = result.value;
           if (i === 0) setMarket(validateKeywordResponse(data));
-          if (i === 1) {
+          if (i === 1 && adType === "shopping-search") {
+            if (
+              data.source !== "naver-shopping-bid-estimate" ||
+              data.adType !== adType ||
+              data.targetType !== targetType ||
+              data.targetId !== targetId.trim() ||
+              data.device !== device ||
+              data.position !== position ||
+              !(
+                data.bid === null ||
+                (Number.isSafeInteger(data.bid) &&
+                  data.bid > 0 &&
+                  data.bid <= 1e9)
+              )
+            )
+              throw new Error("잘못된 쇼핑검색광고 추정 입찰가 응답");
+            setBid({ ...data, bids: [] });
+          }
+          if (i === 1 && adType === "powerlink") {
+            if (data.device !== device || data.position !== position)
+              throw new Error("조회 조건이 다른 추정 입찰가 응답");
             if (
               data.source !== "naver-bid-estimate" ||
               !Array.isArray(data.bids) ||
@@ -311,16 +377,20 @@ export function BusinessIntake() {
       (market.queriedKeywords[0] || "").toLowerCase(),
   );
   const estimatedBid =
-    bid?.bids.find(
-      (row) =>
-        row.keyword.toLowerCase() === query.replace(/\s/g, "").toLowerCase(),
-    )?.bid ?? null;
+    adType === "shopping-search"
+      ? (bid?.bid ?? null)
+      : (bid?.bids.find(
+          (row) =>
+            row.keyword.toLowerCase() ===
+            query.replace(/\s/g, "").toLowerCase(),
+        )?.bid ?? null);
   const cpcLabel =
-    cpcKind === "actual"
+    `${adTypeName(adType)} · ` +
+    (cpcKind === "actual"
       ? "사용자가 입력한 광고 실적 평균 CPC"
       : cpcKind === "estimate"
         ? "네이버 추정 입찰가를 CPC 가정으로 사용"
-        : "사용자가 입력한 CPC 가정";
+        : "사용자가 입력한 CPC 가정");
   function downloadReport() {
     if (!report || !path) return;
     const r = calculate(report);
@@ -338,6 +408,7 @@ export function BusinessIntake() {
       clickTargetText(report),
       `검색량: ${keywordRow ? formatRange(rowVolume(keywordRow, "all")) + "회 · 최근 30일 · 네이버 API" : "미조회 또는 정확히 일치하는 키워드 없음"}`,
       `시장 전체 실제 평균 CPC: 제공되지 않음`,
+      `광고 유형: ${adTypeName(adType)} · ${device} · 목표 ${position}위`,
       `추정 입찰가: ${estimatedBid === null ? "미조회/미제공" : won(estimatedBid) + " · 실제 평균 CPC와 다름"}`,
       ...Object.entries(seo).map(
         ([label, value]) =>
@@ -466,6 +537,79 @@ export function BusinessIntake() {
                   키워드 도구 전체 보기 <ArrowRight size={14} />
                 </Link>
               </div>
+              <AdTypeSwitch value={adType} onChange={changeAdType} />
+              <div className="shopping-bid-controls">
+                {adType === "shopping-search" && (
+                  <>
+                    <label>
+                      조회 ID 유형
+                      <select
+                        aria-label="조회 ID 유형"
+                        value={targetType}
+                        onChange={(e) => {
+                          clearEstimate();
+                          setTargetType(e.target.value);
+                          setTargetId("");
+                        }}
+                      >
+                        <option value="id">광고 소재 ID</option>
+                        <option value="product">네이버 쇼핑 상품 ID</option>
+                      </select>
+                    </label>
+                    <label>
+                      쇼핑검색광고 조회 ID
+                      <input
+                        value={targetId}
+                        maxLength={100}
+                        placeholder={
+                          targetType === "id"
+                            ? "nad-로 시작하는 광고 소재 ID"
+                            : "네이버 쇼핑 상품 ID (스마트스토어 번호와 다를 수 있음)"
+                        }
+                        onChange={(e) => {
+                          clearEstimate();
+                          setTargetId(e.target.value);
+                        }}
+                      />
+                    </label>
+                  </>
+                )}
+                <label>
+                  광고 기기
+                  <select
+                    aria-label="광고 기기"
+                    value={device}
+                    onChange={(e) => {
+                      clearEstimate();
+                      setDevice(e.target.value);
+                      setPosition(3);
+                    }}
+                  >
+                    <option value="PC">PC</option>
+                    <option value="MOBILE">모바일</option>
+                  </select>
+                </label>
+                <label>
+                  목표 광고 위치
+                  <select
+                    aria-label="목표 광고 위치"
+                    value={position}
+                    onChange={(e) => {
+                      clearEstimate();
+                      setPosition(Number(e.target.value));
+                    }}
+                  >
+                    {Array.from(
+                      { length: device === "PC" ? 10 : 5 },
+                      (_, i) => (
+                        <option key={i} value={i + 1}>
+                          {i + 1}위
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </label>
+              </div>
               <form className="intake-market-form" onSubmit={lookup}>
                 <label>
                   <Search size={18} />
@@ -482,8 +626,10 @@ export function BusinessIntake() {
                 </button>
               </form>
               <p className="intake-note">
-                실제 검색량·추정 입찰가·쇼핑 검색 결과를 각각 조회합니다. 평균
-                CPC는 시장 전체의 실결제 광고비로 제공되지 않습니다.
+                검색량·선택한 광고 유형의 추정 입찰가·쇼핑 검색 결과를 각각
+                조회합니다. 쇼핑검색광고는 키워드만으로 추정가를 조회할 수
+                없습니다. 평균 CPC는 시장 전체의 실결제 광고비로 제공되지
+                않습니다.
               </p>
               <div className="intake-market-stats" aria-live="polite">
                 <article>
@@ -503,17 +649,27 @@ export function BusinessIntake() {
                     {keywordRow ? formatCount(keywordRow.mobileSearches) : "—"}
                   </strong>
                   <small>
-                    {keywordRow
-                      ? `PC 광고 경쟁 정도: ${keywordRow.competition}`
-                      : "일치하는 결과가 있어야 표시"}
+                    {keywordRow && adType === "powerlink"
+                      ? `파워링크 PC 광고 경쟁 정도: ${keywordRow.competition}`
+                      : "네이버 키워드 검색량 · 쇼핑광고 전용 통계 아님"}
                   </small>
                 </article>
                 <article>
-                  <span>추정 입찰가 · PC 광고 3위 기준</span>
+                  <span>
+                    {adTypeName(adType)} 추정 입찰가 · {device} {position}위
+                    기준
+                  </span>
                   <strong>
                     {estimatedBid === null ? "—" : won(estimatedBid)}
                   </strong>
-                  <small>평균 노출 위치 통계 기반 · 실제 평균 CPC 아님</small>
+                  <small>
+                    평균 노출 위치 통계 기반 · 실제 평균 CPC 아님
+                    {bid && estimatedBid === null
+                      ? " · 해당 조건의 추정가 미제공"
+                      : ""}
+                    {bid &&
+                      ` · ${new Date(bid.fetchedAt).toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })} KST`}
+                  </small>
                   {estimatedBid !== null && (
                     <button
                       type="button"

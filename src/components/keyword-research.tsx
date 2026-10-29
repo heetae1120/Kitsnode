@@ -605,7 +605,7 @@ export function KeywordResearch({
                           "모바일 월평균 광고 클릭",
                           decimal(m.focused.row.mobileClicks),
                         ],
-                        ["PC 광고 경쟁 정도", m.focused.row.competition],
+                        ["파워링크 PC 광고 경쟁 정도", m.focused.row.competition],
                       ].map(([label, value]) => (
                         <div key={label}>
                           <dt>{label}</dt>
@@ -614,7 +614,7 @@ export function KeywordResearch({
                       ))}
                     </dl>
                     <p className="kr-footnote">
-                      CTR·클릭 수는 최근 4주 기준입니다. CPC·구매전환율·매출이
+                      CTR·클릭 수는 파워링크의 최근 4주 기준입니다. CPC·구매전환율·매출이
                       아니며 검색량으로 역산하지 않습니다. 누락 항목은 —로
                       표시합니다.
                     </p>

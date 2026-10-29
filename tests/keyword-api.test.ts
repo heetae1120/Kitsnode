@@ -525,3 +525,40 @@ test("shopping details return safe product candidates and do not reuse count-onl
   assert.equal(data.products[0].items[1].url, null);
   assert.equal(calls, 2);
 });
+
+test("shopping estimates sign NPLA requests and separate target type, position and Powerlink cache", async () => {
+  const calls: string[] = [];
+  const handler = createKeywordHandler({ now: () => 1234567890000, fetcher: async (url, options) => {
+    const path = new URL(String(url)).pathname;
+    calls.push(path);
+    const expected = createHmac("sha256", env.NAVER_SEARCHAD_SECRET_KEY).update(`1234567890000.POST.${path}`).digest("base64");
+    assert.equal((options?.headers as Record<string,string>)["X-Signature"], expected);
+    const body = JSON.parse(String(options?.body));
+    assert.equal(body.device, "PC");
+    assert.equal(body.items.length, 1);
+    const {key,position} = body.items[0];
+    if (path.endsWith("/id")) return Response.json({nccAdId:key,position,bid:320});
+    if (path.endsWith("/product")) return Response.json({device:"PC",estimate:[{product:key,position,bid:450}]});
+    return Response.json({estimate:[{keyword:key,position,bid:2800}]});
+  }});
+  const get = async (params: string) => (await handler(new Request(`https://api.example.com/api/keywords?${params}`),env)).json();
+  const ad = await get("mode=shopping-bid-estimate&targetType=id&targetId=nad-test-0001");
+  assert.equal(ad.source,"naver-shopping-bid-estimate"); assert.equal(ad.adType,"shopping-search"); assert.equal(ad.bid,320);
+  assert.equal((await get("mode=shopping-bid-estimate&targetType=product&targetId=12345")).bid,450);
+  assert.equal((await get("mode=bid-estimate&keywords=test")).bids[0].bid,2800);
+  assert.equal((await get("mode=shopping-bid-estimate&targetType=id&targetId=nad-test-0001")).cached,true);
+  assert.equal((await get("mode=shopping-bid-estimate&targetType=id&targetId=nad-test-0001&position=2")).position,2);
+  assert.equal(calls.length,4);
+});
+
+test("shopping estimates reject invalid targets and never substitute an unrelated product or position", async () => {
+  let calls = 0;
+  const handler = createKeywordHandler({fetcher:async () => {calls++; return Response.json({estimate:[{product:"999",position:3,bid:450},{product:"123",position:2,bid:700}]});}});
+  for (const params of ["", "targetId=keyboard", "targetType=id&targetId=123", "targetType=unknown&targetId=123"]) {
+    const response = await handler(new Request(`https://api.example.com/api/keywords?mode=shopping-bid-estimate&${params}`), env);
+    assert.equal(response.status,400);
+  }
+  assert.equal(calls,0);
+  const response = await handler(new Request("https://api.example.com/api/keywords?mode=shopping-bid-estimate&targetType=product&targetId=123"),env);
+  assert.equal((await response.json()).bid,null);
+});

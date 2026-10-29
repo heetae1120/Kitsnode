@@ -230,3 +230,14 @@
 @media (prefers-reduced-motion: reduce) {
   .profit-tool .tools-route-content main > * { animation: none !important; }
 }
+
+.ad-type-switch { min-width:0; margin:20px 0; padding:18px; border:1px solid #dce3ed; border-radius:16px; background:#fff; }
+.ad-type-switch legend { padding:0 6px; font-weight:700; color:#17243b; }
+.ad-type-switch > div { display:flex; flex-wrap:wrap; gap:8px; }
+.ad-type-switch button { padding:10px 16px; border:1px solid #dce3ed; border-radius:10px; background:#f3f5f8; color:#334155; cursor:pointer; }
+.ad-type-switch button[aria-pressed="true"] { background:#17243b; border-color:#17243b; color:#fff; }
+.ad-type-switch p { margin:12px 0 0; font-size:12px; line-height:1.7; color:#64748b; }
+.shopping-bid-controls { display:flex; flex-wrap:wrap; gap:12px; margin:16px 0; }
+.shopping-bid-controls label { display:flex; flex-direction:column; gap:6px; font-size:13px; min-width:0; }
+.shopping-bid-controls input,.shopping-bid-controls select { width:100%; min-width:0; max-width:100%; padding:10px; border:1px solid #dce3ed; border-radius:8px; background:#fff; }
+.shopping-bid-controls label:nth-child(2) { flex:1 1 230px; }

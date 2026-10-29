@@ -1,4 +1,5 @@
 "use client";
+import { AdTypeSwitch, adTypeName, type AdType } from "@/components/ad-type-switch";
 import { FinanceBento } from "@/components/ui/finance-bento";
 import { ToolsHeader } from "@/components/tools-header";
 import { ProductResearch } from "@/components/product-research";
@@ -145,6 +146,7 @@ function NumericInput({
   );
 }
 export default function Home() {
+  const [adType, setAdType] = useState<AdType>("shopping-search");
   const [resetKey, setResetKey] = useState(0);
   const [draft, setDraft] = useState<Draft>(initialDraft);
   const [sellingUrl, setSellingUrl] = useState("");
@@ -231,6 +233,7 @@ export default function Home() {
     if (key === "cvrPercent") setCvrSource("사용자 입력");
   }
   function reset() {
+    setAdType("shopping-search");
     setResetKey((k) => k + 1);
     setDraft(initialDraft);
     setSellingUrl("");
@@ -275,7 +278,15 @@ export default function Home() {
             <span className="tool-note-decoration">↗</span>
           </div>
         </div>
-        <FinanceBento inputHref="#analysis" input={input} sourceLabel={`CPC ${cpcSource} · CVR ${cvrSource}`} />
+        <AdTypeSwitch value={adType} onChange={value => {
+          if (value === adType) return;
+          setAdType(value);
+          setInput(previous => ({ ...previous, cpc: 0, cvrPercent: 0 }));
+          setCpcSource("미입력 · 선택한 광고 유형의 CPC를 입력하세요");
+          setCvrSource("미입력");
+          setResetKey(key => key + 1);
+        }} />
+        <FinanceBento inputHref="#analysis" input={input} sourceLabel={`${adTypeName(adType)} · CPC ${cpcSource} · CVR ${cvrSource}`} />
         <div className="tool-workspace" id="analysis">
           <aside className="tool-input-panel">
             <div className="tool-panel-heading">
