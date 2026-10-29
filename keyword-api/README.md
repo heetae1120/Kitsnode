@@ -56,6 +56,16 @@ npm run keywords:server
 
 ## 동작과 제한
 
+### 인증 오류 진단
+
+`NOT_CONFIGURED`(누락 또는 공백뿐인 값), `INVALID_AUTH_CONFIG`(앞뒤 공백·실제/문자열 줄바꿈·따옴표·헤더에 사용할 수 없는 문자)는 네이버에 요청하지 않고 503을 반환합니다. 값을 자동으로 잘라내거나 디코딩하지 않습니다. Vercel 환경변수에는 `.env` 문법의 따옴표나 `이름=` 부분을 붙이지 말고 값만 입력하세요.
+
+상류 오류 응답과 검색광고 설정 오류에는 `diagnosticId`가 포함됩니다. Vercel Runtime Logs에서 이 ID 또는 `naver_searchad_error`를 검색하세요. 서버 로그에는 변수 이름별 이상 유형, 상류 HTTP 상태, 고정 서명 방식과 경로, 밀리초 타임스탬프, `clockSkewMs`만 남습니다. `clockSkewMs`는 로컬 시각에서 네이버 응답의 `Date`를 뺀 대략적인 값이며 네트워크 지연과 초 단위 반올림을 포함합니다. `Date`가 없거나 유효하지 않으면 `null`입니다. 키·고객 ID 값·서명·키워드·요청 전체 URL·상류 응답 본문과 헤더 원문은 로그나 오류 응답에 기록하지 않습니다.
+
+`NAVER_AUTH_ERROR`(상류 401/403)이고 설정 이상이 없다면, 같은 검색광고 계정에서 발급한 API 라이선스 키·원문 비밀 키·고객 ID 조합인지, API 사용 권한이 있는지 확인하세요. 개발자센터 Client Secret이나 네이버 클라우드 인증 방식과 혼용하면 안 됩니다. 비밀 키가 Base64처럼 보여도 디코딩하지 않습니다. 서명은 [공식 예제](https://github.com/naver/searchad-apidoc/blob/master/python-sample/examples/signaturehelper.py)와 같이 원문 UTF-8 키로 `timestamp.GET./keywordstool`을 HMAC-SHA256 처리하고 결과를 Base64로 인코딩합니다. 쿼리 문자열은 서명에서 제외합니다.
+
+Vercel에서 실제 호출 중인 배포의 Production/Preview 환경에 세 변수가 모두 등록되어 있는지 확인하고, 값을 수정한 뒤 새로 배포하세요. 설정이 정상이어도 로그만으로 키 일치 여부나 권한을 확정할 수는 없습니다. 실제 키를 채팅이나 이슈에 붙여 넣지 마세요.
+
 - 서버가 HMAC-SHA256(`timestamp.GET./keywordstool`) 서명을 생성하며 브라우저에는 키를 전달하지 않습니다.
 - 서버 origin 허용 목록, 클라이언트별 분당 20회 제한, 인스턴스별 분당 60회 상류 호출 제한, 10분 캐시를 둡니다. 캐시 재사용 시 실제 최초 조회 시각을 유지합니다.
 - 제한과 캐시는 인스턴스 메모리 기준입니다. 여러 인스턴스로 공개 운영한다면 호스팅 방화벽·공유 제한 저장소 등에서 통합 한도를 적용하세요.

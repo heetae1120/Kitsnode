@@ -45,6 +45,99 @@ test("missing server credentials returns 503 without contacting Naver", async ()
   assert.equal(called, false);
   assert.equal((await res.json()).code, "NOT_CONFIGURED");
 });
+
+test("rejects malformed credentials with fixed diagnostics before contacting Naver", async () => {
+  for (const name of ["NAVER_SEARCHAD_API_KEY", "NAVER_SEARCHAD_SECRET_KEY", "NAVER_SEARCHAD_CUSTOMER_ID"]) {
+    for (const value of ["", "  ", " private-value ", "private\nvalue", "private\\nvalue", '"private-value"', "private\u200bvalue"]) {
+      const logs: unknown[] = [];
+      let calls = 0;
+      const handler = createKeywordHandler({
+        logger: (entry) => logs.push(entry),
+        fetcher: async () => { calls++; return Response.json(payload); },
+      });
+      const res = await handler(request(), { ...env, [name]: value });
+      const data = await res.json();
+      assert.equal(res.status, 503);
+      assert.equal(calls, 0);
+      assert.equal(data.code, value.trim() ? "INVALID_AUTH_CONFIG" : "NOT_CONFIGURED");
+      assert.equal(logs.length, 1);
+      assert.equal((logs[0] as { diagnosticId: string }).diagnosticId, data.diagnosticId);
+      const output = JSON.stringify({ data, logs });
+      for (const privateValue of ["private", ...Object.values(env)])
+        assert.ok(!output.includes(privateValue));
+    }
+  }
+});
+
+test("uses a Base64-looking secret verbatim and the same timestamp in header and signature", async () => {
+  let headers: Record<string, string> = {};
+  let method: string | undefined;
+  const handler = createKeywordHandler({
+    now: () => 1793145600000,
+    fetcher: async (_input, init) => {
+      headers = init!.headers as Record<string, string>;
+      method = init!.method;
+      return Response.json(payload);
+    },
+  });
+  const res = await handler(request("one,two"), { ...env, NAVER_SEARCHAD_SECRET_KEY: "dGVzdC1zZWNyZXQ=" });
+  assert.equal(res.status, 200);
+  assert.equal(method, "GET");
+  assert.equal(headers["X-Timestamp"], "1793145600000");
+  assert.equal(headers["X-API-KEY"], env.NAVER_SEARCHAD_API_KEY);
+  assert.equal(headers["X-Customer"], env.NAVER_SEARCHAD_CUSTOMER_ID);
+  assert.equal(headers["X-Signature"], "8IkxA+/JZosh4ABrW9JAHQ+UjtlRQfgRw3HpzISAjv0=");
+});
+
+test("upstream diagnostics correlate errors without echoing secrets, signatures or bodies", async () => {
+  for (const status of [401, 403, 429, 500]) {
+    const logs: unknown[] = [];
+    let signature = "";
+    const handler = createKeywordHandler({
+      now: () => 1793145600000,
+      logger: (entry) => logs.push(entry),
+      fetcher: async (_input, init) => {
+        signature = (init!.headers as Record<string, string>)["X-Signature"];
+        return Response.json({ message: [...Object.values(env), signature, "private-body"].join(" ") }, {
+          status,
+          headers: { date: new Date(1793145598000).toUTCString(), "x-request-id": env.NAVER_SEARCHAD_SECRET_KEY },
+        });
+      },
+    });
+    const res = await handler(request("private-keyword"), env);
+    const data = await res.json();
+    assert.equal(res.status, status === 429 ? 429 : 502);
+    assert.match(data.diagnosticId, /^[\da-f-]{36}$/);
+    assert.deepEqual(logs, [{
+      event: "naver_searchad_error", diagnosticId: data.diagnosticId,
+      reason: "upstream_rejected",
+      credentials: { NAVER_SEARCHAD_API_KEY: [], NAVER_SEARCHAD_SECRET_KEY: [], NAVER_SEARCHAD_CUSTOMER_ID: [] },
+      upstreamStatus: status,
+      signing: { algorithm: "HMAC-SHA256", encoding: "base64", method: "GET", path: "/keywordstool", timestamp: "1793145600000" },
+      clockSkewMs: 2000,
+    }]);
+    const output = JSON.stringify({ data, logs });
+    for (const privateValue of [...Object.values(env), signature, "private-body", "private-keyword"])
+      assert.ok(!output.includes(privateValue));
+  }
+});
+
+test("invalid upstream dates and logging failures preserve the controlled auth response", async () => {
+  const logs: { clockSkewMs?: number | null }[] = [];
+  for (const logger of [(entry: { clockSkewMs?: number | null }) => logs.push(entry), () => { throw new Error("private logger failure"); }]) {
+    const handler = createKeywordHandler({
+      logger,
+      fetcher: async () => new Response("private-body", { status: 403, headers: { date: "invalid-private-date" } }),
+    });
+    const res = await handler(request(), env);
+    const data = await res.json();
+    assert.equal(res.status, 502);
+    assert.equal(data.code, "NAVER_AUTH_ERROR");
+    assert.equal(typeof data.diagnosticId, "string");
+    assert.ok(!JSON.stringify(data).includes("private"));
+  }
+  assert.equal(logs[0].clockSkewMs, null);
+});
 test("CORS, HTTP method and keyword validation reject invalid requests before querying", async () => {
   const handler = createKeywordHandler({
     fetcher: async () => {

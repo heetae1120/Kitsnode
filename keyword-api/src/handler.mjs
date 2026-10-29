@@ -1,4 +1,16 @@
-import { createHmac } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
+
+// Report fixed labels only. Never log values, hashes, headers or upstream bodies:
+// Naver error messages can echo the rejected key/signature.
+function credentialIssues(value) {
+  if (!value || !value.trim()) return ["missing"];
+  const issues = [];
+  if (value !== value.trim()) issues.push("surrounding_whitespace");
+  if (/[\r\n]|\\[rn]/.test(value)) issues.push("newline");
+  if (/['"]/.test(value)) issues.push("quotes");
+  if (/[^\x21-\x7e]/.test(value)) issues.push("non_header_character");
+  return issues;
+}
 
 /** Server-only Naver adapter. Never import this module in browser components. */
 export function createKeywordHandler({
@@ -7,6 +19,7 @@ export function createKeywordHandler({
   maxRequests = 20,
   globalLimit = 60,
   cacheTtl = 600000,
+  logger = (entry) => console.error(JSON.stringify(entry)),
 } = {}) {
   const cache = new Map();
   const rates = new Map();
@@ -95,6 +108,44 @@ export function createKeywordHandler({
         : env.NAVER_SEARCHAD_SECRET_KEY;
     const customer =
       mode === "shopping" ? "shopping" : env.NAVER_SEARCHAD_CUSTOMER_ID;
+    const credentials = mode === "keywords"
+      ? {
+          NAVER_SEARCHAD_API_KEY: credentialIssues(key),
+          NAVER_SEARCHAD_SECRET_KEY: credentialIssues(secret),
+          NAVER_SEARCHAD_CUSTOMER_ID: credentialIssues(customer),
+        }
+      : null;
+    const diagnose = (reason, details = {}) => {
+      const diagnosticId = randomUUID();
+      try {
+        logger({
+          event: "naver_searchad_error",
+          diagnosticId,
+          reason,
+          credentials,
+          ...details,
+        });
+      } catch {
+        // An observability failure must not change the API response.
+      }
+      return diagnosticId;
+    };
+    if (
+      credentials && Object.values(credentials).some((issues) => issues.length)
+    ) {
+      const missing = Object.values(credentials).some((issues) =>
+        issues.includes("missing"),
+      );
+      const diagnosticId = diagnose("invalid_credentials");
+      return json(
+        {
+          code: missing ? "NOT_CONFIGURED" : "INVALID_AUTH_CONFIG",
+          error: "서버의 검색광고 인증 환경변수를 확인해 주세요. 공백·줄바꿈·따옴표 없이 원문 값을 등록해야 합니다.",
+          diagnosticId,
+        },
+        503,
+      );
+    }
     if (!key || !secret || !customer)
       return json(
         {
@@ -191,13 +242,17 @@ export function createKeywordHandler({
       }
       const timestamp = String(time);
       const path = "/keywordstool";
+      const method = "GET";
+      // Official SearchAd format: raw UTF-8 secret (no Base64 decoding),
+      // millisecond timestamp, uppercase method, path WITHOUT query parameters.
       const signature = createHmac("sha256", secret)
-        .update(`${timestamp}.GET.${path}`)
+        .update(`${timestamp}.${method}.${path}`, "utf8")
         .digest("base64");
       const url = new URL("https://api.searchad.naver.com" + path);
       url.searchParams.set("hintKeywords", seeds.join(","));
       url.searchParams.set("showDetail", "1");
       const response = await fetcher(url, {
+        method,
         headers: {
           "X-Timestamp": timestamp,
           "X-API-KEY": key,
@@ -209,8 +264,18 @@ export function createKeywordHandler({
       });
       if (!response.ok) {
         const status = response.status === 429 ? 429 : 502;
+        const upstreamTime = Date.parse(response.headers.get("date") || "");
+        const diagnosticId = diagnose("upstream_rejected", {
+          upstreamStatus: response.status,
+          signing: {
+            algorithm: "HMAC-SHA256", encoding: "base64", method, path, timestamp,
+          },
+          // Approximate only: includes network latency and Date header rounding.
+          clockSkewMs: Number.isFinite(upstreamTime) ? now() - upstreamTime : null,
+        });
         return json(
           {
+            diagnosticId,
             code:
               response.status === 401 || response.status === 403
                 ? "NAVER_AUTH_ERROR"
