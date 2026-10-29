@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./tools.css";
+import "./tools-navigation.css";
 export const metadata: Metadata = {
   title: "광고 수익성 진단 | KITS Tools",
   description:

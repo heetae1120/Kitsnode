@@ -1,0 +1,58 @@
+.profit-tool .finance-dashboard .tool-topbar.expanded-tools {
+  height: auto;
+  min-height: 116px;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  padding-top: 14px;
+  padding-bottom: 10px;
+}
+.profit-tool .expanded-tools .tool-demo-pill { margin-left: auto; }
+.profit-tool .expanded-tools .tool-nav {
+  order: 3;
+  width: 100%;
+  margin: 12px 0 0;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.profit-tool .expanded-tools .tool-nav a {
+  flex-shrink: 0;
+  padding: 10px 12px;
+  border-radius: 9px;
+  white-space: nowrap;
+  color: #52627a;
+  font-size: 12px;
+}
+.profit-tool .expanded-tools .tool-nav a[aria-current="page"] {
+  color: #1d4ed8;
+  background: #eff6ff;
+  font-weight: 700;
+}
+.profit-tool .expanded-tools .tool-nav a:hover { background: #f1f5f9; }
+@media (max-width: 760px) {
+  .profit-tool .finance-dashboard .tool-topbar.expanded-tools {
+    min-height: 66px;
+    padding-top: 0;
+    padding-bottom: 0;
+    gap: 16px;
+  }
+  .profit-tool .expanded-tools .tool-nav { display: none; }
+  .profit-tool .expanded-tools .tool-nav.open {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    position: absolute;
+    top: 65px;
+    right: 0;
+    width: 100%;
+    margin: 0;
+    padding: 16px;
+    gap: 4px;
+    max-height: calc(100dvh - 80px);
+    overflow-y: auto;
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    z-index: 30;
+  }
+  .profit-tool .expanded-tools .tool-nav a { min-height: 44px; }
+  .profit-tool .expanded-tools .tool-mobile-menu { display: block; }
+}

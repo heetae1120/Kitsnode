@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
+import { toolLinks, type ToolId } from "@/lib/tool-navigation";
 import Link from "next/link";
 import { ArrowUpRight, Layers3, Menu, X } from "lucide-react";
-export function ToolsHeader({ active }: { active: "profit" | "keywords" }) {
+export function ToolsHeader({ active }: { active: ToolId }) {
   const [open, setOpen] = useState(false);
   return (
-    <header className="tool-topbar">
+    <header className="tool-topbar expanded-tools">
       <Link className="tool-brand" href="/" aria-label="KITS 브랜드 홈으로">
         <span className="tool-brand-icon">
           <Layers3 size={20} />
@@ -15,23 +16,20 @@ export function ToolsHeader({ active }: { active: "profit" | "keywords" }) {
         <span className="tool-brand-caption">Tools · 비즈니스 도구</span>
       </Link>
       <nav
+        id="tools-navigation"
         aria-label="도구 메뉴"
         className={open ? "tool-nav open" : "tool-nav"}
       >
-        <Link
-          href="/tools/"
-          aria-current={active === "profit" ? "page" : undefined}
-          onClick={() => setOpen(false)}
-        >
-          수익성 분석
-        </Link>
-        <Link
-          href="/tools/keywords/"
-          aria-current={active === "keywords" ? "page" : undefined}
-          onClick={() => setOpen(false)}
-        >
-          네이버 키워드 도구
-        </Link>
+        {toolLinks.map((tool) => (
+          <Link
+            key={tool.id}
+            href={tool.href}
+            aria-current={active === tool.id ? "page" : undefined}
+            onClick={() => setOpen(false)}
+          >
+            {tool.label}
+          </Link>
+        ))}
         {active === "profit" && (
           <a href="#simulation" onClick={() => setOpen(false)}>
             예산 시뮬레이션
@@ -50,6 +48,7 @@ export function ToolsHeader({ active }: { active: "profit" | "keywords" }) {
         type="button"
         aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
         aria-expanded={open}
+        aria-controls="tools-navigation"
         onClick={() => setOpen(!open)}
       >
         {open ? <X /> : <Menu />}
