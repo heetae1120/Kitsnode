@@ -1,7 +1,6 @@
 import { createHmac, randomUUID } from "node:crypto";
 
-// Report fixed labels only. Never log values, hashes, headers or upstream bodies:
-// Naver error messages can echo the rejected key/signature.
+// Credential diagnostics contain fixed labels only, never credential values.
 function credentialIssues(value) {
   if (!value || !value.trim()) return ["missing"];
   const issues = [];
@@ -10,6 +9,55 @@ function credentialIssues(value) {
   if (/['"]/.test(value)) issues.push("quotes");
   if (/[^\x21-\x7e]/.test(value)) issues.push("non_header_character");
   return issues;
+}
+
+function maskDiagnostic(value, sensitive, maxLength) {
+  if (typeof value === "number" && Number.isFinite(value)) value = String(value);
+  if (typeof value !== "string") return null;
+  // Redact BEFORE truncating so a key crossing the length limit cannot leak.
+  const variants = [...new Set(sensitive.filter(Boolean).flatMap((item) => [
+    item, encodeURIComponent(item), encodeURI(item),
+    Buffer.from(item, "utf8").toString("base64"),
+  ]))].sort((a, b) => b.length - a.length);
+  for (const item of variants) value = value.split(item).join("[REDACTED]");
+  return value
+    .replace(/\b(?:X-API-KEY|X-Customer|X-Signature|X-Timestamp|Authorization)['"]?\s*[:=][^\r\n]*/gi, "[REDACTED_AUTH_HEADER]")
+    .replace(/[\x00-\x1f\x7f-\x9f\u2028-\u202e\u2066-\u2069]/g, " ")
+    .slice(0, maxLength);
+}
+
+async function readUpstreamError(response, sensitive) {
+  const empty = { code: null, message: null };
+  let reader;
+  try {
+    reader = response.body?.getReader();
+    if (!reader) return { ...empty, parseStatus: "empty" };
+    const chunks = [];
+    let size = 0;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > 16384) return { ...empty, parseStatus: "too_large" };
+      chunks.push(value);
+    }
+    const payload = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    if (!payload || typeof payload !== "object" || Array.isArray(payload))
+      return { ...empty, parseStatus: "invalid_json" };
+    // Only these two scalar fields are permitted. Never log payload or errors.
+    return {
+      code: maskDiagnostic(payload.code, sensitive, 80),
+      message: maskDiagnostic(payload.message, sensitive, 500),
+      parseStatus: "parsed",
+    };
+  } catch {
+    return { ...empty, parseStatus: "unavailable" };
+  } finally {
+    if (reader) {
+      void reader.cancel().catch(() => {});
+      reader.releaseLock();
+    }
+  }
 }
 
 /** Server-only Naver adapter. Never import this module in browser components. */
@@ -265,8 +313,14 @@ export function createKeywordHandler({
       if (!response.ok) {
         const status = response.status === 429 ? 429 : 502;
         const upstreamTime = Date.parse(response.headers.get("date") || "");
+        const upstreamError = await readUpstreamError(response, [
+          key, secret, String(customer), signature,
+          env.NAVER_OPENAPI_CLIENT_ID, env.NAVER_OPENAPI_CLIENT_SECRET,
+          raw, ...seeds, String(url),
+        ]);
         const diagnosticId = diagnose("upstream_rejected", {
           upstreamStatus: response.status,
+          upstreamError,
           signing: {
             algorithm: "HMAC-SHA256", encoding: "base64", method, path, timestamp,
           },

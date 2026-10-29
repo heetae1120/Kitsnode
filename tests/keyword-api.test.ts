@@ -98,7 +98,7 @@ test("upstream diagnostics correlate errors without echoing secrets, signatures 
       logger: (entry) => logs.push(entry),
       fetcher: async (_input, init) => {
         signature = (init!.headers as Record<string, string>)["X-Signature"];
-        return Response.json({ message: [...Object.values(env), signature, "private-body"].join(" ") }, {
+        return Response.json({ code: 1018, message: "Signature is invalid.", details: [...Object.values(env), signature, "private-body"].join(" ") }, {
           status,
           headers: { date: new Date(1793145598000).toUTCString(), "x-request-id": env.NAVER_SEARCHAD_SECRET_KEY },
         });
@@ -113,6 +113,7 @@ test("upstream diagnostics correlate errors without echoing secrets, signatures 
       reason: "upstream_rejected",
       credentials: { NAVER_SEARCHAD_API_KEY: [], NAVER_SEARCHAD_SECRET_KEY: [], NAVER_SEARCHAD_CUSTOMER_ID: [] },
       upstreamStatus: status,
+      upstreamError: { code: "1018", message: "Signature is invalid.", parseStatus: "parsed" },
       signing: { algorithm: "HMAC-SHA256", encoding: "base64", method: "GET", path: "/keywordstool", timestamp: "1793145600000" },
       clockSkewMs: 2000,
     }]);
@@ -120,6 +121,76 @@ test("upstream diagnostics correlate errors without echoing secrets, signatures 
     for (const privateValue of [...Object.values(env), signature, "private-body", "private-keyword"])
       assert.ok(!output.includes(privateValue));
   }
+});
+
+test("masks Naver code and message before logging while keeping them out of client responses", async () => {
+  const logs: { diagnosticId: string; upstreamError: { code: string; message: string } }[] = [];
+  let signature = "";
+  const secret = "secret+/=redaction-test";
+  const handler = createKeywordHandler({
+    logger: (entry) => logs.push(entry),
+    fetcher: async (_input, init) => {
+      signature = (init!.headers as Record<string, string>)["X-Signature"];
+      return Response.json({
+        code: env.NAVER_SEARCHAD_API_KEY,
+        message: `Signature invalid: ${signature}; secret=${secret}; encoded=${encodeURIComponent(secret)}; base64=${Buffer.from(secret).toString("base64")}; customer=${env.NAVER_SEARCHAD_CUSTOMER_ID}\nX-API-KEY: unrecognized-header-value\nPermission denied.\u0000`,
+        headers: { Authorization: "private-header-object" },
+        extra: "private-extra-field",
+      }, { status: 403 });
+    },
+  });
+  const res = await handler(request(), { ...env, NAVER_SEARCHAD_SECRET_KEY: secret });
+  const data = await res.json();
+  assert.equal(data.code, "NAVER_AUTH_ERROR");
+  assert.equal(data.diagnosticId, logs[0].diagnosticId);
+  assert.equal(data.upstreamError, undefined);
+  assert.equal(logs[0].upstreamError.code, "[REDACTED]");
+  assert.match(logs[0].upstreamError.message, /Signature invalid/);
+  assert.match(logs[0].upstreamError.message, /Permission denied/);
+  assert.ok(!/[\x00-\x1f]/.test(logs[0].upstreamError.message));
+  const output = JSON.stringify({ data, logs });
+  for (const value of [secret, signature, encodeURIComponent(secret), Buffer.from(secret).toString("base64"), env.NAVER_SEARCHAD_API_KEY, env.NAVER_SEARCHAD_CUSTOMER_ID, "unrecognized-header-value", "X-API-KEY", "private-header-object", "private-extra-field"])
+    assert.ok(!output.includes(value), "sensitive upstream content was logged");
+  assert.ok(!JSON.stringify(data).includes("Signature invalid"));
+});
+
+test("redacts credentials crossing the message length limit before truncation", async () => {
+  const logs: { upstreamError: { message: string } }[] = [];
+  const handler = createKeywordHandler({
+    logger: (entry) => logs.push(entry),
+    fetcher: async () => Response.json({ code: "a".repeat(100), message: "a".repeat(495) + env.NAVER_SEARCHAD_SECRET_KEY }, { status: 403 }),
+  });
+  await handler(request(), env);
+  assert.equal(logs[0].upstreamError.message.length, 500);
+  assert.ok(!logs[0].upstreamError.message.includes("test-"));
+});
+
+test("malformed, oversized and unreadable upstream errors retain auth classification", async () => {
+  const encoder = new TextEncoder();
+  let cancelled = false;
+  const cases = [
+    { response: () => new Response("<html>private-body</html>", { status: 403 }), expected: "unavailable" },
+    { response: () => Response.json(null, { status: 403 }), expected: "invalid_json" },
+    { response: () => Response.json({ code: { secret: "private" }, message: ["private"] }, { status: 403 }), expected: "parsed" },
+    { response: () => new Response(new ReadableStream({
+      start(controller) { controller.enqueue(encoder.encode("x".repeat(16385))); },
+      cancel() { cancelled = true; },
+    }), { status: 403 }), expected: "too_large" },
+    { response: () => new Response(new ReadableStream({
+      start(controller) { controller.error(new Error("private-read-failure")); },
+    }), { status: 403 }), expected: "unavailable" },
+  ];
+  for (const { response, expected } of cases) {
+    const logs: { upstreamError: unknown }[] = [];
+    const handler = createKeywordHandler({ logger: (entry) => logs.push(entry), fetcher: async () => response() });
+    const res = await handler(request(), env);
+    const data = await res.json();
+    assert.equal(res.status, 502);
+    assert.equal(data.code, "NAVER_AUTH_ERROR");
+    assert.deepEqual(logs[0].upstreamError, { code: null, message: null, parseStatus: expected });
+    assert.ok(!JSON.stringify({ logs, data }).includes("private"));
+  }
+  assert.equal(cancelled, true);
 });
 
 test("invalid upstream dates and logging failures preserve the controlled auth response", async () => {
