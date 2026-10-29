@@ -738,7 +738,7 @@ export function KeywordResearch({
                                 <Line
                                   type="linear"
                                   dataKey="searches"
-                                  stroke="#5f8950"
+                                  stroke="#2563eb"
                                   strokeWidth={2.5}
                                   connectNulls={false}
                                   isAnimationActive={false}

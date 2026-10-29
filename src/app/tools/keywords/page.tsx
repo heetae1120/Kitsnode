@@ -278,9 +278,7 @@ export default function KeywordTool() {
               <Search size={13} /> KITS KEYWORD EXPLORER
             </span>
             <h1>
-              검색량을 확인하고,
-              <br />
-              기회를 발견하세요.
+              키워드 리서치 <span>대시보드</span>
             </h1>
             <p>
               네이버 검색광고 키워드 도구의 데이터를 기반으로
@@ -597,7 +595,7 @@ export default function KeywordTool() {
                       {device !== "mobile" && (
                         <Bar
                           dataKey="PC"
-                          fill="#2f5843"
+                          fill="#2563eb"
                           radius={[0, 3, 3, 0]}
                           maxBarSize={14}
                           isAnimationActive={false}
@@ -606,7 +604,7 @@ export default function KeywordTool() {
                       {device !== "pc" && (
                         <Bar
                           dataKey="모바일"
-                          fill="#9dbd83"
+                          fill="#93b4f5"
                           radius={[0, 3, 3, 0]}
                           maxBarSize={14}
                           isAnimationActive={false}
