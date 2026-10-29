@@ -3,6 +3,7 @@ import { ToolsHeader } from "@/components/tools-header";
 import { ProductResearch } from "@/components/product-research";
 import { safeProductUrl } from "@/lib/product-research";
 import "./product-research.css";
+import "./finance-bento.css";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   ArrowRight,
@@ -242,23 +243,21 @@ export default function Home() {
   const percent = (n: number | null) =>
     n === null ? "계산 불가" : `${num(n)}%`;
   return (
-    <>
+    <div className="finance-dashboard">
       <ToolsHeader active="profit" />
       <main>
         <div className="tool-hero">
           <div>
             <div className="tool-eyebrow">
-              <span /> SELL SMARTER, GROW BETTER
+              <span /> KITS FINANCE / PROFIT OVERVIEW
             </div>
             <h1>
-              내 상품, 광고 돌리면
-              <br />
-              얼마 <span>남을까?</span>
+              광고 수익성 <span>대시보드</span>
             </h1>
             <p>
-              판매가와 원가만 입력하면
-              <br className="tool-mobile-break" /> 네이버 검색광고 예상 수익성을
-              분석해드립니다.
+              매출보다 중요한 건, 남는 이익.
+              <br className="tool-mobile-break" /> 상품의 수익 구조와 광고 효율을
+              한눈에 확인하세요.
             </p>
           </div>
           <div className="tool-hero-note">
@@ -564,7 +563,7 @@ export default function Home() {
               </div>
               <div className="tool-diagnosis-main">
                 <div>
-                  <p>광고비를 빼고, 1개 팔 때마다</p>
+                  <p>예상 개당 순이익 · 광고비 차감 후</p>
                   <strong>
                     {r.unitProfit === null ? (
                       "계산할 수 없어요"
@@ -613,7 +612,7 @@ export default function Home() {
             </div>
             <div className="tool-roas-comparison">
               <Metric
-                label="예상 광고 ROAS"
+                label="예상 ROAS"
                 value={percent(r.roas)}
                 help="판매가 ÷ 예상 CPA × 100. 광고비 대비 매출 비율입니다."
                 sub="현재 CPC·전환율 기준"
@@ -801,7 +800,14 @@ export default function Home() {
                       text="예상 판매 건수 × 광고 전 공헌이익 − 실제 예상 광고비."
                     />
                   </span>
-                  <small>입력된 비용과 광고비 차감 후</small>
+                  <small>
+                    입력된 비용과 광고비 차감 후 ·{" "}
+                    {r.totalProfit > 0
+                      ? "예상 이익"
+                      : r.totalProfit < 0
+                        ? "예상 손실"
+                        : "손익 균형"}
+                  </small>
                 </div>
                 <strong>
                   {r.totalProfit > 0 ? "+" : ""}
@@ -898,12 +904,12 @@ export default function Home() {
                     {r.breakEvenCvr !== null && r.breakEvenCvr <= 10 && (
                       <ReferenceLine
                         x={r.breakEvenCvr}
-                        stroke="#059669"
+                        stroke="#2563eb"
                         strokeDasharray="4 4"
                         label={{
                           value: `손익분기 ${num(r.breakEvenCvr, 2)}%`,
                           position: "insideTopRight",
-                          fill: "#059669",
+                          fill: "#2563eb",
                           fontSize: 10,
                         }}
                       />
@@ -911,7 +917,7 @@ export default function Home() {
                     <Line
                       type="monotone"
                       dataKey="profit"
-                      stroke="#059669"
+                      stroke="#2563eb"
                       strokeWidth={3}
                       dot={false}
                       isAnimationActive={false}
@@ -1068,6 +1074,6 @@ export default function Home() {
           <span>© {new Date().getFullYear()} KITS · Demo MVP</span>
         </footer>
       </main>
-    </>
+    </div>
   );
 }
