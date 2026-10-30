@@ -52,6 +52,7 @@ export function ToolsHeader({ active }: { active: ToolId }) {
         <span className="tool-brand-caption">Tools · 맞춤 진단</span>
       </Link>
       <nav id="tools-navigation" aria-label="도구 메뉴" className={open ? "tool-nav open" : "tool-nav"}>
+        <Link href="/tools/start/" aria-current={active === "start" ? "page" : undefined} onClick={close}>광고 건강검진</Link>
         {["profit", "keywords"].map((id) => {
           const tool = toolLinks.find((item) => item.id === id)!;
           return (

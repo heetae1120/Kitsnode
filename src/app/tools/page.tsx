@@ -250,6 +250,7 @@ export default function Home() {
     <div className="finance-dashboard">
       <ToolsHeader active="profit" />
       <main>
+        <div style={{padding:'16px 20px',borderRadius:14,background:'#eaf1ff',marginBottom:24}}><Link href="/tools/start/">이익과 재고 회전에 맞는 예산이 궁금하다면 → 광고 건강검진</Link></div>
         <div className="tool-hero">
           <div>
             <div className="tool-eyebrow">
