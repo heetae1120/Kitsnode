@@ -400,6 +400,19 @@ export function createKeywordHandler({
         // Swagger schema describes estimate/nccAdId. Match both contracts by
         // target AND position; never take another material's first result.
         const row = rows.find(item => String(targetType === "id" ? (item?.nccAdId ?? item?.key) : (item?.product ?? item?.productId ?? item?.key)) === raw && item?.position === position);
+        if (!row || !Number.isSafeInteger(row.bid) || row.bid <= 0) logger({
+          event: 'naver_shopping_estimate_unavailable', targetType, device, position,
+          collection: Array.isArray(payload.items) ? 'items' : Array.isArray(payload.estimate) ? 'estimate' : 'single',
+          rowCount: rows.length,
+          rows: rows.slice(0,4).map(item=>({
+            keys: item && typeof item==='object' ? Object.keys(item).slice(0,12) : [],
+            idMatches: String(item?.nccAdId ?? item?.key)===raw,
+            productMatches: String(item?.product ?? item?.productId ?? item?.key)===raw,
+            position: typeof item?.position==='number' ? item.position : typeof item?.position,
+            bidType: typeof item?.bid,
+            positiveBid: typeof item?.bid==='number' && item.bid>0,
+          })),
+        });
         const data = {
           source: "naver-shopping-bid-estimate", adType: "shopping-search", targetType, targetId: raw,
           device, position, fetchedAt: new Date(time).toISOString(),
