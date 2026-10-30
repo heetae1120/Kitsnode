@@ -562,3 +562,12 @@ test("shopping estimates reject invalid targets and never substitute an unrelate
   const response = await handler(new Request("https://api.example.com/api/keywords?mode=shopping-bid-estimate&targetType=product&targetId=123"),env);
   assert.equal((await response.json()).bid,null);
 });
+
+test('shopping estimates accept the official items/key response without substituting another material or rank',async()=>{
+  const handler=createKeywordHandler({fetcher:async(_url,options)=>{
+    const {device,items:[{key,position}]}=JSON.parse(String(options?.body));
+    return Response.json({device,items:[{key:'nad-unrelated',position,bid:900},{key,position:position+1,bid:800},{key,position,bid:320}]});
+  }});
+  const response=await handler(new Request('https://api.example.com/api/keywords?mode=shopping-bid-estimate&targetType=id&targetId=nad-test-0001&device=PC&position=3'),env);
+  assert.equal((await response.json()).bid,320);
+});

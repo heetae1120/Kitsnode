@@ -379,7 +379,11 @@ export function createKeywordHandler({
                 ? "네이버 API 인증에 실패했습니다. 서버의 키·고객 ID·사용 권한을 확인해 주세요."
                 : response.status === 429
                   ? "네이버 API 조회 한도에 도달했습니다. 잠시 후 다시 시도해 주세요."
-                  : "네이버에서 검색량을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+                  : estimateMode
+                    ? response.status === 400
+                      ? "네이버가 요청한 소재·기기·목표 순위 조합을 처리하지 못했습니다. 소재 ID와 조회 가능한 순위를 확인해 주세요."
+                      : "네이버에서 예상 입찰가를 가져오지 못했습니다. 잠시 후 다시 시도해 주세요."
+                    : "네이버에서 검색량을 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
           },
           status,
         );
@@ -388,10 +392,14 @@ export function createKeywordHandler({
       if (text.length > 2000000) throw new Error("oversized");
       const payload = JSON.parse(text);
       if (shoppingBid) {
-        const rows = Array.isArray(payload.estimate) ? payload.estimate
+        const rows = Array.isArray(payload.items) ? payload.items
+          : Array.isArray(payload.estimate) ? payload.estimate
           : payload && ("product" in payload || "nccAdId" in payload) ? [payload] : null;
         if (!rows) throw new Error("invalid shopping estimate");
-        const row = rows.find(item => String(targetType === "id" ? item?.nccAdId : item?.product) === raw && item?.position === position);
+        // NPLA's official release example returns items[].key, whereas the
+        // Swagger schema describes estimate/nccAdId. Match both contracts by
+        // target AND position; never take another material's first result.
+        const row = rows.find(item => String(targetType === "id" ? (item?.nccAdId ?? item?.key) : (item?.product ?? item?.productId ?? item?.key)) === raw && item?.position === position);
         const data = {
           source: "naver-shopping-bid-estimate", adType: "shopping-search", targetType, targetId: raw,
           device, position, fetchedAt: new Date(time).toISOString(),
