@@ -571,3 +571,12 @@ test('shopping estimates accept the official items/key response without substitu
   const response=await handler(new Request('https://api.example.com/api/keywords?mode=shopping-bid-estimate&targetType=id&targetId=nad-test-0001&device=PC&position=3'),env);
   assert.equal((await response.json()).bid,320);
 });
+
+test('a matching NPLA material and rank without a bid remains unavailable',async()=>{
+  const handler=createKeywordHandler({fetcher:async(_url,options)=>{
+    const {items:[{key,position}]}=JSON.parse(String(options?.body));
+    return Response.json({estimate:[{nccAdId:key,position}]});
+  }});
+  const response=await handler(new Request('https://api.example.com/api/keywords?mode=shopping-bid-estimate&targetType=id&targetId=nad-test-0001&device=PC&position=3'),env);
+  assert.equal((await response.json()).bid,null);
+});
