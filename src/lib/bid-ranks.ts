@@ -5,7 +5,7 @@ export type BidRankQuery = {
   targetType: 'id' | 'product';
   target: string;
   device: 'PC' | 'MOBILE';
-  count: 4 | 5 | 10;
+  count: 3 | 4 | 5 | 10;
 };
 export type BidRank = { position: number; bid: number | null; fetchedAt?: string; cached?: boolean; error?: string };
 
@@ -17,7 +17,7 @@ export function bidRankRequests(endpoint: string, query: BidRankQuery) {
     if (!(query.targetType === 'id' ? /^nad-[A-Za-z0-9-]{1,95}$/.test(target) : /^\d{1,30}$/.test(target)))
       throw new Error(query.targetType === 'id' ? 'nad-로 시작하는 광고 소재 ID를 입력하세요.' : '숫자로 된 네이버쇼핑 상품 ID를 입력하세요.');
   } else if (parseSeeds(target).length !== 1) throw new Error('키워드를 한 개만 입력하세요.');
-  if (!['PC','MOBILE'].includes(query.device) || (query.adType==='shopping-search' ? query.count!==4 : ![5,10].includes(query.count) || (query.device === 'MOBILE' && query.count !== 5)))
+  if (!['PC','MOBILE'].includes(query.device) || (query.adType==='shopping-search' ? ![3,4].includes(query.count) : ![3,5,10].includes(query.count) || (query.device === 'MOBILE' && query.count === 10)))
     throw new Error('기기와 조회 순위를 확인하세요.');
   return Array.from({length:query.count}, (_,index) => {
     const url = new URL(server);

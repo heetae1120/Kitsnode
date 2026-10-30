@@ -301,6 +301,7 @@ export default function Home() {
         }} />
         <FinanceBento inputHref="#analysis" input={input} sourceLabel={`${adTypeName(adType)} · CPC ${cpcSource} · CVR ${cvrSource}`} />
         <div className="tool-workspace" id="analysis">
+          <BidRankLookup key={`${adType}-${resetKey}`} adType={adType} onApply={(bid,label)=>{setInput(previous=>({...previous,cpc:bid}));setCpcSource(label);setControlError('');}}/>
           <aside className="tool-input-panel">
             <div className="tool-panel-heading">
               <span className="tool-step-label">STEP 01</span>
@@ -580,7 +581,6 @@ export default function Home() {
                   {controlError}
                 </p>
               )}
-              <BidRankLookup key={`${adType}-${resetKey}`} adType={adType} onApply={(bid,label)=>{setInput(previous=>({...previous,cpc:bid}));setCpcSource(label);setControlError('');}}/>
             </div>
             <div className={`tool-diagnosis ${r.status}`}>
               <div className="tool-diagnosis-top">
