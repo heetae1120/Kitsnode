@@ -1,5 +1,6 @@
 "use client";
 import { AdTypeSwitch, adTypeName, type AdType } from "@/components/ad-type-switch";
+import { BidRankLookup } from '@/components/bid-rank-lookup';
 import { FinanceBento } from "@/components/ui/finance-bento";
 import { ToolsHeader } from "@/components/tools-header";
 import { ProductResearch } from "@/components/product-research";
@@ -579,6 +580,7 @@ export default function Home() {
                   {controlError}
                 </p>
               )}
+              <BidRankLookup key={`${adType}-${resetKey}`} adType={adType} onApply={(bid,label)=>{setInput(previous=>({...previous,cpc:bid}));setCpcSource(label);setControlError('');}}/>
             </div>
             <div className={`tool-diagnosis ${r.status}`}>
               <div className="tool-diagnosis-top">
