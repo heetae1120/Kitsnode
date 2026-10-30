@@ -4,6 +4,7 @@ import { FinanceBento } from "@/components/ui/finance-bento";
 import { ToolsHeader } from "@/components/tools-header";
 import { ProductResearch } from "@/components/product-research";
 import { safeProductUrl } from "@/lib/product-research";
+import { procurementCosts } from "@/lib/procurement";
 import "./product-research.css";
 import "./finance-bento.css";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
@@ -110,7 +111,9 @@ function SectionTitle({
   );
 }
 function moneyText(value: string) {
-  return value === "" ? "" : Number(value).toLocaleString("ko-KR");
+  if (value === "") return "";
+  const [integer, fraction] = value.split('.');
+  return Number(integer).toLocaleString('ko-KR') + (fraction === undefined ? '' : `.${fraction}`);
 }
 function NumericInput({
   value,
@@ -149,6 +152,9 @@ export default function Home() {
   const [adType, setAdType] = useState<AdType>("shopping-search");
   const [resetKey, setResetKey] = useState(0);
   const [draft, setDraft] = useState<Draft>(initialDraft);
+  const [purchase, setPurchase] = useState({currency:'KRW',rate:'1',moq:'1',logistics:'0',payer:'customer' as 'customer'|'seller'});
+  const [appliedPurchase,setAppliedPurchase] = useState(JSON.stringify(purchase));
+  const [appliedDraft,setAppliedDraft] = useState(JSON.stringify(initialDraft));
   const [sellingUrl, setSellingUrl] = useState("");
   const [input, setInput] = useState<ProductInput>(SAMPLE);
   const [omitted, setOmitted] = useState([
@@ -171,12 +177,7 @@ export default function Home() {
     const cvr = (i + 1) * 0.5;
     return { cvr, profit: calculate({ ...input, cvrPercent: cvr }).unitProfit };
   });
-  const pending =
-    Object.keys(draft).some(
-      (k) =>
-        String(Number(draft[k as keyof Draft])) !==
-          String(input[k as keyof ProductInput]) && k !== "name",
-    ) || draft.name !== input.name;
+  const pending = JSON.stringify(draft)!==appliedDraft || JSON.stringify(purchase)!==appliedPurchase;
   function analyze(event: FormEvent) {
     event.preventDefault();
     if (!draft.price.trim() || !draft.cost.trim()) {
@@ -185,6 +186,10 @@ export default function Home() {
       );
       return;
     }
+    let procurement;
+    try {
+      procurement=procurementCosts({unitCost:Number(draft.cost),foreignCurrency:purchase.currency!=='KRW',exchangeRate:Number(purchase.rate),moq:Number(purchase.moq),batchLogistics:Number(purchase.logistics),deliveryPayer:purchase.payer,sellerDelivery:Number(draft.shipping),unitOther:Number(draft.other)});
+    } catch(e) {setError(e instanceof Error?e.message:'매입 조건을 확인하세요.');return;}
     const next: ProductInput = {
       ...input,
       ...Object.fromEntries(
@@ -193,6 +198,7 @@ export default function Home() {
           k === "name" ? v : Number(v),
         ]),
       ),
+      cost:procurement.unitCost,shipping:procurement.shipping,other:procurement.other,
     } as ProductInput;
     const validation = validateInput(next);
     if (validation) {
@@ -201,6 +207,8 @@ export default function Home() {
     }
     setError("");
     setInput(next);
+    setAppliedPurchase(JSON.stringify(purchase));
+    setAppliedDraft(JSON.stringify(draft));
     setOmitted(
       (
         [
@@ -209,7 +217,7 @@ export default function Home() {
           ["feePercent", "판매 수수료"],
         ] as const
       )
-        .filter(([key]) => draft[key] === "")
+        .filter(([key]) => draft[key] === "" && (key !== 'shipping' || purchase.payer === 'seller'))
         .map(([, label]) => label),
     );
     requestAnimationFrame(() =>
@@ -236,6 +244,9 @@ export default function Home() {
     setAdType("shopping-search");
     setResetKey((k) => k + 1);
     setDraft(initialDraft);
+    setPurchase({currency:'KRW',rate:'1',moq:'1',logistics:'0',payer:'customer'});
+    setAppliedPurchase(JSON.stringify({currency:'KRW',rate:'1',moq:'1',logistics:'0',payer:'customer'}));
+    setAppliedDraft(JSON.stringify(initialDraft));
     setSellingUrl("");
     setInput(SAMPLE);
     setCpcSource("데모 데이터");
@@ -339,7 +350,7 @@ export default function Home() {
               {(["price", "cost"] as const).map((key) => (
                 <label className="tool-field" key={key}>
                   <span>
-                    {key === "price" ? "판매가" : "상품 원가"} <b>*</b>
+                    {key === "price" ? "판매가" : "매입 단가"} <b>*</b>
                     <Help
                       label={key === "price" ? "판매가" : "상품 원가"}
                       text={
@@ -352,14 +363,14 @@ export default function Home() {
                   <div className="tool-input-unit">
                     <input
                       aria-label={key === "price" ? "판매가" : "상품 원가"}
-                      inputMode="numeric"
+                      inputMode={key==='cost'&&purchase.currency!=='KRW'?'decimal':'numeric'}
                       value={moneyText(draft[key])}
                       onChange={(e) => {
                         const v = e.target.value.replaceAll(",", "");
-                        if (/^\d*$/.test(v)) setDraft({ ...draft, [key]: v });
+                        if ((key==='cost'&&purchase.currency!=='KRW'? /^\d*(\.\d*)?$/: /^\d*$/).test(v)) setDraft({ ...draft, [key]: v });
                       }}
                     />
-                    <span>원</span>
+                    <span>{key==='cost'&&purchase.currency!=='KRW'?purchase.currency:'원'}</span>
                   </div>
                 </label>
               ))}
@@ -378,9 +389,14 @@ export default function Home() {
               </button>
               {details && (
                 <div id="details" className="tool-details">
+                  <label className="tool-field"><span>매입 통화</span><select aria-label="매입 통화" value={purchase.currency} onChange={e=>setPurchase({...purchase,currency:e.target.value,rate:e.target.value==='KRW'?'1':''})}><option value="KRW">KRW · 원화</option><option value="CNY">CNY · 위안</option><option value="USD">USD · 달러</option><option value="JPY">JPY · 엔</option></select></label>
+                  <label className="tool-field"><span>MOQ · 최소 매입 수량</span><input aria-label="MOQ" type="number" min="1" step="1" value={purchase.moq} onChange={e=>setPurchase({...purchase,moq:e.target.value})}/><small>이번 매입 수량 기준으로 총 물류비를 나눕니다.</small></label>
+                  <label className="tool-field"><span>매입 당시 환율</span><input aria-label="매입 당시 환율" type="number" min="0.000001" step="any" disabled={purchase.currency==='KRW'} value={purchase.currency==='KRW'?'1':purchase.rate} onChange={e=>setPurchase({...purchase,rate:e.target.value})}/><small>{purchase.currency==='KRW'?'원화 매입은 환율 1 적용':`${purchase.currency} 1단위당 원화 금액 · 직접 입력`}</small></label>
+                  <label className="tool-field"><span>총 물류비(원)</span><input aria-label="총 물류비" type="number" min="0" value={purchase.logistics} onChange={e=>setPurchase({...purchase,logistics:e.target.value})}/><small>입고·운송 등 이번 매입의 총액입니다. MOQ로 나눠 개당 비용에 반영합니다.</small></label>
+                  <label className="tool-field"><span>택배비 부담 주체</span><select aria-label="택배비 부담 주체" value={purchase.payer} onChange={e=>setPurchase({...purchase,payer:e.target.value as 'customer'|'seller'})}><option value="customer">고객 부담</option><option value="seller">판매자 부담</option></select></label>
+                  {purchase.payer==='seller'&&<label className="tool-field"><span>판매자 부담 개당 택배비(원)</span><input aria-label="판매자 부담 개당 택배비" type="number" min="0" value={draft.shipping} onChange={e=>setDraft({...draft,shipping:e.target.value})}/></label>}
                   {(
                     [
-                      ["shipping", "개당 택배비", "원"],
                       ["other", "개당 포장·기타 비용", "원"],
                       ["feePercent", "판매 수수료", "%"],
                     ] as const
@@ -401,6 +417,7 @@ export default function Home() {
                       </div>
                     </label>
                   ))}
+                  <p className="tool-procurement-note">원화 매입 단가와 개당 물류비를 합산해 계산합니다. 고객 부담 택배비는 판매자 비용에서 제외합니다. 매입 자금과 광고 예산은 별개입니다.</p>
                   <label className="tool-field">
                     <span>
                       광고 예산{" "}

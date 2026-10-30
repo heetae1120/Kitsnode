@@ -1,0 +1,10 @@
+.profit-tool .ad-type-switch>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;width:100%}
+.profit-tool .ad-type-switch>div>button{min-height:100px;width:100%;display:flex;align-items:center;justify-content:flex-start;gap:16px;padding:22px 24px;border-radius:16px;text-align:left;position:relative;white-space:normal}
+.profit-tool .ad-type-switch>div>button>span{display:flex;flex:1;min-width:0;flex-direction:column;gap:8px}
+.profit-tool .ad-type-switch>div>button b{font-size:20px;line-height:1.4}
+.profit-tool .ad-type-switch>div>button small{font-size:12px;line-height:1.5;font-weight:400;opacity:.7}
+.profit-tool .ad-type-switch>div>button>svg{flex-shrink:0}
+.profit-tool .ad-type-switch .ad-type-selected-icon{position:absolute;right:15px;top:12px}
+.profit-tool .tool-details select{width:100%;min-height:43px;padding:10px;border:1px solid #d8e1ee;border-radius:8px;background:white;color:#273c59;font:inherit}
+.profit-tool .tool-details .tool-procurement-note{font-size:11px;color:#64748b;line-height:1.8;margin:10px 0}
+@media(max-width:560px){.profit-tool .ad-type-switch>div{gap:10px}.profit-tool .ad-type-switch>div>button{padding:22px 12px;min-height:130px;flex-direction:column;gap:10px;align-items:flex-start}.profit-tool .ad-type-switch>div>button b{font-size:17px}.profit-tool .ad-type-switch>div>button small{font-size:11px}}

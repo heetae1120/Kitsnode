@@ -1,4 +1,6 @@
 "use client";
+import { ShoppingBag, MousePointer2, CheckCircle2 } from 'lucide-react';
+import './ad-type-switch.css';
 export type AdType = "shopping-search" | "powerlink";
 export const adTypeName = (type: AdType) =>
   type === "shopping-search" ? "쇼핑검색광고" : "파워링크";
@@ -20,7 +22,9 @@ export function AdTypeSwitch({
             aria-pressed={value === type}
             onClick={() => onChange(type)}
           >
-            {adTypeName(type)}
+            {type==='shopping-search'?<ShoppingBag size={25}/>:<MousePointer2 size={25}/>}
+            <span><b>{adTypeName(type)}</b><small>{type==='shopping-search'?'상품 중심으로 노출하는 광고':'키워드로 고객을 만나는 광고'}</small></span>
+            {value===type&&<CheckCircle2 size={20} className="ad-type-selected-icon"/>}
           </button>
         ))}
       </div>
