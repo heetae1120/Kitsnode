@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toolLinks, type ToolId } from "@/lib/tool-navigation";
 import Link from "next/link";
-import { ChevronDown, Layers3 } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { MenuMotion } from "@/components/menu-motion";
 
 const groups = [
@@ -45,14 +45,10 @@ export function ToolsHeader({ active }: { active: ToolId }) {
   }, [group, open]);
   return (
     <header ref={header} className="tool-topbar expanded-tools">
-      <Link className="tool-brand" href="/tools/start/" aria-label="KITS 도구 메인으로" aria-current={active === "start" ? "page" : undefined} onClick={close}>
-        <span className="tool-brand-icon"><Layers3 size={20} /></span>
-        KITS
-        <span className="tool-brand-divider" />
-        <span className="tool-brand-caption">Tools · 맞춤 진단</span>
+      <Link className="tool-brand" href="/tools/start/" aria-label="KITSNODE 도구 메인으로" aria-current={active === "start" ? "page" : undefined} onClick={close}>
+        KITSNODE
       </Link>
       <nav id="tools-navigation" aria-label="도구 메뉴" className={open ? "tool-nav open" : "tool-nav"}>
-        <Link href="/tools/start/" aria-current={active === "start" ? "page" : undefined} onClick={close}>광고 건강검진</Link>
         {["profit", "keywords"].map((id) => {
           const tool = toolLinks.find((item) => item.id === id)!;
           return (
@@ -67,6 +63,8 @@ export function ToolsHeader({ active }: { active: ToolId }) {
             </Link>
           );
         })}
+        <Link href="/tools/start/" aria-current={active === "start" ? "page" : undefined} onClick={close}>설문</Link>
+        <span className="tool-nav-separator" aria-hidden="true" />
         {groups.map((item) => (
           <div key={item.id} className="tool-nav-group">
             <button
@@ -82,21 +80,12 @@ export function ToolsHeader({ active }: { active: ToolId }) {
               <ChevronDown className="tool-nav-chevron" size={14} aria-hidden="true" />
             </button>
             <div id={`tool-group-${item.id}`} className="tool-subnav" hidden={group !== item.id}>
-              {toolLinks.filter((tool) => item.ids.some((id) => id === tool.id)).map((tool) => (
-                <Link
-                  key={tool.id}
-                  href={tool.href}
-                  aria-current={active === tool.id ? "page" : undefined}
-                  onClick={close}
-                >
-                  {tool.label}
-                </Link>
-              ))}
+              <p className="tool-membership-notice" role="status">{item.label}은 회원가입 후 이용할 수 있습니다.</p>
+              <small className="tool-membership-note">회원가입·로그인 기능은 준비 중입니다.</small>
             </div>
           </div>
         ))}
       </nav>
-      <span className="tool-demo-pill"><span />KITS TOOLS</span>
       <button className="tool-mobile-menu" type="button" aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
         aria-expanded={open} aria-controls="tools-navigation" onClick={() => { setOpen(!open); setGroup(null); }}>
         <span className="tool-menu-toggle" aria-hidden="true"><span /><span /><span /></span>
