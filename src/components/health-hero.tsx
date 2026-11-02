@@ -1,5 +1,6 @@
 "use client";
 import { Activity, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 import { TiltedGridHero, type TiltedGridImage } from './ui/tilted-grid-hero';
 
 const images:TiltedGridImage[]=[
@@ -9,4 +10,4 @@ const images:TiltedGridImage[]=[
   {src:'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',alt:'사업 계획과 예산 검토'},
   {src:'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80',alt:'협업하는 업무 공간'},
 ];
-export function HealthHero({onStart}:{onStart:()=>void}){return <section className="hc-hero-reel" aria-label="광고 건강검진 소개"><TiltedGridHero images={images} speed={5} tileHeight={25} axis={62} curve={65} fade={14} className="hc-tilted-hero"><div className="hc-hero-overlay"><div><span className="hc-eyebrow"><Activity size={14}/> KITSNODE · AD HEALTH CHECK</span><h1>광고의 다음 장면,<br/><em>숫자로 선명하게.</em></h1></div><button type="button" className="hc-primary" onClick={onStart}>내 광고 검진 시작 <ArrowRight size={17}/></button><small>약 3분 · 내 사업의 목표와 숫자로 시작하는 진단</small></div></TiltedGridHero></section>;}
+export function HealthHero(){return <section className="hc-hero-reel" aria-label="광고 건강검진 소개"><TiltedGridHero images={images} speed={5} tileHeight={25} axis={62} curve={65} fade={14} className="hc-tilted-hero"><div className="hc-hero-overlay"><div><span className="hc-eyebrow"><Activity size={14}/> KITSNODE · AD HEALTH CHECK</span><h1>광고의 다음 장면,<br/><em>숫자로 선명하게.</em></h1></div><Link href="/tools/" className="hc-primary">내 광고 검진 시작 <ArrowRight size={17}/></Link><small>약 3분 · 내 사업의 목표와 숫자로 시작하는 진단</small></div></TiltedGridHero></section>;}
