@@ -63,7 +63,8 @@ export function ToolsHeader({ active }: { active: ToolId }) {
             </Link>
           );
         })}
-        <Link href="/tools/start/" aria-current={active === "start" ? "page" : undefined} onClick={close}>설문</Link>
+        <Link href="/tools/survey/" aria-current={active === "survey" ? "page" : undefined} onClick={close}>설문</Link>
+        <Link href="/tools/about/" aria-current={active === "about" ? "page" : undefined} onClick={close}>소개</Link>
         <span className="tool-nav-separator" aria-hidden="true" />
         {groups.map((item) => (
           <div key={item.id} className="tool-nav-group">

@@ -1,0 +1,634 @@
+/* Hallmark v2.0.0 · shape: about = marquee hero + proof-led page; survey = embedded form screen · theme: wayfind (platform), deal: manual · faces: Pretendard (Hangul) · signature: the agency talking points (SEO, ROAS, 순위…) orbit a fixed core, the brand · guides: hallmark, impeccable (persuade / operate), taste-skill */
+/* critique: one idea per screen, the one real figure (리큐엠 130억, 3~4년) set huge as the proof; colour on the action and the orbit's core only. */
+
+.profit-tool .kits-page {
+  --kp-paper: oklch(95.5% 0.006 250);
+  --kp-sheet: oklch(99.5% 0.004 250);
+  --kp-sheet-2: oklch(97.2% 0.006 250);
+  --kp-ink: oklch(16% 0.014 262);
+  --kp-ink-2: oklch(29% 0.014 262);
+  --kp-muted: oklch(45% 0.016 260);
+  --kp-rule: oklch(88.5% 0.01 250);
+  --kp-rule-strong: oklch(80% 0.011 250);
+  --kp-accent: oklch(51% 0.22 264);
+  --kp-accent-hover: oklch(45% 0.22 264);
+  --kp-accent-soft: oklch(80% 0.09 264);
+  --kp-on-accent: oklch(99.5% 0.003 250);
+  --kp-plate: oklch(18% 0.016 262);
+  --kp-plate-2: oklch(23% 0.016 262);
+  --kp-plate-rule: oklch(34% 0.016 262);
+  --kp-plate-ink: oklch(97% 0.004 250);
+  --kp-plate-muted: oklch(79% 0.012 250);
+  --kp-amber: oklch(81% 0.16 82);
+  --kp-font: var(--font-pretendard), "Pretendard", system-ui, sans-serif;
+  --kp-dur: 140ms;
+  --kp-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  min-height: 100vh;
+  background: var(--kp-paper);
+  color: var(--kp-ink);
+  font-family: var(--kp-font);
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+html,
+body {
+  overflow-x: clip;
+}
+.profit-tool .kits-page ::selection {
+  background: var(--kp-accent-soft);
+  color: var(--kp-ink);
+}
+.profit-tool .kits-page main.kp-main {
+  display: block;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+.profit-tool .kits-page .kp-wrap {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 36px;
+}
+.profit-tool .kits-page a:focus-visible,
+.profit-tool .kits-page button:focus-visible,
+.profit-tool .kits-page iframe:focus-visible {
+  outline: 2px solid var(--kp-accent);
+  outline-offset: 3px;
+}
+.profit-tool .kits-page .kp-plate a:focus-visible {
+  outline-color: var(--kp-amber);
+}
+
+/* Buttons */
+.profit-tool .kits-page .kp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 24px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--kp-dur) var(--kp-ease),
+    border-color var(--kp-dur) var(--kp-ease),
+    color var(--kp-dur) var(--kp-ease);
+}
+.profit-tool .kits-page .kp-button.primary {
+  background: var(--kp-accent);
+  color: var(--kp-on-accent);
+}
+.profit-tool .kits-page .kp-button.primary:hover {
+  background: var(--kp-accent-hover);
+}
+.profit-tool .kits-page .kp-button.primary:active {
+  transform: translateY(1px);
+}
+.profit-tool .kits-page .kp-button.quiet {
+  border-color: var(--kp-plate-rule);
+  color: var(--kp-plate-ink);
+}
+.profit-tool .kits-page .kp-button.quiet:hover {
+  border-color: var(--kp-plate-muted);
+  background: var(--kp-plate-2);
+}
+.profit-tool .kits-page .kp-button.line {
+  border-color: var(--kp-rule-strong);
+  background: var(--kp-sheet);
+  color: var(--kp-ink);
+}
+.profit-tool .kits-page .kp-button.line:hover {
+  border-color: var(--kp-ink-2);
+}
+
+/* ---------- About: hero on the ink plate ---------- */
+.profit-tool .kits-page .kp-plate {
+  background: var(--kp-plate);
+  color: var(--kp-plate-ink);
+}
+.profit-tool .kits-page .kp-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  align-items: center;
+  gap: 48px;
+  min-height: min(720px, calc(100vh - 76px));
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+.profit-tool .kits-page .kp-hero h1 {
+  font-size: clamp(40px, 5.2vw, 76px);
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: var(--kp-plate-ink);
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.profit-tool .kits-page .kp-hero-lede {
+  max-width: 30em;
+  margin-top: 28px;
+  color: var(--kp-plate-muted);
+  font-size: clamp(17px, 1.4vw, 20px);
+  line-height: 1.6;
+}
+.profit-tool .kits-page .kp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 36px;
+}
+
+/* The orbit: the agency talking points circle; the core stays put */
+.profit-tool .kits-page .kp-orbit {
+  position: relative;
+  width: min(100%, 520px);
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+.profit-tool .kits-page .kp-ring {
+  position: absolute;
+  inset: var(--inset);
+  border: 1px solid var(--kp-plate-rule);
+  border-radius: 50%;
+  animation: kp-spin var(--speed) linear infinite;
+}
+.profit-tool .kits-page .kp-ring.reverse {
+  animation-direction: reverse;
+}
+.profit-tool .kits-page .kp-ring > span {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.profit-tool .kits-page .kp-ring > span > b {
+  display: block;
+  width: max-content;
+  padding: 7px 14px;
+  border: 1px solid var(--kp-plate-rule);
+  border-radius: 999px;
+  background: var(--kp-plate-2);
+  color: var(--kp-plate-muted);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  translate: -50% -50%;
+  animation: kp-spin var(--speed) linear infinite;
+  animation-direction: reverse;
+}
+.profit-tool .kits-page .kp-ring.reverse > span > b {
+  animation-direction: normal;
+}
+.profit-tool .kits-page .kp-core {
+  position: absolute;
+  inset: 34%;
+  display: grid;
+  place-content: center;
+  gap: 4px;
+  border-radius: 50%;
+  background: var(--kp-accent);
+  color: var(--kp-on-accent);
+  text-align: center;
+  box-shadow: 0 0 0 10px oklch(51% 0.22 264 / 0.18);
+}
+.profit-tool .kits-page .kp-core strong {
+  font-size: clamp(18px, 1.8vw, 24px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.profit-tool .kits-page .kp-core span {
+  font-size: 13px;
+  opacity: 0.85;
+}
+@keyframes kp-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* ---------- About: sections ---------- */
+.profit-tool .kits-page .kp-section {
+  padding-top: 120px;
+  padding-bottom: 120px;
+}
+.profit-tool .kits-page .kp-section h2 {
+  max-width: 18em;
+  font-size: clamp(30px, 3.4vw, 48px);
+  line-height: 1.18;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--kp-ink);
+}
+.profit-tool .kits-page .kp-section .kp-lede {
+  max-width: 34em;
+  margin-top: 20px;
+  color: var(--kp-ink-2);
+  font-size: 18px;
+  line-height: 1.65;
+}
+
+/* Contrast: what is pitched vs what holds */
+.profit-tool .kits-page .kp-contrast {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  margin-top: 56px;
+  border: 1px solid var(--kp-rule);
+  background: var(--kp-sheet);
+}
+.profit-tool .kits-page .kp-contrast > div {
+  padding: 32px 36px 36px;
+}
+.profit-tool .kits-page .kp-contrast > div + div {
+  border-left: 1px solid var(--kp-rule);
+  background: var(--kp-ink);
+  color: var(--kp-plate-ink);
+}
+.profit-tool .kits-page .kp-contrast h3 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.profit-tool .kits-page .kp-contrast ul {
+  display: grid;
+  gap: 0;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.profit-tool .kits-page .kp-contrast li {
+  padding: 16px 0;
+  border-top: 1px solid var(--kp-rule);
+  font-size: 17px;
+  line-height: 1.5;
+}
+.profit-tool .kits-page .kp-contrast > div + div li {
+  border-top-color: var(--kp-plate-rule);
+}
+.profit-tool .kits-page .kp-contrast li small {
+  display: block;
+  margin-top: 4px;
+  color: var(--kp-muted);
+  font-size: 14px;
+}
+.profit-tool .kits-page .kp-contrast > div + div li small {
+  color: var(--kp-plate-muted);
+}
+.profit-tool .kits-page .kp-contrast > div:first-child li {
+  color: var(--kp-muted);
+}
+.profit-tool .kits-page .kp-contrast > div:first-child li s {
+  text-decoration-thickness: 1px;
+  color: var(--kp-ink-2);
+}
+
+/* Tired-of block: full field of colour */
+.profit-tool .kits-page .kp-tired {
+  background: var(--kp-sheet);
+  border-top: 1px solid var(--kp-rule);
+  border-bottom: 1px solid var(--kp-rule);
+}
+.profit-tool .kits-page .kp-tired .kp-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: 48px;
+  align-items: start;
+}
+.profit-tool .kits-page .kp-tired-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+.profit-tool .kits-page .kp-tired-list li {
+  padding: 22px 0;
+  border-bottom: 1px solid var(--kp-rule);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+  color: var(--kp-ink);
+}
+.profit-tool .kits-page .kp-tired-list li:first-child {
+  padding-top: 0;
+}
+.profit-tool .kits-page .kp-tired-list li span {
+  display: block;
+  margin-top: 6px;
+  color: var(--kp-muted);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* Proof: the one real figure, set huge */
+.profit-tool .kits-page .kp-proof {
+  padding-top: 120px;
+  padding-bottom: 120px;
+}
+.profit-tool .kits-page .kp-proof-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: 48px;
+  align-items: end;
+}
+.profit-tool .kits-page .kp-proof h2 {
+  font-size: clamp(30px, 3.4vw, 48px);
+  line-height: 1.18;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--kp-plate-ink);
+}
+.profit-tool .kits-page .kp-figure {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 20px;
+  margin-top: 40px;
+}
+.profit-tool .kits-page .kp-figure strong {
+  font-size: clamp(96px, 15vw, 220px);
+  line-height: 0.9;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: var(--kp-plate-ink);
+  font-variant-numeric: tabular-nums;
+}
+.profit-tool .kits-page .kp-figure span {
+  color: var(--kp-plate-muted);
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-weight: 600;
+}
+.profit-tool .kits-page .kp-timeline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  margin-top: 40px;
+  color: var(--kp-plate-muted);
+  font-size: 15px;
+}
+.profit-tool .kits-page .kp-timeline i {
+  display: block;
+  height: 2px;
+  background: var(--kp-plate-rule);
+}
+.profit-tool .kits-page .kp-timeline b {
+  color: var(--kp-plate-ink);
+  font-weight: 700;
+}
+.profit-tool .kits-page .kp-proof-side p {
+  color: var(--kp-plate-muted);
+  font-size: 17px;
+  line-height: 1.65;
+}
+.profit-tool .kits-page .kp-proof-side p + p {
+  margin-top: 14px;
+}
+.profit-tool .kits-page .kp-proof-side a.kp-button {
+  margin-top: 28px;
+}
+
+/* Data, not promises */
+.profit-tool .kits-page .kp-data .kp-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 48px;
+  align-items: end;
+}
+.profit-tool .kits-page .kp-data-links {
+  display: grid;
+  border-top: 1px solid var(--kp-ink);
+}
+.profit-tool .kits-page .kp-data-links a {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--kp-rule);
+  color: var(--kp-ink);
+  font-size: 19px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color var(--kp-dur) var(--kp-ease);
+}
+.profit-tool .kits-page .kp-data-links a span {
+  color: var(--kp-muted);
+  font-size: 15px;
+  font-weight: 400;
+}
+.profit-tool .kits-page .kp-data-links a:hover {
+  color: var(--kp-accent);
+}
+
+/* Closing band */
+.profit-tool .kits-page .kp-close .kp-close-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  padding-top: 88px;
+  padding-bottom: 88px;
+}
+.profit-tool .kits-page .kp-close h2 {
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--kp-plate-ink);
+}
+.profit-tool .kits-page .kp-close p {
+  margin-top: 10px;
+  color: var(--kp-plate-muted);
+  font-size: 17px;
+}
+.profit-tool .kits-page footer.kp-footer {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 28px 0 40px;
+  color: var(--kp-plate-muted);
+  font-size: 14px;
+  border-top: 1px solid var(--kp-plate-rule);
+}
+.profit-tool .kits-page footer.kp-footer strong {
+  color: var(--kp-plate-ink);
+  font-size: 16px;
+}
+.profit-tool .kits-page footer.kp-footer > span:last-child {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ---------- Survey ---------- */
+.profit-tool .kits-page .kp-survey {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: 48px;
+  align-items: start;
+  padding-top: 56px;
+  padding-bottom: 80px;
+}
+.profit-tool .kits-page .kp-survey-intro {
+  position: sticky;
+  top: 100px;
+}
+.profit-tool .kits-page .kp-survey-intro h1 {
+  font-size: clamp(32px, 3.4vw, 44px);
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.profit-tool .kits-page .kp-survey-intro > p {
+  margin-top: 16px;
+  color: var(--kp-ink-2);
+  font-size: 17px;
+  line-height: 1.65;
+}
+.profit-tool .kits-page .kp-survey-intro ul {
+  display: grid;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--kp-rule);
+}
+.profit-tool .kits-page .kp-survey-intro li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--kp-rule);
+  color: var(--kp-ink-2);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.profit-tool .kits-page .kp-survey-intro .kp-small {
+  margin-top: 20px;
+  color: var(--kp-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.profit-tool .kits-page .kp-survey-intro .kp-small a {
+  color: var(--kp-accent);
+  text-underline-offset: 3px;
+}
+.profit-tool .kits-page .kp-form {
+  min-height: 640px;
+  padding: 28px 32px;
+  border: 1px solid var(--kp-rule);
+  background: var(--kp-sheet);
+}
+.profit-tool .kits-page .kp-form iframe {
+  display: block;
+  width: 100%;
+  min-height: 580px;
+  border: 0;
+}
+.profit-tool .kits-page .kp-form noscript p {
+  color: var(--kp-muted);
+}
+.profit-tool .kits-page footer.kp-footer.light {
+  border-top-color: var(--kp-rule);
+  color: var(--kp-muted);
+}
+.profit-tool .kits-page footer.kp-footer.light strong {
+  color: var(--kp-ink);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .profit-tool .kits-page .kp-hero,
+  .profit-tool .kits-page .kp-tired .kp-wrap,
+  .profit-tool .kits-page .kp-proof-grid,
+  .profit-tool .kits-page .kp-data .kp-wrap,
+  .profit-tool .kits-page .kp-survey {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .profit-tool .kits-page .kp-hero {
+    min-height: 0;
+  }
+  .profit-tool .kits-page .kp-orbit {
+    width: min(100%, 440px);
+  }
+  .profit-tool .kits-page .kp-survey-intro {
+    position: static;
+  }
+}
+@media (max-width: 720px) {
+  .profit-tool .kits-page .kp-wrap {
+    padding: 0 16px;
+  }
+  .profit-tool .kits-page .kp-hero {
+    gap: 40px;
+    padding-top: 40px;
+    padding-bottom: 48px;
+  }
+  .profit-tool .kits-page .kp-hero h1 {
+    font-size: 38px;
+  }
+  .profit-tool .kits-page .kp-orbit {
+    width: min(100% - 64px, 280px);
+  }
+  .profit-tool .kits-page footer.kp-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .profit-tool .kits-page .kp-ring > span > b {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+  .profit-tool .kits-page .kp-actions .kp-button {
+    flex: 1 1 100%;
+  }
+  .profit-tool .kits-page .kp-section,
+  .profit-tool .kits-page .kp-proof {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+  .profit-tool .kits-page .kp-contrast {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 36px;
+  }
+  .profit-tool .kits-page .kp-contrast > div {
+    padding: 24px 20px 28px;
+  }
+  .profit-tool .kits-page .kp-contrast > div + div {
+    border-left: 0;
+    border-top: 1px solid var(--kp-rule);
+  }
+  .profit-tool .kits-page .kp-tired-list li {
+    font-size: 19px;
+  }
+  .profit-tool .kits-page .kp-close .kp-close-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+  .profit-tool .kits-page .kp-close .kp-button {
+    width: 100%;
+  }
+  .profit-tool .kits-page .kp-survey {
+    gap: 28px;
+    padding-top: 32px;
+    padding-bottom: 56px;
+  }
+  .profit-tool .kits-page .kp-form {
+    margin: 0 -16px;
+    padding: 20px 16px;
+    border-left: 0;
+    border-right: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .profit-tool .kits-page .kp-ring,
+  .profit-tool .kits-page .kp-ring > span > b {
+    animation: none;
+  }
+  .profit-tool .kits-page * {
+    transition: none !important;
+  }
+}

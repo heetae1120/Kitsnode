@@ -7,6 +7,8 @@ export const toolLinks = [
   { id: "bidding", href: "/tools/bidding/", label: "자동입찰" },
   { id: "negative-search", href: "/tools/negative-search/", label: "부정검색 체크" },
   { id: "keywords", href: "/tools/keywords/", label: "네이버 키워드 도구" },
+  { id: "survey", href: "/tools/survey/", label: "설문" },
+  { id: "about", href: "/tools/about/", label: "소개" },
 ] as const;
 
 export type ToolId = (typeof toolLinks)[number]["id"];
