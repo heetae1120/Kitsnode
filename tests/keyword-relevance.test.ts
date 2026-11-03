@@ -48,3 +48,19 @@ test("every seed counts and spacing is ignored", () => {
   ]);
   assert.deepEqual(unrelated(result), ["등산화"]);
 });
+
+test("co-occurring usage, printing and vehicle categories cannot expand relevance", () => {
+  const result = classifyKeywords(rows(
+    "보조배터리", "캠핑보조배터리", "캠핑용품", "인쇄보조배터리",
+    "보조배터리인쇄", "인쇄", "인쇄업체", "블랙박스보조배터리",
+    "차량용보조배터리", "아이나비블랙박스", "파인뷰블랙박스",
+    "맥세이프보조배터리", "외장배터리", "휴대용배터리",
+  ), ["보조배터리"]);
+  assert.deepEqual(unrelated(result), ["아이나비블랙박스", "인쇄", "인쇄업체", "캠핑용품", "파인뷰블랙박스"]);
+});
+
+test("short shared syllables and generic modifiers do not match another product", () => {
+  const result = classifyKeywords(rows("미니가습기", "가습기필터", "가습기", "미니선풍기", "가습기추천", "추천상품"), ["미니가습기"]);
+  assert.deepEqual(unrelated(result), ["미니선풍기", "추천상품"]);
+  assert.deepEqual(unrelated(classifyKeywords(rows("무선충전기", "유선충전기", "맥세이프충전기"), ["무선충전기"])), ["유선충전기"]);
+});
