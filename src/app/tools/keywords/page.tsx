@@ -25,6 +25,7 @@ import {
 } from "@/lib/keyword-research";
 import { ToolsHeader } from "@/components/tools-header";
 import { Help } from "@/components/ui/tooltip";
+import { classifyKeywords } from "@/lib/keyword-relevance";
 import {
   addRanges,
   countRange,
@@ -66,6 +67,7 @@ export default function KeywordTool() {
     minMobileShare: "",
   });
   const research = useKeywordResearch(data);
+  const [showUnrelated, setShowUnrelated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [endpoint, setEndpoint] = useState("");
@@ -87,15 +89,30 @@ export default function KeywordTool() {
     }
     return () => controller.current?.abort();
   }, []);
+  // Related keywords only, unless the user asks to see what was set aside.
+  const relevance = useMemo(
+    () => classifyKeywords(data.keywords, data.queriedKeywords),
+    [data],
+  );
+  const hiddenCount = data.keywords.filter(
+    (r) => relevance.get(r.keyword) === "unrelated",
+  ).length;
+  const rows = useMemo(
+    () =>
+      showUnrelated
+        ? data.keywords
+        : data.keywords.filter((r) => relevance.get(r.keyword) !== "unrelated"),
+    [data, relevance, showUnrelated],
+  );
   const filterResult = useMemo(
     () =>
-      filterResearchKeywords(data.keywords, {
+      filterResearchKeywords(rows, {
         ...advanced,
         text: filter,
         competition,
         device,
       }),
-    [data, advanced, filter, competition, device],
+    [rows, advanced, filter, competition, device],
   );
   const filtered = useMemo(
     () => sortKeywords(filterResult.rows, device),
@@ -104,9 +121,9 @@ export default function KeywordTool() {
   const pages = Math.max(1, Math.ceil(filtered.length / 25));
   const currentPage = Math.min(page, pages);
   const visible = filtered.slice((currentPage - 1) * 25, currentPage * 25);
-  const pcTotal = addRanges(data.keywords.map((r) => countRange(r.pcSearches)));
+  const pcTotal = addRanges(rows.map((r) => countRange(r.pcSearches)));
   const mobileTotal = addRanges(
-    data.keywords.map((r) => countRange(r.mobileSearches)),
+    rows.map((r) => countRange(r.mobileSearches)),
   );
   const share =
     pcTotal &&
@@ -406,7 +423,7 @@ export default function KeywordTool() {
           <div>
             <h2>연관 키워드</h2>
             <p className="kw-stat-value">
-              {data.keywords.length.toLocaleString("ko-KR")}
+              {rows.length.toLocaleString("ko-KR")}
               <small>개</small>
             </p>
             <p className="kw-stat-note">{data.queriedKeywords.join(", ")}</p>
@@ -515,6 +532,23 @@ export default function KeywordTool() {
               </span>
               {pending && <em>입력이 바뀌었습니다. 조회하면 반영됩니다.</em>}
             </p>
+            {hiddenCount > 0 && (
+              <p className="kw-relevance">
+                {showUnrelated
+                  ? `관련 없어 보이는 키워드 ${hiddenCount}개를 함께 표시 중`
+                  : `관련 없어 보이는 키워드 ${hiddenCount}개를 숨겼습니다`}
+                <button
+                  type="button"
+                  aria-pressed={showUnrelated}
+                  onClick={() => {
+                    setShowUnrelated(!showUnrelated);
+                    setPage(1);
+                  }}
+                >
+                  {showUnrelated ? "다시 숨기기" : "보기"}
+                </button>
+              </p>
+            )}
             <div className="kw-toolbar-actions">
               {research.selected.length > 0 && (
                 <button
@@ -669,6 +703,9 @@ export default function KeywordTool() {
                             seed.toLocaleLowerCase() ===
                             r.keyword.toLocaleLowerCase(),
                         ) && <span className="kw-chip">입력</span>}
+                        {relevance.get(r.keyword) === "unrelated" && (
+                          <span className="kw-chip unrelated">관련 낮음</span>
+                        )}
                       </th>
                       <td className="kw-demand">
                         <span className="kw-demand-figure">
@@ -747,7 +784,7 @@ export default function KeywordTool() {
                 {!visible.length && (
                   <tr>
                     <td colSpan={11} className="kw-no-results">
-                      {data.keywords.length
+                      {rows.length
                         ? "필터에 맞는 키워드가 없습니다. 조건을 바꿔 보세요."
                         : "조회된 연관 키워드가 없습니다. 다른 키워드로 조회해 보세요."}
                     </td>

@@ -11,3 +11,6 @@ create table if not exists public.consultation_requests (
 alter table public.consultation_requests enable row level security;
 revoke all on public.consultation_requests from anon, authenticated;
 grant select, insert on public.consultation_requests to service_role;
+
+-- Survey answers (added for /tools/survey/). Safe to run more than once.
+alter table public.consultation_requests add column if not exists answers jsonb not null default '{}'::jsonb;

@@ -137,6 +137,26 @@ export function demoKeywordData(seeds: string[]): KeywordData {
       });
     }),
   );
+  // Naver's related list often carries popular keywords from other categories;
+  // the demo keeps two so the relevance filter has something to set aside.
+  for (const [keyword, pcCount, mobileCount] of [
+    ["암막커튼", 1900, 14200],
+    ["롱패딩", 3100, 22800],
+  ] as const) {
+    if (seen.has(keyword)) continue;
+    seen.add(keyword);
+    keywords.push({
+      keyword,
+      pcSearches: pcCount,
+      mobileSearches: mobileCount,
+      pcClicks: Number((pcCount * 0.014).toFixed(1)),
+      mobileClicks: Number((mobileCount * 0.018).toFixed(1)),
+      competition: "높음",
+      pcCtr: 1.4,
+      mobileCtr: 1.8,
+      adDepth: 6.2,
+    });
+  }
   return {
     source: "demo",
     queriedKeywords: seeds,

@@ -609,6 +609,30 @@ body {
   font-style: normal;
   color: var(--kw-note-ink);
 }
+.profit-tool .keyword-page .kw-relevance {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--kw-muted);
+  font-size: var(--kw-fs-small);
+}
+.profit-tool .keyword-page .kw-relevance button {
+  min-height: 32px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--kw-accent);
+  font-size: var(--kw-fs-small);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.profit-tool .keyword-page .kw-relevance button:hover {
+  color: var(--kw-accent-hover);
+}
+.profit-tool .keyword-page .kw-chip.unrelated {
+  border-style: dashed;
+}
 .profit-tool .keyword-page .kw-toolbar-actions {
   display: flex;
   gap: 8px;
@@ -1475,6 +1499,10 @@ body {
   }
   .profit-tool .keyword-page .kw-toolbar select {
     flex: 1;
+  }
+  .profit-tool .keyword-page .kw-relevance {
+    order: 6;
+    flex: 1 1 100%;
   }
   .profit-tool .keyword-page .kw-count {
     order: 5;

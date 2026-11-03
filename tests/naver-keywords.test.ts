@@ -72,7 +72,7 @@ test("device selection changes ordering without mutating the result", () => {
 test("demo results remain explicitly demo and real responses require the server contract", () => {
   const demo = demoKeywordData(["텀블러"]);
   assert.equal(demo.source, "demo");
-  assert.equal(demo.keywords.length, 8);
+  assert.equal(demo.keywords.length, 10);
   assert.throws(() => validateKeywordResponse(demo));
   const real = validateKeywordResponse({
     ...demo,
