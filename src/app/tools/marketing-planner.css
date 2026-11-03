@@ -37,3 +37,5 @@
 
 .mp-story h1,.mp-story-budget strong,.mp-story-summary h2 strong,.mp-story-limit strong{overflow-wrap:anywhere}
 @media print{.mp-story .mp-keywords{break-inside:auto}}
+
+.mp-story-suggestion{margin:20px 0;padding:26px 30px;background:#fff;border:1px solid #b9cdfb;border-left:4px solid #2858f5;border-radius:14px}.mp-story-suggestion>span{font-size:12px;color:#2858f5;font-weight:700}.mp-story-suggestion h3{font-size:21px;line-height:1.6;margin:12px 0}.mp-story-suggestion h3 strong{color:#2858f5;overflow-wrap:anywhere}.mp-story-suggestion p{font-size:14px;color:#52657f}.mp-story-suggestion small{display:block;font-size:11px;line-height:1.8;color:#697b94}@media(max-width:650px){.mp-story-suggestion{padding:22px 18px}.mp-story-suggestion h3{font-size:19px}}
