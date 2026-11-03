@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import "./keywords.css";
-import "./research.css";
 import "../finance-bento.css";
-import "./keyword-bento.css";
+import "./keywords.css";
 export const metadata: Metadata = {
   title: "네이버 키워드 도구 | KITS Tools",
   description:
@@ -14,7 +12,7 @@ export default function KeywordsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="keyword-page finance-dashboard keyword-dashboard">
+    <div className="keyword-page finance-dashboard">
       {children}
     </div>
   );

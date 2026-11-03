@@ -2,34 +2,15 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import {
-  ArrowUpRight,
   Bookmark,
-  GitCompareArrows,
-  SlidersHorizontal,
   Check,
   ChevronLeft,
   ChevronRight,
-  Clock3,
   Download,
-  FlaskConical,
-  Info,
-  Link2,
+  GitCompareArrows,
   Loader2,
-  Monitor,
   Search,
-  Settings2,
-  Smartphone,
-  TrendingUp,
+  SlidersHorizontal,
   X,
 } from "lucide-react";
 import {
@@ -59,6 +40,7 @@ import {
   validateKeywordResponse,
   type Device,
   type KeywordData,
+  type KeywordRow,
 } from "@/lib/naver-keywords";
 
 const configuredEndpoint = process.env.NEXT_PUBLIC_KEYWORD_API_URL || "";
@@ -134,13 +116,27 @@ export default function KeywordTool() {
     pcTotal.min + mobileTotal.min > 0
       ? (mobileTotal.min / (pcTotal.min + mobileTotal.min)) * 100
       : null;
-  const chart = filtered.slice(0, 8).map((r) => ({
-    keyword: r.keyword,
-    PC: countRange(r.pcSearches)?.min ?? null,
-    pcLabel: formatCount(r.pcSearches),
-    모바일: countRange(r.mobileSearches)?.min ?? null,
-    mobileLabel: formatCount(r.mobileSearches),
-  }));
+  // Demand bars: each row's PC and mobile searches drawn against the largest
+  // row in the current view. Range values use their lower bound, like the sort.
+  const low = (r: KeywordRow) => ({
+    pc: device === "mobile" ? 0 : (countRange(r.pcSearches)?.min ?? 0),
+    mobile: device === "pc" ? 0 : (countRange(r.mobileSearches)?.min ?? 0),
+  });
+  const barMax = Math.max(
+    1,
+    ...filtered.map((r) => {
+      const v = low(r);
+      return v.pc + v.mobile;
+    }),
+  );
+  const fetchedLabel =
+    data.source === "demo"
+      ? "실제 검색량이 아닙니다"
+      : new Intl.DateTimeFormat("ko-KR", {
+          timeZone: "Asia/Seoul",
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(new Date(data.fetchedAt)) + " 조회";
   const pending = (() => {
     try {
       return parseSeeds(query).join(",") !== data.queriedKeywords.join(",");
@@ -273,56 +269,49 @@ export default function KeywordTool() {
     <>
       <ToolsHeader active="keywords" />
       <main className="kw-main">
-        <section className="kw-hero">
+        <header className="kw-title">
           <div>
-            <span className="kw-eyebrow">
-              <Search size={13} /> KITS KEYWORD EXPLORER
-            </span>
-            <h1>
-              키워드 리서치 <span>대시보드</span>
-            </h1>
+            <h1>키워드 도구</h1>
             <p>
-              네이버 검색광고 키워드 도구의 데이터를 기반으로
-              <br className="kw-mobile-break" /> PC·모바일 검색량과 연관
-              키워드를 비교하세요.
+              네이버 검색광고 데이터로 최근 30일 PC·모바일 검색량과 연관
+              키워드를 비교합니다.
             </p>
           </div>
-          <div className="kw-hero-note">
-            <Monitor size={22} />
-            <span>
-              PC & MOBILE
-              <br />
-              <strong>최근 30일 검색량 비교</strong>
-            </span>
-            <Smartphone size={25} />
-          </div>
-        </section>
-        <section className="kw-search-panel" aria-label="키워드 조회">
-          <div className="kw-search-heading">
-            <h2>어떤 키워드가 궁금하세요?</h2>
+          <p className={`kw-stamp ${data.source}`}>
+            {data.source === "demo" ? "데모 데이터" : "네이버 검색광고 데이터"}
+            <span>{fetchedLabel}</span>
+          </p>
+        </header>
+
+        <section className="kw-plate" aria-labelledby="kw-plate-title">
+          <div className="kw-plate-head">
+            <h2 id="kw-plate-title">조회할 키워드</h2>
             <button
-              className="kw-settings-button"
+              className="kw-server-toggle"
               type="button"
+              aria-expanded={settingsOpen}
+              aria-controls="kw-connection"
               onClick={() => {
                 setSettingsOpen(!settingsOpen);
                 setSaved(false);
               }}
             >
-              <Settings2 size={14} /> 조회 서버 연결{" "}
-              <span className={endpoint ? "kw-connected" : "kw-disconnected"}>
-                {endpoint ? "주소 설정됨" : "미연결"}
-              </span>
+              조회 서버{" "}
+              <b className={endpoint ? "on" : "off"}>
+                {endpoint ? "연결됨" : "미연결"}
+              </b>
             </button>
           </div>
           <form className="kw-search-form" onSubmit={search}>
             <div className="kw-search-field">
-              <Search size={18} />
+              <Search size={18} aria-hidden />
               <input
                 aria-label="조회 키워드"
+                aria-describedby="kw-search-help"
                 value={query}
                 maxLength={300}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="예: 미니가습기, 무선가습기 (최대 5개)"
+                placeholder="예: 미니가습기, 무선가습기"
               />
               {query && (
                 <button
@@ -330,7 +319,7 @@ export default function KeywordTool() {
                   aria-label="조회 키워드 지우기"
                   onClick={() => setQuery("")}
                 >
-                  <X size={15} />
+                  <X size={16} />
                 </button>
               )}
             </div>
@@ -339,30 +328,23 @@ export default function KeywordTool() {
               type="submit"
               disabled={loading}
             >
-              {loading ? (
-                <Loader2 className="kw-spin" size={17} />
-              ) : (
-                <Search size={17} />
-              )}{" "}
+              {loading && <Loader2 className="kw-spin" size={17} />}
               {loading ? "조회 중…" : "검색량 조회"}
             </button>
             <button className="kw-demo-button" type="button" onClick={showDemo}>
-              <FlaskConical size={15} /> 데모 조회
+              데모로 보기
             </button>
           </form>
-          <p className="kw-search-help">
+          <p className="kw-search-help" id="kw-search-help">
             쉼표로 구분해 최대 5개까지 입력할 수 있습니다. 띄어쓰기는 검색광고
             키워드 기준으로 정리됩니다.
           </p>
-          <details
-            className="kw-connection"
-            open={settingsOpen}
-            onToggle={(e) => setSettingsOpen(e.currentTarget.open)}
-          >
-            <summary>
-              <Link2 size={13} /> 조회 서버 설정
-            </summary>
-            <form onSubmit={saveEndpoint}>
+          {settingsOpen && (
+            <form
+              className="kw-connection"
+              id="kw-connection"
+              onSubmit={saveEndpoint}
+            >
               <label htmlFor="keyword-endpoint">검색량 조회 서버 주소</label>
               <div className="kw-endpoint-row">
                 <input
@@ -375,11 +357,11 @@ export default function KeywordTool() {
                     setSaved(false);
                   }}
                 />
-                <button type="submit">설정 저장</button>
+                <button type="submit">주소 저장</button>
               </div>
               <p>
                 API 키·비밀 키·고객 ID는 조회 서버에만 등록합니다. 이 화면에는
-                서버 주소만 입력하세요. 주소 설정만으로 인증이나 조회 성공이
+                서버 주소만 입력하세요. 주소를 저장해도 인증이나 조회 성공이
                 확인되지는 않습니다.
               </p>
               {settingsError && (
@@ -389,102 +371,102 @@ export default function KeywordTool() {
               )}
               {saved && (
                 <p className="kw-saved" role="status">
-                  <Check size={13} />{" "}
+                  <Check size={14} aria-hidden />
                   {endpoint
-                    ? "서버 주소를 저장했습니다. 검색량 조회 버튼으로 연결을 확인하세요."
+                    ? "서버 주소를 저장했습니다. 검색량 조회로 연결을 확인하세요."
                     : "서버 주소를 해제했습니다."}
                 </p>
               )}
             </form>
-          </details>
-          {error && (
-            <div className="kw-query-error" role="alert">
-              <Info size={17} />
-              <div>
-                <strong>{error}</strong>
-                <span>
-                  아래 표는 {data.source === "demo" ? "기존 데모" : "이전 조회"}{" "}
-                  결과이며, 방금 요청의 성공 결과가 아닙니다.
-                </span>
-              </div>
-            </div>
           )}
         </section>
-        <div className={`kw-source-notice ${data.source}`}>
-          <span className="kw-source-badge">
-            {data.source === "demo" ? (
-              <FlaskConical size={13} />
-            ) : (
-              <Check size={13} />
-            )}{" "}
-            {data.source === "demo" ? "데모 데이터" : "네이버 API 조회 데이터"}
-          </span>
-          <p>
-            {data.source === "demo"
-              ? "실제 네이버 검색량이 아닌 가상 예시입니다. API 연결 전에도 화면과 정렬 기능을 체험할 수 있습니다."
-              : "네이버 검색광고 키워드 도구의 검색량(최근 30일)과 파워링크 광고 클릭 통계(최근 4주)입니다. 쇼핑검색광고의 클릭·경쟁 통계가 아닙니다."}
+
+        {error && (
+          <div className="kw-query-error" role="alert">
+            <strong>{error}</strong>
+            <span>
+              아래 결과는 {data.source === "demo" ? "기존 데모" : "이전 조회"}{" "}
+              결과이며, 방금 요청의 결과가 아닙니다.
+            </span>
+          </div>
+        )}
+        {data.source === "demo" ? (
+          <p className="kw-notice">
+            지금 보이는 수치는 실제 네이버 검색량이 아닌 가상 예시입니다. 조회
+            서버를 연결하기 전에도 정렬과 필터를 써 볼 수 있습니다.
           </p>
-        </div>
-        <section className="kw-stat-grid" aria-label="조회 결과 요약">
-          <article>
-            <span>조회된 연관 키워드</span>
-            <strong>
+        ) : (
+          <p className="kw-notice naver">
+            네이버 검색광고 키워드 도구의 검색량(최근 30일)과 파워링크 광고 클릭
+            통계(최근 4주)입니다. 쇼핑검색광고의 클릭·경쟁 통계가 아닙니다.
+          </p>
+        )}
+
+        <section className="kw-stats" aria-label="조회 결과 요약">
+          <div>
+            <h2>연관 키워드</h2>
+            <p className="kw-stat-value">
               {data.keywords.length.toLocaleString("ko-KR")}
               <small>개</small>
-            </strong>
-            <p>{data.queriedKeywords.join(", ")}</p>
-          </article>
-          <article>
-            <span>
-              <Monitor size={13} /> PC 월간 검색량 합계
+            </p>
+            <p className="kw-stat-note">{data.queriedKeywords.join(", ")}</p>
+          </div>
+          <div>
+            <h2>
+              PC 검색량 합계
               <Help
                 label="PC 검색량 합계"
                 text="이번 조회 결과의 PC 검색 횟수 합계입니다. 네이버 전체 검색량이나 방문자 수가 아닙니다. 범위 표기는 원본 범위를 유지합니다."
               />
-            </span>
-            <strong>{formatRange(pcTotal)}</strong>
-            <p>이번에 조회된 키워드 기준</p>
-          </article>
-          <article>
-            <span>
-              <Smartphone size={13} /> 모바일 월간 검색량 합계
-            </span>
-            <strong>{formatRange(mobileTotal)}</strong>
-            <p>이번에 조회된 키워드 기준</p>
-          </article>
-          <article>
-            <span>
-              모바일 검색 비중
+            </h2>
+            <p className="kw-stat-value">{formatRange(pcTotal)}</p>
+            <p className="kw-stat-note">최근 30일, 조회된 키워드 기준</p>
+          </div>
+          <div>
+            <h2>모바일 검색량 합계</h2>
+            <p className="kw-stat-value">{formatRange(mobileTotal)}</p>
+            <p className="kw-stat-note">최근 30일, 조회된 키워드 기준</p>
+          </div>
+          <div>
+            <h2>
+              모바일 비중
               <Help
                 label="모바일 검색 비중"
                 text="정확한 PC·모바일 검색량이 모두 있는 경우에만 계산합니다. 범위값이나 누락값이 있으면 표시하지 않습니다."
               />
-            </span>
-            <strong>
-              {share === null ? "—" : decimal(share)}
-              {share !== null && <small>%</small>}
-            </strong>
-            <p>
-              {share === null
-                ? "범위값·누락값 포함 시 미표시"
-                : "PC + 모바일 검색량 대비"}
+            </h2>
+            <p className="kw-stat-value">
+              {share === null ? (
+                <span className="kw-dash">—</span>
+              ) : (
+                <>
+                  {decimal(share)}
+                  <small>%</small>
+                </>
+              )}
             </p>
-          </article>
+            <p className="kw-stat-note">
+              {share === null
+                ? "범위값이나 누락값이 있어 계산하지 않음"
+                : "PC와 모바일 검색량 합계 대비"}
+            </p>
+          </div>
         </section>
+
         <section
           className="kw-results"
           ref={results}
-          aria-label="키워드 검색량 결과"
+          aria-labelledby="kw-results-title"
         >
-          <div className="kw-result-heading">
+          <div className="kw-results-head">
             <div>
-              <h2>조회 결과 내 검색량 순위</h2>
+              <h2 id="kw-results-title">검색량 순위</h2>
               <p>
-                네이버 전체 인기 검색어 순위가 아닌, 이번 조회·필터 결과 안의
+                네이버 전체 인기 검색어가 아니라, 이번 조회와 필터 결과 안의
                 순위입니다.
               </p>
             </div>
-            <div className="kw-device-tabs" aria-label="검색량 기준 기기">
+            <div className="kw-segmented" role="group" aria-label="검색량 기준 기기">
               {(["all", "mobile", "pc"] as const).map((d) => (
                 <button
                   key={d}
@@ -495,163 +477,15 @@ export default function KeywordTool() {
                     setPage(1);
                   }}
                 >
-                  {d === "pc" ? (
-                    <Monitor size={14} />
-                  ) : d === "mobile" ? (
-                    <Smartphone size={14} />
-                  ) : null}
                   {deviceName[d]}
                 </button>
               ))}
             </div>
           </div>
-          <div className="kw-result-meta">
-            <div>
-              {data.queriedKeywords.map((seed) => (
-                <span key={seed}>{seed}</span>
-              ))}
-              {pending && <em>입력 변경됨 · 조회 시 반영</em>}
-            </div>
-            <span>
-              <Clock3 size={12} />
-              {data.source === "demo"
-                ? "가상 예시 · 실제 집계 아님"
-                : new Intl.DateTimeFormat("ko-KR", {
-                    timeZone: "Asia/Seoul",
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  }).format(new Date(data.fetchedAt)) + " 조회"}
-            </span>
-          </div>
-          <div className="kw-chart-grid">
-            <article className="kw-chart-card">
-              <div className="kw-chart-title">
-                <h3>
-                  <TrendingUp size={16} /> 검색량 TOP 8
-                </h3>
-                <span>{deviceName[device]} 기준 · 검색 횟수</span>
-              </div>
-              {chart.length ? (
-                <div className="kw-chart">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={chart}
-                      layout="vertical"
-                      margin={{ top: 3, right: 20, bottom: 0, left: 4 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 4"
-                        horizontal={false}
-                        stroke="#e9eeea"
-                      />
-                      <XAxis
-                        type="number"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 10, fill: "#8b978c" }}
-                        tickFormatter={(v) =>
-                          Number(v) >= 10000
-                            ? `${decimal(Number(v) / 10000)}만`
-                            : decimal(Number(v))
-                        }
-                      />
-                      <YAxis
-                        dataKey="keyword"
-                        type="category"
-                        width={105}
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 11, fill: "#6a786d" }}
-                        tickFormatter={(v) =>
-                          String(v).length > 10
-                            ? String(v).slice(0, 10) + "…"
-                            : v
-                        }
-                      />
-                      <Tooltip
-                        formatter={(_value, name, item) => {
-                          const label =
-                            String(name) === "PC"
-                              ? item.payload?.pcLabel
-                              : item.payload?.mobileLabel;
-                          return [
-                            label === "—" ? "조회값 없음" : `${label}회`,
-                            String(name),
-                          ];
-                        }}
-                        contentStyle={{
-                          borderRadius: 8,
-                          fontSize: 12,
-                          border: "1px solid #dce7de",
-                          maxWidth: "min(240px, 70vw)",
-                          whiteSpace: "normal",
-                          overflowWrap: "anywhere",
-                        }}
-                      />
-                      <Legend
-                        iconType="circle"
-                        iconSize={7}
-                        wrapperStyle={{ fontSize: 10, paddingTop: 10 }}
-                      />
-                      {device !== "mobile" && (
-                        <Bar
-                          dataKey="PC"
-                          fill="#2563eb"
-                          radius={[0, 3, 3, 0]}
-                          maxBarSize={14}
-                          isAnimationActive={false}
-                        />
-                      )}{" "}
-                      {device !== "pc" && (
-                        <Bar
-                          dataKey="모바일"
-                          fill="#93b4f5"
-                          radius={[0, 3, 3, 0]}
-                          maxBarSize={14}
-                          isAnimationActive={false}
-                        />
-                      )}
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="kw-chart-empty">
-                  조건에 맞는 키워드가 없습니다.
-                </div>
-              )}
-              <p className="kw-chart-footnote">
-                범위값은 하한 기준으로 정렬·시각화하며, 누락값은 막대 길이로
-                표현하지 않습니다. 정확한 값과 범위는 표에서 확인하세요.
-              </p>
-            </article>
-            <article className="kw-top-card">
-              <span className="kw-top-eyebrow">KEYWORDS TO LOOK AT</span>
-              <h3>이번 조회의 상위 키워드</h3>
-              <p>{deviceName[device]} 검색량이 높은 순서입니다.</p>
-              {filtered.slice(0, 3).map((r, i) => (
-                <div className="kw-top-item" key={r.keyword}>
-                  <span>{String(i + 1).padStart(2, "0")}</span>
-                  <div>
-                    <strong>{r.keyword}</strong>
-                    <small>
-                      {formatRange(rowVolume(r, device))}회 · {r.competition}
-                    </small>
-                  </div>
-                </div>
-              ))}
-              {!filtered.length && <p>표시할 키워드가 없습니다.</p>}
-              <div className="kw-top-note">
-                <Info size={14} />
-                <span>
-                  검색량은 광고 수익을 보장하지 않습니다. CPC·전환율과 함께
-                  수익성을 판단하세요.
-                </span>
-              </div>
-            </article>
-          </div>
-          <div className="kw-table-toolbar">
-            <div className="kw-result-search">
-              <Search size={14} />
+
+          <div className="kw-toolbar">
+            <div className="kw-filter-field">
+              <Search size={15} aria-hidden />
               <input
                 aria-label="결과 내 키워드 검색"
                 placeholder="결과 내 키워드 검색"
@@ -670,41 +504,48 @@ export default function KeywordTool() {
                 setPage(1);
               }}
             >
-              <option value="all">모든 경쟁 정도</option>
-              <option>높음</option>
-              <option>중간</option>
-              <option>낮음</option>
+              <option value="all">경쟁 정도 전체</option>
+              <option value="높음">경쟁 높음</option>
+              <option value="중간">경쟁 중간</option>
+              <option value="낮음">경쟁 낮음</option>
             </select>
-            <span className="kw-result-count">
-              총 <b>{filtered.length.toLocaleString("ko-KR")}</b>개
-            </span>
-            {research.selected.length > 0 && (
+            <p className="kw-count">
+              <span>
+                <b>{filtered.length.toLocaleString("ko-KR")}</b>개 키워드
+              </span>
+              {pending && <em>입력이 바뀌었습니다. 조회하면 반영됩니다.</em>}
+            </p>
+            <div className="kw-toolbar-actions">
+              {research.selected.length > 0 && (
+                <button
+                  className="kw-ghost-button"
+                  type="button"
+                  onClick={research.openCompare}
+                >
+                  <GitCompareArrows size={15} aria-hidden /> 선택한{" "}
+                  {research.selected.length}개 비교
+                </button>
+              )}
               <button
-                className="kr-compare-trigger"
-                onClick={research.openCompare}
+                className="kw-ghost-button"
+                type="button"
+                disabled={!filtered.length}
+                onClick={download}
               >
-                <GitCompareArrows size={14} /> 선택 비교 (
-                {research.selected.length}/5)
+                <Download size={15} aria-hidden />
+                {data.source === "demo" ? "데모 CSV" : "CSV 내려받기"}
               </button>
-            )}
-            <button
-              className="kw-csv-button"
-              type="button"
-              disabled={!filtered.length}
-              onClick={download}
-            >
-              <Download size={14} />{" "}
-              {data.source === "demo" ? "데모 CSV" : "CSV 다운로드"}
-            </button>
+            </div>
           </div>
-          <details className="kr-advanced">
+
+          <details className="kw-advanced">
             <summary>
-              <SlidersHorizontal size={13} /> 상세 필터
+              <SlidersHorizontal size={14} aria-hidden /> 상세 필터
             </summary>
-            <div className="kr-advanced-fields">
+            <div className="kw-advanced-fields">
               {(
                 [
-                  ["exclude", "제외 키워드", "추천,중고"],
+                  ["exclude", "제외 단어", "추천, 중고"],
                   ["minVolume", "최소 검색량", "0"],
                   ["maxVolume", "최대 검색량", "100000"],
                   ["minMobileShare", "최소 모바일 비중 (%)", "0"],
@@ -713,7 +554,6 @@ export default function KeywordTool() {
                 <label key={key}>
                   {label}
                   <input
-                    aria-label={label}
                     type={key === "exclude" ? "text" : "number"}
                     min={key === "exclude" ? undefined : 0}
                     max={key === "minMobileShare" ? 100 : undefined}
@@ -726,187 +566,230 @@ export default function KeywordTool() {
                   />
                 </label>
               ))}
-              <button onClick={resetFilters}>필터 초기화</button>
+              <button type="button" onClick={resetFilters}>
+                필터 초기화
+              </button>
             </div>
             <p>
-              포함 키워드는 쉼표로 나눈 단어를 모두 포함해야 하며, 제외 단어는
-              하나라도 포함되면 빠집니다. 범위값은 전체 범위가 검색량 조건 안에
+              결과 내 검색은 쉼표로 나눈 단어를 모두 포함해야 하고, 제외 단어는
+              하나라도 포함되면 빠집니다. 범위값은 범위 전체가 검색량 조건 안에
               들어올 때만 포함합니다.
             </p>
           </details>
           {filterResult.error && (
-            <p role="alert" className="kr-error">
+            <p role="alert" className="kw-inline-error">
               {filterResult.error}
             </p>
           )}
-          <div className="kw-table-scroll">
+
+          <div className="kw-legend" aria-hidden>
+            {device !== "mobile" && (
+              <span>
+                <i className="pc" />
+                PC
+              </span>
+            )}
+            {device !== "pc" && (
+              <span>
+                <i className="mobile" />
+                모바일
+              </span>
+            )}
+            <span className="kw-legend-note">
+              막대는 이번 결과의 최다 검색 키워드 대비 길이입니다
+            </span>
+          </div>
+
+          <div className="kw-table-scroll" tabIndex={0} aria-label="키워드 표, 가로로 스크롤할 수 있습니다">
             <table className={`kw-table device-${device}`}>
-              <caption>
+              <caption className="kw-visually-hidden">
                 {data.source === "demo"
                   ? "가상 데모 데이터"
-                  : "네이버 검색광고 API 데이터"}{" "}
-                · {deviceName[device]} 검색량순
+                  : "네이버 검색광고 API 데이터"}
+                , {deviceName[device]} 검색량순
               </caption>
               <thead>
                 <tr>
-                  <th>순위</th>
-                  <th>검색 키워드</th>
-                  <th className="kw-pc-column">
-                    PC 검색량<small>최근 30일</small>
+                  <th scope="col" className="num">순위</th>
+                  <th scope="col">키워드</th>
+                  <th scope="col" className="kw-demand-col">
+                    {deviceName[device]} 검색 수요
                   </th>
-                  <th className="kw-mobile-column">
-                    모바일 검색량<small>최근 30일</small>
+                  <th scope="col" className="num kw-pc-column">
+                    PC
                   </th>
-                  <th>
-                    합계<small>PC + 모바일</small>
+                  <th scope="col" className="num kw-mobile-column">
+                    모바일
                   </th>
-                  <th>
-                    상품 수<small>직접 입력 / 쇼핑 API</small>
+                  <th scope="col" className="num">
+                    모바일 비중
                   </th>
-                  <th>
-                    상품 / 검색 비율<small>선택 기기 기준</small>
+                  <th scope="col" className="num">
+                    상품 수
                   </th>
-                  <th>모바일 비중</th>
-                  <th>
-                    월평균 광고 클릭 수<small>파워링크 PC / 모바일 · 최근 4주</small>
+                  <th scope="col" className="num">
+                    상품 / 검색
                   </th>
-                  <th>
-                    경쟁 정도<small>파워링크 PC 기준</small>
+                  <th scope="col" className="num">
+                    광고 클릭
+                    <small>PC / 모바일, 4주 평균</small>
                   </th>
-                  <th>비교 · 저장</th>
+                  <th scope="col">
+                    경쟁
+                    <small>파워링크 PC</small>
+                  </th>
+                  <th scope="col" className="kw-actions-col">
+                    <span className="kw-visually-hidden">비교 선택과 저장</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {visible.map((r, i) => (
-                  <tr
-                    key={r.keyword}
-                    className={research.isSelected(r) ? "kr-row-selected" : ""}
-                  >
-                    <td>
-                      <span
-                        className={
-                          currentPage === 1 && i < 3 ? "kw-rank top" : "kw-rank"
-                        }
-                      >
+                {visible.map((r, i) => {
+                  const v = low(r);
+                  const product =
+                    research.products.find((p) => p.keyword === r.keyword)
+                      ?.count ?? null;
+                  return (
+                    <tr
+                      key={r.keyword}
+                      className={research.isSelected(r) ? "is-selected" : ""}
+                    >
+                      <td className="num kw-rank">
                         {(currentPage - 1) * 25 + i + 1}
-                      </span>
-                    </td>
-                    <th scope="row">
-                      <button
-                        className="kr-keyword-link"
-                        onClick={() => research.inspect(r.keyword)}
-                      >
-                        {r.keyword}
-                      </button>
-                      {data.queriedKeywords.some(
-                        (seed) =>
-                          seed.toLocaleLowerCase() ===
-                          r.keyword.toLocaleLowerCase(),
-                      ) && <span className="kw-seed-tag">입력</span>}
-                    </th>
-                    <td className="kw-pc-column">
-                      {formatCount(r.pcSearches)}
-                    </td>
-                    <td className="kw-mobile-column">
-                      {formatCount(r.mobileSearches)}
-                    </td>
-                    <td>
-                      <strong>{formatRange(rowVolume(r, "all"))}</strong>
-                    </td>
-                    <td>
-                      {decimal(
-                        research.products.find((p) => p.keyword === r.keyword)
-                          ?.count ?? null,
-                      )}
-                    </td>
-                    <td>
-                      {formatRatio(
-                        productSearchRatio(
-                          research.products.find((p) => p.keyword === r.keyword)
-                            ?.count ?? null,
-                          exactVolume(r, device),
-                        ),
-                      )}
-                    </td>
-                    <td>
-                      {mobileShare(r) === null
-                        ? "—"
-                        : `${decimal(mobileShare(r))}%`}
-                    </td>
-                    <td className="kw-clicks">
-                      {decimal(r.pcClicks)} <span>/</span>{" "}
-                      {decimal(r.mobileClicks)}
-                    </td>
-                    <td>
-                      <span
-                        className={`kw-competition ${r.competition === "높음" ? "high" : r.competition === "낮음" ? "low" : ""}`}
-                      >
-                        {r.competition}
-                      </span>
-                    </td>
-                    <td className="kr-row-actions">
-                      <input
-                        type="checkbox"
-                        aria-label={`${r.keyword} 비교 선택`}
-                        checked={research.isSelected(r)}
-                        onChange={() =>
-                          research.toggleSelected(research.snapshot(r))
-                        }
-                      />
-                      <button
-                        aria-label={`${r.keyword} 관심 키워드 ${research.isSaved(r) ? "저장 해제" : "저장"}`}
-                        aria-pressed={research.isSaved(r)}
-                        onClick={() => research.toggleSaved(r)}
-                      >
-                        <Bookmark
-                          size={15}
-                          fill={research.isSaved(r) ? "currentColor" : "none"}
+                      </td>
+                      <th scope="row" className="kw-keyword">
+                        <button
+                          type="button"
+                          onClick={() => research.inspect(r.keyword)}
+                        >
+                          {r.keyword}
+                        </button>
+                        {data.queriedKeywords.some(
+                          (seed) =>
+                            seed.toLocaleLowerCase() ===
+                            r.keyword.toLocaleLowerCase(),
+                        ) && <span className="kw-chip">입력</span>}
+                      </th>
+                      <td className="kw-demand">
+                        <span className="kw-demand-figure">
+                          {formatRange(rowVolume(r, device))}
+                        </span>
+                        <span className="kw-bar" aria-hidden>
+                          {v.pc > 0 && (
+                            <i
+                              className="pc"
+                              style={{ inlineSize: `${(v.pc / barMax) * 100}%` }}
+                            />
+                          )}
+                          {v.mobile > 0 && (
+                            <i
+                              className="mobile"
+                              style={{
+                                inlineSize: `${(v.mobile / barMax) * 100}%`,
+                              }}
+                            />
+                          )}
+                        </span>
+                      </td>
+                      <td className="num kw-pc-column">
+                        {formatCount(r.pcSearches)}
+                      </td>
+                      <td className="num kw-mobile-column">
+                        {formatCount(r.mobileSearches)}
+                      </td>
+                      <td className="num">
+                        {mobileShare(r) === null
+                          ? "—"
+                          : `${decimal(mobileShare(r))}%`}
+                      </td>
+                      <td className="num">{decimal(product)}</td>
+                      <td className="num">
+                        {formatRatio(
+                          productSearchRatio(product, exactVolume(r, device)),
+                        )}
+                      </td>
+                      <td className="num kw-clicks">
+                        {decimal(r.pcClicks)}
+                        <span> / </span>
+                        {decimal(r.mobileClicks)}
+                      </td>
+                      <td>
+                        <span
+                          className={`kw-pill ${r.competition === "높음" ? "high" : r.competition === "낮음" ? "low" : "mid"}`}
+                        >
+                          {r.competition}
+                        </span>
+                      </td>
+                      <td className="kw-row-actions">
+                        <input
+                          type="checkbox"
+                          aria-label={`${r.keyword} 비교 선택`}
+                          checked={research.isSelected(r)}
+                          onChange={() =>
+                            research.toggleSelected(research.snapshot(r))
+                          }
                         />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                        <button
+                          type="button"
+                          aria-label={`${r.keyword} 관심 키워드 ${research.isSaved(r) ? "저장 해제" : "저장"}`}
+                          aria-pressed={research.isSaved(r)}
+                          onClick={() => research.toggleSaved(r)}
+                        >
+                          <Bookmark
+                            size={16}
+                            fill={research.isSaved(r) ? "currentColor" : "none"}
+                          />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
                 {!visible.length && (
                   <tr>
                     <td colSpan={11} className="kw-no-results">
                       {data.keywords.length
-                        ? "필터에 맞는 키워드가 없습니다. 조건을 바꿔보세요."
-                        : "조회된 연관 키워드가 없습니다. 다른 키워드로 검색해 보세요."}
+                        ? "필터에 맞는 키워드가 없습니다. 조건을 바꿔 보세요."
+                        : "조회된 연관 키워드가 없습니다. 다른 키워드로 조회해 보세요."}
                     </td>
                   </tr>
                 )}
               </tbody>
             </table>
           </div>
-          <div className="kw-table-bottom">
+          <div className="kw-table-foot">
             <p>
-              {deviceName[device]} 검색량 내림차순 · 범위값은 하한 기준 ·
-              누락값은 마지막에 표시
-              {data.truncated && " · 최대 1,000개 결과 표시"}
+              {deviceName[device]} 검색량 내림차순입니다. 범위값은 하한으로
+              정렬하고 누락값은 마지막에 둡니다.
+              {data.truncated && " 결과는 최대 1,000개까지 표시합니다."}
             </p>
-            <div className="kw-pagination">
-              <button
-                type="button"
-                aria-label="이전 결과 페이지"
-                disabled={currentPage === 1}
-                onClick={() => setPage(currentPage - 1)}
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <span>
-                {currentPage} / {pages}
-              </span>
-              <button
-                type="button"
-                aria-label="다음 결과 페이지"
-                disabled={currentPage === pages}
-                onClick={() => setPage(currentPage + 1)}
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
+            {pages > 1 && (
+              <div className="kw-pagination">
+                <button
+                  type="button"
+                  aria-label="이전 결과 페이지"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage(currentPage - 1)}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <span>
+                  {(currentPage - 1) * 25 + 1}–
+                  {Math.min(currentPage * 25, filtered.length)} /{" "}
+                  {filtered.length.toLocaleString("ko-KR")}
+                </span>
+                <button
+                  type="button"
+                  aria-label="다음 결과 페이지"
+                  disabled={currentPage === pages}
+                  onClick={() => setPage(currentPage + 1)}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            )}
           </div>
         </section>
+
         <KeywordResearch
           model={research}
           data={data}
@@ -917,35 +800,41 @@ export default function KeywordTool() {
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
         />
-        <section className="kw-guide">
-          <Info size={19} />
+
+        <section className="kw-guide" aria-labelledby="kw-guide-title">
+          <h2 id="kw-guide-title">데이터를 읽기 전에</h2>
           <div>
-            <h3>데이터를 읽기 전에</h3>
-            <p>쇼핑검색광고 추정 입찰가는 <Link href="/tools/start/">맞춤 진단에서 상품·소재 ID로 조회</Link>하세요. 키워드 검색량은 쇼핑광고 전용 검색량이 아닙니다.</p>
             <p>
-              검색량은 최근 30일의 검색 횟수이며 실시간 인기 검색어 순위나
-              검색자 수가 아닙니다. 월평균 클릭 수는 파워링크 광고의 최근 4주
-              지표이며 CPC·입찰가·구매전환율과 다릅니다. &lt;10은 0~9회 범위로
-              보존하고 임의의 정확한 수치로 바꾸지 않습니다.
+              검색량은 최근 30일의 검색 횟수입니다. 실시간 인기 검색어 순위나
+              검색한 사람 수가 아니며, 광고 수익을 보장하지 않습니다. CPC와
+              전환율을 함께 보고 판단하세요.
             </p>
             <p>
-              현재 GitHub Pages 화면에는 API 비밀 키를 저장하지 않습니다. 실제
-              조회는 인증 정보를 가진 별도 조회 서버를 연결한 뒤 사용할 수
-              있습니다.
+              월평균 클릭 수는 파워링크 광고의 최근 4주 지표이며 CPC·입찰가·구매
+              전환율과 다릅니다. &lt;10은 0~9회 범위로 보존하고 임의의 정확한
+              수치로 바꾸지 않습니다.
+            </p>
+            <p>
+              쇼핑검색광고 추정 입찰가는{" "}
+              <Link href="/tools/start/">맞춤 진단에서 상품·소재 ID로 조회</Link>
+              하세요. 이 화면에는 API 비밀 키를 저장하지 않으며, 실제 조회는
+              인증 정보를 가진 별도 조회 서버를 연결한 뒤 사용할 수 있습니다.
+            </p>
+            <p>
+              <a
+                href="https://searchad.naver.com/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                네이버 검색광고 열기
+              </a>
             </p>
           </div>
-          <a
-            href="https://searchad.naver.com/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            네이버 검색광고 <ArrowUpRight size={13} />
-          </a>
         </section>
-        <div className="kw-footer">
+        <footer className="kw-footer">
           <strong>KITS Tools</strong>
-          <span>더 나은 판단을 위한, 감각적인 비즈니스 도구.</span>
-        </div>
+          <span>더 나은 판단을 위한 비즈니스 도구</span>
+        </footer>
       </main>
     </>
   );

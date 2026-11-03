@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import Link from "next/link";
 import {
-  Bookmark,
   Check,
   Download,
   GitCompareArrows,
@@ -371,18 +370,18 @@ export function KeywordResearch({
     );
   return (
     <>
-      <section className="kr-suggestions">
+      <section className="kr-suggestions" aria-labelledby="kr-suggestions-title">
         <div>
-          <h3>다음 키워드도 탐색해 보세요</h3>
+          <h2 id="kr-suggestions-title">확장 후보</h2>
           <p>
-            규칙으로 만든 확장 후보입니다. 실제 연관 검색어나 검색량이 확인된
-            목록이 아닙니다.
+            규칙으로 만든 후보이며, 실제 연관 검색어나 검색량이 확인된 목록이
+            아닙니다. 누르면 조회할 키워드에 들어갑니다.
           </p>
         </div>
         <div>
           {suggestions.map((s) => (
-            <button key={s} onClick={() => onQuery(s)} title="검색어에 입력">
-              {s} <Search size={11} />
+            <button key={s} type="button" onClick={() => onQuery(s)}>
+              {s}
             </button>
           ))}
           {!suggestions.length && (
@@ -393,18 +392,14 @@ export function KeywordResearch({
       <section
         className="kr-workbench"
         ref={m.sectionRef}
-        aria-label="키워드 리서치 작업실"
+        aria-labelledby="kr-workbench-title"
       >
         <div className="kr-heading">
-          <div>
-            <span>KEYWORD RESEARCH WORKBENCH</span>
-            <h2>찾은 키워드를, 다음 판단으로.</h2>
-            <p>
-              상품 수와 검색량을 비교하고, 관심 키워드와 직접 수집한 월별
-              데이터를 함께 살펴보세요.
-            </p>
-          </div>
-          <span className="kr-storage-badge">브라우저 저장 · 계정 불필요</span>
+          <h2 id="kr-workbench-title">키워드 분석</h2>
+          <p>
+            상품 수와 검색량을 비교하고, 관심 키워드와 직접 수집한 월별 데이터를
+            함께 봅니다. 이 브라우저에만 저장되며 계정이 필요 없습니다.
+          </p>
         </div>
         <div className="kr-tabs" aria-label="키워드 리서치 메뉴">
           {(
@@ -416,16 +411,10 @@ export function KeywordResearch({
           ).map(([tab, label]) => (
             <button
               key={tab}
+              type="button"
               aria-pressed={m.tab === tab}
               onClick={() => m.setTab(tab)}
             >
-              {tab === "detail" ? (
-                <Search size={14} />
-              ) : tab === "compare" ? (
-                <GitCompareArrows size={14} />
-              ) : (
-                <Bookmark size={14} />
-              )}{" "}
               {label}
             </button>
           ))}
@@ -619,7 +608,7 @@ export function KeywordResearch({
                       표시합니다.
                     </p>
                     <Link href="/tools/" className="kr-profit-link">
-                      수익성 분석으로 이어가기 →
+                      수익성 분석으로 이어가기
                     </Link>
                   </article>
                 </div>
@@ -708,17 +697,18 @@ export function KeywordResearch({
                                 }}
                               >
                                 <CartesianGrid
-                                  stroke="#e7eee1"
-                                  strokeDasharray="3 4"
+                                  stroke="var(--kw-grid)"
+                                  vertical={false}
                                 />
                                 <XAxis
                                   dataKey="month"
-                                  tick={{ fontSize: 9 }}
+                                  tick={{ fontSize: 12, fill: "var(--kw-muted)" }}
                                   tickLine={false}
+                                  axisLine={{ stroke: "var(--kw-rule-strong)" }}
                                 />
                                 <YAxis
-                                  width={48}
-                                  tick={{ fontSize: 9 }}
+                                  width={56}
+                                  tick={{ fontSize: 12, fill: "var(--kw-muted)" }}
                                   tickFormatter={(v) => decimal(Number(v), 0)}
                                   axisLine={false}
                                   tickLine={false}
@@ -731,18 +721,21 @@ export function KeywordResearch({
                                     "사용자 입력 검색량",
                                   ]}
                                   contentStyle={{
-                                    fontSize: 11,
-                                    borderRadius: 7,
+                                    fontSize: 13,
+                                    borderRadius: 4,
+                                    border: "1px solid var(--kw-rule)",
+                                    background: "var(--kw-sheet)",
                                   }}
                                 />
                                 <Line
                                   type="linear"
                                   dataKey="searches"
-                                  stroke="#2563eb"
-                                  strokeWidth={2.5}
+                                  stroke="var(--kw-accent)"
+                                  strokeWidth={2}
                                   connectNulls={false}
                                   isAnimationActive={false}
-                                  dot={{ r: 3 }}
+                                  dot={false}
+                                  activeDot={{ r: 4 }}
                                 />
                               </LineChart>
                             </ResponsiveContainer>
@@ -924,7 +917,6 @@ export function KeywordResearch({
               <div className="kr-saved-list">
                 {m.favorites.map((item) => (
                   <article key={snapshotId(item)}>
-                    <Bookmark size={15} />
                     <div>
                       <button onClick={() => m.inspect(snapshotId(item))}>
                         {item.row.keyword}
