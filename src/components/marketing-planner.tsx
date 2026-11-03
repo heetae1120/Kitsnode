@@ -20,14 +20,14 @@ const extras = [
   ['certification','인증·검사비','이번 판매 계획 전체에 한 번 반영할 비용','원 / 전체'],
   ['fixed','기타 고정비','촬영, 디자인, 임차료 등 이번 계획에 배분할 비용','원 / 전체'],
 ] as const;
-type Draft = {name:string;keyword:string} & Record<keyof MarketingPlanInput,string>;
-const empty:Draft={name:'',keyword:'',available:'',price:'',cost:'',quantity:'',feePercent:'',logistics:'',packaging:'',returns:'',certification:'',fixed:''};
+type Draft = {name:string} & Record<keyof MarketingPlanInput,string>;
+const empty:Draft={name:'',available:'',price:'',cost:'',quantity:'',feePercent:'',logistics:'',packaging:'',returns:'',certification:'',fixed:''};
 const money=(v:number)=>`${Math.round(v).toLocaleString('ko-KR')}원`;
 export function MarketingPlanner(){
   const [draft,setDraft]=useState<Draft>(empty);
   const [step,setStep]=useState(1);
   const [error,setError]=useState('');
-  const [report,setReport]=useState<{name:string;keyword:string;input:MarketingPlanInput;result:ReturnType<typeof marketingPlan>}|null>(null);
+  const [report,setReport]=useState<{name:string;input:MarketingPlanInput;result:ReturnType<typeof marketingPlan>}|null>(null);
   const focus=useRef<HTMLElement>(null);
   const update=(key:keyof Draft,value:string)=>{setDraft(d=>({...d,[key]:value}));setError('');};
   function move(next:number){setStep(next);setError('');requestAnimationFrame(()=>{focus.current?.focus();focus.current?.scrollIntoView({behavior:'smooth',block:'start'});});}
@@ -41,7 +41,7 @@ export function MarketingPlanner(){
     try{
       const input=Object.fromEntries([...basics,...extras].map(([key])=>[key,Number(draft[key])])) as MarketingPlanInput;
       const result=marketingPlan(input);
-      setReport({name:draft.name.trim(),keyword:draft.keyword.trim(),input,result});move(3);
+      setReport({name:draft.name.trim(),input,result});move(3);
     }catch(e){setError(e instanceof Error?e.message:'입력값을 확인해 주세요.');}
   }
   const r=report?.result;
@@ -51,8 +51,7 @@ export function MarketingPlanner(){
     <ol className="mp-steps" aria-label="분석 진행 단계">{['상품과 자금','빠뜨린 비용 확인','평가 보고서'].map((label,i)=><li key={label} aria-current={step===i+1?'step':undefined}><span>{step>i+1?<Check size={15}/>:`0${i+1}`}</span>{label}</li>)}</ol>
     <section ref={focus} tabIndex={-1} className="mp-workspace" aria-label={step===3?'수익성 평가 보고서':'수익성 분석 입력'}>
     {step<3?<form onSubmit={submit} noValidate><div className="mp-section-heading"><span>STEP 0{step}</span><h2>{step===1?'판매할 상품과 자금을 알려주세요':'이런 비용, 안 빼먹으셨나요?'}</h2><p>{step===1?'같은 기간·같은 상품 수량을 기준으로 입력해 주세요.':'작은 비용도 모이면 마케팅 예산이 달라집니다. 0원도 직접 확인해 주세요.'}</p></div>
-      {step===1&&<label className="mp-name">품목<input value={draft.name} onChange={e=>update('name',e.target.value)} placeholder="예: 무선 미니 가습기" maxLength={100}/></label>}
-      {step===1&&<label className="mp-name">메인 키워드 <small>선택 · 광고비 비교용</small><input value={draft.keyword} onChange={e=>update('keyword',e.target.value)} placeholder="예: 보조배터리, 무선충전기 중 한 개" maxLength={50}/></label>}
+      {step===1&&<label className="mp-name">품목<input value={draft.name} onChange={e=>update('name',e.target.value)} placeholder="예: 리큐엠 10000mAh 미니 보조배터리" maxLength={100}/><small className="mp-product-hint">품목에서 관련 키워드를 자동으로 찾고, 보고서에 광고비 분석을 함께 보여드립니다.</small></label>}
       <div className="mp-fields">{(step===1?basics:extras).map(([key,label,description,unit])=><div className="mp-field" key={key}><label htmlFor={`mp-${key}`}>{label}</label><p id={`mp-help-${key}`}>{description}</p><div className="mp-input-wrap"><input id={`mp-${key}`} aria-describedby={`mp-help-${key}`} type="number" inputMode="decimal" min="0" step={key==='quantity'?'1':'any'} max={key==='feePercent'?100:undefined} value={draft[key]} onChange={e=>update(key,e.target.value)} placeholder="금액 입력"/><span>{unit}</span></div>{step===2&&<label className="mp-zero"><input type="checkbox" checked={draft[key]==='0'} onChange={e=>update(key,e.target.checked?'0':'')}/>해당 없음 · 0{key==='feePercent'?'%':'원'}</label>}</div>)}</div>
       <aside className="mp-note"><Wallet size={20}/><p>{step===1?'가용비용은 상품 매입비와 부가비용, 마케팅비를 합쳐 쓸 전체 자금입니다. 아직 발생하지 않은 매출은 자금에 더하지 않습니다.':'인증·검사비와 기타 고정비는 전체 금액으로 입력하세요. 계획 수량에 나눠 반영합니다. 세금·할인·추가 비용도 해당 항목에 포함해 주세요.'}</p></aside>
       {error&&<p className="mp-error" role="alert">{error}</p>}<div className="mp-actions">{step===2&&<button type="button" className="mp-secondary" onClick={()=>move(1)}>이전 단계</button>}<button type="submit" className="mp-primary">{step===1?'다음 · 빠뜨린 비용 확인':'내 상품 평가 보고서 보기'}<ArrowRight size={17}/></button></div>
@@ -62,7 +61,7 @@ export function MarketingPlanner(){
       <div className="mp-metrics"><div><span>1개 팔고 광고 전에 남는 돈</span><strong>{money(r.margin)}</strong><p>판매가 − 상품 원가 − 개당 부가비용</p></div><div><span>고정비까지 반영한 1건당 광고비 한도</span><strong>{money(r.perOrder)}</strong><p>한 번 판매를 만드는 데 이 금액보다 쓰면 손실이 생깁니다.</p></div><div><span>손해를 피하려면 필요한 광고 매출</span><strong>{r.breakEvenRoas===null?'계산 불가':`광고비의 ${(r.breakEvenRoas/100).toLocaleString('ko-KR',{maximumFractionDigits:2})}배`}</strong><p>손익분기 ROAS {r.breakEvenRoas===null?'없음':`${r.breakEvenRoas.toLocaleString('ko-KR',{maximumFractionDigits:1})}%`} · 계획 수량에 고정비 배분</p></div></div>
       <section className="mp-report-section"><h3>01. 돈이 어디에 쓰이나요?</h3><div className="mp-cost-bar" aria-label="상품 1개 비용 구성">{[['상품 원가',report.input.cost],['수수료',r.fee],['물류·포장·반품',report.input.logistics+report.input.packaging+report.input.returns],['광고 전 여유',Math.max(0,r.margin)]].map(([label,value],i)=><span key={label} style={{flex:Math.max(Number(value),0),background:['#172c4f','#6d8ddd','#b7caf3','#2a59f4'][i]}} title={`${label}: ${money(Number(value))}`}/>)}</div><dl className="mp-breakdown">{[['판매가',report.input.price],['상품 원가',report.input.cost],['플랫폼·결제 수수료',r.fee],['물류·배송비',report.input.logistics],['포장·기타 판매비',report.input.packaging],['반품·교환 예상비',report.input.returns],['고정비 배분 (인증비 포함)',r.fixed/report.input.quantity],['1건당 광고비 한도',r.perOrder]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{money(Number(value))}</dd></div>)}</dl></section>
       <section className="mp-report-section"><h3>02. 전체 자금과 손익분기점 (BEP)</h3><dl className="mp-breakdown">{[['가용비용',report.input.available],['먼저 확보할 상품·부가비용',r.reserved],['비용 확보 후 자금 여유',r.cashRoom],['계획 수량 기준 손익상 광고비 한도',r.profitRoom],['최종 마케팅 지출 상한',r.marketing],['전량 판매 시 매출',r.sales],['상한만큼 광고 집행 후 예상 이익',r.profit]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{money(Number(value))}</dd></div>)}</dl></section>
-      <KeywordBudgetReport keyword={report.keyword} perOrder={r.perOrder} budget={r.marketing}/>
+      <KeywordBudgetReport productName={report.name} perOrder={r.perOrder} budget={r.marketing}/>
       <section className="mp-report-section"><h3>04. 다음에 확인할 일</h3><ul><li>{r.margin<=0?'판매가를 올리거나 상품 원가·개당 부가비용을 먼저 줄이세요.':r.profitRoom<0?'고정비를 낮추거나 판매 계획의 실현 가능성을 다시 점검하세요.':r.cashRoom<0?`판매 준비에 ${money(-r.cashRoom)}의 추가 자금이 필요합니다.`:'계산된 상한을 한 번에 쓰지 말고, 작은 금액으로 실제 판매 비용부터 확인하세요.'}</li><li>광고 1건당 판매를 만드는 비용을 ‘1건당 광고비 한도’와 비교하세요.</li><li>가격·수수료·반품률이 바뀌면 보고서를 다시 계산하세요.</li></ul></section>
       <p className="mp-assumptions">이번 계획 수량이 모두 판매되고 판매 1건 = 상품 1개인 경우의 계산입니다. 입력한 비용만 반영하며, 반품·세금·할인 등이 빠졌다면 결과가 높게 나올 수 있습니다. 광고 매출·전환율은 예측하지 않습니다. 금액 표시는 원 단위 반올림, 지출 상한은 내림 처리합니다.</p><div className="mp-actions"><button type="button" className="mp-secondary" onClick={()=>move(1)}>입력 수정</button><button type="button" className="mp-primary" onClick={()=>window.print()}>보고서 인쇄 / PDF 저장</button></div>
     </article>}
