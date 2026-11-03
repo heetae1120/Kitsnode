@@ -66,8 +66,6 @@ export default function KeywordTool() {
     maxVolume: "",
     minMobileShare: "",
   });
-  const research = useKeywordResearch(data);
-  const [showUnrelated, setShowUnrelated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [endpoint, setEndpoint] = useState("");
@@ -89,7 +87,7 @@ export default function KeywordTool() {
     }
     return () => controller.current?.abort();
   }, []);
-  // Related keywords only, unless the user asks to see what was set aside.
+  // Unrelated keywords are excluded throughout results, totals, exports and research.
   const relevance = useMemo(
     () => classifyKeywords(data.keywords, data.queriedKeywords),
     [data],
@@ -99,11 +97,11 @@ export default function KeywordTool() {
   ).length;
   const rows = useMemo(
     () =>
-      showUnrelated
-        ? data.keywords
-        : data.keywords.filter((r) => relevance.get(r.keyword) !== "unrelated"),
-    [data, relevance, showUnrelated],
+      data.keywords.filter((r) => relevance.get(r.keyword) === "related"),
+    [data, relevance],
   );
+  const relatedData = useMemo(() => ({...data,keywords:rows}), [data, rows]);
+  const research = useKeywordResearch(relatedData);
   const filterResult = useMemo(
     () =>
       filterResearchKeywords(rows, {
@@ -534,19 +532,7 @@ export default function KeywordTool() {
             </p>
             {hiddenCount > 0 && (
               <p className="kw-relevance">
-                {showUnrelated
-                  ? `관련 없어 보이는 키워드 ${hiddenCount}개를 함께 표시 중`
-                  : `관련 없어 보이는 키워드 ${hiddenCount}개를 숨겼습니다`}
-                <button
-                  type="button"
-                  aria-pressed={showUnrelated}
-                  onClick={() => {
-                    setShowUnrelated(!showUnrelated);
-                    setPage(1);
-                  }}
-                >
-                  {showUnrelated ? "다시 숨기기" : "보기"}
-                </button>
+                관련 키워드만 표시합니다 · 관련성이 낮은 {hiddenCount.toLocaleString("ko-KR")}개 제외
               </p>
             )}
             <div className="kw-toolbar-actions">
@@ -703,9 +689,7 @@ export default function KeywordTool() {
                             seed.toLocaleLowerCase() ===
                             r.keyword.toLocaleLowerCase(),
                         ) && <span className="kw-chip">입력</span>}
-                        {relevance.get(r.keyword) === "unrelated" && (
-                          <span className="kw-chip unrelated">관련 낮음</span>
-                        )}
+
                       </th>
                       <td className="kw-demand">
                         <span className="kw-demand-figure">
@@ -829,7 +813,7 @@ export default function KeywordTool() {
 
         <KeywordResearch
           model={research}
-          data={data}
+          data={relatedData}
           device={device}
           endpoint={endpoint}
           onQuery={(value) => {
