@@ -3,12 +3,14 @@ import { ArrowDown, ArrowRight, Printer, Pencil, Wallet, ShoppingBag, Search, Ch
 import { ContainerScroll } from "./ui/container-scroll-animation";
 import { KeywordBudgetReport } from "./keyword-budget-report";
 import { marketingPlan, type MarketingPlanInput } from "@/lib/marketing-plan";
+import { marketingTestBudget } from "@/lib/marketing-test-budget";
 
 const money = (value: number) => `${Math.round(value).toLocaleString("ko-KR")}원`;
 type Props = { name: string; input: MarketingPlanInput; result: ReturnType<typeof marketingPlan>; onEdit: () => void };
 
 export function BeginnerProfitReport({ name, input, result: r, onEdit }: Props) {
   const ready = r.marketing > 0;
+  const testBudget = marketingTestBudget(input);
   const problem = r.margin <= 0 ? "한 개를 팔아도 비용을 회수하기 어려워요. 판매가와 원가부터 다시 확인해 주세요." : r.profitRoom < 0 ? "준비한 상품을 모두 팔아도 고정비를 회수하기 어려워요." : r.cashRoom < 0 ? `판매 준비에 ${money(-r.cashRoom)}이 더 필요해요.` : "현재 비용에서는 광고비로 쓸 수 있는 여유가 없어요.";
   return <article className="mp-story">
     <ContainerScroll titleComponent={<><span className="mp-eyebrow">내 상품, 숫자로 쉽게 알아보기</span><h1>{name},<br />{ready ? <>광고를 시작하기 전에<br /><em>이 숫자부터 확인하세요.</em></> : <>광고 전에<br /><em>비용부터 점검해 볼까요?</em></>}</h1><p>어려운 계산은 접어두세요.<br />얼마까지 쓰고, 몇 개를 팔아야 하는지 알려드릴게요.</p></>}>
@@ -23,6 +25,7 @@ export function BeginnerProfitReport({ name, input, result: r, onEdit }: Props) 
 
     <section id="report-budget" className="mp-story-chapter"><div className="mp-story-heading"><span><Wallet size={18}/> 01 · 쓸 수 있는 광고비</span><h2>광고비는<br /><em>여기까지 쓸 수 있어요.</em></h2><p>상품을 준비하는 데 필요한 돈을 먼저 빼고 계산했어요.</p></div>
       <div className="mp-story-budget"><span>이번 판매 계획의 광고비 최대 한도</span><strong>{money(r.marketing)}</strong><p>{ready ? "한 번에 다 쓰는 예산이 아니라, 넘지 말아야 할 선이에요." : problem}</p></div>
+      {input.marketingBudget===undefined&&<aside className="mp-story-suggestion" aria-label="처음 시작할 마케팅 비용 제안"><span>총 가용비용으로 계산한 시작 제안</span>{testBudget?<><h3>처음에는 <strong>{money(testBudget.amount)}</strong>으로 테스트해 보세요.</h3><p>광고비 최대 한도의 약 10%만 먼저 써보고, 실제 구매가 생기는지 확인하는 방식이에요. 나머지 {money(testBudget.heldBack)}은 성과를 확인할 때까지 남겨두세요.</p><p>이 테스트 광고비와 고정비를 회수하려면 최소 <b>{testBudget.breakEvenUnits.toLocaleString('ko-KR')}개</b>를 팔아야 해요.</p><small>입력한 자금·비용에 ‘한도의 10%부터 시작’이라는 기준을 적용한 제안이에요. 키워드 성과로 계산한 최적 예산이나 매출 예측은 아니며, 테스트 기간에 따른 추가 비용은 별도로 확인하세요.</small></>:<><h3>지금은 광고비 지출을 보류해 주세요.</h3><p>{problem} 비용과 자금을 수정한 뒤 시작 금액을 다시 확인해 주세요.</p></>}</aside>}
       <div className="mp-story-flow"><div><span>준비한 전체 자금</span><b>{money(input.available)}</b></div><ArrowRight aria-hidden size={18}/><div><span>먼저 챙길 상품·부가비용</span><b>{money(r.reserved)}</b></div><ArrowRight aria-hidden size={18}/><div><span>비용을 빼고 남는 자금</span><b>{money(r.cashRoom)}</b></div></div>
       <p className="mp-story-caption">남은 자금이 전부 광고비는 아니에요. 계획 수량을 모두 팔았을 때의 이익{input.marketingBudget !== undefined ? '과 입력한 마케팅 예정 비용' : ''}도 함께 따져, 가장 작은 금액으로 제한했어요. 매출과 성과를 보장하는 금액은 아니에요.</p>
       <details className="mp-story-details"><summary>전체 자금 계산 자세히 보기</summary><dl className="mp-breakdown">{([['총 가용비용',input.available],...(input.marketingBudget!==undefined?[['구매 예정 비용',input.purchaseBudget!],['마케팅 예정 비용',input.marketingBudget]]:[]),['먼저 확보할 상품·부가비용',r.reserved],['비용 확보 후 자금 여유',r.cashRoom],['전량 판매 시 손익상 광고비 한도',r.profitRoom],['최종 마케팅 지출 상한',r.marketing],['전량 판매 시 매출',r.sales],['상한만큼 광고 집행 후 예상 이익',r.profit]] as [string,number][]).map(([label,value])=><div key={label}><dt>{label}</dt><dd>{money(value)}</dd></div>)}</dl></details>
