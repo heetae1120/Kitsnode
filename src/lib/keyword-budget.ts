@@ -25,3 +25,12 @@ export function keywordEconomics(cpc:number,cvrPercent:number,perOrder:number,bu
  const cpa=cpc/(cvrPercent/100);
  return {cpa,contribution:perOrder-cpa,requiredCvr:perOrder>0?cpc/perOrder*100:null,maxClicks:Math.floor(budget/cpc),affordable:perOrder>=cpa};
 }
+
+export function inferProductCategory(productName:string){
+ const key=normalizeKeyword(productName);
+ // An accessory mentioning another product is not that product's CPC benchmark.
+ if(/케이스|파우치|커버/.test(key))return null;
+ if(key.includes('보조배터리'))return keywordCategories.find(c=>c.id==='battery')!;
+ if(/무선충전|맥세이프충전|qi2충전|[23]in1충전|애플워치충전|갤럭시워치충전/.test(key))return keywordCategories.find(c=>c.id==='wireless')!;
+ return null;
+}
