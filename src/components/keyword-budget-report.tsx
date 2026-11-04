@@ -5,6 +5,7 @@ import {AutomaticKeywordDiscovery} from './automatic-keyword-discovery';
 import {KeywordGoalCheck} from './keyword-goal-check';
 import {breakEvenConversion} from '@/lib/keyword-goal';
 import {rowVolume,validateKeywordResponse,type KeywordRow,type Device} from '@/lib/naver-keywords';
+import {ShoppingAdPodium} from './shopping-ad-podium';
 import {FormattedNumberInput} from './formatted-number-input';
 const money=(v:number)=>`${Math.round(v).toLocaleString('ko-KR')}원`;
 export function KeywordBudgetReport({productName,perOrder,budget,quantity,months}:{productName:string;perOrder:number;budget:number;quantity:number;months:number}){
@@ -31,6 +32,7 @@ export function KeywordBudgetReport({productName,perOrder,budget,quantity,months
  <p className="mp-keyword-source">품목 ‘{productName}’ → {keyword} 관련 검색어</p>
  <p className="mp-keyword-source">리큐엠 쇼핑검색 관련 광고 기록 · 2026.10.01–10.31 · 11월 3일 확인</p>
  <div className="mp-keyword-main"><div><span>대표 검색어</span><h4>{keyword}</h4><span>관련 광고의 평균 클릭 비용 · 세금 포함 · {main.device}</span><strong>{money(main.cpc)}<small> / 클릭</small></strong></div><div><section className="mp-story-details mp-conversion"><h4>본전에 필요한 구매 비율</h4><p className="mp-bep-rate"><b>{neededCvr===null?'현재 이익으로 본전 불가':`${(Math.ceil(neededCvr*100)/100).toLocaleString('ko-KR')}% 이상`}</b>{neededCvr!==null&&neededCvr>100&&' · 100%를 넘어 불가능해요.'}</p><label>계산할 구매 비율<FormattedNumberInput aria-label="키워드 클릭 후 구매 비율" value={cvr===''&&scenario>0?String(scenario):cvr} onValueChange={setCvr}/> %</label><p>처음에는 대표 검색어의 본전 비율이에요. 실제 비율로 바꿀 수 있어요.</p><b className={economy(main)&&!economy(main)!.affordable?"mp-budget-over":undefined}>{economy(main)?`한 건 팔 때 예상 광고비 ${money(economy(main)!.cpa)}`:'구매 비율을 0% 초과~100%로 입력하세요.'}</b><p>한 건당 광고비 한도 {money(perOrder)}</p>{economy(main)?.requiredCvr!==null&&economy(main)&&<p>본전을 내려면 구매 비율 {economy(main)!.requiredCvr!.toFixed(2)}% 이상이어야 해요.</p>}</section></div></div>
+ <ShoppingAdPodium keyword={keyword}/>
  {economy(main)&&<p className={`mp-keyword-verdict ${economy(main)!.affordable?'':'is-over'}`}>구매 비율 {scenario.toLocaleString('ko-KR',{maximumFractionDigits:2})}% 가정 · {economy(main)!.affordable?'이 비율이면 한도 안이에요. 적은 돈으로 확인하세요.':`이 비율이면 한 건당 광고비가 한도보다 ${money(-economy(main)!.contribution)} 많아요. 다른 검색어도 보세요.`}</p>}
  {volumeError&&<p role="status">{volumeError}</p>}{goal(main)}
  <h4 className="mp-keyword-subtitle">함께 볼 검색어 3개</h4><p className="mp-keyword-source">기록된 클릭 비용이 낮은 순서예요. 내 상품에 맞는 것만 고르세요. 광고 순위는 아니에요.</p>
