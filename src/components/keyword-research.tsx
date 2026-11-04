@@ -533,7 +533,7 @@ export function KeywordResearch({
                           `${decimal(m.focused.row.mobileCtr)}${m.focused.row.mobileCtr != null ? "%" : ""}`,
                         ],
                         [
-                          "PC 광고의 평균 노출 위치",
+                          "PC 광고 노출 깊이 · 네이버 제공값",
                           decimal(m.focused.row.adDepth),
                         ],
                         [
