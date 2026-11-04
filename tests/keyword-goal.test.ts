@@ -28,6 +28,8 @@ test('funding and search-demand shortfalls are independent; zero is not missing 
 test('loss-making sales are identified before suggesting more spending',()=>{
  assert.equal(keywordGoal({...input,cvr:1})!.status,'loss');
  assert.equal(keywordGoal({...input,perOrder:0})!.status,'loss');
+ // Whole-click rounding can exceed the profit on the target inventory, even at the unit BEP.
+ assert.equal(keywordGoal({...input,cpc:99,perOrder:1000,cvr:9.9,quantity:1})!.status,'loss');
 });
 test('invalid or overflowing inputs do not produce a feasible result',()=>{
  for(const patch of [{cvr:0},{cvr:101},{months:0},{months:1.5},{quantity:0},{budget:-1},{cpc:Infinity},{monthlySearches:-1},{budget:Number.MAX_VALUE,cpc:Number.MIN_VALUE}])assert.equal(keywordGoal({...input,...patch}),null);
