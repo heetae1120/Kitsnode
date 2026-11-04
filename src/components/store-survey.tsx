@@ -5,105 +5,26 @@ import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { consultationEndpoint } from "@/lib/consultation-api";
 
 type Answers = {
-  status: string;
-  category: string;
-  categoryOther: string;
-  revenue: string;
-  adMode: string;
-  adSpend: string;
-  pains: string[];
-  goal: string;
+  brandVision:string; audience:string; category:string; categoryOther:string;
+  stage:string; budget:string; support:string[]; brandGoal:string;
 };
-
 type Step =
-  | {
-      id: keyof Answers;
-      kind: "single" | "multi";
-      title: string;
-      hint?: string;
-      options: string[];
-      skip?: (a: Answers) => boolean;
-    }
-  | { id: "goal"; kind: "text"; title: string; hint: string; placeholder: string }
-  | { id: "contact"; kind: "contact"; title: string; hint: string };
-
-const NO_ADS = "광고를 하지 않습니다";
-const OTHER = "기타";
-
-const steps: Step[] = [
-  {
-    id: "status",
-    kind: "single",
-    title: "스마트스토어를 운영하나요?",
-    options: ["운영하고 있습니다", "오픈을 준비하고 있습니다", "다른 채널에서만 판매합니다"],
-  },
-  {
-    id: "category",
-    kind: "single",
-    title: "어떤 상품을 판매하시나요?",
-    hint: "가장 많이 파는 상품을 고르세요.",
-    options: ["생활·주방", "뷰티·헬스", "패션·잡화", "식품", "디지털·가전", "유아·반려동물", OTHER],
-  },
-  {
-    id: "revenue",
-    kind: "single",
-    title: "지난달 매출은 얼마인가요?",
-    hint: "대략적인 구간이면 충분합니다.",
-    options: ["아직 매출이 없습니다", "1천만 원 미만", "1천만~5천만 원", "5천만~1억 원", "1억 원 이상"],
-  },
-  {
-    id: "adMode",
-    kind: "single",
-    title: "광고는 누가 관리하나요?",
-    options: ["직접 운영합니다", "대행사에 맡기고 있습니다", NO_ADS],
-  },
-  {
-    id: "adSpend",
-    kind: "single",
-    title: "한 달 광고비는 얼마인가요?",
-    hint: "대행 수수료를 뺀 광고비예요.",
-    options: ["100만 원 미만", "100만~500만 원", "500만~1,000만 원", "1,000만 원 이상"],
-    skip: (a) => a.adMode === NO_ADS,
-  },
-  {
-    id: "pains",
-    kind: "multi",
-    title: "요즘 가장 답답한 점을 모두 골라 주세요",
-    hint: "여러 개를 고를 수 있습니다.",
-    options: [
-      "광고를 끄면 순위와 매출이 바로 떨어집니다",
-      "광고 매출은 나는데 이익이 없습니다",
-      "대행사 보고서를 믿기 어렵습니다",
-      "재구매나 브랜드 검색이 늘지 않습니다",
-      "상품 설명과 리뷰가 부족합니다",
-      "무엇부터 해야 할지 모르겠습니다",
-    ],
-  },
-  {
-    id: "goal",
-    kind: "text",
-    title: "6개월 뒤, 스토어가 어떤 모습이면 좋겠나요?",
-    hint: "한두 줄이면 됩니다. 건너뛰어도 괜찮습니다.",
-    placeholder: "예: 광고비를 줄여도 매출이 유지됐으면 좋겠어요",
-  },
-  {
-    id: "contact",
-    kind: "contact",
-    title: "결과를 받아 보실 연락처를 남겨 주세요",
-    hint: "답변을 보고 상담을 준비할게요.",
-  },
+ | {id:'category'|'stage'|'budget';kind:'single';title:string;hint?:string;options:string[]}
+ | {id:'support';kind:'multi';title:string;hint?:string;options:string[]}
+ | {id:'brandVision'|'audience'|'brandGoal';kind:'text';title:string;hint:string;placeholder:string;optional?:boolean}
+ | {id:'contact';kind:'contact';title:string;hint:string};
+const OTHER='기타';
+const steps:Step[]=[
+ {id:'brandVision',kind:'text',title:'어떤 브랜드를 만들고 싶나요?',hint:'이름이 없어도 괜찮아요. 떠오르는 모습을 짧게 적어주세요.',placeholder:'예: 일상에서 오래 쓰는 실용적인 생활용품 브랜드'},
+ {id:'audience',kind:'text',title:'누구에게 사랑받는 브랜드이고 싶나요?',hint:'고객의 생활이나 고민을 떠올려 보세요.',placeholder:'예: 작은 집에서도 편하게 살고 싶은 1인 가구'},
+ {id:'category',kind:'single',title:'어떤 상품으로 시작하고 싶나요?',options:['생활·주방','뷰티·헬스','패션·잡화','식품','디지털·가전','유아·반려동물',OTHER]},
+ {id:'stage',kind:'single',title:'지금 어디까지 준비했나요?',options:['아이디어를 정리하고 있어요','상품·샘플을 준비하고 있어요','이미 판매하고 있어요','기존 브랜드를 새롭게 바꾸고 싶어요']},
+ {id:'budget',kind:'single',title:'브랜드 준비에 얼마까지 쓸 수 있나요?',hint:'상품·디자인·판매 준비를 합친 전체 예산이에요.',options:['500만 원 미만','500만~2천만 원','2천만~5천만 원','5천만 원 이상','아직 정하지 못했어요']},
+ {id:'support',kind:'multi',title:'어떤 준비를 함께하고 싶나요?',hint:'여러 개를 고를 수 있어요.',options:['브랜드 방향·고객 정리','상품 기획·소싱·수입','이름·로고·패키지','인증·물류·판매 준비','온라인 스토어·상세페이지','홍보·판매 성장','전체적으로 점검하고 싶어요']},
+ {id:'brandGoal',kind:'text',title:'6개월 뒤, 어떤 브랜드가 되길 바라나요?',hint:'작은 목표도 좋아요. 아직 모르겠다면 건너뛰세요.',placeholder:'예: 첫 고객 100명이 다시 찾는 브랜드',optional:true},
+ {id:'contact',kind:'contact',title:'함께 이야기할 연락처를 남겨주세요',hint:'답변을 바탕으로 브랜드 상담을 준비할게요.'},
 ];
-
-const empty: Answers = {
-  status: "",
-  category: "",
-  categoryOther: "",
-  revenue: "",
-  adMode: "",
-  adSpend: "",
-  pains: [],
-  goal: "",
-};
+const empty:Answers={brandVision:'',audience:'',category:'',categoryOther:'',stage:'',budget:'',support:[],brandGoal:''};
 
 export function StoreSurvey() {
   const [answers, setAnswers] = useState<Answers>(empty);
@@ -116,7 +37,7 @@ export function StoreSurvey() {
   const heading = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
 
-  const active = steps.filter((s) => !("skip" in s && s.skip?.(answers)));
+  const active = steps;
   const step = active[Math.min(index, active.length - 1)];
   const position = Math.min(index, active.length - 1);
 
@@ -140,21 +61,19 @@ export function StoreSurvey() {
   function choose(option: string) {
     if (step.kind !== "single") return;
     const update = { ...answers, [step.id]: option } as Answers;
-    if (step.id === "adMode" && option === NO_ADS) update.adSpend = "";
     setAnswers(update);
     if (!(step.id === "category" && option === OTHER)) {
       setError("");
-      // advance after the selection is seen
-      window.setTimeout(() => setIndex((i) => i + 1), 180);
+      setIndex((i) => Math.min(i + 1, active.length - 1));
     }
   }
   function toggle(option: string) {
     setError("");
     setAnswers((a) => ({
       ...a,
-      pains: a.pains.includes(option)
-        ? a.pains.filter((p) => p !== option)
-        : [...a.pains, option],
+      support: a.support.includes(option)
+        ? a.support.filter((p) => p !== option)
+        : [...a.support, option],
     }));
   }
   function continueStep() {
@@ -162,9 +81,12 @@ export function StoreSurvey() {
       setError("하나를 골라 주세요.");
       return;
     }
-    if (step.kind === "multi" && !answers.pains.length) {
+    if (step.kind === "multi" && !answers.support.length) {
       setError("하나 이상 골라 주세요.");
       return;
+    }
+    if(step.kind==='text'&&!step.optional&&!answers[step.id].trim()){
+      setError('한두 줄로 적어 주세요.');return;
     }
     next();
   }
@@ -319,7 +241,7 @@ export function StoreSurvey() {
                 key={option}
                 type="button"
                 role="checkbox"
-                aria-checked={answers.pains.includes(option)}
+                aria-checked={answers.support.includes(option)}
                 onClick={() => toggle(option)}
               >
                 <span className="sv-box" aria-hidden>
@@ -337,9 +259,9 @@ export function StoreSurvey() {
             <textarea
               rows={3}
               maxLength={500}
-              value={answers.goal}
+              value={answers[step.id]}
               placeholder={step.placeholder}
-              onChange={(e) => setAnswers({ ...answers, goal: e.target.value })}
+              onChange={(e) => setAnswers({ ...answers, [step.id]: e.target.value })}
             />
           </label>
         )}
@@ -372,7 +294,7 @@ export function StoreSurvey() {
             ))}
             <p className="sv-note">
               수집 항목: 상호명, 이름과 직급, 연락처, 스토어 주소(선택), 설문 답변.
-              목적: 진단 결과 안내와 상담 연락. 관리자만 열람하며 목적을 달성하면
+              목적: 브랜드 상담 준비와 연락. 관리자만 열람하며 목적을 달성하면
               삭제합니다. 동의하지 않으실 수 있으나 그 경우 접수가 되지 않습니다.
             </p>
             <label className="sv-consent">
@@ -409,7 +331,7 @@ export function StoreSurvey() {
             {(step.kind !== "single" || (step.id === "category" && answers.category === OTHER) || answers[step.id]) && (
               <div className="sv-next">
                 <button type="button" className="kp-button primary" onClick={continueStep}>
-                  {step.kind === "text" && !answers.goal.trim() ? "건너뛰기" : "다음"}
+                  {step.kind === "text" && step.optional && !answers[step.id].trim() ? "건너뛰기" : "다음"}
                 </button>
                 {step.kind !== "text" && <span>Enter 키로도 넘어갈 수 있습니다</span>}
               </div>
