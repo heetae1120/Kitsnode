@@ -17,7 +17,7 @@ export function keywordGoal(input:{cpc:number;perOrder:number;budget:number;quan
  if(![neededClicks,neededBudget,budgetClicks,budgetOrders,...(searchClicks===null?[]:[searchClicks,demandOrders!])].every(Number.isSafeInteger))return null;
  const budgetShort=budgetOrders<quantity;
  const demandShort=demandOrders!==null&&demandOrders<quantity;
- const loss=cpc/rate>perOrder+1e-8;
+ const loss=cpc/rate>perOrder+1e-8||neededBudget>Math.floor(quantity*perOrder);
  const result={neededClicks,neededBudget,budgetOrders,demandOrders,budgetShort,demandShort,loss,
   extraBudget:Math.max(0,neededBudget-budget),
   requiredShare:searchClicks===null||searchClicks===0?null:neededClicks/searchClicks*100,
