@@ -8,5 +8,9 @@
   },
   "scripts": {
     "start": "node --env-file-if-exists=.env.local server.mjs"
+  },
+  "dependencies": {
+    "@sparticuz/chromium": "153.0.0",
+    "puppeteer-core": "25.11.0"
   }
 }
