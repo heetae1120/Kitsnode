@@ -6,8 +6,8 @@ import { ChevronDown } from "lucide-react";
 import { MenuMotion } from "@/components/menu-motion";
 
 const groups = [
-  { id: "store", label: "스토어 분석", ids: ["rankings", "seo", "traffic"] },
-  { id: "ads", label: "광고 관리", ids: ["bidding", "negative-search"] },
+  { id: "store", label: "스토어 점검", ids: ["rankings", "seo", "traffic"] },
+  { id: "ads", label: "광고 도구", ids: ["bidding", "negative-search"] },
 ] as const;
 
 export function ToolsHeader({ active }: { active: ToolId }) {
@@ -59,7 +59,7 @@ export function ToolsHeader({ active }: { active: ToolId }) {
               onClick={close}
             >
               <MenuMotion kind={tool.id === "profit" ? "profit" : "keywords"} />
-              <span className="tool-nav-label">{tool.id === "keywords" ? "키워드 도구" : tool.label}</span>
+              <span className="tool-nav-label">{tool.id === "keywords" ? "검색어 찾기" : tool.label}</span>
             </Link>
           );
         })}
