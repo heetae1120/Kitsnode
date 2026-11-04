@@ -5,7 +5,8 @@ import {ToolsHeader} from '@/components/tools-header';
 import {consultationEndpoint} from '@/lib/consultation-api';
 import '@/app/tools/health.css';
 type Applicant={id:string;created_at:string;store:string;company:string;name_role:string;phone:string;answers?:Record<string,string|string[]>};
-const answerText=(a?:Applicant['answers'])=>!a||!Object.keys(a).length?'—':Object.values(a).map(v=>Array.isArray(v)?v.join(', '):v).filter(Boolean).join(' / ');
+const answerLabels:Record<string,string>={brandVision:'원하는 브랜드',audience:'고객',stage:'준비 단계',budget:'전체 예산',support:'필요한 도움',brandGoal:'6개월 목표',category:'상품 분야',categoryOther:'기타 상품',status:'운영 상태',revenue:'매출',adMode:'광고 운영',adSpend:'광고비',pains:'고민',goal:'목표'};
+const answerText=(a?:Applicant['answers'])=>!a||!Object.keys(a).length?'—':Object.entries(a).map(([key,v])=>`${answerLabels[key]||key}: ${Array.isArray(v)?v.join(', '):v}`).filter(Boolean).join(' / ');
 export default function ConsultationAdmin(){
  const [email,setEmail]=useState('');const [password,setPassword]=useState('');const [token,setToken]=useState('');const [rows,setRows]=useState<Applicant[]>([]);const [config,setConfig]=useState<{url:string;anonKey:string}|null>(null);const [busy,setBusy]=useState(false);const [error,setError]=useState('');
  async function getConfig(){const response=await fetch(consultationEndpoint()+'?mode=config',{credentials:'omit',cache:'no-store'});const data=await response.json();if(!response.ok)throw Error(data.error||'로그인 서버를 연결하지 못했습니다.');if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(data.url)||typeof data.anonKey!=='string')throw Error('로그인 서버 설정을 확인하세요.');setConfig(data);return data;}
