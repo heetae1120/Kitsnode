@@ -146,7 +146,7 @@ export default function KeywordTool() {
   );
   const fetchedLabel =
     data.source === "demo"
-      ? "실제 검색량이 아닙니다"
+      ? "실제 검색량은 아니에요"
       : new Intl.DateTimeFormat("ko-KR", {
           timeZone: "Asia/Seoul",
           dateStyle: "medium",
@@ -217,7 +217,7 @@ export default function KeywordTool() {
     if (!endpoint) {
       setSettingsOpen(true);
       setError(
-        "실제 검색량을 조회하려면 조회 서버를 연결해 주세요. 현재 아래 수치는 가상 데모 데이터입니다.",
+        "실제 검색량을 조회하려면 자료 연결를 연결해 주세요. 현재 아래 수치는 가상 예시 자료입니다.",
       );
       return;
     }
@@ -237,7 +237,7 @@ export default function KeywordTool() {
       });
       const payload = await response.json().catch(() => {
         throw new Error(
-          "조회 서버 응답 형식이 올바르지 않습니다. API 엔드포인트 주소를 확인해 주세요.",
+          "자료 연결 응답 형식이 올바르지 않습니다. API 엔드포인트 주소를 확인해 주세요.",
         );
       });
       if (!response.ok)
@@ -257,7 +257,7 @@ export default function KeywordTool() {
         current.signal.aborted
           ? "조회 시간이 초과되었습니다. 서버 연결을 확인하고 다시 시도해 주세요."
           : e instanceof TypeError
-            ? "조회 서버에 연결하지 못했습니다. 서버 주소와 사이트 접근 허용 설정을 확인해 주세요."
+            ? "자료 연결에 연결하지 못했습니다. 서버 주소와 사이트 접근 허용 설정을 확인해 주세요."
             : (e as Error).message,
       );
     } finally {
@@ -286,21 +286,20 @@ export default function KeywordTool() {
       <main className="kw-main">
         <header className="kw-title">
           <div>
-            <h1>키워드 도구</h1>
+            <h1>검색어 찾기</h1>
             <p>
-              네이버 검색광고 데이터로 최근 30일 PC·모바일 검색량과 연관
-              키워드를 비교합니다.
+              한 달 동안 얼마나 검색됐는지, 비슷한 검색어는 무엇인지 보세요.
             </p>
           </div>
           <p className={`kw-stamp ${data.source}`}>
-            {data.source === "demo" ? "데모 데이터" : "네이버 검색광고 데이터"}
+            {data.source === "demo" ? "예시 자료" : "네이버 검색광고 데이터"}
             <span>{fetchedLabel}</span>
           </p>
         </header>
 
         <section className="kw-plate" aria-labelledby="kw-plate-title">
           <div className="kw-plate-head">
-            <h2 id="kw-plate-title">조회할 키워드</h2>
+            <h2 id="kw-plate-title">찾을 검색어</h2>
             <button
               className="kw-server-toggle"
               type="button"
@@ -311,9 +310,9 @@ export default function KeywordTool() {
                 setSaved(false);
               }}
             >
-              조회 서버{" "}
+              자료 연결{" "}
               <b className={endpoint ? "on" : "off"}>
-                {endpoint ? "연결됨" : "미연결"}
+                {endpoint ? "연결됨" : "연결 전"}
               </b>
             </button>
           </div>
@@ -321,7 +320,7 @@ export default function KeywordTool() {
             <div className="kw-search-field">
               <Search size={18} aria-hidden />
               <input
-                aria-label="조회 키워드"
+                aria-label="찾을 검색어"
                 aria-describedby="kw-search-help"
                 value={query}
                 maxLength={300}
@@ -331,7 +330,7 @@ export default function KeywordTool() {
               {query && (
                 <button
                   type="button"
-                  aria-label="조회 키워드 지우기"
+                  aria-label="찾을 검색어 지우기"
                   onClick={() => setQuery("")}
                 >
                   <X size={16} />
@@ -344,15 +343,14 @@ export default function KeywordTool() {
               disabled={loading}
             >
               {loading && <Loader2 className="kw-spin" size={17} />}
-              {loading ? "조회 중…" : "검색량 조회"}
+              {loading ? "조회 중…" : "검색량 보기"}
             </button>
             <button className="kw-demo-button" type="button" onClick={showDemo}>
-              데모로 보기
+              예시 보기
             </button>
           </form>
           <p className="kw-search-help" id="kw-search-help">
-            쉼표로 구분해 최대 5개까지 입력할 수 있습니다. 띄어쓰기는 검색광고
-            키워드 기준으로 정리됩니다.
+            쉼표로 나눠 최대 5개까지 넣으세요. 띄어쓰기는 자동 정리해요.
           </p>
           {settingsOpen && (
             <form
@@ -360,7 +358,7 @@ export default function KeywordTool() {
               id="kw-connection"
               onSubmit={saveEndpoint}
             >
-              <label htmlFor="keyword-endpoint">검색량 조회 서버 주소</label>
+              <label htmlFor="keyword-endpoint">검색량 자료 연결 주소</label>
               <div className="kw-endpoint-row">
                 <input
                   id="keyword-endpoint"
@@ -375,7 +373,7 @@ export default function KeywordTool() {
                 <button type="submit">주소 저장</button>
               </div>
               <p>
-                API 키·비밀 키·고객 ID는 조회 서버에만 등록합니다. 이 화면에는
+                API 키·비밀 키·고객 ID는 자료 연결에만 등록합니다. 이 화면에는
                 서버 주소만 입력하세요. 주소를 저장해도 인증이나 조회 성공이
                 확인되지는 않습니다.
               </p>
@@ -388,7 +386,7 @@ export default function KeywordTool() {
                 <p className="kw-saved" role="status">
                   <Check size={14} aria-hidden />
                   {endpoint
-                    ? "서버 주소를 저장했습니다. 검색량 조회로 연결을 확인하세요."
+                    ? "서버 주소를 저장했습니다. 검색량 보기로 연결을 확인하세요."
                     : "서버 주소를 해제했습니다."}
                 </p>
               )}
@@ -407,19 +405,18 @@ export default function KeywordTool() {
         )}
         {data.source === "demo" ? (
           <p className="kw-notice">
-            지금 보이는 수치는 실제 네이버 검색량이 아닌 가상 예시입니다. 조회
-            서버를 연결하기 전에도 정렬과 필터를 써 볼 수 있습니다.
+            지금 보이는 수치는 실제 네이버 검색량이 아닌 가상 예시입니다. 자료 연결를 연결하기 전에도 정렬과 필터를 써 볼 수 있습니다.
           </p>
         ) : (
           <p className="kw-notice naver">
-            네이버 검색광고 키워드 도구의 검색량(최근 30일)과 파워링크 광고 클릭
+            네이버 검색광고 검색어 찾기의 검색량(최근 30일)과 파워링크 광고 클릭
             통계(최근 4주)입니다. 쇼핑검색광고의 클릭·경쟁 통계가 아닙니다.
           </p>
         )}
 
         <section className="kw-stats" aria-label="조회 결과 요약">
           <div>
-            <h2>연관 키워드</h2>
+            <h2>관련 검색어</h2>
             <p className="kw-stat-value">
               {rows.length.toLocaleString("ko-KR")}
               <small>개</small>
@@ -428,23 +425,23 @@ export default function KeywordTool() {
           </div>
           <div>
             <h2>
-              PC 검색량 합계
+              PC 검색 합계
               <Help
-                label="PC 검색량 합계"
+                label="PC 검색 합계"
                 text="이번 조회 결과의 PC 검색 횟수 합계입니다. 네이버 전체 검색량이나 방문자 수가 아닙니다. 범위 표기는 원본 범위를 유지합니다."
               />
             </h2>
             <p className="kw-stat-value">{formatRange(pcTotal)}</p>
-            <p className="kw-stat-note">최근 30일, 조회된 키워드 기준</p>
+            <p className="kw-stat-note">최근 30일 · 현재 검색어 기준</p>
           </div>
           <div>
-            <h2>모바일 검색량 합계</h2>
+            <h2>휴대폰 검색 합계</h2>
             <p className="kw-stat-value">{formatRange(mobileTotal)}</p>
-            <p className="kw-stat-note">최근 30일, 조회된 키워드 기준</p>
+            <p className="kw-stat-note">최근 30일 · 현재 검색어 기준</p>
           </div>
           <div>
             <h2>
-              모바일 비중
+              휴대폰 비율
               <Help
                 label="모바일 검색 비중"
                 text="정확한 PC·모바일 검색량이 모두 있는 경우에만 계산합니다. 범위값이나 누락값이 있으면 표시하지 않습니다."
@@ -463,7 +460,7 @@ export default function KeywordTool() {
             <p className="kw-stat-note">
               {share === null
                 ? "범위값이나 누락값이 있어 계산하지 않음"
-                : "PC와 모바일 검색량 합계 대비"}
+                : "PC와 휴대폰 검색 합계 대비"}
             </p>
           </div>
         </section>
@@ -477,8 +474,7 @@ export default function KeywordTool() {
             <div>
               <h2 id="kw-results-title">검색량 순위</h2>
               <p>
-                네이버 전체 인기 검색어가 아니라, 이번 조회와 필터 결과 안의
-                순위입니다.
+                지금 찾은 검색어 안에서 검색량이 많은 순서예요.
               </p>
             </div>
             <div className="kw-segmented" role="group" aria-label="검색량 기준 기기">
@@ -502,8 +498,8 @@ export default function KeywordTool() {
             <div className="kw-filter-field">
               <Search size={15} aria-hidden />
               <input
-                aria-label="결과 내 키워드 검색"
-                placeholder="결과 내 키워드 검색"
+                aria-label="결과에서 찾기"
+                placeholder="결과에서 찾기"
                 value={filter}
                 onChange={(e) => {
                   setFilter(e.target.value);
@@ -528,11 +524,11 @@ export default function KeywordTool() {
               <span>
                 <b>{filtered.length.toLocaleString("ko-KR")}</b>개 키워드
               </span>
-              {pending && <em>입력이 바뀌었습니다. 조회하면 반영됩니다.</em>}
+              {pending && <em>입력한 검색어로 다시 찾아주세요.</em>}
             </p>
             {hiddenCount > 0 && (
               <p className="kw-relevance">
-                관련 키워드만 표시합니다 · 관련성이 낮은 {hiddenCount.toLocaleString("ko-KR")}개 제외
+                관련 검색어만 보여요 · 관련성이 낮은 {hiddenCount.toLocaleString("ko-KR")}개 제외
               </p>
             )}
             <div className="kw-toolbar-actions">
@@ -568,7 +564,7 @@ export default function KeywordTool() {
                   ["exclude", "제외 단어", "추천, 중고"],
                   ["minVolume", "최소 검색량", "0"],
                   ["maxVolume", "최대 검색량", "100000"],
-                  ["minMobileShare", "최소 모바일 비중 (%)", "0"],
+                  ["minMobileShare", "최소 휴대폰 비율 (%)", "0"],
                 ] as const
               ).map(([key, label, placeholder]) => (
                 <label key={key}>
@@ -616,7 +612,7 @@ export default function KeywordTool() {
               </span>
             )}
             <span className="kw-legend-note">
-              막대는 이번 결과의 최다 검색 키워드 대비 길이입니다
+              막대가 길수록 검색량이 많아요
             </span>
           </div>
 
@@ -624,7 +620,7 @@ export default function KeywordTool() {
             <table className={`kw-table device-${device}`}>
               <caption className="kw-visually-hidden">
                 {data.source === "demo"
-                  ? "가상 데모 데이터"
+                  ? "가상 예시 자료"
                   : "네이버 검색광고 API 데이터"}
                 , {deviceName[device]} 검색량순
               </caption>
@@ -642,7 +638,7 @@ export default function KeywordTool() {
                     모바일
                   </th>
                   <th scope="col" className="num">
-                    모바일 비중
+                    휴대폰 비율
                   </th>
                   <th scope="col" className="num">
                     상품 수
@@ -770,7 +766,7 @@ export default function KeywordTool() {
                     <td colSpan={11} className="kw-no-results">
                       {rows.length
                         ? "필터에 맞는 키워드가 없습니다. 조건을 바꿔 보세요."
-                        : "조회된 연관 키워드가 없습니다. 다른 키워드로 조회해 보세요."}
+                        : "조회된 관련 검색어가 없습니다. 다른 키워드로 조회해 보세요."}
                     </td>
                   </tr>
                 )}
@@ -823,23 +819,19 @@ export default function KeywordTool() {
         />
 
         <section className="kw-guide" aria-labelledby="kw-guide-title">
-          <h2 id="kw-guide-title">데이터를 읽기 전에</h2>
+          <h2 id="kw-guide-title">이 숫자는 무슨 뜻인가요?</h2>
           <div>
             <p>
-              검색량은 최근 30일의 검색 횟수입니다. 실시간 인기 검색어 순위나
-              검색한 사람 수가 아니며, 광고 수익을 보장하지 않습니다. CPC와
-              전환율을 함께 보고 판단하세요.
+              검색량은 최근 30일의 검색 횟수예요. 검색한 사람 수나 실시간 인기 순위는 아니에요. 검색이 많아도 잘 팔린다는 뜻은 아니에요.
             </p>
             <p>
-              월평균 클릭 수는 파워링크 광고의 최근 4주 지표이며 CPC·입찰가·구매
-              전환율과 다릅니다. &lt;10은 0~9회 범위로 보존하고 임의의 정확한
-              수치로 바꾸지 않습니다.
+              광고 클릭은 파워링크의 최근 4주 기록이에요. 클릭 비용·구매 수와는 달라요. &lt;10은 0~9회, —는 자료 없음이에요.
             </p>
             <p>
-              쇼핑검색광고 추정 입찰가는{" "}
-              <Link href="/tools/start/">맞춤 진단에서 상품·소재 ID로 조회</Link>
+              쇼핑광고 예상 가격은{" "}
+              <Link href="/tools/start/">광고 진단에서 확인</Link>
               하세요. 이 화면에는 API 비밀 키를 저장하지 않으며, 실제 조회는
-              인증 정보를 가진 별도 조회 서버를 연결한 뒤 사용할 수 있습니다.
+              인증 정보를 가진 별도 자료 연결를 연결한 뒤 사용할 수 있습니다.
             </p>
             <p>
               <a
@@ -854,7 +846,7 @@ export default function KeywordTool() {
         </section>
         <footer className="kw-footer">
           <strong>KITS Tools</strong>
-          <span>더 나은 판단을 위한 비즈니스 도구</span>
+          <span>판매를 쉽게 준비하는 도구</span>
         </footer>
       </main>
     </>
