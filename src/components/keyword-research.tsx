@@ -91,12 +91,12 @@ export function useKeywordResearch(data: KeywordData) {
     const id = snapshotId({ row, source: data.source });
     if (favorites.some((s) => snapshotId(s) === id)) {
       setFavorites((old) => old.filter((s) => snapshotId(s) !== id));
-      setNotice("관심 키워드에서 삭제했습니다.");
+      setNotice("저장한 검색어에서 삭제했습니다.");
     } else if (favorites.length >= 100)
-      setNotice("관심 키워드는 최대 100개까지 저장할 수 있습니다.");
+      setNotice("저장한 검색어는 최대 100개까지 저장할 수 있습니다.");
     else {
       setFavorites((old) => [...old, snapshot(row)]);
-      setNotice("관심 키워드를 이 브라우저에 저장했습니다.");
+      setNotice("저장한 검색어를 이 브라우저에 저장했습니다.");
     }
   }
   function toggleSelected(item: KeywordSnapshot) {
@@ -325,10 +325,9 @@ export function KeywordResearch({
     <>
       <section className="kr-suggestions" aria-labelledby="kr-suggestions-title">
         <div>
-          <h2 id="kr-suggestions-title">확장 후보</h2>
+          <h2 id="kr-suggestions-title">함께 검색해 볼 말</h2>
           <p>
-            규칙으로 만든 후보이며, 실제 연관 검색어나 검색량이 확인된 목록이
-            아닙니다. 누르면 조회할 키워드에 들어갑니다.
+            자동으로 조합한 예시예요. 실제 검색량은 눌러서 확인하세요.
           </p>
         </div>
         <div>
@@ -338,7 +337,7 @@ export function KeywordResearch({
             </button>
           ))}
           {!suggestions.length && (
-            <span>키워드를 조회하면 확장 후보가 표시됩니다.</span>
+            <span>키워드를 조회하면 함께 검색해 볼 말가 표시됩니다.</span>
           )}
         </div>
       </section>
@@ -348,18 +347,17 @@ export function KeywordResearch({
         aria-labelledby="kr-workbench-title"
       >
         <div className="kr-heading">
-          <h2 id="kr-workbench-title">키워드 분석</h2>
+          <h2 id="kr-workbench-title">검색어 자세히 보기</h2>
           <p>
-            상품 수와 검색량을 비교하고, 관심 키워드와 광고 지표를
-            함께 봅니다. 이 브라우저에만 저장되며 계정이 필요 없습니다.
+            검색량·상품 수·광고 클릭을 보세요. 저장한 검색어는 이 브라우저에만 남아요.
           </p>
         </div>
         <div className="kr-tabs" aria-label="키워드 리서치 메뉴">
           {(
             [
-              ["detail", "키워드 상세"],
-              ["compare", `키워드 비교 (${m.selected.length}/5)`],
-              ["saved", `관심 키워드 (${m.favorites.length})`],
+              ["detail", "검색어 상세"],
+              ["compare", `검색어 비교 (${m.selected.length}/5)`],
+              ["saved", `저장한 검색어 (${m.favorites.length})`],
             ] as const
           ).map(([tab, label]) => (
             <button
@@ -419,10 +417,9 @@ export function KeywordResearch({
                 </div>
                 <div className="kr-detail-grid">
                   <article className="kr-market">
-                    <h3>검색 수요 대비 상품 수</h3>
+                    <h3>검색량에 비해 상품이 많은가요?</h3>
                     <p>
-                      상품 수 / 선택 기기의 월간 검색량. 낮을수록 검색 1회당
-                      상품 수가 적다는 뜻이며 수익을 보장하지 않습니다.
+                      상품 수 ÷ 한 달 검색량이에요. 낮을수록 검색에 비해 상품이 적어요. 이익을 뜻하는 숫자는 아니에요.
                     </p>
                     <div className="kr-product-entry">
                       <label>
@@ -523,28 +520,28 @@ export function KeywordResearch({
                     </p>
                   </article>
                   <article className="kr-ad-metrics">
-                    <h3>광고 지표 상세</h3>
-                    <p>네이버 키워드 도구가 제공하는 항목만 표시합니다.</p>
+                    <h3>광고 클릭 자세히 보기</h3>
+                    <p>네이버에서 받은 자료만 보여요.</p>
                     <dl>
                       {[
                         [
-                          "PC 광고 클릭률",
+                          "PC 광고 클릭률 · 보고 누른 비율",
                           `${decimal(m.focused.row.pcCtr)}${m.focused.row.pcCtr != null ? "%" : ""}`,
                         ],
                         [
-                          "모바일 광고 클릭률",
+                          "휴대폰 광고 클릭률 · 보고 누른 비율",
                           `${decimal(m.focused.row.mobileCtr)}${m.focused.row.mobileCtr != null ? "%" : ""}`,
                         ],
                         [
-                          "PC 평균 광고 노출 깊이",
+                          "PC 광고의 평균 노출 위치",
                           decimal(m.focused.row.adDepth),
                         ],
                         [
-                          "PC 월평균 광고 클릭",
+                          "PC 광고 클릭 · 월평균",
                           decimal(m.focused.row.pcClicks),
                         ],
                         [
-                          "모바일 월평균 광고 클릭",
+                          "휴대폰 광고 클릭 · 월평균",
                           decimal(m.focused.row.mobileClicks),
                         ],
                         ["파워링크 PC 광고 경쟁 정도", m.focused.row.competition],
@@ -556,12 +553,10 @@ export function KeywordResearch({
                       ))}
                     </dl>
                     <p className="kr-footnote">
-                      CTR·클릭 수는 파워링크의 최근 4주 기준입니다. CPC·구매전환율·매출이
-                      아니며 검색량으로 역산하지 않습니다. 누락 항목은 —로
-                      표시합니다.
+                      클릭률과 클릭 수는 파워링크의 최근 4주 기록이에요. 클릭 비용·구매 수·매출은 알 수 없어요. —는 자료 없음이에요.
                     </p>
                     <Link href="/tools/" className="kr-profit-link">
-                      수익성 분석으로 이어가기
+                      남는 돈 계산하기
                     </Link>
                   </article>
                 </div>
@@ -569,7 +564,7 @@ export function KeywordResearch({
               </>
             ) : (
               <div className="kr-empty">
-                키워드를 조회하거나 관심 키워드를 저장하면 상세 분석을 사용할 수
+                키워드를 조회하거나 저장한 검색어를 저장하면 상세 분석을 사용할 수
                 있습니다.
               </div>
             )}
@@ -706,7 +701,7 @@ export function KeywordResearch({
                   )
                 }
               >
-                <Download size={13} /> 관심 키워드 CSV
+                <Download size={13} /> 저장한 검색어 CSV
               </button>
             </div>
             {m.favorites.length ? (
@@ -726,7 +721,7 @@ export function KeywordResearch({
                     </div>
                     <button
                       onClick={() => m.toggleSelected(item)}
-                      aria-label={`${item.row.keyword} 관심 키워드 비교 선택`}
+                      aria-label={`${item.row.keyword} 관심 검색어 비교 선택`}
                       className={
                         m.selected.some(
                           (s) => snapshotId(s) === snapshotId(item),
@@ -743,7 +738,7 @@ export function KeywordResearch({
                           old.filter((s) => snapshotId(s) !== snapshotId(item)),
                         )
                       }
-                      aria-label={`${item.row.keyword} 관심 키워드 삭제`}
+                      aria-label={`${item.row.keyword} 저장한 검색어 삭제`}
                     >
                       <Trash2 size={14} />
                     </button>
