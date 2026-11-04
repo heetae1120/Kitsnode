@@ -350,7 +350,7 @@ export function KeywordResearch({
         <div className="kr-heading">
           <h2 id="kr-workbench-title">키워드 분석</h2>
           <p>
-            상품 수와 검색량을 비교하고, 관심 키워드와 직접 수집한 월별 데이터를
+            상품 수와 검색량을 비교하고, 관심 키워드와 광고 지표를
             함께 봅니다. 이 브라우저에만 저장되며 계정이 필요 없습니다.
           </p>
         </div>
