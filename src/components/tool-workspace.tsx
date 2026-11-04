@@ -16,7 +16,7 @@ export function ToolWorkspace({ id }: { id: WorkspaceId }) {
           <p>{workspace.description}</p>
         </section>
         <section className="workspace-summary" aria-label="연결 상태">
-          <span><Link2 size={16} /> 외부 서비스 미연결</span>
+          <span><Link2 size={16} /> 아직 연결 전이에요</span>
           <h2>{workspace.empty}</h2>
           <p>{workspace.connection}</p>
         </section>
@@ -27,7 +27,7 @@ export function ToolWorkspace({ id }: { id: WorkspaceId }) {
                 <Layers3 size={20} aria-hidden="true" />
                 <h2>{card.title}</h2>
                 <p>{card.text}</p>
-                <span className="workspace-pending">데이터 연결 대기</span>
+                <span className="workspace-pending">연결 후 볼 수 있어요</span>
               </article>
             ))}
           </section>
