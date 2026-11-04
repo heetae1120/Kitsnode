@@ -3,6 +3,10 @@
   "functions": {
     "api/keywords.js": {
       "maxDuration": 15
+    },
+    "api/shopping-ads.js": {
+      "maxDuration": 60,
+      "includeFiles": "node_modules/@sparticuz/chromium/bin/**"
     }
   },
   "outputDirectory": "public"
