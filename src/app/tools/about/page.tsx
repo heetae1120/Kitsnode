@@ -7,14 +7,14 @@ import "../kits-pages.css";
 export const metadata: Metadata = {
   title: "소개 | KITSNODE",
   description:
-    "SEO와 ROAS가 아니라, 광고가 꺼져도 남는 브랜드의 기반을 만듭니다. 리큐엠을 노베이스에서 130억까지 3~4년 만에 키운 팀입니다.",
+    "광고비와 이익을 함께 보고 브랜드를 키웁니다. 리큐엠을 처음부터 키워온 팀입니다.",
 };
 
 // Agency talking points that circle the core. Angles in degrees; rings rotate
 // in opposite directions while each label counter-rotates to stay upright.
 const outer = [
-  ["SEO 점수", 200],
-  ["ROAS", 290],
+  ["검색 노출 점수", 200],
+  ["광고비 대비 매출", 290],
   ["상위노출", 20],
   ["광고비", 110],
 ] as const;
@@ -42,8 +42,7 @@ export default function AboutPage() {
                 브랜드를 남깁니다
               </h1>
               <p className="kp-hero-lede">
-                광고가 꺼져도 무너지지 않는, 운영할 수 있는 브랜드의 기반을
-                만듭니다.
+                광고를 줄여도 고객이 찾는 브랜드를 만듭니다.
               </p>
               <div className="kp-actions">
                 <Link className="kp-button primary" href="/tools/survey/">
@@ -57,7 +56,7 @@ export default function AboutPage() {
             <div
               className="kp-orbit"
               role="img"
-              aria-label="SEO 점수, ROAS, 상위노출, 광고비, 순위 변동이 주변을 돌고, 가운데에는 브랜드 기반이 고정되어 있는 그림"
+              aria-label="검색 노출 점수, 광고비 대비 매출, 상위노출, 광고비, 순위 변동이 주변을 돌고, 가운데에는 브랜드 기반이 고정되어 있는 그림"
             >
               <div
                 className="kp-ring"
@@ -89,22 +88,20 @@ export default function AboutPage() {
 
         <section className="kp-section" aria-labelledby="kp-problem-title">
           <div className="kp-wrap">
-            <h2 id="kp-problem-title">아직도 SEO와 ROAS만 이야기하나요?</h2>
+            <h2 id="kp-problem-title">광고 매출만 보고 있나요?</h2>
             <p className="kp-lede">
-              많은 스마트스토어 광고대행사가 SEO 점수와 ROAS를 성과의 전부처럼
-              보여줍니다. 리포트의 숫자는 좋아 보여도, 광고를 멈추면 함께
-              사라지는 성과라면 의미가 없습니다.
+              매출이 늘어도 이익이 없을 수 있어요. 고객이 다시 찾는지도 함께 봅니다.
             </p>
             <div className="kp-contrast">
               <div>
                 <h3>대행사가 보여주는 것</h3>
                 <ul>
                   <li>
-                    <s>SEO 점수</s>
+                    <s>검색 노출 점수</s>
                     <small>상품명과 태그를 다듬은 점수표</small>
                   </li>
                   <li>
-                    <s>ROAS 리포트</s>
+                    <s>광고 매출 보고서</s>
                     <small>광고비 안에서만 계산된 효율</small>
                   </li>
                   <li>
@@ -117,8 +114,8 @@ export default function AboutPage() {
                 <h3>우리가 먼저 만드는 것</h3>
                 <ul>
                   <li>
-                    운영할 수 있는 브랜드의 기반
-                    <small>상품, 가격, 상세, 리뷰가 하나의 브랜드로 서는 구조</small>
+                    꾸준히 팔 수 있는 기반
+                    <small>상품·가격·설명·리뷰를 함께 다듬습니다</small>
                   </li>
                   <li>
                     광고 없이도 이어지는 판매 흐름
@@ -168,7 +165,7 @@ export default function AboutPage() {
           <div className="kp-wrap">
             <div className="kp-proof-grid">
               <div>
-                <h2 id="kp-proof-title">리큐엠은 노베이스에서 시작했습니다</h2>
+                <h2 id="kp-proof-title">리큐엠도 처음부터 시작했습니다</h2>
                 <p className="kp-figure">
                   <strong>
                     130억
@@ -176,14 +173,14 @@ export default function AboutPage() {
                   <span>까지, 3~4년</span>
                 </p>
                 <div className="kp-timeline" aria-hidden>
-                  <b>노베이스</b>
+                  <b>처음</b>
                   <i />
                   <b>130억</b>
                 </div>
               </div>
               <div className="kp-proof-side">
                 <p>
-                  광고 순위에 기대지 않고, 운영할 수 있는 브랜드의 기반부터
+                  광고 순위에 기대지 않고, 꾸준히 팔 수 있는 기반부터
                   쌓았습니다. 그 결과가 지금의 리큐엠입니다.
                 </p>
                 <p>말보다 스토어를 직접 확인해 보세요.</p>
@@ -205,19 +202,18 @@ export default function AboutPage() {
             <div>
               <h2 id="kp-data-title">결과와 데이터로만 말합니다</h2>
               <p className="kp-lede">
-                감으로 하는 약속 대신, 확인할 수 있는 숫자로 이야기합니다. 지금
-                쓰시는 도구들도 그 기준으로 만들었습니다.
+                남는 돈과 검색량을 직접 확인해 보세요.
               </p>
             </div>
             <nav className="kp-data-links" aria-label="데이터 도구">
               <Link href="/tools/">
-                수익성 분석<span>광고비를 쓰고 남는 돈</span>
+                남는 돈 계산<span>광고비를 쓰고 남는 돈</span>
               </Link>
               <Link href="/tools/keywords/">
-                키워드 도구<span>PC·모바일 검색량 비교</span>
+                검색어 찾기<span>PC·모바일 검색량 비교</span>
               </Link>
               <Link href="/tools/survey/">
-                진단 설문<span>우리 스토어 현황 알려주기</span>
+                진단 설문<span>내 스토어 상황 알려주기</span>
               </Link>
             </nav>
           </div>
@@ -227,7 +223,7 @@ export default function AboutPage() {
           <div className="kp-wrap kp-close-row">
             <div>
               <h2 id="kp-close-title">우리 스토어부터 진단해 보세요</h2>
-              <p>현재 상황을 알려 주시면, 데이터부터 함께 보겠습니다.</p>
+              <p>지금 고민을 알려주세요. 함께 살펴볼게요.</p>
             </div>
             <Link className="kp-button primary" href="/tools/survey/">
               설문 시작하기
@@ -236,7 +232,7 @@ export default function AboutPage() {
           <div className="kp-wrap">
             <footer className="kp-footer">
               <strong>KITSNODE</strong>
-              <span>운영할 수 있는 브랜드를 만듭니다</span>
+              <span>고객이 다시 찾는 브랜드를 만듭니다</span>
             </footer>
           </div>
         </section>
