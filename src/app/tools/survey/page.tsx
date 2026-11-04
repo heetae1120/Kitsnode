@@ -6,9 +6,9 @@ import "../finance-bento.css";
 import "../kits-pages.css";
 
 export const metadata: Metadata = {
-  title: "진단 설문 | KITSNODE",
+  title: "브랜드 설문 | KITSNODE",
   description:
-    "스토어 상황을 알려주시면, 먼저 할 일을 함께 찾습니다.",
+    "만들고 싶은 브랜드와 필요한 준비를 함께 정리합니다.",
 };
 
 export default function SurveyPage() {
@@ -18,13 +18,13 @@ export default function SurveyPage() {
       <main className="kp-main">
         <div className="kp-wrap kp-survey">
           <div className="kp-survey-intro">
-            <h1>진단 설문</h1>
+            <h1>브랜드 설문</h1>
             <p>
-              스토어 상황을 알려주세요. 먼저 할 일을 함께 찾을게요.
+              만들고 싶은 브랜드를 알려주세요. 첫걸음을 함께 정리할게요.
             </p>
             <ul>
-              <li>최대 8개 질문, 대부분 선택형이에요</li>
-              <li>정확한 숫자를 몰라도 괜찮아요</li>
+              <li>브랜드 이야기부터 연락처까지 8단계예요</li>
+              <li>아직 정하지 못한 부분이 있어도 괜찮아요</li>
               <li>마지막에 연락처를 남겨주세요</li>
             </ul>
             <p className="kp-small">
