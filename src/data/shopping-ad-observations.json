@@ -1,0 +1,36 @@
+[
+  {
+    "keyword": "가습기",
+    "device": "PC",
+    "sourceUrl": "https://search.shopping.naver.com/search/all?query=%EA%B0%80%EC%8A%B5%EA%B8%B0",
+    "observedAt": "2026-11-04T06:13:21.248Z",
+    "context": "비로그인 · 네이버 랭킹순 · 첫 페이지 · 리스트 보기",
+    "complete": true,
+    "items": [
+      {
+        "ad": true,
+        "image": "https://shopping-phinf.pstatic.net/main_9018491/90184919030.2.jpg?type=f300",
+        "mall": "fromb",
+        "price": 298000,
+        "rank": 1,
+        "title": "프롬비 대용량 초음파 가습기 울트라 몬스터 23L 사무실 FC183NEW 크림화이트"
+      },
+      {
+        "ad": true,
+        "image": "https://shopping-phinf.pstatic.net/main_9127826/91278268321.1.jpg?type=f300",
+        "mall": "오브룸 스토어",
+        "price": 179000,
+        "rank": 2,
+        "title": "오브룸 탑미스트 순환식 대용량 복합식 가습기 신생아 UV 가열 살균 OV-HU11"
+      },
+      {
+        "ad": true,
+        "image": "https://searchad-phinf.pstatic.net/MjAyNjEwMTRfMjcg/MDAxNzkxOTYwMTUwNzY0.GofP24xrJVjm5LyWoERd1O69hspc0GHDd0fD5O40H0cg.Sr6--lufUWjbTttOf47v8LHJYvP-TO7bxHYP3GIf5ZYg.PNG/978938-330ee3bd-615c-48e2-acdb-6cd87def52a7.png?type=f300",
+        "mall": "carepod",
+        "price": 299000,
+        "rank": 3,
+        "title": "케어팟 원격으로 쉽고 위생적인 가습기 관리"
+      }
+    ]
+  }
+]
