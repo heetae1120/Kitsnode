@@ -16,7 +16,7 @@ const extras = [
   ['feePercent','플랫폼·결제 수수료','판매가에 부과되는 총 수수료율','%'],
   ['logistics','물류·배송비','상품 1개당 입고·보관·출고·판매자 부담 배송비','원 / 개'],
   ['packaging','포장·기타 판매비','포장재, 사은품 등 1개 팔 때마다 드는 비용','원 / 개'],
-  ['returns','반품·교환 예상비','예상 반품·교환 비용을 상품 1개당 나눈 금액','원 / 개'],
+  ['returns','반품·교환 및 양품 전환 비용','예상 반품·교환 수량 × 1개당 양품 전환 비용을 구한 뒤, 전체 판매 계획 수량으로 나눈 금액을 입력하세요.','원 / 개'],
   ['certification','인증·검사비','이번 판매 계획 전체에 한 번 반영할 비용','원 / 전체'],
   ['fixed','기타 고정비','촬영, 디자인, 임차료 등 이번 계획에 배분할 비용','원 / 전체'],
 ] as const;
@@ -29,6 +29,12 @@ export function MarketingPlanner(){
   const [error,setError]=useState('');
   const [report,setReport]=useState<{name:string;input:MarketingPlanInput;result:ReturnType<typeof marketingPlan>}|null>(null);
   const focus=useRef<HTMLElement>(null);
+  const plannedCost = Number(draft.cost) * Number(draft.quantity);
+  const available = budgetMode === 'total' ? Number(draft.available) : Number(draft.purchaseBudget) + Number(draft.marketingBudget);
+  const hasCost = draft.cost.trim() !== '' && draft.quantity.trim() !== '' && Number.isFinite(plannedCost) && plannedCost >= 0;
+  const hasBudget = budgetMode === 'total' ? draft.available.trim() !== '' : draft.purchaseBudget.trim() !== '' && draft.marketingBudget.trim() !== '';
+  const overBudget = hasCost && hasBudget && plannedCost > available;
+  const money = (v:number) => v.toLocaleString('ko-KR') + '원';
   const update=(key:keyof Draft,value:string)=>{setDraft(d=>({...d,[key]:value}));setError('');};
   function move(next:number){setStep(next);setError('');requestAnimationFrame(()=>{focus.current?.focus();focus.current?.scrollIntoView({behavior:'smooth',block:'start'});});}
   function submit(e:FormEvent){
@@ -53,7 +59,7 @@ export function MarketingPlanner(){
     {step<3?<form onSubmit={submit} noValidate><div className="mp-section-heading"><span>STEP 0{step}</span><h2>{step===1?'판매할 상품과 자금을 알려주세요':'이런 비용, 안 빼먹으셨나요?'}</h2><p>{step===1?'같은 기간·같은 상품 수량을 기준으로 입력해 주세요.':'작은 비용도 모이면 마케팅 예산이 달라집니다. 0원도 직접 확인해 주세요.'}</p></div>
       {step===1&&<label className="mp-name">품목<input value={draft.name} onChange={e=>update('name',e.target.value)} placeholder="예: 보조배터리" maxLength={100}/><small className="mp-product-hint">품목에서 관련 키워드를 자동으로 찾고, 보고서에 광고비 분석을 함께 보여드립니다.</small></label>}
       {step===1&&<section className="mp-budget-input" aria-label="사용할 예산"><div className="mp-budget-modes"><button type="button" className={budgetMode==='split'?'is-active':''} aria-pressed={budgetMode==='split'} onClick={()=>setBudgetMode('split')}>구매·마케팅 비용 나눠 입력</button><button type="button" className={budgetMode==='total'?'is-active':''} aria-pressed={budgetMode==='total'} onClick={()=>setBudgetMode('total')}>총 가용비용 한 칸에 입력</button></div><div className="mp-fields">{(budgetMode==='split'?[['purchaseBudget','구매에 쓸 예정인 비용','상품 매입·구매를 위해 준비한 자금'],['marketingBudget','마케팅에 쓸 예정인 비용','이번 계획에서 마케팅에 쓰려는 최대 금액']]:[['available','총 가용비용','상품 구매·부가비용·마케팅을 합쳐 쓸 전체 자금']]).map(([key,label,help])=><div className="mp-field" key={key}><label htmlFor={`mp-${key}`}>{label}</label><p>{help}</p><div className="mp-input-wrap"><FormattedNumberInput id={`mp-${key}`} value={draft[key as keyof Draft]} onValueChange={value=>update(key as keyof Draft,value)} placeholder="금액 입력"/><span>원</span></div></div>)}</div><p className="mp-product-hint">마케팅에 얼마쓸지 모르겠다면 한칸에 총 가용비용을 기재해주세요.</p></section>}
-      <div className="mp-fields">{(step===1?basics:extras).map(([key,label,description,unit])=><div className="mp-field" key={key}><label htmlFor={`mp-${key}`}>{label}</label><p id={`mp-help-${key}`}>{description}</p><div className="mp-input-wrap"><FormattedNumberInput id={`mp-${key}`} aria-describedby={`mp-help-${key}`} value={draft[key]} onValueChange={value=>update(key,value)} placeholder={key==='quantity'?'수량 입력':'금액 입력'}/><span>{unit}</span></div>{step===2&&<label className="mp-zero"><input type="checkbox" checked={draft[key]==='0'} onChange={e=>update(key,e.target.checked?'0':'')}/>해당 없음 · 0{key==='feePercent'?'%':'원'}</label>}</div>)}</div>
+      <div className="mp-fields">{(step===1?basics:extras).map(([key,label,description,unit])=><div className="mp-field" key={key}><label htmlFor={`mp-${key}`}>{label}</label><p id={`mp-help-${key}`}>{description}</p><div className="mp-input-wrap"><FormattedNumberInput id={`mp-${key}`} aria-describedby={`mp-help-${key}`} value={draft[key]} onValueChange={value=>update(key,value)} placeholder={key==='quantity'?'수량 입력':'금액 입력'}/><span>{unit}</span></div>{step===2&&<label className="mp-zero"><input type="checkbox" checked={draft[key]==='0'} onChange={e=>update(key,e.target.checked?'0':'')}/>해당 없음 · 0{key==='feePercent'?'%':'원'}</label>}</div>)}{step===1&&<aside className={`mp-stock-cost ${overBudget?'is-over':''}`} aria-live="polite"><span>판매 계획 수량에 따른 총 상품 원가</span><strong>{hasCost?money(plannedCost):'원가와 수량을 입력해 주세요'}</strong><p>상품 원가 × 판매 계획 수량</p>{hasCost&&hasBudget&&<p>총 가용비용 {money(available)} · {overBudget?`초과 금액 ${money(plannedCost-available)}`:`원가 확보 후 잔액 ${money(available-plannedCost)}`}</p>}{overBudget&&<p role="alert">가용비용을 초과했어요. 잘 적은게 맞는지 확인해주세요.</p>}<small>상품 원가만 비교한 금액입니다. 부가비용과 마케팅 비용은 다음 단계에서 함께 계산합니다.</small></aside>}</div>
       <aside className="mp-note"><Wallet size={20}/><p>{step===1?'구매·마케팅 예정 비용의 합계 또는 총 가용비용을 기준으로 계산합니다. 상품·부가비용을 먼저 확보하고, 마케팅 예정 비용 이내에서 지출 한도를 계산합니다. 아직 발생하지 않은 매출은 더하지 않습니다.':'인증·검사비와 기타 고정비는 전체 금액으로 입력하세요. 계획 수량에 나눠 반영합니다. 세금·할인·추가 비용도 해당 항목에 포함해 주세요.'}</p></aside>
       {error&&<p className="mp-error" role="alert">{error}</p>}<div className="mp-actions">{step===2&&<button type="button" className="mp-secondary" onClick={()=>move(1)}>이전 단계</button>}<button type="submit" className="mp-primary">{step===1?'다음 · 빠뜨린 비용 확인':'내 상품 평가 보고서 보기'}<ArrowRight size={17}/></button></div>
     </form>:report&&<BeginnerProfitReport name={report.name} input={report.input} result={report.result} onEdit={()=>move(1)}/>}

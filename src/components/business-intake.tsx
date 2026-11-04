@@ -1002,7 +1002,7 @@ export function BusinessIntake() {
           </>
         )}
         <footer className="intake-footer">
-          <Link href="/">KITS 브랜드 홈</Link>
+          <Link href="/tools/">KITSNODE 수익성 분석</Link>
           <button
             onClick={() => {
               controller.current?.abort();

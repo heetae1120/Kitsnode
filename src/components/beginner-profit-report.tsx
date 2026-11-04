@@ -10,6 +10,7 @@ type Props = { name: string; input: MarketingPlanInput; result: ReturnType<typeo
 
 export function BeginnerProfitReport({ name, input, result: r, onEdit }: Props) {
   const ready = r.marketing > 0;
+  const sellable = r.margin > 0 && r.profitRoom > 0 && r.cashRoom >= 0;
   const testBudget = marketingTestBudget(input);
   const problem = r.margin <= 0 ? "한 개를 팔아도 비용을 회수하기 어려워요. 판매가와 원가부터 다시 확인해 주세요." : r.profitRoom < 0 ? "준비한 상품을 모두 팔아도 고정비를 회수하기 어려워요." : r.cashRoom < 0 ? `판매 준비에 ${money(-r.cashRoom)}이 더 필요해요.` : "현재 비용에서는 광고비로 쓸 수 있는 여유가 없어요.";
   return <article className="mp-story">
@@ -31,7 +32,7 @@ export function BeginnerProfitReport({ name, input, result: r, onEdit }: Props) 
       <details className="mp-story-details"><summary>전체 자금 계산 자세히 보기</summary><dl className="mp-breakdown">{([['총 가용비용',input.available],...(input.marketingBudget!==undefined?[['구매 예정 비용',input.purchaseBudget!],['마케팅 예정 비용',input.marketingBudget]]:[]),['먼저 확보할 상품·부가비용',r.reserved],['비용 확보 후 자금 여유',r.cashRoom],['전량 판매 시 손익상 광고비 한도',r.profitRoom],['최종 마케팅 지출 상한',r.marketing],['전량 판매 시 매출',r.sales],['상한만큼 광고 집행 후 예상 이익',r.profit]] as [string,number][]).map(([label,value])=><div key={label}><dt>{label}</dt><dd>{money(value)}</dd></div>)}</dl></details>
     </section>
 
-    <section id="report-sales" className="mp-story-chapter"><div className="mp-story-heading"><span><ShoppingBag size={18}/> 02 · 팔아야 할 수량</span><h2>한 개 팔 때 남는 돈이<br /><em>광고비의 기준이 돼요.</em></h2><p>상품 한 개를 파는 데 광고비를 얼마나 써도 되는지 살펴보세요.</p></div>
+    <section id="report-sales" className="mp-story-chapter"><aside className={`mp-sale-verdict ${sellable?"is-good":"is-over"}`}><span>입력한 비용·자금 기준 판매 적합성</span><h2>{sellable?"이 물건은 지금 팔아도 좋아요":"이 물건은 지금 팔기에는 안 좋아요"}</h2><p>{sellable?"전량 판매를 가정하면 비용을 회수할 여유가 있고, 준비 자금도 확보되어 있어요.":problem}</p><small>수요·실제 광고 성과를 반영하지 않은 비용 기준 판단입니다. 판매나 수익을 보장하지 않습니다.</small></aside><div className="mp-story-heading"><span><ShoppingBag size={18}/> 02 · 팔아야 할 수량</span><h2>한 개 팔 때 남는 돈이<br /><em>광고비의 기준이 돼요.</em></h2><p>상품 한 개를 파는 데 광고비를 얼마나 써도 되는지 살펴보세요.</p></div>
       <div className="mp-story-sale"><div><span>상품 한 개 판매가</span><b>{money(input.price)}</b></div><span>−</span><div><span>원가 + 수수료 + 개당 비용</span><b>{money(r.variable)}</b></div><span>=</span><div><span>광고 전에 남는 돈</span><b>{money(r.margin)}</b></div></div>
       <div className="mp-story-limit"><span>고정비까지 나눠 반영한<br /><b>판매 1건당 광고비 한도</b></span><strong>{money(r.perOrder)}</strong><p>예를 들어 한 건의 구매를 만드는 데 이 금액보다 광고비를 많이 쓰면, 이번 판매 계획에서는 손실이 생겨요.</p></div>
       <p className="mp-story-caption">본전 판매량은 {r.breakEvenUnits===null?'현재 구조로 계산할 수 없어요.':`${r.breakEvenUnits.toLocaleString('ko-KR')}개예요. 판매되지 않은 재고에 묶인 돈까지 회수했다는 뜻은 아니에요.`}</p>

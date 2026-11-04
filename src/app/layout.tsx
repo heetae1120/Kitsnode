@@ -8,13 +8,13 @@ const pretendard = localFont({
   weight: "100 900",
 });
 export const metadata: Metadata = {
-  title: "KITS — Sensible Everyday Kits",
+  title: "KITSNODE — 셀러를 위한 수익성·키워드 분석",
   description:
-    "시대의 유산부터 동시대의 트렌드, 내일의 감각까지. 삶과 브랜드의 순간을 완성하는 오브제 큐레이션 & 크리에이티브 랩, KITS.",
+    "상품 비용과 광고 예산을 계산하고 네이버 키워드를 비교하는 KITSNODE 도구입니다.",
   openGraph: {
-    title: "KITS — Sensible Everyday Kits",
+    title: "KITSNODE — 셀러를 위한 수익성·키워드 분석",
     description:
-      "어제의 가치를 잇고, 오늘의 트렌드를 담으며, 내일의 감각을 제안합니다.",
+      "판매 계획에 맞는 수익성 분석과 키워드 리서치를 시작하세요.",
     type: "website",
     locale: "ko_KR",
   },

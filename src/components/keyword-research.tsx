@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Check,
@@ -8,18 +8,8 @@ import {
   Loader2,
   Search,
   Trash2,
-  Upload,
   X,
 } from "lucide-react";
-import {
-  CartesianGrid,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 import {
   formatCount,
   formatRange,
@@ -32,17 +22,14 @@ import {
 import {
   exactVolume,
   keywordSuggestions,
-  parseMonthlyTrend,
   parseProductCount,
   productSearchRatio,
   restoreProducts,
   restoreSnapshots,
   researchKeywordsCsv,
   snapshotId,
-  trendSummary,
   type KeywordSnapshot,
   type ProductRecord,
-  type TrendPoint,
 } from "@/lib/keyword-research";
 const decimal = (n: number | null | undefined, digits = 1) =>
   n === null || n === undefined
@@ -199,17 +186,10 @@ export function KeywordResearch({
   const [productDraft, setProductDraft] = useState("");
   const [productError, setProductError] = useState("");
   const [productLoading, setProductLoading] = useState(false);
-  const [trendDraft, setTrendDraft] = useState("");
-  const [trends, setTrends] = useState<Record<string, TrendPoint[]>>({});
-  const [trendError, setTrendError] = useState("");
-  const [trendNotice, setTrendNotice] = useState("");
   const [shoppingNotice, setShoppingNotice] = useState("");
-  const fileRef = useRef<HTMLInputElement>(null);
   const shoppingController = useRef<AbortController | null>(null);
   const keyword = m.focused?.row.keyword || "";
   const product = m.products.find((p) => p.keyword === keyword);
-  const trend = trends[keyword] || [];
-  const summary = trendSummary(trend);
   const ratio = m.focused
     ? productSearchRatio(
         product?.count ?? null,
@@ -224,9 +204,6 @@ export function KeywordResearch({
     setProductDraft(product ? String(product.count) : "");
     setProductError("");
     setShoppingNotice("");
-    setTrendDraft("");
-    setTrendError("");
-    setTrendNotice("");
     shoppingController.current?.abort();
     shoppingController.current = null;
     setProductLoading(false);
@@ -323,30 +300,6 @@ export function KeywordResearch({
       clearTimeout(timer);
       if (shoppingController.current === controller) setProductLoading(false);
     }
-  }
-  function applyTrend(text = trendDraft) {
-    try {
-      const parsed = parseMonthlyTrend(text);
-      setTrends((old) => ({ ...old, [keyword]: parsed }));
-      setTrendError("");
-      setTrendNotice("입력한 월별 검색량으로 추이를 갱신했습니다.");
-    } catch (e) {
-      setTrendError((e as Error).message);
-    }
-  }
-  async function importTrend(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      if (file.size > 1_000_000)
-        throw new Error("CSV 파일은 1MB 이하로 선택해 주세요.");
-      const text = await file.text();
-      setTrendDraft(text);
-      applyTrend(text);
-    } catch (e) {
-      setTrendError((e as Error).message);
-    }
-    e.target.value = "";
   }
   function download(text: string, name: string) {
     const url = URL.createObjectURL(
@@ -612,164 +565,7 @@ export function KeywordResearch({
                     </Link>
                   </article>
                 </div>
-                <article className="kr-trend">
-                  <div className="kr-trend-heading">
-                    <div>
-                      <h3>월별 검색량 추이</h3>
-                      <p>
-                        사용자가 수집한 월별 데이터를 입력해 비교합니다. API에서
-                        조회한 과거 이력이나 미래 예측이 아닙니다.
-                      </p>
-                    </div>
-                    <span>출처: 사용자 입력</span>
-                  </div>
-                  <div className="kr-trend-grid">
-                    <div>
-                      <label>
-                        월, 검색량 CSV
-                        <textarea
-                          aria-label="월별 검색량 데이터"
-                          value={trendDraft}
-                          onChange={(e) => {
-                            setTrendDraft(e.target.value);
-                            setTrendError("");
-                          }}
-                          rows={5}
-                          placeholder={
-                            "month,searches\n2026-01,1000\n2026-02,1200\n2026-03,900"
-                          }
-                        />
-                      </label>
-                      <div className="kr-trend-actions">
-                        <button onClick={() => applyTrend()}>
-                          입력 데이터 적용
-                        </button>
-                        <button onClick={() => fileRef.current?.click()}>
-                          <Upload size={13} /> CSV 가져오기
-                        </button>
-                        <button
-                          onClick={() =>
-                            download(
-                              "\uFEFFmonth,searches\n2026-01,\n2026-02,\n",
-                              "KITS-monthly-trend-template.csv",
-                            )
-                          }
-                        >
-                          <Download size={13} /> 양식
-                        </button>
-                        <input
-                          ref={fileRef}
-                          type="file"
-                          accept=".csv,text/csv"
-                          onChange={importTrend}
-                          hidden
-                          aria-label="월별 검색량 CSV 파일"
-                        />
-                      </div>
-                      {trendError && (
-                        <p role="alert" className="kr-error">
-                          {trendError}
-                        </p>
-                      )}
-                      {trendNotice && (
-                        <p role="status" className="kr-success">
-                          {trendNotice}
-                        </p>
-                      )}
-                      <p className="kr-footnote">
-                        2~60개월, YYYY-MM과 검색 횟수를 입력하세요. 누락된 월은
-                        그래프를 연결하지 않습니다. 파일은 서버로 전송하지
-                        않으며 추이는 현재 페이지에서만 유지됩니다.
-                      </p>
-                    </div>
-                    <div className="kr-trend-visual">
-                      {trend.length ? (
-                        <>
-                          <div className="kr-trend-chart">
-                            <ResponsiveContainer width="100%" height="100%">
-                              <LineChart
-                                data={trend}
-                                margin={{
-                                  top: 10,
-                                  right: 15,
-                                  bottom: 5,
-                                  left: 0,
-                                }}
-                              >
-                                <CartesianGrid
-                                  stroke="var(--kw-grid)"
-                                  vertical={false}
-                                />
-                                <XAxis
-                                  dataKey="month"
-                                  tick={{ fontSize: 12, fill: "var(--kw-muted)" }}
-                                  tickLine={false}
-                                  axisLine={{ stroke: "var(--kw-rule-strong)" }}
-                                />
-                                <YAxis
-                                  width={56}
-                                  tick={{ fontSize: 12, fill: "var(--kw-muted)" }}
-                                  tickFormatter={(v) => decimal(Number(v), 0)}
-                                  axisLine={false}
-                                  tickLine={false}
-                                />
-                                <Tooltip
-                                  formatter={(v) => [
-                                    typeof v === "number"
-                                      ? `${decimal(v, 0)}회`
-                                      : "누락",
-                                    "사용자 입력 검색량",
-                                  ]}
-                                  contentStyle={{
-                                    fontSize: 13,
-                                    borderRadius: 4,
-                                    border: "1px solid var(--kw-rule)",
-                                    background: "var(--kw-sheet)",
-                                  }}
-                                />
-                                <Line
-                                  type="linear"
-                                  dataKey="searches"
-                                  stroke="var(--kw-accent)"
-                                  strokeWidth={2}
-                                  connectNulls={false}
-                                  isAnimationActive={false}
-                                  dot={false}
-                                  activeDot={{ r: 4 }}
-                                />
-                              </LineChart>
-                            </ResponsiveContainer>
-                          </div>
-                          <div className="kr-trend-summary">
-                            <span>
-                              입력 기간 최고:{" "}
-                              <b>
-                                {summary.peak?.month} ·{" "}
-                                {decimal(summary.peak?.searches, 0)}회
-                              </b>
-                            </span>
-                            <span>
-                              직전 입력월 대비:{" "}
-                              <b>
-                                {summary.changePercent === null
-                                  ? "계산 불가"
-                                  : `${summary.changePercent > 0 ? "+" : ""}${decimal(summary.changePercent)}%`}
-                              </b>
-                            </span>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="kr-trend-empty">
-                          월별 데이터를 추가하면 추이와 증감을 확인할 수
-                          있습니다.
-                          <br />
-                          현재 조회의 검색량 한 개로 과거 추이를 만들지
-                          않습니다.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </article>
+
               </>
             ) : (
               <div className="kr-empty">
