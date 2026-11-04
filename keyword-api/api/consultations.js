@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 const rates=new Map();
 // Survey answers from /tools/survey/: known keys only, short strings, short lists.
-const ANSWER_KEYS=['status','category','categoryOther','revenue','adMode','adSpend','pains','goal'];
+const ANSWER_KEYS=['status','category','categoryOther','revenue','adMode','adSpend','pains','goal','brandVision','audience','stage','budget','support','brandGoal'];
 export function cleanAnswers(a){
  if(a===undefined)return {};
  if(!a||typeof a!=='object'||Array.isArray(a))return null;
