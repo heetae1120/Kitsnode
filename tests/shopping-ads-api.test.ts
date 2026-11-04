@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createShoppingAdsHandler} from '../keyword-api/src/shopping-ads-handler.mjs';
 const request=(keyword='가습기',origin='https://heetae1120.github.io')=>new Request(`https://test.local/api/shopping-ads?keyword=${encodeURIComponent(keyword)}`,{headers:{origin}});
-test('unconfigured ad collection reports unavailable, never empty ads or organic rankings',async()=>{
- const handle=createShoppingAdsHandler({fetcher:async()=>{throw Error('must not fetch');}});
- assert.equal((await handle(request(),{})).status,503);
+test('failed browser collection reports unavailable, never empty ads or organic rankings',async()=>{
+ const handle=createShoppingAdsHandler({fetcher:async()=>{throw Error('must not fetch');},browserCollector:async()=>{throw Error('blocked');}});
+ assert.equal((await handle(request(),{})).status,502);
  assert.equal((await handle(request(''),{})).status,400);
  assert.equal((await handle(request('가습기','https://evil.test'),{})).status,403);
 });
