@@ -4,9 +4,17 @@
 
 - `src/data/shopping-ad-observations.json`: 브라우저에서 직접 확인한 기록. 검색어·노출 조건·확인 시각을 보존하고 화면에 **저장된 확인 기록**이라고 표시합니다. 새로 검색해도 이 기록의 시각은 바뀌지 않습니다.
 - `src/components/shopping-ad-podium.tsx`: 새 수집 결과를 요청합니다. 실패하면 같은 검색어의 저장 기록만 표시하며 다른 검색어의 상품으로 대체하지 않습니다.
-- `keyword-api/api/shopping-ads.js`: 브라우저 수집 서버 연결 지점. 현재 수집 서버가 연결되어 있지 않아 실시간 자동 수집은 미완료입니다. 네이버 공개 페이지에 대한 서버 직접 요청은 2026-11-04 HTTP 418로 차단되었습니다.
+- `keyword-api/api/shopping-ads.js`: 서버가 Chromium으로 검색 링크를 열어 광고 상품을 읽는 연결 지점입니다. 실제 광고를 확인하지 못하면 오류를 반환하며, 저장 기록을 새 결과로 위장하지 않습니다. 네이버 공개 페이지에 대한 서버 직접 요청은 2026-11-04 HTTP 418로 차단되었습니다.
 
-## 수집 서버 연결
+## 링크를 브라우저로 직접 읽기
+
+별도 순위 API 없이 `keyword-api/src/browser-shopping-ads.mjs`가 네이버 쇼핑 검색 링크를 열어 광고 표시·상품명·판매가·사진·판매처를 읽습니다. 광고를 클릭하거나 로그인하지 않으며, 차단·인증 요구를 우회하지 않습니다. 3개를 모두 읽지 못하면 일부 확인 자료로 표시합니다. 실제 서비스에서 성공하는지는 네이버의 접근 허용 상태에 따라 달라집니다.
+
+Vercel은 `keyword-api` 디렉터리의 패키지와 설정으로 배포해야 합니다. 서버 전용 `@sparticuz/chromium` 153과 호환되는 `puppeteer-core` 25.11을 사용하며 브라우저 실행 파일을 함수에 포함합니다. 함수 제한은 60초, 클라이언트 대기는 45초입니다. 요청은 IP별 분당 5회, 인스턴스별 분당 20회로 제한합니다. 차단 오류는 화면에서 확인 실패로 표시합니다.
+
+[Chromium 서버리스 패키지](https://github.com/Sparticuz/chromium), [Puppeteer 호환 브라우저 표](https://pptr.dev/supported-browsers).
+
+## 기존 수집 서버를 쓸 때
 
 Vercel 서버 환경변수 `SHOPPING_ADS_COLLECTOR_URL`(HTTPS)과 필요한 경우 `SHOPPING_ADS_COLLECTOR_TOKEN`을 설정합니다. 토큰은 서버에서만 사용합니다. 수집 서버에는 `POST`로 `{keyword, device:"PC", limit:3}`를 전송합니다. 자동 수집 서비스의 비용·접근 권한은 별도 설정이 필요합니다.
 
