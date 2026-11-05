@@ -32,7 +32,7 @@ export function createShoppingAdsHandler({fetcher=fetch,browserCollector=collect
    try{while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>65536)throw Error();chunks.push(value);}}finally{void reader.cancel().catch(()=>{});reader.releaseLock();}
    const payload=JSON.parse(Buffer.concat(chunks).toString('utf8'));
    // Only publish allowlisted fields; do not forward collector diagnostics or credentials.
-   return json({keyword:payload.keyword,device:payload.device,sourceUrl:payload.sourceUrl,observedAt:payload.observedAt,context:payload.context,complete:payload.complete,items:Array.isArray(payload.items)?payload.items.map(row=>({rank:row.rank,ad:row.ad,title:row.title,mall:row.mall,price:row.price,image:row.image})):null});
+   return json({keyword:payload.keyword,device:payload.device,sourceUrl:payload.sourceUrl,observedAt:payload.observedAt,context:payload.context,complete:payload.complete,items:Array.isArray(payload.items)?payload.items.map(row=>({rank:row.rank,ad:row.ad,title:row.title,mall:row.mall,price:row.price,image:row.image,rating:row.rating,reviewCount:row.reviewCount,wishCount:row.wishCount,originalPrice:row.originalPrice,couponPrice:row.couponPrice,promotion:row.promotion,shipping:row.shipping,category:row.category,specifications:row.specifications,registeredAt:row.registeredAt})):null});
   }catch(e){const known=['SHOPPING_PAGE_BLOCKED','SHOPPING_PAGE_UNAVAILABLE','SHOPPING_PAGE_CHANGED','AD_RESULTS_NOT_CONFIRMED'];const reason=known.includes(e?.message)?e.message:['ERR_MODULE_NOT_FOUND','ENOENT'].includes(e?.code)?'BROWSER_RUNTIME_UNAVAILABLE':'UPSTREAM_UNAVAILABLE';return json({code:'COLLECTOR_UNAVAILABLE',reason,error:'지금 광고 상품을 확인하지 못했어요.'},502);}finally{active--;}
  };
 }
