@@ -3,7 +3,9 @@ export function normalizeObservedAds(rows){
  if(!Array.isArray(rows)||rows.length===0)throw Error('AD_RESULTS_NOT_CONFIRMED');
  const items=rows.slice(0,3).map((row,index)=>{
   if(row.ad!==true||typeof row.title!=='string'||!row.title.trim())throw Error('AD_RESULTS_NOT_CONFIRMED');
-  return {rank:index+1,ad:true,title:row.title.trim().slice(0,300),mall:typeof row.mall==='string'?row.mall.trim().slice(0,100):'',price:Number.isSafeInteger(row.price)&&row.price>0?row.price:null,image:typeof row.image==='string'?row.image:null};
+  const text=(key,max=200)=>typeof row[key]==='string'?row[key].trim().slice(0,max):'';
+  const amount=key=>Number.isSafeInteger(row[key])&&row[key]>0?row[key]:null;
+  return {rating:Number.isFinite(row.rating)&&row.rating>=0&&row.rating<=5?row.rating:null,reviewCount:text('reviewCount',30),wishCount:text('wishCount',30),originalPrice:amount('originalPrice'),couponPrice:amount('couponPrice'),promotion:text('promotion'),shipping:text('shipping'),category:text('category',400),specifications:text('specifications',2000),registeredAt:text('registeredAt',30),rank:index+1,ad:true,title:row.title.trim().slice(0,300),mall:typeof row.mall==='string'?row.mall.trim().slice(0,100):'',price:Number.isSafeInteger(row.price)&&row.price>0?row.price:null,image:typeof row.image==='string'?row.image:null};
  });
  return {items,complete:items.length===3};
 }
@@ -33,7 +35,9 @@ export async function collectShoppingAds(keyword){
    const image=Array.from(card.querySelectorAll('img')).find(img=>img.alt);
    const price=card.querySelector('[class*="price_num"] em');
    const mall=card.querySelector('a[data-shp-area$=".mall"]');
-   return {ad,title:title?.textContent||'',mall:mall?.textContent||'',price:price?Number(price.textContent.replaceAll(',','')):null,image:image?.getAttribute('src')||null};
+   const text=s=>card.querySelector(s)?.textContent.trim()||'';
+   const number=s=>{const t=text(s).replace(/[^0-9]/g,'');return t?Number(t):null;};
+   return {rating:text('[class*="adProduct_rating"]')?Number(text('[class*="adProduct_rating"]')):null,reviewCount:text('[class*="adProduct_review"] em'),wishCount:text('[class*="adProduct_btn_zzim"] em'),originalPrice:number('[class*="price_org_price"]'),couponPrice:number('[class*="price_discount_price__"]'),promotion:text('[class*="adProduct_brand_message"]')||text('[class*="adProduct_membership_message"]'),shipping:[text('[class*="price_delivery_fee"]'),text('[class*="adProduct_delivery_area"]')].filter(Boolean).join(' · '),category:Array.from(card.querySelectorAll('[class*="adProduct_depth"] a')).map(x=>x.textContent).join(' > '),specifications:Array.from(card.querySelectorAll('[class*="adProduct_detail_box"] a')).map(x=>x.textContent).join(' · ').slice(0,1500),registeredAt:text('[class*="adProduct_etc_box"]').match(/등록일\s*(\d{4}\.\d{2}\.)/)?.[1]||'',ad,title:title?.textContent||'',mall:mall?.textContent||'',price:price?Number(price.textContent.replaceAll(',','')):null,image:image?.getAttribute('src')||null};
   }));
   const result=normalizeObservedAds(rows);
   if(new URL(page.url()).origin!==url.origin||new URL(page.url()).pathname!==url.pathname)throw Error('SHOPPING_PAGE_CHANGED');
