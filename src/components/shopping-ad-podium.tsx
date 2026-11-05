@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useState} from 'react';
-import {ImageOff,RefreshCw,ExternalLink} from 'lucide-react';
+import {ImageOff,RefreshCw,ExternalLink,Star} from 'lucide-react';
 import observations from '@/data/shopping-ad-observations.json';
 import {shoppingSearchUrl,validateShoppingAdSnapshot,type ShoppingAdSnapshot} from '@/lib/shopping-ad-snapshot';
 
@@ -8,7 +8,7 @@ export function ShoppingAdPodium({keyword}:{keyword:string}){
  const [result,setResult]=useState<{keyword:string;snapshot:ShoppingAdSnapshot|null;archived:boolean;notice:string}|null>(null);
  const [busy,setBusy]=useState(true);const [attempt,setAttempt]=useState(0);
  useEffect(()=>{
-  let active=true;const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),12000);
+  let active=true;const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),45000);
   setBusy(true);setResult(null);
   void(async()=>{
    let snapshot:ShoppingAdSnapshot|null=null;let archived=false;let notice='';
@@ -32,11 +32,11 @@ export function ShoppingAdPodium({keyword}:{keyword:string}){
    <div className="mp-ad-list-heading">광고 상품 · 상위 3개</div>
    <ol className="mp-ad-products">{[1,2,3].map(rank=>{const item=snapshot?.items.find(row=>row.rank===rank);return <li key={rank}>
     <div className="mp-ad-image"><span className="mp-ad-place">광고 {rank}위</span>{item?.image?<img src={item.image} alt={item.title} referrerPolicy="no-referrer" onError={e=>{e.currentTarget.style.display='none';}}/>:<ImageOff size={30} aria-label="상품 이미지 없음"/>}</div>
-    <div className="mp-ad-summary">{item?<><h5>{item.title}</h5><div className="mp-ad-price"><span>광고</span><strong>{item.price===null?'가격 확인 필요':`${item.price.toLocaleString('ko-KR')}원`}</strong></div><a href={shoppingSearchUrl(item.title)} target="_blank" rel="noopener noreferrer">상품 검색<ExternalLink size={12}/></a></>:<div className="mp-ad-empty"><h5>{busy?'광고 상품 확인 중':snapshot?.complete&&snapshot.items.length===0?'노출된 광고 없음':'확인 자료 없음'}</h5><p>{busy?'잠시만 기다려 주세요.':'자료를 확인하면 상품명과 가격이 여기에 나와요.'}</p></div>}</div>
+    <div className="mp-ad-summary">{item?<>{item.promotion&&<p className="mp-ad-promotion">{item.promotion}</p>}<h5>{item.title}</h5>{item.originalPrice!=null&&<del className="mp-ad-original">{item.originalPrice.toLocaleString('ko-KR')}원</del>}<div className="mp-ad-price"><span>광고</span><strong>{item.price===null?'가격 확인 필요':`${item.price.toLocaleString('ko-KR')}원`}</strong></div>{item.couponPrice!=null&&<p className="mp-ad-coupon">{item.couponPrice.toLocaleString('ko-KR')}원 <small>쿠폰할인가</small></p>}{item.shipping&&<p className="mp-ad-shipping">{item.shipping}</p>}{item.category&&<p className="mp-ad-category">{item.category}</p>}{item.specifications&&<p className="mp-ad-specs">{item.specifications}</p>}<div className="mp-ad-reviews">{item.rating!=null?<span><Star size={12} fill="currentColor"/> 별점 {item.rating.toLocaleString('ko-KR',{maximumFractionDigits:2})}</span>:<span>별점 정보 없음</span>}{item.reviewCount?<span>리뷰 {item.reviewCount}</span>:<span>리뷰 수 정보 없음</span>}{item.wishCount&&<span>찜 {item.wishCount}</span>}{item.registeredAt&&<span>등록일 {item.registeredAt}</span>}</div><a href={shoppingSearchUrl(item.title)} target="_blank" rel="noopener noreferrer">상품 검색<ExternalLink size={12}/></a></>:<div className="mp-ad-empty"><h5>{busy?'광고 상품 확인 중':snapshot?.complete&&snapshot.items.length===0?'노출된 광고 없음':'확인 자료 없음'}</h5><p>{busy?'잠시만 기다려 주세요.':'자료를 확인하면 상품명과 가격이 여기에 나와요.'}</p></div>}</div>
     <div className="mp-ad-seller"><span>판매처</span><p>{item?.mall||'판매처 정보 없음'}</p></div>
    </li>;})}</ol>
   </div></div>
-  {state?.notice&&<p className="mp-ad-notice">{state.notice}{state.archived?' 위 상품은 표시된 시각에 직접 확인한 기록이에요. 지금 순위와 다를 수 있어요.':' 현재 광고 상품을 확인하려면 네이버 쇼핑을 열어보세요.'}</p>}
-  <div className="mp-ad-foot"><p>확인한 화면의 광고 노출 순서예요. 위 예상 입찰가와는 별도 기록이에요. 시간·기기·검색 조건에 따라 달라져요. 가격은 쿠폰·배송비에 따라 달라질 수 있어요.</p><a href={shoppingSearchUrl(keyword)} target="_blank" rel="noopener noreferrer">네이버 쇼핑 열기<ExternalLink size={13}/></a></div>
+  <p className="mp-ad-notice">위 상품과 순위·가격은 조회 시간에 따라 변동될 수 있어요.{state?.archived?' 표시된 시각에 저장한 자료예요.':''}{state?.notice&&!snapshot?' 현재 자료를 불러오지 못했어요. 네이버 쇼핑에서 확인해 주세요.':''}</p>
+  <div className="mp-ad-foot"><p>위 예상 입찰가와는 별도 자료예요. 쿠폰·배송 조건에 따라 가격이 달라져요.</p><a href={shoppingSearchUrl(keyword)} target="_blank" rel="noopener noreferrer">지금 바로 네이버쇼핑보러가기<ExternalLink size={18}/></a></div>
  </section>;
 }
