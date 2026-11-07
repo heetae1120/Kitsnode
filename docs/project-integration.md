@@ -72,7 +72,7 @@
 ## 공통 상단바 편집 영역
 
 - 편집할 페이지의 `공통 상단바`는 가상 편집 대상이다. 기존 계산기 DOM의 사이트 메뉴와 계산 요약만 보여 주며 각 페이지 편집 미리보기에서는 두 영역을 숨긴다. 실제 방문자 DOM과 표시 여부는 변경하지 않는다.
-- 신규 공통 selector는 `body .tool-topbar` 또는 `body .mp-live-bar` 및 그 자식 경로다. 메뉴 patch는 기존 허용 페이지 경로에 각각 기록하고 계산 요약 patch는 `/tools/`에만 기록하므로 서버 schema와 allowlist는 바뀌지 않는다. JSONB의 객체 순서에 의존하지 않고 양쪽 적용기가 공통 selector를 legacy selector 뒤에 merge한다.
+- 신규 공통 selector는 `body .tool-topbar` 또는 `body .mp-live-bar` 및 그 자식 경로다. 서버는 두 root의 정확한 이름과 ` > tag:nth-of-type(양의 정수)`로 이어지는 생성 경로만 추가 허용한다. 다른 root, selector 목록·형제/임의 후손 선택·속성/pseudo 확장은 허용하지 않는다. 기존 `body > ...`/`body:has(...) > ...` 경로와 페이지·필드·길이·개수 제한, 인증 및 revision 검사는 유지한다. 이 validator 수정은 로컬이며 운영 Edge Function 반영 전까지 공통 영역 저장 오류는 운영에서 해결된 것으로 판단하지 않는다. 메뉴 patch는 기존 허용 페이지 경로에 각각 기록하고 계산 요약 patch는 `/tools/`에만 기록하므로 서버 schema와 allowlist는 바뀌지 않는다. JSONB의 객체 순서에 의존하지 않고 양쪽 적용기가 공통 selector를 legacy selector 뒤에 merge한다.
 - 공통 저장은 신규 공통 selector만 저장하고 일반 페이지 저장은 그 외 selector만 저장한다. 서로의 미저장 수정을 포함하지 않으며 legacy selector와 기존 초안은 보존한다. 공통 수정의 프론트 미리보기는 전체 계산기 화면을 사용해 실제 상단바 표시도 확인한다.
 - 계산 요약의 라벨과 스타일은 수정할 수 있다. 실시간 금액과 상태 안내 문구는 자동 계산/상태를 덮어쓰지 않도록 텍스트 편집에서 제외한다. 공통 화면의 상위 영역 선택도 공통 영역 바깥으로 나가지 않는다.
 

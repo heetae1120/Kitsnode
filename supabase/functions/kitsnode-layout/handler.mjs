@@ -1,9 +1,16 @@
 const allowedPages = new Set(['/tools/','/tools/start/','/tools/rankings/','/tools/seo/','/tools/traffic/','/tools/bidding/','/tools/negative-search/','/tools/keywords/','/tools/survey/','/tools/about/','/tools/market/','/tools/consultation/']);
 const fields = new Set(['text','color','backgroundColor','fontSize','padding','width','left','top','order','hidden']);
 const isObject = x => !!x && typeof x === 'object' && !Array.isArray(x);
+// Common editor paths stay inside these two roots and use only generated child steps.
+const commonSelector = /^body \.(?:tool-topbar|mp-live-bar)(?: > [a-z][a-z0-9-]*:nth-of-type\([1-9][0-9]*\))*$/;
+const validSelector = selector => selector.length <= 2000 && (
+  /^body(?::has\(.+\))* > /.test(selector) ||
+  // Exact match also rejects a trailing line terminator accepted by JavaScript's $.
+  commonSelector.exec(selector)?.[0] === selector
+);
 export function validateLayout(value) {
   if (!isObject(value) || Object.keys(value).length > allowedPages.size) return false;
-  return Object.entries(value).every(([page, entries]) => allowedPages.has(page) && isObject(entries) && Object.keys(entries).length <= 1000 && Object.entries(entries).every(([selector, patch]) => /^body(?::has\(.+\))* > /.test(selector) && selector.length <= 2000 && isObject(patch) && Object.entries(patch).every(([key, val]) => fields.has(key) && (key === 'hidden' ? typeof val === 'boolean' : typeof val === 'string' && val.length <= 4000))));
+  return Object.entries(value).every(([page, entries]) => allowedPages.has(page) && isObject(entries) && Object.keys(entries).length <= 1000 && Object.entries(entries).every(([selector, patch]) => validSelector(selector) && isObject(patch) && Object.entries(patch).every(([key, val]) => fields.has(key) && (key === 'hidden' ? typeof val === 'boolean' : typeof val === 'string' && val.length <= 4000))));
 }
 const authorizedOrigins = new Set(['https://kitsnode-studio-owner.junho960809.chatgpt.site']);
 export function createHandler({ projectUrl, serviceKey, fetchImpl = fetch }) {

@@ -44,3 +44,98 @@ test('publish verifies GitHub permission and does not reveal token', async () =>
   const h=create();const res=await h(request('publish',{method:'POST',headers,body:JSON.stringify({draftRevision:4,publishedRevision:3})}));
   assert.equal(res.status,200); const body=await res.text(); assert.equal(body.includes(token),false); assert.equal(JSON.parse(body).publishedRevision,4);
 });
+
+const commonSample = {
+  '/tools/': {
+    'body .tool-topbar': { backgroundColor: '#112233' },
+    'body .tool-topbar > nav:nth-of-type(1) > a:nth-of-type(2) > span:nth-of-type(1)': { text: '메뉴 예시' },
+    'body .mp-live-bar': { padding: '12px' },
+    'body .mp-live-bar > div:nth-of-type(1) > span:nth-of-type(2)': { text: '요약 예시' },
+  },
+  '/tools/about/': { 'body .tool-topbar > nav:nth-of-type(1)': { hidden: false } },
+};
+
+test('accepts common editor roots and generated descendant paths alongside legacy selectors', () => {
+  assert.equal(validateLayout(commonSample), true);
+  assert.equal(validateLayout({ '/tools/': {
+    ...commonSample['/tools/'],
+    'body:has(#mp-available) > div:nth-of-type(1) > main:nth-of-type(1)': { text: '기존 단계' },
+  } }), true);
+});
+
+test('common selectors cannot escape the two roots or add unsupported selector syntax', () => {
+  const rejected = [
+    'body .other', 'body .tool-topbar-other', 'body .mp-live-bar-other',
+    'body .tool-topbar, body > main', 'body .tool-topbar > a:nth-of-type(1), body',
+    'body .tool-topbar + main:nth-of-type(1)', 'body .mp-live-bar ~ main:nth-of-type(1)',
+    'body .tool-topbar span:nth-of-type(1)', 'body .tool-topbar > *',
+    'body .tool-topbar:has(main)', 'body .tool-topbar > a:nth-of-type(1):has(span)',
+    'body .tool-topbar > a[href]', 'body .tool-topbar > a:nth-of-type(0)',
+    'body .tool-topbar > a:nth-of-type(-1)', 'body .tool-topbar > a:nth-of-type(01)',
+    'body .tool-topbar > a:nth-of-type(2n)', 'body .tool-topbar > a:nth-of-type(1) > ',
+    'body .tool-topbar\n', 'body .mp-live-bar\r', 'body .tool-topbar\u2028',
+  ];
+  for (const selector of rejected) {
+    assert.equal(validateLayout({ '/tools/': { [selector]: { text: 'blocked' } } }), false, selector);
+  }
+});
+
+test('common layout support preserves page, field, value and count limits', () => {
+  const root = 'body .tool-topbar';
+  const layout = (patch: unknown) => ({ '/tools/': { [root]: patch } });
+  assert.equal(validateLayout({ '/admin/': commonSample['/tools/'] }), false);
+  assert.equal(validateLayout(layout({ unknown: 'blocked' })), false);
+  assert.equal(validateLayout(layout({ hidden: 'true' })), false);
+  assert.equal(validateLayout(layout({ text: 'x'.repeat(4001) })), false);
+  assert.equal(validateLayout(layout({ text: 'x'.repeat(4000), hidden: true })), true);
+  const selector = `${root}${' > div:nth-of-type(1)'.repeat(105)}`;
+  assert.ok(selector.length > 2000);
+  assert.equal(validateLayout({ '/tools/': { [selector]: { text: 'blocked' } } }), false);
+  const entries = Object.fromEntries(Array.from({ length: 1001 }, (_, index) => [`${root} > a:nth-of-type(${index + 1})`, { text: 'example' }]));
+  assert.equal(validateLayout({ '/tools/': entries }), false);
+  delete entries[`${root} > a:nth-of-type(1001)`];
+  assert.equal(validateLayout({ '/tools/': entries }), true);
+});
+
+test('public and authorized draft reads accept stored common layouts', async () => {
+  const baseFetch = fakeFetch();
+  const h = createHandler({ projectUrl: 'https://example.supabase.co', serviceKey: 'server-secret', fetchImpl: async (input: string | URL | Request, options?: RequestInit) => {
+    if (String(input).includes('kitsnode_layout_state?')) return Response.json([{ published: commonSample, published_revision: 3, updated_at: 'today', draft: commonSample, draft_revision: 4, draft_base_revision: 3 }]);
+    return baseFetch(input, options);
+  } });
+  const published = await h(request('published'));
+  assert.equal(published.status, 200);
+  const publishedBody = await published.json();
+  assert.deepEqual(publishedBody.changes, commonSample);
+  assert.equal('draft' in publishedBody, false);
+  const draft = await h(request('draft', { headers }));
+  assert.equal(draft.status, 200);
+  assert.deepEqual((await draft.json()).changes, commonSample);
+});
+
+test('common layout saves retain revision conflicts and do not publish implicitly', async () => {
+  const calls: string[] = [];
+  const baseFetch = fakeFetch();
+  const h = createHandler({ projectUrl: 'https://example.supabase.co', serviceKey: 'server-secret', fetchImpl: async (input: string | URL | Request, options?: RequestInit) => {
+    const url = String(input); calls.push(url);
+    if (url.endsWith('/rpc/kitsnode_save_draft')) assert.deepEqual(JSON.parse(String(options?.body)).p_content, commonSample);
+    return baseFetch(input, options);
+  } });
+  const save = (draftRevision: number) => request('save', { method: 'POST', headers, body: JSON.stringify({ draftRevision, publishedRevision: 3, changes: commonSample }) });
+  assert.equal((await h(save(3))).status, 409);
+  assert.equal((await h(save(4))).status, 200);
+  assert.equal(calls.some(url => url.includes('kitsnode_publish_draft')), false);
+});
+
+test('common layout saves still require the authorized origin, token and repository write permission', async () => {
+  const body = JSON.stringify({ draftRevision: 4, publishedRevision: 3, changes: commonSample });
+  const calls: string[] = [];
+  const h = createHandler({ projectUrl: 'https://example.supabase.co', serviceKey: 'server-secret', fetchImpl: async (input: string | URL | Request) => {
+    calls.push(String(input)); return Response.json({ permissions: { push: false } });
+  } });
+  assert.equal((await h(request('save', { method: 'POST', headers: { ...headers, origin: 'https://untrusted.example' }, body }))).status, 403);
+  assert.equal((await h(request('save', { method: 'POST', headers: { origin }, body }))).status, 401);
+  assert.equal(calls.length, 0);
+  assert.equal((await h(request('save', { method: 'POST', headers, body }))).status, 403);
+  assert.deepEqual(calls, ['https://api.github.com/repos/heetae1120/Kitsnode']);
+});
