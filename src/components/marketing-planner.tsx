@@ -1,5 +1,6 @@
 "use client";
-import {useRef,useState,type FormEvent} from 'react';
+import {useEffect,useRef,useState,type FormEvent} from 'react';
+import { useDraftPreviewStage } from '@/lib/draft-preview-stage';
 import {ArrowRight,Check,TriangleAlert} from 'lucide-react';
 import {ToolsHeader} from './tools-header';
 import {FormattedNumberInput} from './formatted-number-input';
@@ -24,6 +25,8 @@ const extras=[
 ] as const;
 type Draft={months:string;name:string;available:string;price:string;cost:string;quantity:string;feePercent:string;logistics:string;packaging:string;returnRate:string;returnHandling:string};
 const empty:Draft={months:'',name:'',available:'',price:'',cost:'',quantity:'',feePercent:'',logistics:'',packaging:'',returnRate:'',returnHandling:''};
+const sampleInput:MarketingPlanInput={price:30000,cost:12000,quantity:100,available:3000000,feePercent:5,logistics:3000,packaging:1000,returns:0,certification:0,fixed:0};
+const previewReport={name:'미리보기 예시',months:3,input:sampleInput,result:marketingPlan(sampleInput),examples:[]};
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
 export function MarketingPlanner(){
  const [draft,setDraft]=useState<Draft>(empty);
@@ -31,6 +34,8 @@ export function MarketingPlanner(){
  const [error,setError]=useState('');
  const [report,setReport]=useState<{name:string;months:number;input:MarketingPlanInput;result:ReturnType<typeof marketingPlan>;examples:string[]}|null>(null);
  const focus=useRef<HTMLElement>(null);
+ const previewStage = useDraftPreviewStage('/tools/');
+ useEffect(()=>{if(previewStage){const n=Number(previewStage);if(n>=3)setReport(previewReport);setStep(n);}},[previewStage]);
  const update=(key:keyof Draft,value:string)=>{setDraft(previous=>({...previous,[key]:value}));setExampleFields(keys=>keys.filter(field=>field!==key));setError('');};
  const basicReady=basics.every(([key])=>draft[key]!==''&&Number.isFinite(Number(draft[key]))&&Number(draft[key])>=0)&&Number(draft.price)>0&&Number.isSafeInteger(Number(draft.quantity))&&Number(draft.quantity)>0;
  const hasBudget=draft.available!=='';
@@ -59,7 +64,7 @@ export function MarketingPlanner(){
    setReport({name:draft.name.trim(),months:Number(draft.months),input,result:marketingPlan(input),examples:[...exampleFields]});move(3);
   }catch(e){setError(e instanceof Error?e.message:'입력값을 확인해 주세요.');}
  }
- return <div className="finance-dashboard mp-shell"><ToolsHeader active="profit"/>
+ return <div className="finance-dashboard mp-shell" data-preview-stage={String(step)}><ToolsHeader active="profit"/>
   {step<3&&<aside className={`mp-live-bar ${live&&live.profit<0?'is-loss':''}`} aria-label="실시간 상품 손익" aria-live="polite"><div className="mp-live-values"><span>판매가<b>{basicReady?money(Number(draft.price)):'—'}</b></span><span>비용 포함 원가<b>{live?money(live.unitCost):'—'}</b></span><span>한 개당 이익 · 홍보 전<b>{live?money(live.profit):'—'}</b></span><span>남는 예산<b className={live&&hasBudget?(live.remaining<0?'mp-negative':live.remaining>0?'mp-positive':'mp-neutral'):'mp-neutral'}>{live&&hasBudget?money(live.remaining):'—'}</b></span></div>{live&&live.profit<0?<p role="alert"><TriangleAlert size={16}/>비용이 더 커요. 한 개 팔 때 {money(-live.profit)} 손해입니다.</p>:<p>{step===2?'비용을 넣으면 바로 계산해요.':'입력하면 이익이 바로 보여요.'}</p>}</aside>}
   <main className="mp-main">{step<3&&<><header className="mp-intro"><h1>내 상품<br/><em>팔아도 되는걸까요?</em></h1><p>가격과 비용을 넣고, 남는 돈을 확인하세요.</p></header><ol className="mp-steps" aria-label="분석 진행 단계">{['상품과 자금','빠뜨린 비용 확인','결과'].map((label,index)=><li key={label} aria-current={step===index+1?'step':undefined}><span>{step>index+1?<Check size={15}/>:`0${index+1}`}</span>{label}</li>)}</ol></>}
    <section ref={focus} tabIndex={-1} className={`mp-workspace ${step>=3?'mp-workspace-report':''}`} aria-label={step>=3?'수익성 평가 보고서':'수익성 분석 입력'}>
