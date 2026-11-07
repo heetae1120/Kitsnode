@@ -24,7 +24,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm test
       - name: Set GitHub Pages path
         env:
           REPOSITORY_NAME: ${{ github.event.repository.name }}
@@ -35,8 +34,28 @@ jobs:
           else
             echo "PAGES_BASE_PATH=/$REPOSITORY_NAME" >> "$GITHUB_ENV"
           fi
-      - name: Build static site
-        run: npm run build
+      - name: Restore Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-pages-next-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-pages-next-${{ hashFiles('package-lock.json') }}-
+      - name: Test and build static site
+        shell: bash
+        run: |
+          npm test &
+          test_pid=$!
+          npm run build &
+          build_pid=$!
+          test_status=0
+          build_status=0
+          wait "$test_pid" || test_status=$?
+          wait "$build_pid" || build_status=$?
+          if (( test_status != 0 || build_status != 0 )); then
+            echo "Test exit code: $test_status; build exit code: $build_status"
+            exit 1
+          fi
         env:
           NEXT_PUBLIC_KEYWORD_API_URL: https://kitsnode.vercel.app/api/keywords
       - run: npm run typecheck
