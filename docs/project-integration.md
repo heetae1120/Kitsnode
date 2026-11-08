@@ -88,3 +88,15 @@
 ## 스토어 점검과 광고 성과 분석 준비 화면
 
 양쪽에 동일한 독립 `/store/` 안내·합성 예시 페이지를 추가했다. 기존 상단바 안내 노드 뒤에 진입 링크만 추가하고, 독립 `storeLinks`를 사용하여 `toolLinks`·편집 목록·발행 allowlist와 백엔드는 유지한다. 신규 페이지는 실제 회원 인증이나 접근 제어 기능이 아니며 계정 연결·개인 실적 수집을 수행하지 않는다. 범위, 지표, 디자인 격리, 실제 제공 전 요건과 검증 제한은 [스토어 회원 영역](store-member-area.md)을 참고한다.
+
+## 공통 어드민 테마 (로컬 준비, 2026-11-08)
+
+- 방문자 레이아웃과 분리된 `kitsnode-admin-theme` Edge Function 및 미적용 `20261108130036_kitsnode_admin_theme.sql`을 준비한다. 기존 `kitsnode-layout`, LayoutChanges, 방문자 runtime은 바꾸지 않는다.
+- 공개 GET root는 `{theme:{font,tokens},revision,updatedAt}`만 반환한다. 테마는 비민감 색상/타이포그래피 override이며 actor, 토큰, 이력은 공개하지 않는다. 미설치/누락/잘못된 저장값은 503이며 저장 성공으로 가장하지 않는다.
+- POST root는 `{expectedRevision,theme}`와 기존 `x-github-token`을 사용한다. 정확한 기존 어드민 origin, `heetae1120/Kitsnode` push 권한, GitHub에서 검증한 actor를 요구한다. 성공 `{status:'ok',theme,revision,updatedAt}`, 충돌 409 `{error:'conflict',revision}`. 충돌 시 최신값을 다시 읽고 사용자가 검토하며 자동 덮어쓰지 않는다.
+- 양쪽 `theme-schema.mjs` 사본을 byte-identical로 유지한다. font는 pretendard/system, 색상은 6자리 hex, 숫자는 token별 범위, 굵기는 100~900의 100 단위다. 임의 CSS/URL·알 수 없는 필드·spacing/radius를 거부한다. 형식 검사와 별도로 POST에서 본문·설명·캡션·주요 버튼·상태의 색상 대비와 입력 경계 대비, 캡션/설명 행 높이를 검사하고 위반은 422 invalid_contrast로 반환한다. GET과 로컬 초안 형식 검사는 대비 검사를 강제하지 않는다. caption 크기는 기존 text-md alias를 유지한다. 적용은 어드민 shell의 `--admin-*` 변수로만 한정한다.
+- SQL RPC는 security invoker, service-role 전용이다. 테이블 RLS를 켜고 anon/authenticated 접근을 revoke한다. 행 잠금 아래 기대 revision 검사·갱신·이력 append를 한 transaction에서 처리한다. service_role에 이력 UPDATE/DELETE/TRUNCATE 권한을 주지 않는다. service role은 서버 환경에서만 사용한다.
+- 운영 migration/함수 배포/JWT gateway 설정 및 어드민 배포는 별도 승인 후 진행한다. 공개 GET과 GitHub 인증 POST를 위해 해당 함수 gateway JWT 검증 해제가 필요하지만 이 작업에서 live 설정을 변경하지 않았다. 기존 허용 origin만 유지하며 로컬 검증은 mock이다. SQL 실제 실행·경쟁 transaction·live CORS는 미검증이다.
+
+
+공통 어드민 테마 최종 로컬 검증: 프론트 저장소 214/214, 어드민 합류 사본 280/280 테스트와 양쪽 격리 build/typecheck 통과. 함수 전용 11개 mock 테스트로 인증·origin·revision·입력/대비·redirect 거부를 검사했으며 SQL은 실행하지 않았다. Chrome 합성 서버에서 단일 저장·409·응답 유실 후 읽기 확인·열린 어드민 탭 반영과 미저장 초안 보존을 확인했다. 기존 layout 함수와 방문자 runtime은 변경하지 않았다. 실제 DB/함수/gateway/CORS/어드민 배포는 별도 승인·검증이 남아 있다.
