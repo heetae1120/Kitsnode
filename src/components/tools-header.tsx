@@ -4,6 +4,7 @@ import { toolLinks, type ToolId } from "@/lib/tool-navigation";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { MenuMotion } from "@/components/menu-motion";
+import { storeLinks } from "@/lib/store-navigation";
 
 const groups = [
   { id: "store", label: "스토어 점검", ids: ["rankings", "seo", "traffic"] },
@@ -83,6 +84,9 @@ export function ToolsHeader({ active }: { active: ToolId }) {
             <div id={`tool-group-${item.id}`} className="tool-subnav" hidden={group !== item.id}>
               <p className="tool-membership-notice" role="status">{item.label}은 회원가입 후 이용할 수 있습니다.</p>
               <small className="tool-membership-note">회원가입·로그인 기능은 준비 중입니다.</small>
+              {item.id === "store" && storeLinks.map(link => (
+                <Link key={link.id} href={link.href} onClick={close}>{link.label}</Link>
+              ))}
             </div>
           </div>
         ))}
