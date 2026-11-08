@@ -160,7 +160,7 @@ export function StoreSurvey() {
 
   if (savedId)
     return (
-      <div className="sv-card sv-done" aria-live="polite">
+      <div className="sv-card sv-done" aria-live="polite" data-analytics-survey data-analytics-step="contact" data-analytics-completed="true">
         <span className="sv-done-mark" aria-hidden>
           <Check size={22} />
         </span>
@@ -177,7 +177,7 @@ export function StoreSurvey() {
 
   const progress = (position + 1) / active.length;
   return (
-    <div className="sv-card" data-preview-stage={`survey-${index}`}>
+    <div className="sv-card" data-preview-stage={`survey-${index}`} data-analytics-survey data-analytics-step={step.id}>
       <div className="sv-progress" aria-hidden>
         <i style={{ transform: `scaleX(${progress})` }} />
       </div>
@@ -224,6 +224,7 @@ export function StoreSurvey() {
             <input
               autoFocus
               maxLength={100}
+              data-analytics-field="categoryOther"
               value={answers.categoryOther}
               onChange={(e) => setAnswers({ ...answers, categoryOther: e.target.value })}
               onKeyDown={(e) => {
@@ -262,6 +263,7 @@ export function StoreSurvey() {
             <textarea
               rows={3}
               maxLength={500}
+              data-analytics-field={step.id}
               value={answers[step.id]}
               placeholder={step.placeholder}
               onChange={(e) => setAnswers({ ...answers, [step.id]: e.target.value })}
@@ -286,6 +288,7 @@ export function StoreSurvey() {
                   autoComplete={auto}
                   maxLength={key === "store" ? 1000 : 100}
                   disabled={busy}
+                  data-analytics-field={key}
                   value={contact[key]}
                   placeholder={placeholder}
                   onChange={(e) => {
