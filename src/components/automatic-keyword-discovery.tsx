@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useState} from 'react';
+import { isDraftPreviewMode } from '@/lib/draft-preview-stage';
 import {formatRange,rowVolume,validateKeywordResponse,type KeywordRow} from '@/lib/naver-keywords';
 import {productKeywordSeed,selectProductKeywords} from '@/lib/product-keywords';
 import {shoppingVolumeReferences,calibrateShoppingVolume,estimateShoppingVolume} from '@/lib/shopping-volume-estimate';
@@ -14,6 +15,7 @@ export function AutomaticKeywordDiscovery({productName,perOrder,budget,quantity,
  const [rows,setRows]=useState<KeywordRow[]>([]);const [sourceRows,setSourceRows]=useState<KeywordRow[]>([]);
  const [busy,setBusy]=useState(true);const [error,setError]=useState('');const [retry,setRetry]=useState(0);const [cvr,setCvr]=useState('');
  useEffect(()=>{
+  if(isDraftPreviewMode()){setBusy(false);setError('편집 미리보기에서는 실제 키워드를 조회하지 않습니다.');return;}
   const controller=new AbortController();let active=true;
   const timeout=setTimeout(()=>{controller.abort();if(active){setBusy(false);setError('키워드 분석 시간이 초과되었습니다. 다시 분석해 주세요.');}},15000);
   setBusy(true);setError('');setRows([]);setSourceRows([]);

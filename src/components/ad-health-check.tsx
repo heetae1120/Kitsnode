@@ -1,5 +1,6 @@
 "use client";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useDraftPreviewStage } from '@/lib/draft-preview-stage';
 import { Activity, ArrowLeft, ArrowRight, CircleHelp, Download, ShieldCheck, Target, TrendingUp, Wallet } from 'lucide-react';
 import { ToolsHeader } from './tools-header';
 import { HealthHero } from './health-hero';
@@ -20,6 +21,8 @@ export function AdHealthCheck(){
   const [stage,setStage]=useState<'intro'|'intake'|'conditions'|'data'|'report'>('intro');
   function navigate(next:typeof stage){setStage(next);requestAnimationFrame(()=>document.getElementById(next==='intake'?'intake':next==='conditions'?'conditions':next==='data'?'store-data':'health-report')?.scrollIntoView({behavior:'smooth'}));}
   const [draft,setDraft]=useState<Draft>(initial);const [goal,setGoal]=useState(initialGoal);const [basis,setBasis]=useState('assumption');const [scope,setScope]=useState('');const reportOpen=stage==='report';const [briefReady,setBriefReady]=useState(false);
+  const previewStage = useDraftPreviewStage('/tools/start/');
+  useEffect(()=>{if(!previewStage)return;if(previewStage.startsWith('intake-')){setStage('intake');return;}if(previewStage==='intro'){setStage('intro');return;}if(previewStage==='conditions'||previewStage==='data'||previewStage==='report'){setAnswers({store:true,ads:false,agency:null,satisfaction:''});setDraft({name:'미리보기 예시',price:'30000',cost:'12000',shipping:'3000',other:'1000',feePercent:'5',cpc:'500',cvrPercent:'3',budget:'1000000'});setStage(previewStage);}},[previewStage]);
   const ready=store!==null&&ads!==null&&(ads===false||(agency!==null&&(!agency||satisfaction!=='')));
   let result:ReturnType<typeof diagnose>|null=null,error='';
   const complete=fields.every(([key])=>draft[key].trim()!=='')&&draft.name.trim()!=='';
@@ -31,7 +34,7 @@ export function AdHealthCheck(){
     basis==='assumption'?'CPC·전환율이 가정값입니다. 소액 검증 후 다시 계산하세요.':!scope.trim()?'실적의 기간·상품·구매완료 전환 정의를 기록해야 비교가 가능합니다.':'현재 자료만으로 체류시간·타깃 적합성·성장 가능성은 확정할 수 없습니다.'
   ]:[];
   function reportText(){return result?['KITS 광고 건강검진 · 입력값 기반 시뮬레이션',`상품: ${draft.name}`,`목표: ${goal.mode==='profit'?'이익 확보':'재고 회전'} / ${goal.days}일 / 목표 ${result.targetOrders}건`,`출처: ${basis==='actual'?'실제 광고 실적':'가정값'} / ${scope||'미기록'}`,`판매가 ${won(input.price)}, 원가 ${won(input.cost)}, 배송비 ${won(input.shipping)}, 기타 ${won(input.other)}, 수수료 ${input.feePercent}%`,`CPC ${won(input.cpc)}, CVR ${num(input.cvrPercent,4)}%, 가용 예산 ${won(input.budget)}`,`목표 필요 광고비 ${won(result.requiredSpend)}, 권장 검증 예산 상한 ${won(result.recommendedBudget)}`,`예상 판매 ${num(result.orders,2)}건 / 예상 광고 기여이익 ${won(result.totalProfit)}`,`ROAS ${num(result.roas)}%, 손익분기 ${num(result.breakEvenRoas)}%`,`허용 CPC ${won(result.maxCpc)}, 목표 ROAS ${num(result.targetRoas)}%`,...problems,'세금·반품·환불·고정비·미입력 비용 제외. 성과를 보장하지 않습니다.'].join('\n'):'';}
-  return <div className="finance-dashboard hc-shell"><ToolsHeader active="start"/><main>
+  return <div className="finance-dashboard hc-shell" data-preview-stage={stage}><ToolsHeader active="start"/><main>
     {stage==='intro'&&<HealthHero/>}
     {stage==='intake'&&<HealthIntake answers={answers} onChange={setAnswers} onComplete={()=>navigate('conditions')}/>}
     {stage==='conditions'&&ads===false&&<HealthCase/>}

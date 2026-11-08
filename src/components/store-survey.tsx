@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useDraftPreviewStage } from '@/lib/draft-preview-stage';
 import Link from "next/link";
 import { ArrowLeft, Check, Loader2 } from "lucide-react";
 import { consultationEndpoint } from "@/lib/consultation-api";
@@ -37,6 +38,8 @@ export function StoreSurvey() {
   const heading = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
 
+  const previewStage = useDraftPreviewStage('/tools/survey/');
+  useEffect(() => { if (previewStage) setIndex(Number(previewStage.slice(7))); }, [previewStage]);
   const active = steps;
   const step = active[Math.min(index, active.length - 1)];
   const position = Math.min(index, active.length - 1);
@@ -174,7 +177,7 @@ export function StoreSurvey() {
 
   const progress = (position + 1) / active.length;
   return (
-    <div className="sv-card">
+    <div className="sv-card" data-preview-stage={`survey-${index}`}>
       <div className="sv-progress" aria-hidden>
         <i style={{ transform: `scaleX(${progress})` }} />
       </div>

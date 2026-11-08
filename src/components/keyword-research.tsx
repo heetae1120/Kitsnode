@@ -1,4 +1,5 @@
 "use client";
+import { useDraftPreviewStage, isDraftPreviewMode } from "@/lib/draft-preview-stage";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
@@ -41,10 +42,13 @@ export function useKeywordResearch(data: KeywordData) {
   const [products, setProducts] = useState<ProductRecord[]>([]);
   const [focus, setFocus] = useState("");
   const [tab, setTab] = useState<"detail" | "compare" | "saved">("detail");
+  const previewStage = useDraftPreviewStage("/tools/keywords/");
+  useEffect(() => { if (previewStage === "detail" || previewStage === "compare" || previewStage === "saved") setTab(previewStage); }, [previewStage]);
   const [notice, setNotice] = useState("");
   const [ready, setReady] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   useEffect(() => {
+    if (isDraftPreviewMode()) { setReady(true); return; }
     try {
       setFavorites(
         restoreSnapshots(
@@ -60,7 +64,7 @@ export function useKeywordResearch(data: KeywordData) {
     setReady(true);
   }, []);
   useEffect(() => {
-    if (ready)
+    if (ready && !isDraftPreviewMode())
       try {
         localStorage.setItem(
           "kits.keyword-favorites",
@@ -323,7 +327,7 @@ export function KeywordResearch({
     );
   return (
     <>
-      <section className="kr-suggestions" aria-labelledby="kr-suggestions-title">
+      <section data-preview-stage={m.tab} className="kr-suggestions" aria-labelledby="kr-suggestions-title">
         <div>
           <h2 id="kr-suggestions-title">함께 검색해 볼 말</h2>
           <p>
