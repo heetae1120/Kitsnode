@@ -17,7 +17,6 @@ export function KitsGlassWorkspace({ children }: { children: ReactNode }) {
       currency="KRW"
       style={warmPalette}
       glass={glass}
-      backgroundImage={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/images/glass-interior.jpg`}
     >
       {children}
     </GlassWorkspace>
