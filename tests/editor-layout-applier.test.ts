@@ -18,6 +18,30 @@ function fixture(original = 'original') {
   return { el, node, style, mutations: () => mutations };
 }
 const changes = (patch: Record<string, unknown>): LayoutChanges => ({ '/tools/': { 'body:has(.stage1) p': patch } });
+test('auth presentation is applied only to a unique allowed leaf', () => {
+  const first = fixture(), second = fixture();
+  let matches = [first.el];
+  const doc = { querySelectorAll: () => matches } as unknown as Document;
+  const applier = createEditorLayoutApplier(doc, '/store/login/');
+  const patch = { '/store/login/': { 'body [data-auth-edit="heading"]': { text: '변경' } } };
+  applier.apply(patch);
+  assert.equal(first.node.data, '변경');
+  matches = [first.el, second.el];
+  applier.apply(patch);
+  assert.equal(first.node.data, 'original');
+  assert.equal(second.node.data, 'original');
+});
+test('auth controls accept styling but never allow text or hidden mutations', () => {
+  const f = fixture('인증 버튼');
+  const doc = { querySelectorAll: () => [f.el] } as unknown as Document;
+  const applier = createEditorLayoutApplier(doc, '/store/login/');
+  const selector = 'body [data-auth-edit="submit-button"]';
+  applier.apply({ '/store/login/': { [selector]: { color: 'red' } } });
+  assert.equal(f.style.getPropertyValue('color'), 'red');
+  applier.apply({ '/store/login/': { [selector]: { text: '위조', hidden: true } } });
+  assert.equal(f.node.data, '인증 버튼');
+  assert.equal(f.style.getPropertyValue('display'), '');
+});
 function setup() {
   const first = fixture();
   let target: HTMLElement | null = first.el;

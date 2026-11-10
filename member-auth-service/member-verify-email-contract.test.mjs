@@ -1,0 +1,41 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {PGlite} from '@electric-sql/pglite';
+import {createPostgresMemberApp} from './app.mjs';
+const origin='https://front.example.test', authOrigin='https://auth.example.test';
+const documents=[{type:'terms',version:'t1',text:'terms'},{type:'privacy',version:'p1',text:'privacy'}];
+const callback=origin+'/store/login/';
+const request=(body={},headers={origin,'content-type':'application/json'})=>new Request(authOrigin+'/api/member/verify-email',{method:'POST',headers,body:JSON.stringify(body)});
+test('session verification uses only server identity and enforces request and account gates',async()=>{
+ const db=new PGlite();let user=null,allowed=true,sendCount=0,upstreamOK=true,forwarded;
+ try {
+  await db.exec(`CREATE SCHEMA member_auth_support;
+   CREATE TABLE member_auth_support.document_versions(document_type text,version text,body text,digest text,PRIMARY KEY(document_type,version));
+   CREATE TABLE member_auth_support.document_current(document_type text PRIMARY KEY,version text);
+   CREATE TABLE member_auth_support.document_consents(user_id text,document_type text,version text,accepted_at timestamptz DEFAULT now(),PRIMARY KEY(user_id,document_type,version));
+   INSERT INTO member_auth_support.document_current VALUES ('terms','t1'),('privacy','p1');`);
+  const pool={query:(...a)=>db.query(...a),connect:async()=>({query:(...a)=>db.query(...a),release(){}})};
+  const auth={api:{getSession:async()=>user&&({user})},handler:async req=>{sendCount++;forwarded={url:req.url,body:await req.json()};return Response.json({ok:upstreamOK},{status:upstreamOK?200:500});}};
+  const app=await createPostgresMemberApp({auth,pool,documents,allowedOrigins:[origin],naverCallbackURLs:[callback],emailAvailable:true,naverIdentityLookup:async()=>false,accountLimit:async()=>allowed});
+  const session=async()=> (await app(new Request(authOrigin+'/api/member/session',{headers:{origin}}))).json();
+  let state=await session();assert.equal(state.emailVerified,false);assert.equal(state.emailVerificationAvailable,true);
+  assert.equal((await app(request())).status,401);assert.equal(sendCount,0);
+  user={id:'member-1',email:'owner@example.test',emailVerified:false};
+  assert.equal((await app(request({email:'attacker@example.test'}))).status,400,'caller may not choose recipient');
+  assert.equal((await app(request({}, {origin:'https://attacker.example.test','content-type':'application/json'}))).status,403);
+  assert.notEqual((await app(request({}, {origin,'content-type':'text/plain'}))).status,200);
+  assert.equal(sendCount,0);
+  allowed=false;assert.equal((await app(request())).status,429);assert.equal(sendCount,0);allowed=true;
+  assert.equal((await app(request())).status,200);assert.equal(sendCount,1);
+  assert.equal(new URL(forwarded.url).pathname,'/api/auth/send-verification-email');
+  assert.deepEqual(forwarded.body,{email:'owner@example.test',callbackURL:callback});
+  upstreamOK=false;assert.equal((await app(request())).status,503);assert.equal(sendCount,2);
+  user.emailVerified=true;assert.equal((await app(request())).status,200);assert.equal(sendCount,2,'verified accounts do not resend');
+  state=await session();assert.equal(state.emailVerified,true);
+  user.emailVerified=false;
+  const noLimiter=await createPostgresMemberApp({auth,pool,documents,allowedOrigins:[origin],naverCallbackURLs:[callback],emailAvailable:true,naverIdentityLookup:async()=>false});
+  const noLimiterState=await (await noLimiter(new Request(authOrigin+'/api/member/session',{headers:{origin}}))).json();
+  assert.equal(noLimiterState.emailVerificationAvailable,false);
+  assert.equal((await noLimiter(request())).status,503);assert.equal(sendCount,2,'missing account limiter must fail closed');
+ } finally {await db.close();}
+});

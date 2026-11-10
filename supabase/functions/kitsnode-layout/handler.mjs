@@ -1,4 +1,9 @@
 const allowedPages = new Set(['/tools/','/tools/start/','/tools/rankings/','/tools/seo/','/tools/traffic/','/tools/bidding/','/tools/negative-search/','/tools/keywords/','/tools/survey/','/tools/about/','/tools/market/','/tools/consultation/']);
+const authPages = new Set(['/store/login/', '/store/signup/']);
+const authSelectors = new Set(['body [data-auth-edit="heading"]', 'body [data-auth-edit="description"]']);
+const authControls = new Set(['body [data-auth-edit="email-input"]', 'body [data-auth-edit="password-input"]', 'body [data-auth-edit="submit-button"]', 'body [data-auth-edit="naver-button"]']);
+const authFields = new Set(['text', 'color', 'backgroundColor', 'fontSize', 'padding']);
+const authControlFields = new Set(['color', 'backgroundColor', 'fontSize', 'padding']);
 const fields = new Set(['text','color','backgroundColor','fontSize','padding','width','left','top','order','hidden']);
 const isObject = x => !!x && typeof x === 'object' && !Array.isArray(x);
 // Common editor paths stay inside these two roots and use only generated child steps.
@@ -9,8 +14,12 @@ const validSelector = selector => selector.length <= 2000 && (
   commonSelector.exec(selector)?.[0] === selector
 );
 export function validateLayout(value) {
-  if (!isObject(value) || Object.keys(value).length > allowedPages.size) return false;
-  return Object.entries(value).every(([page, entries]) => allowedPages.has(page) && isObject(entries) && Object.keys(entries).length <= 1000 && Object.entries(entries).every(([selector, patch]) => validSelector(selector) && isObject(patch) && Object.entries(patch).every(([key, val]) => fields.has(key) && (key === 'hidden' ? typeof val === 'boolean' : typeof val === 'string' && val.length <= 4000))));
+  if (!isObject(value) || Object.keys(value).length > allowedPages.size + authPages.size) return false;
+  return Object.entries(value).every(([page, entries]) => {
+    if (!isObject(entries)) return false;
+    if (authPages.has(page)) return Object.keys(entries).length <= authSelectors.size + authControls.size && Object.entries(entries).every(([selector, patch]) => (authSelectors.has(selector) || authControls.has(selector)) && isObject(patch) && Object.entries(patch).every(([key, val]) => (authControls.has(selector) ? authControlFields : authFields).has(key) && typeof val === 'string' && val.length <= 4000));
+    return allowedPages.has(page) && Object.keys(entries).length <= 1000 && Object.entries(entries).every(([selector, patch]) => validSelector(selector) && isObject(patch) && Object.entries(patch).every(([key, val]) => fields.has(key) && (key === 'hidden' ? typeof val === 'boolean' : typeof val === 'string' && val.length <= 4000)));
+  });
 }
 const authorizedOrigins = new Set(['https://kitsnode-studio-owner.junho960809.chatgpt.site']);
 export function createHandler({ projectUrl, serviceKey, fetchImpl = fetch }) {

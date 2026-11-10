@@ -1,0 +1,23 @@
+{
+  "name": "member-auth-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test *.test.mjs",
+    "start": "node server.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "better-auth": "1.7.18",
+    "nodemailer": "10.4.0",
+    "pg": "8.16.3"
+  },
+  "private": true,
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.15"
+  }
+}

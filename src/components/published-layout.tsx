@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import published from "@/data/published-layout.json";
 import type { LayoutChanges } from "@/lib/layout-edits";
+import { isAuthLayoutPage } from "@/lib/layout-edits";
 import { createEditorLayoutApplier } from "@/lib/editor-layout-applier";
 import { FAST_LAYOUT_CACHE, FAST_LAYOUT_URL, isLayoutChanges } from "@/lib/fast-layout";
 
@@ -12,7 +13,7 @@ export function PublishedLayout() {
     const query = new URLSearchParams(window.location.search);
     if (query.has("kits_editor") || query.has("kits_preview")) return;
     const page = pathname.endsWith("/") ? pathname : `${pathname}/`;
-    if (!page.startsWith('/tools/')) return;
+    if (!page.startsWith('/tools/') && !isAuthLayoutPage(page)) return;
     let current: LayoutChanges = published as LayoutChanges;
     let cancelled = false, pending = false;
     const applier = createEditorLayoutApplier(document, page);

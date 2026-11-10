@@ -2,12 +2,14 @@ import { isLayoutChanges } from './fast-layout';
 import type { LayoutChanges } from './layout-edits';
 
 export const PREVIEW_PROTOCOL = 'kitsnode-draft-preview-v2';
-export const PREVIEW_PAGES = ['/tools/', '/tools/start/', '/tools/rankings/', '/tools/seo/', '/tools/traffic/', '/tools/bidding/', '/tools/negative-search/', '/tools/keywords/', '/tools/survey/', '/tools/about/', '/tools/market/', '/tools/consultation/'] as const;
+export const PREVIEW_PAGES = ['/tools/', '/tools/start/', '/tools/rankings/', '/tools/seo/', '/tools/traffic/', '/tools/bidding/', '/tools/negative-search/', '/tools/keywords/', '/tools/survey/', '/tools/about/', '/tools/market/', '/tools/consultation/', '/store/login/', '/store/signup/'] as const;
 export const PREVIEW_STAGES: Record<string, readonly string[]> = {
   '/tools/': ['1', '2', '3', '4'],
   '/tools/start/': ['intro', 'intake-store', 'intake-ads', 'intake-agency', 'intake-consulting', 'intake-contact', 'intake-ad-example', 'intake-agency-check', 'conditions', 'data', 'report'],
   '/tools/survey/': ['survey-0', 'survey-1', 'survey-2', 'survey-3', 'survey-4', 'survey-5', 'survey-6', 'survey-7'],
   '/tools/keywords/': ['detail', 'compare', 'saved'],
+  '/store/login/': ['default', 'error', 'verification', 'authenticated', 'consent'],
+  '/store/signup/': ['default', 'error', 'verification', 'authenticated', 'consent'],
 };
 export function validPreviewStage(page: string, stage: unknown): stage is string | undefined {
   return stage === undefined || (typeof stage === 'string' && (PREVIEW_STAGES[page] || []).includes(stage));

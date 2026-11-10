@@ -58,6 +58,8 @@ jobs:
           fi
         env:
           NEXT_PUBLIC_KEYWORD_API_URL: https://kitsnode.vercel.app/api/keywords
+          # Public authentication origin only; leave unset while the service is not ready.
+          NEXT_PUBLIC_MEMBER_AUTH_URL: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_URL }}
       - run: npm run typecheck
       - uses: actions/upload-pages-artifact@v3
         with:

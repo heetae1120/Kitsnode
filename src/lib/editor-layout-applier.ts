@@ -1,4 +1,4 @@
-import { getEditableTextNode, orderedLayoutEntries, type LayoutChanges, type LayoutPatch } from './layout-edits';
+import { getEditableTextNode, isAuthLayoutPage, validAuthLayoutPatch, orderedLayoutEntries, type LayoutChanges, type LayoutPatch } from './layout-edits';
 
 type StyleState = { value: string; priority: string; applied: string; requested: string };
 type Applied = {
@@ -38,7 +38,9 @@ export function createEditorLayoutApplier(doc: Document, page: string) {
       const desired = new Map<HTMLElement, LayoutPatch>();
       for (const [selector, patch] of orderedLayoutEntries(changes[page] || {})) {
         try {
-          const el = doc.querySelector<HTMLElement>(selector);
+          if (isAuthLayoutPage(page) && !validAuthLayoutPatch(selector, patch)) continue;
+          const matches = isAuthLayoutPage(page) ? doc.querySelectorAll<HTMLElement>(selector) : null;
+          const el = matches ? (matches.length === 1 ? matches[0] : null) : doc.querySelector<HTMLElement>(selector);
           if (el) desired.set(el, { ...desired.get(el), ...patch });
         } catch { /* Older invalid selectors remain harmless. */ }
       }

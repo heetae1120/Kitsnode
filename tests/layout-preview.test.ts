@@ -1,6 +1,40 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PREVIEW_PROTOCOL, isPreviewMessage, previewOrigins, previewUrl, validPreviewSnapshot, startFrontendPreview, validPreviewStage, detectPreviewStage } from '../src/lib/layout-preview';
+import { isLayoutChanges } from '../src/lib/fast-layout';
+
+test('auth layout allows safe text and protected controls only with presentation fields', () => {
+  const page = '/store/login/';
+  const selector = 'body [data-auth-edit="heading"]';
+  assert.equal(isLayoutChanges({ [page]: { [selector]: { text: '로그인', color: '#222' } } }), true);
+  assert.equal(validPreviewSnapshot(page, { [page]: { [selector]: { text: '로그인' } } }), true);
+  assert.equal(isLayoutChanges({ [page]: { [selector]: { hidden: true } } }), false);
+  assert.equal(isLayoutChanges({ [page]: { 'body button': { text: '변경' } } }), false);
+  assert.equal(isLayoutChanges({ '/store/ads/': { [selector]: { text: '변경' } } }), false);
+  for (const name of ['email-input','password-input','submit-button','naver-button']) {
+    const control = `body [data-auth-edit="${name}"]`;
+    assert.equal(isLayoutChanges({ [page]: { [control]: { color: '#222', padding: '8px' } } }), true);
+    for (const patch of [{text:'가짜'}, {hidden:true}, {width:'1px'}, {left:'4px'}, {fontSize:12}]) assert.equal(isLayoutChanges({ [page]: { [control]: patch } }), false);
+  }
+});
+test('both account preview pages reject protected controls and unrelated page snapshots', () => {
+  const safe = 'body [data-auth-edit="description"]';
+  for (const page of ['/store/login/', '/store/signup/']) {
+    const other = page === '/store/login/' ? '/store/signup/' : '/store/login/';
+    assert.equal(validPreviewSnapshot(page, { [page]: { [safe]: { text: '안내', padding: '8px' } } }), true);
+    for (const patch of [{ hidden: true }, { width: '0px' }, { left: '-9999px' }, { order: '1' }]) {
+      assert.equal(validPreviewSnapshot(page, { [page]: { [safe]: patch } }), false);
+    }
+    for (const selector of ['body input', 'body button', `${safe}, body input`, 'body [data-auth-edit="password"]']) {
+      assert.equal(validPreviewSnapshot(page, { [page]: { [selector]: { text: '변경' } } }), false);
+    }
+    assert.equal(validPreviewSnapshot(page, { [page]: {}, [other]: {} }), false);
+    assert.equal(validPreviewSnapshot(page, { [other]: {} }), false);
+    assert.equal(validPreviewStage(page, 'complete'), false);
+    for (const stage of ['default','error','verification','authenticated','consent']) assert.equal(validPreviewStage(page, stage), true);
+    assert.equal(previewUrl('https://example.test/Kitsnode', page, 'a'.repeat(32)).pathname, `/Kitsnode${page}`);
+  }
+});
 const session = 'a'.repeat(32);
 const changes = { '/tools/': { 'body > main > h1': { text: '합성 초안' } } };
 test('preview URL preserves frontend base path but carries no draft or unrelated query', () => {
@@ -79,6 +113,41 @@ test('handshake rejects wrong origin/source/session; sends only clicked-page sna
     fakeWindow.open = () => null as unknown as typeof popup;
     startFrontendPreview({ page: '/tools/', changes, frontendUrl: 'http://localhost:3100', onStatus: status => statuses.push(status) });
     assert.equal(statuses.at(-1), 'blocked'); assert.equal(timers.size, 0);
+  } finally {
+    if (previous) Object.defineProperty(globalThis, 'window', previous); else Reflect.deleteProperty(globalThis, 'window');
+  }
+});
+
+test('member preview sender transmits only selected page, style and each allowed stage', () => {
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'window');
+  let listener: ((event: MessageEvent) => void) | undefined;
+  let target = '';
+  const posts: {data: Record<string, unknown>; origin: string}[] = [];
+  const popup = { closed: false, close() { this.closed = true; }, postMessage(data: Record<string, unknown>, origin: string) { posts.push({data, origin}); } };
+  const fakeWindow = {
+    open(url: string) { target = url; popup.closed = false; return popup; },
+    addEventListener(_type: string, callback: typeof listener) { listener = callback; },
+    removeEventListener() { listener = undefined; },
+    setTimeout() { return 1; }, clearTimeout() {}, setInterval() { return 2; }, clearInterval() {},
+  };
+  Object.defineProperty(globalThis, 'window', {configurable: true, value: fakeWindow});
+  try {
+    for (const page of ['/store/login/', '/store/signup/']) {
+      const other = page === '/store/login/' ? '/store/signup/' : '/store/login/';
+      const selected = { 'body [data-auth-edit="email-input"]': { backgroundColor:'#eef1f8', fontSize:'17px' }, 'body [data-auth-edit="naver-button"]': { padding:'8px' } };
+      for (const stage of ['default', 'error', 'verification', 'authenticated', 'consent']) {
+        posts.length = 0;
+        const control = startFrontendPreview({ page, stage, changes: { [page]:selected, [other]:{'body [data-auth-edit="heading"]':{text:'별도 초안'}} }, frontendUrl:'http://localhost:3100', onStatus: () => {} });
+        const nonce = new URL(target).searchParams.get('kits_preview_session');
+        listener?.({origin:'http://localhost:3100',source:popup,data:{protocol:PREVIEW_PROTOCOL,session:nonce,type:'ready'}} as unknown as MessageEvent);
+        assert.equal(posts.length, 1);
+        assert.equal(posts[0].origin, 'http://localhost:3100');
+        assert.equal(posts[0].data.stage, stage);
+        assert.deepEqual(posts[0].data.changes, { [page]:selected });
+        assert.equal(new URL(target).searchParams.has('stage'), false);
+        control.close();
+      }
+    }
   } finally {
     if (previous) Object.defineProperty(globalThis, 'window', previous); else Reflect.deleteProperty(globalThis, 'window');
   }

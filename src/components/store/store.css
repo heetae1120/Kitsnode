@@ -68,6 +68,15 @@
 .store-theme .store-account-card { max-width:740px; }
 .store-theme .store-account-card > .store-icon { margin-bottom:20px; }
 .store-theme .store-account-card > .store-button { margin-top:24px; }
+.store-theme .store-auth-form { display:grid; gap:10px; margin-top:20px; max-width:420px; }
+.store-theme .store-auth-form label { margin-top:8px; font-size:14px; font-weight:600; }
+.store-theme .store-auth-form input:not([type=checkbox]) { width:100%; min-height:48px; border:1px solid var(--store-control-border); border-radius:var(--store-radius-control); background:var(--store-surface); color:var(--store-text); padding:10px 12px; font:inherit; }
+.store-theme .store-auth-form input:focus-visible,.store-theme .store-auth-check input:focus-visible,.store-theme .store-auth-terms-copy:focus-visible { outline:3px solid var(--store-focus); outline-offset:3px; }
+.store-theme .store-auth-form .store-button { margin-top:6px; width:100%; }
+.store-theme .store-auth-terms { display:grid; gap:14px; margin:20px 0; max-width:560px; }
+.store-theme .store-auth-terms p { color:var(--store-text-secondary); line-height:1.6; }
+.store-theme .store-auth-terms-copy { max-height:220px; overflow:auto; padding:16px; white-space:pre-wrap; overflow-wrap:anywhere; border:1px solid var(--store-divider); border-radius:var(--store-radius-control); line-height:1.6; }
+.store-theme .store-auth-check { display:flex; align-items:center; gap:10px; min-height:44px; }
 .store-theme .store-example-banner { padding:20px 24px; border:1px solid var(--store-border); background:var(--store-warning-soft); border-radius:16px; }
 .store-theme .store-example-banner p { margin-top:8px; font-size:14px; color:var(--store-text-secondary); }
 .store-theme .store-filters { display:flex; gap:20px; flex-wrap:wrap; margin-top:20px; }

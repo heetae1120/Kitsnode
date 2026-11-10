@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, CircleUserRound, LockKeyhole, Package, PlugZap } from "lucide-react";
 import { StoreBadge, StoreButton, StoreCard, StoreHeading } from "./store-ui";
+import { MemberAccount } from "./member-account";
 
 export function MemberPreparation() {
   return <StoreCard className="store-access" aria-labelledby="member-access-title"><div className="store-icon"><LockKeyhole aria-hidden="true" size={22} /></div><div><StoreBadge tone="warning">회원 기능 준비 중</StoreBadge><h2 id="member-access-title">내 성과 확인은 로그인부터</h2><p>회원가입·로그인 후 광고 계정을 별도로 연결하는 흐름입니다. 지금은 인증 서버가 연결되지 않아 가입, 로그인, 개인 실적 조회를 시작할 수 없습니다.</p><div className="store-actions"><Link className="store-button" href="/store/login/">로그인 안내</Link><Link className="store-button store-button--secondary" href="/store/signup/">회원가입 안내</Link></div></div></StoreCard>;
@@ -19,7 +20,7 @@ export function StoreConnection() {
 }
 export function StoreAccount({ mode }: { mode: "login" | "signup" }) {
   const signup = mode === "signup";
-  return <><StoreHeading title={signup ? "회원가입" : "로그인"} description="내 스토어 데이터를 위한 회원 영역을 준비하고 있어요." /><StoreCard className="store-account-card" aria-labelledby="account-title"><div className="store-icon"><LockKeyhole size={24} aria-hidden="true" /></div><StoreBadge tone="warning">회원 인증 준비 중</StoreBadge><h2 id="account-title">아직 {signup ? "회원가입할" : "로그인할"} 수 없어요</h2><p>이메일·비밀번호를 안전하게 처리할 회원 인증 서버가 연결되지 않았습니다. 현재 이 화면은 개인정보를 입력받거나 계정을 만들지 않습니다.</p><StoreButton disabled aria-describedby="account-unavailable">{signup ? "회원가입" : "로그인"} · 준비 중</StoreButton><p id="account-unavailable" className="store-caption">아래 예시 화면은 로그인 없이 볼 수 있는 공개 합성 예시입니다. 회원 로그인으로 처리되지 않습니다.</p><div className="store-actions"><Link className="store-button store-button--secondary" href="/store/ads/example/">합성 예시 분석 보기</Link><Link className="store-text-link" href={signup ? "/store/login/" : "/store/signup/"}>{signup ? "로그인 안내" : "회원가입 안내"}</Link></div></StoreCard><Link className="store-text-link" href="/store/ads/">광고 성과 분석으로 돌아가기</Link></>;
+  return <><div className="store-heading"><p className="store-eyebrow">KITSNODE / 스토어 점검</p><h1 data-auth-edit="heading">{signup ? "회원가입" : "로그인"}</h1><p data-auth-edit="description">내 스토어 데이터를 위한 회원 영역을 준비하고 있어요.</p></div><MemberAccount mode={mode} /><Link className="store-text-link" href="/store/ads/">광고 성과 분석으로 돌아가기</Link></>;
 }
 export function StoreSales() {
   return <><StoreHeading title="상품·판매 분석" description="상품별 판매와 주문 흐름을 확인할 다음 영역이에요." /><StoreCard aria-labelledby="sales-title"><StoreBadge tone="warning">추후 제공 예정</StoreBadge><h2 id="sales-title">스마트스토어 주문 연결을 준비하고 있어요</h2><p>지금은 주문이나 상품 데이터를 연결하지 않습니다. 광고 구매전환과 스토어 전체 주문은 서로 다른 집계이므로 하나의 실적으로 섞지 않아요.</p><ul className="store-list"><li>상품별 주문·매출 집계</li><li>취소·반품을 구분한 판매 흐름</li><li>조회 기간과 집계 기준 확인</li></ul><StoreButton disabled>스마트스토어 연결 · 준비 중</StoreButton><p className="store-caption">구체적인 제공 범위와 연결 방식은 별도 검토가 필요합니다.</p></StoreCard><Link className="store-text-link" href="/store/ads/">먼저 광고 성과 분석 보기 <ArrowRight size={16} aria-hidden="true" /></Link></>;

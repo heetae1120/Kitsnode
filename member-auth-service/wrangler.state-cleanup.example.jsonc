@@ -1,0 +1,10 @@
+{
+  // Review-only; deployment requires a distinct maintenance Hyperdrive binding.
+  "name": "kitsnode-state-cleanup-review",
+  "main": "./state-cleanup-worker.mjs",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "vars": {"MEMBER_STATE_CLEANUP_ENABLED": "0"},
+  "triggers": {"crons": ["0 18 * * *"]}
+}

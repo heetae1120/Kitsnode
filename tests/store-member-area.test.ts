@@ -61,13 +61,12 @@ test("header adds store links after the original notice nodes without changing t
   assert.ok(source.indexOf('className="tool-membership-note"') < source.indexOf("storeLinks.map"));
   assert.match(source, /item.id === "store" && storeLinks.map/);
 });
-test("member pages cannot accept credentials or fabricate authentication", () => {
+test("advertising preparation does not collect credentials or fabricate results", () => {
   const pages = readFileSync("src/components/store/store-pages.tsx", "utf8");
   for (const file of ["store-pages.tsx", "store-shell.tsx", "store-example-report.tsx"]) {
     const source = readFileSync("src/components/store/" + file, "utf8");
     assert.doesNotMatch(source, /fetch\(|localStorage|sessionStorage|access_token|<form|type="password"/);
   }
-  assert.match(pages, /StoreButton disabled aria-describedby="account-unavailable"/);
   assert.match(pages, /StoreButton disabled aria-describedby="connection-unavailable"/);
   assert.match(pages, /href="\/store\/ads\/example\/"/);
   assert.match(pages, /<dd>—<span>/);

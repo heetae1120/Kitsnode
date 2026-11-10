@@ -4,6 +4,28 @@ import { createHandler, validateLayout } from '../supabase/functions/kitsnode-la
 const origin = 'https://kitsnode-studio-owner.junho960809.chatgpt.site';
 const token = 'ghp_abcdefghijklmnopqrstuvwxyz1234567890';
 const sample = {'/tools/': {'body > div:nth-of-type(1)': {text:'수정된 문구',color:'#112233'}}};
+
+test('auth page patches only allow designated presentation targets and fields', () => {
+  const heading = 'body [data-auth-edit="heading"]';
+  const description = 'body [data-auth-edit="description"]';
+  for (const page of ['/store/login/', '/store/signup/']) {
+    assert.equal(validateLayout({ [page]: { [heading]: { text: '안내', color: '#333', backgroundColor: '#fff', fontSize: '16px', padding: '8px' }, [description]: { text: '설명' } } }), true);
+    for (const patch of [{ hidden: true }, { width: '100%' }, { text: 'x'.repeat(4001) }, { text: false }]) {
+      assert.equal(validateLayout({ [page]: { [heading]: patch } }), false);
+    }
+    for (const selector of ['body > form', 'body [data-auth-edit="password"]', `${heading}, input`]) {
+      assert.equal(validateLayout({ [page]: { [selector]: { text: 'x' } } }), false);
+    }
+    for (const target of ['email-input', 'password-input', 'submit-button', 'naver-button']) {
+      const selector = `body [data-auth-edit="${target}"]`;
+      assert.equal(validateLayout({ [page]: { [selector]: { color: '#123456', backgroundColor: '#ffffff', fontSize: '16px', padding: '8px' } } }), true);
+      for (const patch of [{ text: '변경' }, { hidden: true }, { width: '100%' }, { left: '1px' }, { order: '1' }, { color: 'x'.repeat(4001) }]) {
+        assert.equal(validateLayout({ [page]: { [selector]: patch } }), false, `${target}: ${JSON.stringify(patch)}`);
+      }
+    }
+  }
+  assert.equal(validateLayout({ '/store/': { [heading]: { text: 'x' } } }), false);
+});
 function fakeFetch(push = true) {
   return async (input: string | URL | Request, options?: RequestInit) => {
     const url = String(input);
