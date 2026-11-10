@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { ToolsMotion } from "@/components/tools-motion";
-import { KitsGlassWorkspace } from "@/components/kits-glass-workspace";
 import "./tools.css";
 import "./tools-navigation.css";
-import "../glass-theme.css";
 export const metadata: Metadata = {
   title: "광고 수익성 진단 | KITS Tools",
   description:
@@ -14,7 +12,7 @@ export default function ToolsLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="profit-tool">
-      <KitsGlassWorkspace><ToolsMotion>{children}</ToolsMotion></KitsGlassWorkspace>
+      <ToolsMotion>{children}</ToolsMotion>
     </div>
   );
 }
