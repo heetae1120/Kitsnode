@@ -6,9 +6,7 @@ if (!projectUrl || !serviceKey) throw new Error('Service configuration unavailab
 Deno.serve(createAnalyticsHandler({
   projectUrl,
   serviceKey,
-  // Release preparation only. Do not enable until retention and visitor notice
-  // prerequisites are operational and the user approves collection activation.
-  ingestEnabled: false,
+  ingestEnabled: true,
   frontendOrigins: parseAnalyticsOrigins('https://heetae1120.github.io'),
   adminOrigins: parseAnalyticsOrigins('https://kitsnode-studio-owner.junho960809.chatgpt.site'),
 }));
