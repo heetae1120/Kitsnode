@@ -114,6 +114,14 @@
 .profit-tool .kits-glass .hc-hero-card { background: linear-gradient(135deg,#294b39f0,#5b7653e8); border: 1px solid #e1ead38a; box-shadow: var(--glass-shadow); }
 .profit-tool .kits-glass .hc-hero-card li,.profit-tool .kits-glass .hc-hero-card small { color: #e1e9d9; }
 .profit-tool .kits-glass .hc-hero-card svg { color: #d1dfbe; }
+.profit-tool .kits-glass .hc-hero-reel { background: var(--glass-panel); border-color: var(--glass-edge); box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--gw-blur)); }
+.profit-tool .kits-glass .hc-tilted-hero { background: transparent; }
+.profit-tool .kits-glass .hc-hero-overlay h1 { font-weight: 550; }
+.profit-tool .kits-glass .hc-hero-overlay h1 em { color: #326b54; }
+.profit-tool .kits-glass .hc-hero-overlay > small { color: #59675b; }
+.profit-tool .kits-glass .hc-slide-options button { background: #ffffff80; border-color: #52664d30; color: #344f3e; }
+.profit-tool .kits-glass .hc-slide-options button[aria-pressed=true] { background: #e0ead6; border-color: #6e8c63; color: #294b39; }
+.profit-tool .kits-glass .hc-slide-number { color: #326b54; }
 .profit-tool .kits-glass :is(.hc-chip,.hc-choice.selected,.hc-goals button.selected,.kr-tabs button[aria-pressed=true]) { background: #e0ead6; color: #294b39; border-color: #6e8c63; }
 .profit-tool .kits-glass :is(.hc-notice,.hc-result-banner,.hc-stepper span) { background: #eef1e4b0; border-color: #56704e26; color: #326b54; }
 .profit-tool .kits-glass :is(.kr-suggestions button,.kr-tabs button) { color: #326b54; }
