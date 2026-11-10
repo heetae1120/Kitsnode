@@ -86,16 +86,16 @@ export async function collectIntegratedShoppingAds(keyword){
   if(response&&[403,418,429].includes(response.status()))throw Error('SHOPPING_PAGE_BLOCKED');
   if(!response?.ok())throw Error('SHOPPING_PAGE_UNAVAILABLE');
   stage='AD_SELECTOR';
-  await page.waitForSelector('[id^="view_type_guide_"]');
+  await page.waitForSelector('[id^="view_type_guide_"], [id^="view_type_list_finder_"]');
   stage='AD_READ';
-  const rows=await page.evaluate(()=>Array.from(document.querySelectorAll('[id^="view_type_guide_"]')).filter(info=>/^view_type_guide_\d+$/.test(info.id)&&Array.from(info.querySelectorAll('button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0)).slice(0,3).map(info=>({id:info.id,ad:true,title:Array.from(info.querySelectorAll('a')).map(a=>a.textContent.trim()).sort((a,b)=>b.length-a.length)[0]||''})));
+  const rows=await page.evaluate(()=>Array.from(document.querySelectorAll('[id^="view_type_guide_"], [id^="view_type_list_finder_"]')).filter(info=>/^view_type_(guide|list_finder)_\d+$/.test(info.id)&&Array.from(info.querySelectorAll('button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0)).slice(0,3).map(info=>({id:info.id,ad:true,title:info.querySelector('a[data-nlog-area$=".tit"]')?.textContent.trim()||Array.from(info.querySelectorAll('a')).map(a=>a.textContent.trim()).sort((a,b)=>b.length-a.length)[0]||''})));
   const result=normalizeObservedAds(rows);
   stage='IMAGE';
   for(let index=0;index<rows.length;index++){
    const current=new URL(page.url());if(current.origin!==source.origin||current.pathname!==source.pathname||current.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
    const handle=await page.$('#'+rows[index].id);if(!handle)throw Error('AD_RESULTS_NOT_CONFIRMED');
    const card=await handle.evaluateHandle(info=>info.closest('li'));
-   if(!await card.evaluate((element,id)=>element?.querySelectorAll('[id^="view_type_guide_"]').length===1&&Array.from(element.querySelectorAll('#'+id+' button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0),rows[index].id))throw Error('AD_RESULTS_NOT_CONFIRMED');
+   if(!await card.evaluate((element,id)=>element?.querySelectorAll('[id^="view_type_guide_"], [id^="view_type_list_finder_"]').length===1&&Array.from(element.querySelectorAll('#'+id+' button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0),rows[index].id))throw Error('AD_RESULTS_NOT_CONFIRMED');
    await card.evaluate(element=>element.scrollIntoView({block:'center'}));
    await card.evaluate(async element=>{await Promise.all(Array.from(element.querySelectorAll('img')).map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});setTimeout(resolve,2500);})));});
    if(!await card.evaluate(element=>Array.from(element.querySelectorAll('img')).some(img=>img.complete&&img.naturalWidth>20)))throw Error('AD_CAPTURE_UNAVAILABLE');
