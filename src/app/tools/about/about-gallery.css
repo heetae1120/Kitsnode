@@ -4,7 +4,7 @@
 .profit-tool .about-gallery-page .ag-stage{position:sticky;top:76px;height:calc(100svh - 76px);min-height:560px;overflow:hidden;background:#fff;}
 .profit-tool .about-gallery-page .ag-gallery{position:absolute;inset:0;pointer-events:none;}
 .profit-tool .about-gallery-page .ag-tile{position:absolute;overflow:hidden;border-radius:15px;box-shadow:0 12px 35px #172c4f12;border:1px solid #dce5f5;background:#f2f6ff;will-change:transform;}
-.profit-tool .about-gallery-page .ag-tile-1{width:35%;height:29%;left:10%;top:2%;padding:30px 14px 0;background:#e5edff;}
+.profit-tool .about-gallery-page .ag-tile-1{width:35%;height:24%;left:10%;top:2%;padding:30px 14px 0;background:#e5edff;}
 .profit-tool .about-gallery-page .ag-tile-2{width:15%;height:25%;right:12%;top:11%;}
 .profit-tool .about-gallery-page .ag-tile-3{width:21%;height:18%;left:5%;bottom:9%;padding:22px 7px 0;background:#edf7f3;}
 .profit-tool .about-gallery-page .ag-tile-4{width:24%;height:18%;left:35%;bottom:1%;}
