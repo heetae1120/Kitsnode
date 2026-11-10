@@ -1,12 +1,12 @@
 {
-  "framework": null,
+  "framework": null,"buildCommand": "npm run build",
   "functions": {
     "api/keywords.js": {
       "maxDuration": 15
     },
     "api/shopping-ads.js": {
       "maxDuration": 60,
-      "includeFiles": "node_modules/@sparticuz/chromium/bin/**"
+      "includeFiles": ["node_modules/@sparticuz/chromium/bin/**", "fonts/**"]
     }
   },
   "outputDirectory": "public"

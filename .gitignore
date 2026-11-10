@@ -6,3 +6,6 @@ out/
 *.tsbuildinfo
 
 .vercel/
+
+# Downloaded and checksum-verified during the capture API build.
+keyword-api/fonts/

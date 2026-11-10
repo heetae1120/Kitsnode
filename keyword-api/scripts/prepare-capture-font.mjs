@@ -1,0 +1,11 @@
+import {mkdir,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const root='https://raw.githubusercontent.com/google/fonts/4efc2774c63917927efe769ca845def6bd6debae/ofl/notosanskr/';
+const response=await fetch(root+'NotoSansKR%5Bwght%5D.ttf',{signal:AbortSignal.timeout(60000)});
+if(!response.ok)throw Error('Korean capture font download failed');
+const font=Buffer.from(await response.arrayBuffer());
+if(createHash('sha256').update(font).digest('hex')!=='194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252')throw Error('Korean capture font checksum mismatch');
+const directory=new URL('../fonts/',import.meta.url);await mkdir(directory,{recursive:true});
+await writeFile(new URL('NotoSansKR.ttf',directory),font);
+const license=await fetch(root+'OFL.txt',{signal:AbortSignal.timeout(30000)});if(!license.ok)throw Error('Font license download failed');await writeFile(new URL('OFL.txt',directory),await license.text());
+console.log('Verified Noto Sans KR capture font bundled');

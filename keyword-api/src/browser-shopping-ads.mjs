@@ -1,3 +1,6 @@
+import {mkdir,copyFile} from 'node:fs/promises';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
 /** Read the public shopping page in a browser. No ad clicks, login, proxy or challenge bypass. */
 export function normalizeObservedAds(rows){
  if(!Array.isArray(rows)||rows.length===0)throw Error('AD_RESULTS_NOT_CONFIRMED');
@@ -11,6 +14,8 @@ export function normalizeObservedAds(rows){
 }
 
 async function launchShoppingBrowser(chromium,puppeteer){
+ const fonts=join(tmpdir(),'fonts');await mkdir(fonts,{recursive:true});
+ await copyFile(new URL('../fonts/NotoSansKR.ttf',import.meta.url),join(fonts,'NotoSansKR.ttf')).catch(()=>{throw Error('CAPTURE_FONT_UNAVAILABLE');});
  try{return await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});}
  catch{throw Error('BROWSER_START_FAILED');}
 }
@@ -88,7 +93,7 @@ export async function collectIntegratedShoppingAds(keyword){
   stage='AD_SELECTOR';
   await page.waitForSelector('[id^="view_type_guide_"], [id^="view_type_list_finder_"]');
   stage='AD_READ';
-  const rows=await page.evaluate(()=>Array.from(document.querySelectorAll('[id^="view_type_guide_"], [id^="view_type_list_finder_"]')).filter(info=>/^view_type_(guide|list_finder)_\d+$/.test(info.id)&&Array.from(info.querySelectorAll('button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0)).slice(0,3).map(info=>({id:info.id,ad:true,title:info.querySelector('a[data-nlog-area$=".tit"]')?.textContent.trim()||Array.from(info.querySelectorAll('a')).map(a=>a.textContent.trim()).sort((a,b)=>b.length-a.length)[0]||''})));
+  const rows=await page.evaluate(()=>Array.from(document.querySelectorAll('[id^="view_type_guide_"], [id^="view_type_list_finder_"]')).filter(info=>/^view_type_(guide|list_finder)_\d+$/.test(info.id)&&Array.from(info.querySelectorAll('button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0)).slice(0,3).map(info=>({id:info.id,ad:true,title:info.closest('li')?.querySelector('img[alt]')?.getAttribute('alt')?.replace(/<[^>]*>/g,'').trim()||info.querySelector('a[data-nlog-area$=".tit"]')?.textContent.trim()||Array.from(info.querySelectorAll('a')).map(a=>a.textContent.trim()).sort((a,b)=>b.length-a.length)[0]||''})));
   const result=normalizeObservedAds(rows);
   stage='IMAGE';
   for(let index=0;index<rows.length;index++){
