@@ -29,7 +29,7 @@ test('only allowlisted survey metadata, sticky verified contact completion, no p
   assert.equal(snapshot.sequence, 1); assert.deepEqual(snapshot.survey, { step: 'brandVision', lastField: 'brandVision', lastInputAgoMs: 14_900, completed: false, timing: null });
   view.setSurvey('contact', true); assert.equal(view.snapshot('complete')?.survey?.completed, true);
   assert.equal(JSON.stringify(snapshot).includes('private-value'), false);
-  assert.deepEqual(Object.keys(snapshot), ['version', 'viewId', 'sequence', 'page', 'visibleMs', 'engagedMs', 'reason', 'survey']);
+  assert.deepEqual(Object.keys(snapshot), ['version', 'viewId', 'sequence', 'page', 'visibleMs', 'engagedMs', 'reason', 'survey', 'attribution']);
 });
 test('bounded monotonic clock and page reentry have independent IDs and totals', () => {
   let time = 100; const one = createAnalyticsView('/tools/', id, () => time, true);

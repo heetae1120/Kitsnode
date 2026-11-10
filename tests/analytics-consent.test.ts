@@ -38,3 +38,9 @@ test('runtime starts only after consent and withdrawal stops before persisting',
   assert.match(component, /window.addEventListener\('storage', changed\)/);
   assert.match(component, /if \(!available\) return null/);
 });
+
+test('expanded collection requires fresh opt-in but honors prior refusal', () => {
+  const storage = (old: string) => ({getItem:(key:string)=>key==='kitsnode-analytics-consent-v1'?old:null,setItem(){}});
+  assert.equal(readAnalyticsConsent(storage('allow')), 'unset');
+  assert.equal(readAnalyticsConsent(storage('deny')), 'deny');
+});

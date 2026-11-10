@@ -1,3 +1,4 @@
+import { UNKNOWN_ATTRIBUTION, type Attribution } from './analytics-attribution';
 /** Memory-only pseudonymous metadata snapshots. Form values are never accepted here. */
 export const ANALYTICS_STEPS = ['brandVision', 'audience', 'category', 'stage', 'budget', 'support', 'brandGoal', 'contact'] as const;
 export const ANALYTICS_FIELDS = ['brandVision', 'audience', 'categoryOther', 'brandGoal', 'store', 'company', 'nameRole', 'phone'] as const;
@@ -5,7 +6,7 @@ type Step = typeof ANALYTICS_STEPS[number];
 type Field = typeof ANALYTICS_FIELDS[number];
 export type Reason = 'heartbeat' | 'hidden' | 'pagehide' | 'navigation' | 'complete';
 export type SurveyTiming = { elapsedMs: number; visibleMs: number; engagedMs: number };
-export type Snapshot = { version: 2; viewId: string; sequence: number; page: string; visibleMs: number; engagedMs: number; reason: Reason; survey: null | { step: Step; lastField: Field | null; lastInputAgoMs: number | null; completed: boolean; timing: SurveyTiming | null } };
+export type Snapshot = { version: 3; viewId: string; sequence: number; page: string; visibleMs: number; engagedMs: number; reason: Reason; attribution: Attribution; survey: null | { step: Step; lastField: Field | null; lastInputAgoMs: number | null; completed: boolean; timing: SurveyTiming | null } };
 const PAGES = new Set(['', 'start', 'rankings', 'seo', 'traffic', 'bidding', 'negative-search', 'keywords', 'survey', 'about', 'market', 'consultation'].map(p => `/tools/${p ? p + '/' : ''}`));
 const ms = (v: number) => Math.min(86_400_000, Math.max(0, Math.floor(v)));
 export function canonicalAnalyticsPage(pathname: string, basePath = ''): string | null {
@@ -21,7 +22,8 @@ export function analyticsAllowed(c: { enabled?: string; endpoint?: string; hostn
   if (query.has('kits_editor') || query.has('kits_preview') || query.has('kits_preview_session')) return false;
   try { const url = new URL(c.endpoint || ''); return url.protocol === 'https:' && !url.username && !url.password && !url.search && !url.hash; } catch { return false; }
 }
-export function createAnalyticsView(page: string, viewId: string, now: () => number, initiallyVisible: boolean) {
+export function createAnalyticsView(page: string, viewId: string, now: () => number, initiallyVisible: boolean, attribution: Attribution = UNKNOWN_ATTRIBUTION) {
+  const attributionSnapshot = Object.freeze({...attribution});
   let last = now(), visible = initiallyVisible, visibleMs = 0, engagedMs = 0, activeUntil = -Infinity;
   let surveyStart: { at: number; visible: number; engaged: number } | null = null;
   let frozenTiming: SurveyTiming | null = null;
@@ -48,7 +50,7 @@ export function createAnalyticsView(page: string, viewId: string, now: () => num
       const nextSignature = JSON.stringify([ms(visibleMs), ms(engagedMs), step, lastField, lastInput, completed, survey?.timing]);
       if (signature === nextSignature) return null;
       signature = nextSignature;
-      return { version: 2, viewId, sequence: ++sequence, page, visibleMs: ms(visibleMs), engagedMs: ms(engagedMs), reason, survey };
+      return { version: 3, viewId, sequence: ++sequence, page, visibleMs: ms(visibleMs), engagedMs: ms(engagedMs), reason, survey, attribution: attributionSnapshot };
     },
   };
 }
@@ -58,8 +60,8 @@ export function sendAnalyticsSnapshot(endpoint: string, snapshot: Snapshot, tran
   try { void transport.fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body, keepalive: true, credentials: 'omit', referrerPolicy: 'no-referrer', redirect: 'error', cache: 'no-store' }).catch(() => {}); } catch { /* best effort */ }
 }
 /** Route-scoped subscription. Teardown does not manufacture abandonment. */
-export function startVisitorAnalytics(page: string, endpoint: string, win: Window, doc: Document, allowed: () => boolean = () => true) {
-  const view = createAnalyticsView(page, win.crypto.randomUUID(), () => win.performance.now(), doc.visibilityState === 'visible');
+export function startVisitorAnalytics(page: string, endpoint: string, win: Window, doc: Document, allowed: () => boolean = () => true, attribution: Attribution = UNKNOWN_ATTRIBUTION) {
+  const view = createAnalyticsView(page, win.crypto.randomUUID(), () => win.performance.now(), doc.visibilityState === 'visible', attribution);
   let disposed = false, completed = false, privacyStopped = false;
   const card = () => page === '/tools/survey/' ? doc.querySelector('[data-analytics-survey]') : null;
   const syncSurvey = () => { const node = card(); if (!node) return; const done = node.getAttribute('data-analytics-completed') === 'true'; view.setSurvey(node.getAttribute('data-analytics-step'), done); if (done && !completed) { completed = true; emit('complete'); } };

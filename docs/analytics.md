@@ -137,3 +137,11 @@ Chrome에서 loopback 전용 합성 보고서로 평균 표시 2분·중앙값 1
 
 
 최종 검증: 프론트 `npm test` 186/186, 어드민 233/233, 양쪽 `npm run build`, `npm run typecheck`, `git diff --check` 통과. 어드민 임시 mock endpoint를 제거한 기본 빌드를 다시 생성했고 빌드 산출물에 mock 주소가 없음을 확인했다. 별도 lint 스크립트는 없다. CLI 로컬 경로/telemetry 권한, 테스트 IPC, 출력 래퍼의 zsh 예약 변수 오류는 먼저 보고하고 해결 또는 로그로 실제 완료를 확인했다. 앱의 실패 검사를 통과한 것으로 바꾸거나 운영으로 우회하지 않았다.
+
+## Acquisition categories (event version 3)
+
+After fresh optional consent (preference v2), each page view carries an immutable `attribution` with `basis`, `source`, `medium`, and `campaign`. No full URL, arbitrary hostname, query, UTM value, search term, ad click ID, personal value, persistent visitor identifier, or campaign name is transmitted. Existing refusal remains effective; old opt-in requires a new choice. DNT, GPC and preview exclusions remain unchanged.
+
+`basis` is `utm`, `referrer`, `internal`, or `unknown`. Only explicitly registered source and medium aliases in `analytics-attribution.ts` survive classification. Unknown tagged values become `other_tagged`. Campaign is only `none` or `other_tagged` (미등록 캠페인), indicating tag presence, not a campaign-name breakdown. There are no registered campaign names yet. A future campaign-name feature must register a public, non-identifying taxonomy and update server validation first.
+
+An absent/invalid referrer is `direct_or_unknown`, not proof of direct traffic: apps, browser policies and stripped referrers can hide the source. Same-origin and SPA route transitions are `internal`; later SPA views do not reattribute a stale initial document referrer. Explicit supported UTM tags take precedence. Metrics count page views, not unique users or sessions. Legacy v1/v2 records remain unattributed; historical attribution is never inferred or backfilled. Heartbeats for one view retain its initial accepted categories.

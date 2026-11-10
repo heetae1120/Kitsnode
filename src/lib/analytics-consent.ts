@@ -1,12 +1,14 @@
 /** Consent preference only. Never store visitor IDs or analytics events. */
-export const ANALYTICS_CONSENT_KEY = 'kitsnode-analytics-consent-v1';
+export const ANALYTICS_CONSENT_KEY = 'kitsnode-analytics-consent-v2';
 export type AnalyticsConsent = 'allow' | 'deny' | 'unset';
 type ConsentStorage = Pick<Storage, 'getItem' | 'setItem'> & Partial<Pick<Storage, 'removeItem'>> | null;
 
 export function readAnalyticsConsent(storage: ConsentStorage): AnalyticsConsent {
   try {
     const value = storage?.getItem(ANALYTICS_CONSENT_KEY);
-    return value === 'allow' || value === 'deny' ? value : 'unset';
+    if (value === 'allow' || value === 'deny') return value;
+    // Old opt-in did not cover attribution. Keep old denial, require fresh opt-in.
+    return storage?.getItem('kitsnode-analytics-consent-v1') === 'deny' ? 'deny' : 'unset';
   } catch { return 'unset'; }
 }
 

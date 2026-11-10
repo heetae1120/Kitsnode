@@ -6,15 +6,20 @@ const reasons = ['heartbeat','hidden','pagehide','navigation','complete'];
 const object = value => !!value && typeof value === 'object' && !Array.isArray(value);
 const exactKeys = (value, keys) => object(value) && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key));
 const integer = (value, min, max) => Number.isSafeInteger(value) && value >= min && value <= max;
+export const ATTRIBUTION_VALUES = {"source": ["google", "naver", "daum", "bing", "yahoo", "duckduckgo", "youtube", "instagram", "facebook", "kakao", "x", "linkedin", "newsletter", "internal", "other_referral", "direct_or_unknown", "other_tagged"], "medium": ["organic", "social", "referral", "email", "paid_search", "paid_social", "display", "internal", "direct_or_unknown", "other_tagged"], "campaign": ["none", "other_tagged"], "basis": ["utm", "referrer", "internal", "unknown"]};
+export function validateAttribution(value) {
+  return exactKeys(value, Object.keys(ATTRIBUTION_VALUES)) && Object.entries(ATTRIBUTION_VALUES).every(([key, values]) => values.includes(value[key]));
+}
 export function validateAnalyticsEvent(value) {
-  if (!exactKeys(value, ['version','viewId','sequence','page','visibleMs','engagedMs','reason','survey'])) return false;
-  if (![1,2].includes(value.version) || typeof value.viewId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value.viewId)) return false;
+  if (!exactKeys(value, ['version','viewId','sequence','page','visibleMs','engagedMs','reason','survey', ...(value?.version === 3 ? ['attribution'] : [])])) return false;
+  if (![1,2,3].includes(value.version) || typeof value.viewId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value.viewId)) return false;
+  if (value.version === 3 && !validateAttribution(value.attribution)) return false;
   if (!integer(value.sequence, 1, 100000) || !ANALYTICS_PAGES.includes(value.page) || !integer(value.visibleMs, 0, 86400000) || !integer(value.engagedMs, 0, value.visibleMs) || !reasons.includes(value.reason)) return false;
   if (value.page !== '/tools/survey/') return value.survey === null && value.reason !== 'complete';
   const survey = value.survey;
   if (!exactKeys(survey, value.version === 1 ? ['step','lastField','lastInputAgoMs','completed'] : ['step','lastField','lastInputAgoMs','completed','timing']) || !SURVEY_STEPS.includes(survey.step) || typeof survey.completed !== 'boolean') return false;
   if (survey.lastField === null ? survey.lastInputAgoMs !== null : !SURVEY_FIELDS.includes(survey.lastField) || !integer(survey.lastInputAgoMs, 0, 86400000)) return false;
-  if (value.version === 2 && survey.timing !== null) {
+  if (value.version >= 2 && survey.timing !== null) {
     const timing = survey.timing;
     if (!exactKeys(timing, ['elapsedMs','visibleMs','engagedMs']) || !integer(timing.elapsedMs, 0, 86400000) || !integer(timing.visibleMs, 0, Math.min(timing.elapsedMs, value.visibleMs)) || !integer(timing.engagedMs, 0, Math.min(timing.visibleMs, value.engagedMs))) return false;
   }
@@ -99,3 +104,4 @@ export function createAnalyticsHandler({projectUrl, serviceKey, ingestEnabled = 
     } catch { return respond({error:'service_unavailable'},503); }
   };
 }
+

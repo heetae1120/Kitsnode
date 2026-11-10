@@ -8,5 +8,6 @@ Deno.serve(createAnalyticsHandler({
   serviceKey,
   ingestEnabled: true,
   frontendOrigins: parseAnalyticsOrigins('https://heetae1120.github.io'),
-  adminOrigins: parseAnalyticsOrigins('https://kitsnode-studio-owner.junho960809.chatgpt.site'),
+  adminOrigins: parseAnalyticsOrigins('https://kitsnode-studio-owner.junho960809.chatgpt.site,https://kitz-intranet-prototype-v1.junho960809.chatgpt.site'),
 }));
+
