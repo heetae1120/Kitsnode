@@ -1,0 +1,150 @@
+/* Local water surfaces: no page background or image changes. */
+.liquid-surfaces { min-width: 0; }
+.profit-tool .expanded-tools .tool-nav.nimbus-nav {
+  padding: 6px; gap: 3px; border-radius: 999px; font-family: inherit;
+}
+.profit-tool .expanded-tools .tool-nav.nimbus-nav > .nimbus-item,
+.profit-tool .expanded-tools .tool-nav.nimbus-nav .tool-nav-group > .nimbus-item {
+  height: 44px; min-height: 44px; border-radius: 999px; padding: 8px 13px;
+  background: transparent; color: #53667f; font-size: 12px; font-weight: 600;
+}
+.profit-tool .expanded-tools .tool-nav.nimbus-nav .nimbus-item:is([aria-current=page],[data-active=true],[aria-expanded=true]) {
+  background: transparent; color: #1648c6; box-shadow: none;
+}
+.profit-tool .expanded-tools .tool-nav.nimbus-nav .nimbus-item:hover { background: #e5f5ff50; color: #1648c6; }
+.profit-tool .expanded-tools .tool-nav.nimbus-nav .nimbus-glass {
+  background: linear-gradient(160deg,#ffffffb5,#e7f3ff70); border: 1px solid #d7e5f5;
+  box-shadow: inset 0 1px 1px #fff, inset 0 -1px 4px #a5d3f42b, 0 6px 18px #234c7510;
+}
+.profit-tool .expanded-tools .tool-nav.nimbus-nav .menu-motion { background: transparent; box-shadow: none; }
+.profit-tool .expanded-tools .tool-nav.nimbus-nav .tool-subnav { z-index: 5; border-radius: 18px; background: #f8fcffed; backdrop-filter: blur(18px); border-color: #d5e8f8; }
+.profit-tool .expanded-tools .tool-nav.nimbus-nav .tool-nav-separator { margin: 0 5px; }
+.liquid-surfaces .nimbus-nav .nv-ico { display: inline-flex; }
+.liquid-surfaces .nimbus-nav .nimbus-label { font-family: inherit; }
+.liquid-surfaces .nimbus-nav .nimbus-drop { transition: top 220ms ease, height 220ms ease; }
+.liquid-surfaces .nimbus-nav:has(.tool-nav-group) .nimbus-water { border-radius: inherit; }
+/* Match the same rim and lens highlight on every editable control. */
+.profit-tool .liquid-surfaces input:not([type=checkbox]):not([type=range]):not([type=color]),
+.profit-tool .liquid-surfaces select,
+.profit-tool .liquid-surfaces textarea {
+  border-color: #d0dfee; border-radius: 12px;
+  background-image: linear-gradient(150deg,#ffffffa0,#e8f4ff24);
+  box-shadow: inset 0 1px 1px #fff, inset 0 -2px 5px #7bbbe20b;
+  transition: border-color 180ms, box-shadow 180ms, background-color 180ms;
+}
+.profit-tool .liquid-surfaces input:not([type=checkbox]):not([type=range]):not([type=color]):focus-visible,
+.profit-tool .liquid-surfaces select:focus-visible,
+.profit-tool .liquid-surfaces textarea:focus-visible {
+  outline: 2px solid #6bb9f4; outline-offset: 2px; border-color: #74b8ed;
+  box-shadow: inset 0 1px 2px #fff, 0 0 0 5px #a3d8ff26, 0 8px 22px -12px #2285d655;
+}
+.liquid-surfaces :is(.mp-field,.mp-name,.mp-target-input,.hc-field,.kw-search-field) { border-radius: 13px; }
+.liquid-surfaces :is(.mp-field,.mp-name,.mp-target-input,.hc-field):hover {
+  background-image: radial-gradient(130px circle at var(--liquid-x,50%) var(--liquid-y,50%),#a6dfff12,transparent);
+}
+.profit-tool .liquid-surfaces :is(.kr-tabs,.kw-segmented) button { border-radius: 999px; }
+.profit-tool .liquid-surfaces :is(.kr-tabs,.kw-segmented) button[aria-pressed=true] {
+  background-image: linear-gradient(150deg,#ffffffd9,#e7f5ffae); box-shadow: inset 0 1px 0 #fff,0 3px 9px #2b76a51a;
+}
+/* Large, ordered progress cards. The calculation order is unchanged. */
+.profit-tool .mp-shell .mp-main { max-width: 1120px; }
+.profit-tool .mp-shell .mp-intro { padding-bottom: 28px; }
+.profit-tool .mp-shell .mp-steps {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px;
+  padding: 0; margin: 0 0 30px; list-style: none;
+}
+.profit-tool .mp-shell .mp-steps li {
+  position: relative; display: flex; align-items: center; gap: 15px; min-width: 0;
+  min-height: 88px; padding: 18px 20px; border: 1px solid #dde6f2; border-radius: 18px;
+  background: linear-gradient(145deg,#ffffffeb,#eff6ffa1); color: #7a8ba2;
+  box-shadow: inset 0 1px 0 white,0 5px 18px #204b7c05;
+}
+.profit-tool .mp-shell .mp-steps li > .mp-step-number {
+  display: grid; place-items: center; flex-shrink: 0; width: 46px; height: 46px;
+  border-radius: 15px; background: #edf3fa; border: 1px solid #dbe5f1;
+  color: #7a8ba2; font-size: 21px; font-weight: 750; letter-spacing: -1px;
+}
+.profit-tool .mp-shell .mp-steps small { display: block; font-size: 10px; letter-spacing: 1.3px; font-weight: 650; margin-bottom: 5px; }
+.profit-tool .mp-shell .mp-steps b { display: block; font-size: 16px; font-weight: 700; letter-spacing: -.6px; line-height: 1.4; }
+.profit-tool .mp-shell .mp-steps li[aria-current] { color: #2455d7; border-color: #aac8fa; background: linear-gradient(140deg,#fff,#eaf2ff); }
+.profit-tool .mp-shell .mp-steps li[aria-current] > .mp-step-number { color: white; border-color: #2858f5; background: #2858f5; box-shadow: 0 5px 13px #2858f52b; }
+.profit-tool .mp-shell .mp-steps li[data-complete] { color: #506782; }
+.profit-tool .mp-shell .mp-steps li[data-complete] > .mp-step-number { color: #2858f5; background: #e7f0ff; }
+/* Responsive iPad frame for both input steps. */
+.profit-tool .mp-shell .mp-workspace.mp-ipad {
+  position: relative; padding: 36px 34px 42px; min-height: 510px;
+  border: 13px solid #202b3b; border-radius: 36px; background: #fff;
+  box-shadow: 0 0 0 2px #8591a1,0 3px 0 3px #c5cdd6,0 25px 55px -28px #14294766,inset 0 0 0 1px #dce4ee;
+  scroll-margin-top: 150px;
+}
+.profit-tool .mp-shell .mp-ipad-camera {
+  position: absolute; left: 50%; top: -9px; width: 5px; height: 5px; transform: translateX(-50%);
+  border-radius: 50%; background: #09101c; box-shadow: inset 0 0 0 1px #3d4d62;
+}
+.profit-tool .mp-shell .mp-ipad-home { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 94px; height: 4px; border-radius: 3px; background: #202b3b; opacity: .75; }
+.profit-tool .mp-shell .mp-ipad .mp-section-heading { margin-bottom: 24px; }
+.profit-tool .mp-shell .mp-ipad .mp-section-heading h2 { margin-bottom: 0; }
+.profit-tool .mp-shell .mp-plan-row { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 24px; align-items: stretch; }
+.profit-tool .mp-shell .mp-plan-row > :is(.mp-budget-input,.mp-target-input) { margin: 0; padding: 18px; border-radius: 15px; border: 1px solid #dde7f4; background: linear-gradient(145deg,#fbfdff,#f1f7ff88); }
+.profit-tool .mp-shell .mp-plan-row .mp-input-wrap { margin-top: 12px; }
+.profit-tool .mp-shell .mp-plan-row .mp-target-input > label { display: flex; min-height: 22px; align-items: center; }
+.profit-tool .mp-shell .mp-fields.mp-fields-basic { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 22px; }
+.profit-tool .mp-shell .mp-ipad .mp-field > .mp-input-wrap { margin-top: 11px; }
+.profit-tool .mp-shell .mp-name { margin-bottom: 24px; }
+.profit-tool .mp-shell .mp-ipad .mp-stock-cost { margin: 24px 0 0; padding: 20px; border-radius: 16px; border-color: #dce8f5; background: linear-gradient(145deg,#f9fcff,#edf4ff88); }
+.profit-tool .mp-shell .mp-ipad .mp-stock-top { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+.profit-tool .mp-shell .mp-ipad .mp-stock-top span { font-size: 11px; color: #697b94; }
+.profit-tool .mp-shell .mp-ipad .mp-stock-top b { font-size: 22px; margin-bottom: 0; }
+.profit-tool .mp-shell .mp-ipad .mp-stock-cost.is-over { background: #fff3f3; border-color: #efb6be; }
+.profit-tool .mp-shell .mp-ipad .mp-actions { margin-top: 26px; }
+.profit-tool .mp-shell .mp-ipad .mp-actions button { border-radius: 999px; }
+.profit-tool .mp-shell .mp-ipad .mp-actual-cost { margin-top: 24px; border-radius: 16px; }
+/* The store menu uses the same moving drop with the CSS renderer. */
+.liquid-surfaces .store-sidebar .nimbus-store { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 7px; width: 100%; border-radius: 20px; font-family: inherit; }
+.liquid-surfaces .store-sidebar .nimbus-store .nimbus-item { width: 100%; border-radius: 14px; background: transparent; z-index: 1; }
+.liquid-surfaces .store-sidebar .nimbus-store .nimbus-glass { border-radius: 20px; box-shadow: inset 0 1px 1px white,0 4px 15px #1e5c8c0a; background: #f2f8fd80; }
+.liquid-surfaces .store-sidebar .nimbus-store .nimbus-drop { border-radius: 14px; }
+@media (max-width:1000px) {
+  .profit-tool .expanded-tools .tool-nav.nimbus-nav { display: none; }
+  .profit-tool .expanded-tools .tool-nav.nimbus-nav.open { display: grid; width: calc(100% - 24px); right: 12px; padding: 14px; gap: 5px; border: 1px solid #d7e5f5; border-radius: 22px; background: #f7fbfff5; }
+  .profit-tool .expanded-tools .tool-nav.nimbus-nav .nimbus-water { display: none; }
+  .profit-tool .expanded-tools .tool-nav.nimbus-nav:not([data-empty=true]) .nimbus-drop { display: block; }
+  .profit-tool .expanded-tools .tool-nav.nimbus-nav .tool-subnav { margin: 5px 0 6px; border: 1px solid #e0ebf7; border-radius: 14px; }
+  .profit-tool .expanded-tools .tool-nav.nimbus-nav .tool-nav-group > .nimbus-item { justify-content: flex-start; }
+  .profit-tool .expanded-tools .tool-nav.nimbus-nav .tool-nav-chevron { margin-left: auto; }
+  .profit-tool .mp-shell .mp-steps li { padding: 16px; gap: 12px; }
+  .profit-tool .mp-shell .mp-steps b { font-size: 14px; }
+}
+@media (max-width:650px) {
+  .profit-tool .mp-shell .mp-main { padding: 28px 16px 34px; }
+  .profit-tool .mp-shell .mp-steps { gap: 7px; margin-bottom: 24px; }
+  .profit-tool .mp-shell .mp-steps li { flex-direction: column; align-items: flex-start; gap: 9px; padding: 13px 10px; min-height: 106px; border-radius: 14px; }
+  .profit-tool .mp-shell .mp-steps li > .mp-step-number { width: 34px; height: 34px; font-size: 17px; border-radius: 11px; }
+  .profit-tool .mp-shell .mp-steps small { display: none; }
+  .profit-tool .mp-shell .mp-steps b { font-size: 11px; letter-spacing: -.4px; }
+  .profit-tool .mp-shell .mp-workspace.mp-ipad { padding: 25px 15px 35px; border-width: 8px; border-radius: 27px; min-height: 0; }
+  .profit-tool .mp-shell .mp-ipad-camera { top: -6px; width: 4px; height: 4px; }
+  .profit-tool .mp-shell .mp-ipad .mp-section-heading h2 { font-size: 20px; }
+  .profit-tool .mp-shell .mp-plan-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .profit-tool .mp-shell .mp-plan-row > :is(.mp-budget-input,.mp-target-input) { padding: 12px 10px; }
+  .profit-tool .mp-shell .mp-plan-row label { font-size: 11px; }
+  .profit-tool .mp-shell .mp-plan-row .mp-field-label { gap: 3px; }
+  .profit-tool .mp-shell .mp-plan-row input { padding-left: 10px; padding-right: 27px; font-size: 13px; }
+  .profit-tool .mp-shell .mp-plan-row .mp-target-input input { padding-right: 48px; }
+  .profit-tool .mp-shell .mp-plan-row .mp-input-wrap > span { right: 9px; font-size: 9px; }
+  .profit-tool .mp-shell .mp-fields.mp-fields-basic { grid-template-columns: 1fr; gap: 18px; }
+  .profit-tool .mp-shell .mp-ipad .mp-stock-cost { padding: 16px 12px; }
+  .profit-tool .mp-shell .mp-ipad .mp-stock-top { gap: 12px; grid-template-columns: 1fr; }
+  .profit-tool .mp-shell .mp-ipad .mp-stock-top > div { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .profit-tool .mp-shell .mp-ipad .mp-stock-top b { font-size: 19px; margin: 0; }
+  .liquid-surfaces .store-sidebar .nimbus-store { flex-direction: row; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .liquid-surfaces .nimbus-nav .nimbus-drop { transition: none; }
+  .liquid-surfaces :is(input,select,textarea) { transition: none; }
+}
+@media print {
+  .profit-tool .mp-shell .mp-steps { display: none; }
+  .profit-tool .mp-shell .mp-workspace.mp-ipad { border: 0; padding: 0; box-shadow: none; min-height: 0; }
+  .profit-tool .mp-shell :is(.mp-ipad-camera,.mp-ipad-home) { display: none; }
+}

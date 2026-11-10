@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { ToolsMotion } from "@/components/tools-motion";
+import { LiquidSurfaces } from "@/components/ui/liquid-surfaces";
 import "./tools.css";
 import "./tools-navigation.css";
+import "./liquid-interface.css";
 export const metadata: Metadata = {
   title: "광고 수익성 진단 | KITS Tools",
   description:
@@ -12,7 +14,7 @@ export default function ToolsLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="profit-tool">
-      <ToolsMotion>{children}</ToolsMotion>
+      <LiquidSurfaces><ToolsMotion>{children}</ToolsMotion></LiquidSurfaces>
     </div>
   );
 }
