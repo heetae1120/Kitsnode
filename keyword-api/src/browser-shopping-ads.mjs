@@ -14,8 +14,7 @@ export function normalizeObservedAds(rows){
 }
 
 async function launchShoppingBrowser(chromium,puppeteer){
- const fonts=join(tmpdir(),'fonts');await mkdir(fonts,{recursive:true});
- await copyFile(new URL('../fonts/NotoSansKR.ttf',import.meta.url),join(fonts,'NotoSansKR.ttf')).catch(()=>{throw Error('CAPTURE_FONT_UNAVAILABLE');});
+ try{const fonts=join(tmpdir(),'fonts');await mkdir(fonts,{recursive:true});await copyFile(join(process.cwd(),'fonts','NotoSansKR.ttf'),join(fonts,'NotoSansKR.ttf'));}catch{throw Error('CAPTURE_FONT_UNAVAILABLE');}
  try{return await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});}
  catch{throw Error('BROWSER_START_FAILED');}
 }
