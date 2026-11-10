@@ -16,7 +16,7 @@ export async function collectShoppingAds(keyword,options={}){
  const browser=await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});
  try{
   const page=await browser.newPage();
-  page.setDefaultTimeout(10000);page.setDefaultNavigationTimeout(15000);
+  page.setDefaultTimeout(10000);page.setDefaultNavigationTimeout(30000);
   await page.setRequestInterception(true);
   page.on('request',request=>{
    try{const url=new URL(request.url());const host=url.hostname;const permitted=url.protocol==='https:'&&['naver.com','pstatic.net','naver.net'].some(domain=>host===domain||host.endsWith('.'+domain));
@@ -69,7 +69,7 @@ export async function collectIntegratedShoppingAds(keyword){
  const [{default:chromium},{default:puppeteer}]=await Promise.all([import('@sparticuz/chromium'),import('puppeteer-core')]);
  const browser=await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});
  try{
-  const page=await browser.newPage();page.setDefaultTimeout(10000);page.setDefaultNavigationTimeout(15000);
+  const page=await browser.newPage();page.setDefaultTimeout(10000);page.setDefaultNavigationTimeout(30000);
   await page.setRequestInterception(true);
   page.on('request',request=>{try{const u=new URL(request.url());const allowed=u.protocol==='https:'&&['naver.com','pstatic.net','naver.net'].some(host=>u.hostname===host||u.hostname.endsWith('.'+host));if(!allowed||['media','font'].includes(request.resourceType()))void request.abort().catch(()=>{});else void request.continue().catch(()=>{});}catch{void request.abort().catch(()=>{});}});
   const source=new URL('https://search.naver.com/search.naver');source.searchParams.set('query',keyword);
@@ -94,3 +94,4 @@ export async function collectIntegratedShoppingAds(keyword){
   return {keyword,device:'PC',placement:'integrated',sourceUrl:source.href,observedAt:new Date().toISOString(),context:'네이버 통합검색 · 가격비교 쇼핑광고 · PC · 서버 비로그인 · 확인된 광고 순서',...result};
  }finally{await browser.close();}
 }
+
