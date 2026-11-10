@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useRef,useState,type FormEvent} from 'react';
+import {AnimatePresence,motion,useReducedMotion} from 'framer-motion';
 import { useDraftPreviewStage } from '@/lib/draft-preview-stage';
 import {ArrowRight,Check,TriangleAlert} from 'lucide-react';
 import {ToolsHeader} from './tools-header';
@@ -31,6 +32,8 @@ const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
 export function MarketingPlanner(){
  const [draft,setDraft]=useState<Draft>(empty);
  const [step,setStep]=useState(1);
+ const [direction,setDirection]=useState(1);
+ const reducedMotion=useReducedMotion();
  const [error,setError]=useState('');
  const [report,setReport]=useState<{name:string;months:number;input:MarketingPlanInput;result:ReturnType<typeof marketingPlan>;examples:string[]}|null>(null);
  const focus=useRef<HTMLElement>(null);
@@ -48,7 +51,7 @@ export function MarketingPlanner(){
  const missing=extras.filter(([key])=>draft[key]==='').length;
  const returnCostMissing=Number(draft.returnRate)>0&&draft.returnHandling==='';
  const overBudget=hasBudget&&stockCost!==null&&stockCost>Number(draft.available);
- function move(next:number){setStep(next);setError('');requestAnimationFrame(()=>{focus.current?.focus();focus.current?.scrollIntoView({behavior:'smooth',block:'start'});});}
+ function move(next:number){setDirection(next>step?1:-1);setStep(next);setError('');requestAnimationFrame(()=>{focus.current?.focus();focus.current?.scrollIntoView({behavior:'smooth',block:'start'});});}
  function submit(event:FormEvent){
   event.preventDefault();
   if(step===1){
@@ -81,13 +84,13 @@ export function MarketingPlanner(){
    {step<=3&&<ol className="mp-steps" aria-label="분석 진행 단계">{['상품과 자금','빠뜨린 비용 확인','결과'].map((label,index)=><li key={label} aria-current={step===index+1?'step':undefined} data-complete={step>index+1||undefined}><span className="mp-step-number">{step>index+1?<Check size={24}/>:String(index+1).padStart(2,'0')}</span><div><small>STEP {String(index+1).padStart(2,'0')}</small><b>{label}</b></div></li>)}</ol>}
    <section ref={focus} tabIndex={-1} className={`mp-workspace ${step>=3?'mp-workspace-report':'mp-ipad'}`} aria-label={step>=3?'수익성 평가 보고서':'수익성 분석 입력'}>
     {step<3&&<span className="mp-ipad-camera" aria-hidden="true"/>}
-    {step<3?<form onSubmit={submit} noValidate>
-     <div className="mp-section-heading"><span>STEP 0{step}</span><h2>{step===1?'간단하게 작성해주시면 빠르게 진단해드려요':'이런 비용, 안 빼먹으셨나요?'}</h2></div>
+    {step<3?<AnimatePresence mode="wait" initial={false} custom={direction}><motion.form key={step} custom={direction} initial="enter" animate="center" exit="leave" variants={{enter:(d:number)=>({x:reducedMotion?0:d*80,opacity:reducedMotion?1:0,filter:reducedMotion?'none':'blur(4px)'}),center:{x:0,opacity:1,filter:'blur(0px)'},leave:(d:number)=>({x:reducedMotion?0:-d*60,opacity:reducedMotion?1:0,filter:reducedMotion?'none':'blur(3px)',pointerEvents:'none' as const})}} transition={{duration:reducedMotion?0:0.28,ease:[0.22,1,0.36,1]}} onSubmit={submit} noValidate>
+     <div className="mp-section-heading"><span>STEP 0{step}</span><h2>{step===1?'간단하게 작성해주시면 빠르게 진단해드려요':'원가 말고도 이런비용도 있습니다.'}</h2></div>
      {step===1&&<>
       <label className="mp-name">품목<input value={draft.name} onChange={event=>update('name',event.target.value)} placeholder="예: 보조배터리" maxLength={100}/></label>
       <div className="mp-plan-row">
        <section className="mp-budget-input" aria-label="사용할 예산"><div className="mp-field"><div className="mp-field-label"><label htmlFor="mp-available">쓸 수 있는 전체 돈</label><PlannerCostHelp field="available" label="쓸 수 있는 전체 돈"/></div><div className="mp-input-wrap"><FormattedNumberInput id="mp-available" value={draft.available} onValueChange={value=>update('available',value)} placeholder="금액 입력"/><span>원</span></div></div></section>
-       <section className="mp-target-input"><label htmlFor="mp-months">몇개월 안에 다 팔아보고 싶으신가요?</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월 이내</span></div></section>
+       <section className="mp-target-input"><label htmlFor="mp-months">몇달안에 팔아보고 싶으신가요</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월 이내</span></div></section>
       </div>
      </>}
      <div className={`mp-fields ${step===1?'mp-fields-basic':''}`}>
@@ -105,7 +108,7 @@ export function MarketingPlanner(){
      {step===2&&<aside className={`mp-actual-cost ${live&&live.profit<0?'is-loss':''}`} aria-live="polite"><div className="mp-cost-change"><span><small>처음 원가</small><b>{money(Number(draft.cost))}</b></span><ArrowRight size={22} aria-label="비용 추가 후"/><span><small>비용 포함 원가</small><strong>{live?money(live.unitCost):'—'}</strong></span></div><small>홍보 전 기준{missing>0?` · 미입력 비용 ${missing}개 제외`:''}{returnCostMissing?' · 반품 처리비 입력 필요':''}{exampleFields.length>0?' · 참고값 포함':''}</small></aside>}
      {error&&<p className="mp-error" role="alert">{error}</p>}
      <div className="mp-actions">{step===2&&<button type="button" className="mp-secondary" onClick={()=>move(1)}>이전 단계</button>}<button type="submit" className="mp-primary">{step===1?'다음 · 비용 확인':'결과 보기'}<ArrowRight size={17}/></button></div>
-    </form>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport name={report.name} months={report.months} input={report.input} result={report.result} exampleFields={report.examples} onEdit={()=>move(1)} onMoreCosts={()=>move(4)}/>)}
+    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport name={report.name} months={report.months} input={report.input} result={report.result} exampleFields={report.examples} onEdit={()=>move(1)} onMoreCosts={()=>move(4)}/>)}
     {step<3&&<span className="mp-ipad-home" aria-hidden="true"/>}
    </section>
   </main>

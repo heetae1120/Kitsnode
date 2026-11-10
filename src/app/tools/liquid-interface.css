@@ -156,14 +156,29 @@
 .profit-tool .mp-unit-summary .mp-story-sale {border:0;background:transparent;padding:0 0 24px;}
 .profit-tool .mp-unit-ad-limit {display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px;border-radius:14px;background:#edf2ff;}
 .profit-tool .mp-unit-ad-limit strong {font-size:clamp(24px,4vw,36px);color:#2452ff;}
-.profit-tool .mp-goal-check.is-critical {border:2px solid #dc2626;border-left:7px solid #dc2626;background:#fff1f2;color:#7f1d1d;box-shadow:0 6px 22px #dc262612;}
+.profit-tool .mp-goal-check.is-critical {border:1px solid #dce5f5;background:#fff;color:#172c4f;box-shadow:none;}
 .profit-tool .mp-goal-check.is-critical>b {display:block;font-size:19px;color:#b91c1c;}
 .profit-tool .mp-goal-causes {padding-left:20px;margin:20px 0;}
 .profit-tool .mp-goal-causes li+li {margin-top:18px;}
 .profit-tool .mp-goal-causes strong {color:#b91c1c;font-size:15px;}
-.profit-tool .mp-goal-causes p {line-height:1.8;color:#7f1d1d;}
+.profit-tool .mp-goal-causes p {line-height:1.8;color:#52657f;}
 .profit-tool .mp-ad-products .mp-ad-capture {display:block;position:relative;padding-top:38px;}
 .profit-tool .mp-ad-capture>img {width:100%;height:auto;display:block;}
 .profit-tool .mp-ad-capture>.mp-ad-place {top:8px;left:0;}
 .profit-tool .mp-ad-capture-error {padding:40px 15px;text-align:center;line-height:1.8;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:14px;}
 @media(max-width:650px){.profit-tool .mp-shell .mp-plan-row .mp-field-label,.profit-tool .mp-shell .mp-plan-row .mp-target-input>label{min-height:48px;display:flex;align-items:center;margin-bottom:8px;}.profit-tool .mp-unit-summary{padding:18px;}.profit-tool .mp-goal-check.is-critical>b{font-size:16px;}}
+
+/* Slide between tablet screens while retaining all entered values. */
+.profit-tool .mp-shell .mp-workspace.mp-ipad {overflow:hidden;}
+.profit-tool .mp-story .mp-keyword-candidates:has(.mp-goal-check) {grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;}
+.profit-tool .mp-story .mp-keyword-candidates>li {min-width:0;display:block;padding:16px!important;}
+.profit-tool .mp-story .mp-keyword-candidates>li>div {min-width:0;}
+.profit-tool .mp-keyword-candidates .mp-goal-check {padding:12px;}
+.profit-tool .mp-keyword-candidates .mp-goal-check>b {font-size:14px;}
+.profit-tool .mp-keyword-candidates .mp-goal-check dl {grid-template-columns:1fr;}
+.profit-tool .mp-keyword-candidates .mp-goal-check dl>div {display:block;}
+.profit-tool .mp-keyword-candidates .mp-goal-check dd {text-align:left;margin-top:5px;overflow-wrap:anywhere;}
+.profit-tool .mp-keyword-candidates .mp-goal-causes {padding-left:14px;}
+.profit-tool .mp-keyword-candidates .mp-goal-causes strong {font-size:13px;white-space:normal;}
+@media(max-width:750px){.profit-tool .mp-story .mp-keyword-candidates:has(.mp-goal-check){grid-template-columns:repeat(3,minmax(260px,1fr));overflow-x:auto;scroll-snap-type:x proximity;padding-bottom:12px!important;}.profit-tool .mp-story .mp-keyword-candidates>li{scroll-snap-align:start;}}
+@media print{.profit-tool .mp-story .mp-keyword-candidates:has(.mp-goal-check){grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;}}
