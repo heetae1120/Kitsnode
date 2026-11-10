@@ -30,3 +30,9 @@ test('only bounded JPEG captures survive validation, with rank and query intact'
  for(const invalid of ['data:image/svg+xml;base64,PHN2Zz4=',capture.slice(0,-4),'https://evil.test/capture.jpg',capture+'x'.repeat(350000)])assert.throws(()=>validateShoppingAdSnapshot({...observation,items:[{...item,capture:invalid}]},'가습기',now));
  assert.equal(new URL(shoppingSearchUrl('가습기 & 시계')).searchParams.get('frm'),'NVSCPRO');
 });
+
+test('integrated search is a separate placement and cannot masquerade as the shopping page',()=>{
+ const sample={...observation,placement:'integrated',sourceUrl:'https://search.naver.com/search.naver?query='+encodeURIComponent('가습기')};
+ const result=validateShoppingAdSnapshot(sample,'가습기',now);assert.equal(result.placement,'integrated');
+ for(const patch of [{placement:undefined},{placement:'shopping'},{sourceUrl:shoppingSearchUrl('가습기')},{sourceUrl:'https://search.naver.com.evil.test/search.naver?query=가습기'},{sourceUrl:'https://search.naver.com/search.naver?query=시계'}])assert.throws(()=>validateShoppingAdSnapshot({...sample,...patch},'가습기',now));
+});

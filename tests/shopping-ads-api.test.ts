@@ -26,8 +26,9 @@ test('collector failures and oversized responses are unavailable rather than zer
 
  test('integrated shopping placement is explicit and invalid sources never reach the browser',async()=>{
  let calls=0;let seen:any;
- const handle=createShoppingAdsHandler({browserCollector:async(keyword:string,options:any)=>{calls++;seen=options;return {keyword,placement:'integrated',items:[]};}});
+ const handle=createShoppingAdsHandler({browserCollector:async(keyword:string,options:any)=>{calls++;seen=options;return {keyword,device:'PC',placement:'integrated',sourceUrl:'https://search.naver.com/search.naver?query=test',observedAt:new Date().toISOString(),context:'integrated',complete:false,items:[]};}});
  const request=(placement:string)=>new Request('https://example.com/api/shopping-ads?keyword=test&placement='+placement);
  const result=await handle(request('integrated'),{});assert.equal(result.status,200);assert.equal((await result.json()).placement,'integrated');assert.equal(seen.placement,'integrated');
  assert.equal((await handle(request('other'),{})).status,400);assert.equal(calls,1);
  });
+
