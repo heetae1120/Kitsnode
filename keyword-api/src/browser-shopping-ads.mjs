@@ -10,7 +10,8 @@ export function normalizeObservedAds(rows){
  return {items,complete:items.length===3};
 }
 
-export async function collectShoppingAds(keyword){
+export async function collectShoppingAds(keyword,options={}){
+ if(options.placement==='integrated')return collectIntegratedShoppingAds(keyword);
  const [{default:chromium},{default:puppeteer}]=await Promise.all([import('@sparticuz/chromium'),import('puppeteer-core')]);
  const browser=await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});
  try{
@@ -61,4 +62,35 @@ export async function captureObservedAds(page,result,sourceUrl){
   item.capture='data:image/jpeg;base64,'+capture;
  }
  if(page.url()!==sourceUrl)throw Error('SHOPPING_PAGE_CHANGED');
+}
+
+/** A different, explicitly labelled placement: shopping ads in Naver integrated search. */
+export async function collectIntegratedShoppingAds(keyword){
+ const [{default:chromium},{default:puppeteer}]=await Promise.all([import('@sparticuz/chromium'),import('puppeteer-core')]);
+ const browser=await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});
+ try{
+  const page=await browser.newPage();page.setDefaultTimeout(10000);page.setDefaultNavigationTimeout(15000);
+  await page.setRequestInterception(true);
+  page.on('request',request=>{try{const u=new URL(request.url());const allowed=u.protocol==='https:'&&['naver.com','pstatic.net','naver.net'].some(host=>u.hostname===host||u.hostname.endsWith('.'+host));if(!allowed||['media','font'].includes(request.resourceType()))void request.abort().catch(()=>{});else void request.continue().catch(()=>{});}catch{void request.abort().catch(()=>{});}});
+  const source=new URL('https://search.naver.com/search.naver');source.searchParams.set('query',keyword);
+  const response=await page.goto(source.href,{waitUntil:'domcontentloaded'});
+  if(response&&[403,418,429].includes(response.status()))throw Error('SHOPPING_PAGE_BLOCKED');
+  if(!response?.ok())throw Error('SHOPPING_PAGE_UNAVAILABLE');
+  await page.waitForSelector('[id^="view_type_guide_"]');
+  const rows=await page.evaluate(()=>Array.from(document.querySelectorAll('[id^="view_type_guide_"]')).filter(info=>/^view_type_guide_\d+$/.test(info.id)&&Array.from(info.querySelectorAll('button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0)).slice(0,3).map(info=>({id:info.id,ad:true,title:Array.from(info.querySelectorAll('a')).map(a=>a.textContent.trim()).sort((a,b)=>b.length-a.length)[0]||''})));
+  const result=normalizeObservedAds(rows);
+  for(let index=0;index<rows.length;index++){
+   const current=new URL(page.url());if(current.origin!==source.origin||current.pathname!==source.pathname||current.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
+   const handle=await page.$('#'+rows[index].id);if(!handle)throw Error('AD_RESULTS_NOT_CONFIRMED');
+   const card=await handle.evaluateHandle(info=>info.closest('li'));
+   if(!await card.evaluate((element,id)=>element?.querySelectorAll('[id^="view_type_guide_"]').length===1&&Array.from(element.querySelectorAll('#'+id+' button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0),rows[index].id))throw Error('AD_RESULTS_NOT_CONFIRMED');
+   await card.evaluate(element=>element.scrollIntoView({block:'center'}));
+   await card.evaluate(async element=>{await Promise.all(Array.from(element.querySelectorAll('img')).map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});setTimeout(resolve,2500);})));});
+   if(!await card.evaluate(element=>Array.from(element.querySelectorAll('img')).some(img=>img.complete&&img.naturalWidth>20)))throw Error('AD_CAPTURE_UNAVAILABLE');
+   const capture=await card.asElement().screenshot({type:'jpeg',quality:80,encoding:'base64'});
+   if(capture.length>350000)throw Error('AD_CAPTURE_UNAVAILABLE');result.items[index].capture='data:image/jpeg;base64,'+capture;
+  }
+  const finalUrl=new URL(page.url());if(finalUrl.origin!==source.origin||finalUrl.pathname!==source.pathname||finalUrl.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
+  return {keyword,device:'PC',placement:'integrated',sourceUrl:source.href,observedAt:new Date().toISOString(),context:'네이버 통합검색 · 가격비교 쇼핑광고 · PC · 서버 비로그인 · 확인된 광고 순서',...result};
+ }finally{await browser.close();}
 }
