@@ -13,7 +13,7 @@ test('default API path opens the shopping link through its browser collector wit
  const request=()=>new Request('https://example.com/api/shopping-ads?keyword=가습기',{headers:{origin:'https://heetae1120.github.io'}});
  const response=await handle(request(),{});assert.equal(response.status,200);assert.equal((await response.json()).keyword,'가습기');
  const limited=createShoppingAdsHandler({maxRequests:1,browserCollector:async()=>observations[0]});
- assert.equal((await limited(request(),{},'same-client')).status,200);assert.equal((await limited(request(),{},'same-client')).status,429);
+ assert.equal((await limited(request(),{},'same-client')).status,200);assert.equal((await limited(request(),{},'same-client')).status,200);assert.equal((await limited(new Request('https://example.com/api/shopping-ads?keyword=보조배터리'),{},'same-client')).status,429);
 });
 
 import {captureObservedAds} from '../keyword-api/src/browser-shopping-ads.mjs';
@@ -28,3 +28,4 @@ test('capture keeps verified rank order and refuses changed pages or unconfirmed
  cards[0].evaluate=async()=>false;
  await assert.rejects(()=>captureObservedAds(page,items,source),/AD_RESULTS_NOT_CONFIRMED/);assert.equal(screenshots,3);
 });
+
