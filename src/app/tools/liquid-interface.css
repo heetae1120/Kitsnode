@@ -197,3 +197,5 @@
 .profit-tool .mp-screen-preview input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin:3px 0 0;}
 .profit-tool .mp-user-screen{margin:0;}.profit-tool .mp-user-screen figcaption{font-size:12px;color:#52657f;padding:12px 0;}
 @media print{.profit-tool .mp-user-screen button{display:none;}}
+
+.profit-tool .mp-ad-capture-placeholder{text-align:center;padding:32px 18px;color:#52657f;line-height:1.8;}.profit-tool .mp-ad-capture-placeholder>svg{margin:0 auto 16px;}.profit-tool .mp-ad-capture-placeholder h5{font-size:16px;}.profit-tool .mp-ad-capture-placeholder p{font-size:12px;}
