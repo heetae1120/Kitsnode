@@ -199,3 +199,39 @@
 @media print{.profit-tool .mp-user-screen button{display:none;}}
 
 .profit-tool .mp-ad-capture-placeholder{text-align:center;padding:32px 18px;color:#52657f;line-height:1.8;}.profit-tool .mp-ad-capture-placeholder>svg{margin:0 auto 16px;}.profit-tool .mp-ad-capture-placeholder h5{font-size:16px;}.profit-tool .mp-ad-capture-placeholder p{font-size:12px;}
+
+/* Two report screens, with the keyword journey inside a matching tablet. */
+.profit-tool .mp-report-pages{scroll-margin-top:96px;min-width:0;}
+.profit-tool .mp-report-page-nav{display:flex;justify-content:center;align-items:center;gap:14px;margin:10px 0 32px;}
+.profit-tool .mp-report-page-nav button{border:1px solid #dce5f5;background:#fff;color:#697b94;border-radius:999px;padding:12px 20px;font:inherit;font-weight:700;cursor:pointer;}
+.profit-tool .mp-report-page-nav button[aria-current=page]{background:#2858f5;border-color:#2858f5;color:#fff;box-shadow:0 6px 20px #2858f525;}
+.profit-tool .mp-report-page-nav button span{font-size:11px;margin-right:6px;opacity:.8;}.profit-tool .mp-page-line{height:1px;width:30px;background:#dce5f5;}
+.profit-tool .mp-report-page-viewport{overflow:hidden;transition:height .3s ease;}
+.profit-tool .mp-report-page-track{display:flex;align-items:flex-start;width:100%;}
+.profit-tool .mp-report-page{flex:0 0 100%;width:100%;min-width:0;outline:none;}
+
+.profit-tool .mp-report-page-actions{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:24px 0;padding:18px 0;border-top:1px solid #dce5f5;}
+.profit-tool .mp-report-page-actions>span{font-size:12px;color:#697b94;}
+.profit-tool .mp-report-keyword-screen{position:relative;border:14px solid #202b3b;border-radius:40px;padding:36px 28px;background:#fff;box-shadow:0 0 0 2px #8593a5,0 20px 45px #172c4f16;margin:3px 3px 24px;}
+.profit-tool .mp-report-camera{position:absolute;top:-9px;left:50%;width:5px;height:5px;border-radius:50%;background:#101826;box-shadow:0 0 0 1px #3c4c61;}
+.profit-tool .mp-report-home{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:94px;height:4px;border-radius:3px;background:#202b3b;}
+.profit-tool .mp-report-keyword-screen .mp-story-chapter{margin:0 0 44px;}
+.profit-tool .mp-report-keyword-screen .mp-story-heading{margin-bottom:26px;}
+.profit-tool .mp-report-keyword-screen .mp-story-heading h2{font-size:clamp(25px,3vw,40px);line-height:1.35;}
+.profit-tool .mp-report-keyword-screen .mp-keywords{padding:0;border:0;border-radius:0;background:transparent;}
+.profit-tool .mp-story .mp-candidates-concise>li{padding:20px 16px!important;background:#fff;}
+.profit-tool .mp-candidates-concise h4{font-size:17px;margin:14px 0 8px;}
+.profit-tool .mp-candidates-concise .mp-candidate-source{font-size:10px;min-height:18px;margin:0 0 16px;}
+.profit-tool .mp-candidate-price{padding-bottom:16px;border-bottom:1px solid #e4eaf5;}
+.profit-tool .mp-candidate-price>span,.profit-tool .mp-candidate-cpa>span{display:block;font-size:11px;color:#697b94;margin-bottom:6px;}
+.profit-tool .mp-candidates-concise .mp-candidate-price strong{font-size:26px;}
+.profit-tool .mp-candidate-cpa{padding:14px 0;}.profit-tool .mp-candidate-cpa b{font-size:17px;}
+.profit-tool .mp-goal-compact{padding-top:4px;font-size:12px;}
+.profit-tool .mp-goal-compact>span{display:inline-block;padding:5px 8px;border-radius:6px;background:#f3f5f9;font-weight:750;}
+.profit-tool .mp-compact-risk{color:#b91c1c!important;}.profit-tool .mp-compact-good{color:#16804b;}.profit-tool .mp-compact-unknown{color:#8c641b;}
+.profit-tool .mp-goal-compact>dl{margin:12px 0;}.profit-tool .mp-goal-compact>dl>div{display:flex;justify-content:space-between;gap:8px;padding:6px 0;}.profit-tool .mp-goal-compact dt{font-size:10px;color:#697b94;}.profit-tool .mp-goal-compact dd{margin:0;font-size:12px;font-weight:750;text-align:right;}
+.profit-tool .mp-goal-compact>details>summary{cursor:pointer;color:#52657f;font-size:11px;padding:8px 0;}
+.profit-tool .mp-candidate-assumption{font-size:11px;color:#697b94;line-height:1.8;}
+@media(max-width:650px){.profit-tool .mp-report-keyword-screen{border-width:8px;border-radius:27px;padding:25px 14px 30px;}.profit-tool .mp-report-camera{top:-6px;width:4px;height:4px;}.profit-tool .mp-report-page-nav{gap:7px;}.profit-tool .mp-report-page-nav button{padding:11px 12px;font-size:12px;}.profit-tool .mp-report-page-actions{flex-wrap:wrap;}.profit-tool .mp-report-page-actions>span{font-size:11px;}.profit-tool .mp-story .mp-candidates-concise:has(.mp-goal-compact){grid-template-columns:repeat(3,minmax(230px,1fr));overflow-x:auto;}}
+@media(prefers-reduced-motion:reduce){.profit-tool .mp-report-page-viewport{transition:none;}}
+@media print{.profit-tool .mp-report-page-nav,.profit-tool .mp-report-page-actions,.profit-tool .mp-report-camera,.profit-tool .mp-report-home{display:none;}.profit-tool .mp-report-page-viewport{height:auto!important;overflow:visible;}.profit-tool .mp-report-page-track{display:block;transform:none!important;}.profit-tool .mp-report-page[aria-hidden=true]{visibility:visible;}.profit-tool .mp-report-keyword-screen{border:0;box-shadow:none;padding:0;margin:0;}.profit-tool .mp-candidates-concise details{display:none;}}

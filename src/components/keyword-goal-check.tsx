@@ -3,11 +3,17 @@ import {formatRange,type CountRange} from '@/lib/naver-keywords';
 const n=(v:number)=>v.toLocaleString('ko-KR',{maximumFractionDigits:2});
 const requiredPercent=(v:number)=>n(Math.ceil(v*100)/100);
 const money=(v:number)=>`${Math.ceil(v).toLocaleString('ko-KR')}원`;
-export function KeywordGoalCheck({cpc,perOrder,budget,quantity,months,cvr,volume,device,budgetContext}:{cpc:number;perOrder:number;budget:number;quantity:number;months:number;cvr:number;volume:CountRange|null;device:string;budgetContext?:GoalBudgetContext}){
+export function KeywordGoalCheck({cpc,perOrder,budget,quantity,months,cvr,volume,device,budgetContext,compact=false}:{cpc:number;perOrder:number;budget:number;quantity:number;months:number;cvr:number;volume:CountRange|null;device:string;budgetContext?:GoalBudgetContext;compact?:boolean}){
  const diagnostic=keywordGoalDiagnostics({cpc,perOrder,budget,quantity,months,cvr,monthlySearches:volume?.max??null},budgetContext);
  if(!diagnostic)return <p className="mp-keyword-over">구매 비율을 0% 초과~100%로 입력하면 목표를 계산해요.</p>;
  const g=diagnostic.goal;
  const title={loss:'이 조건으로 목표를 채우면 손해예요',both:'예산과 검색량 모두 부족해요',budget:'이 예산으로는 목표 수량이 부족해요',demand:'이 검색어 하나로는 수량이 부족해요',unknown:'검색량 확인이 더 필요해요',conditional:'계산 조건은 맞아요 · 실제 클릭 확인 필요'}[g.status];
+ if(compact){
+  const risky=g.loss||g.budgetShort||g.demandShort;
+  const status=g.loss?'손실 위험':g.budgetShort&&g.demandShort?'예산·검색량 부족':g.budgetShort?'예산 부족':g.demandShort?'검색량 부족':g.status==='unknown'?'검색량 미확인':'계산상 가능';
+  const maxOrders=Math.min(g.budgetOrders,g.demandOrders??g.budgetOrders);
+  return <div className="mp-goal-compact"><span className={risky?'mp-compact-risk':g.status==='unknown'?'mp-compact-unknown':'mp-compact-good'}>{status}</span><dl><div><dt>판매 상한 · 계산상</dt><dd>{n(maxOrders)} / {n(quantity)}개</dd></div>{g.budgetShort&&<div><dt>부족한 광고비</dt><dd className="mp-compact-risk">{money(g.extraBudget)}</dd></div>}{g.loss&&<div><dt>목표 광고비 손실</dt><dd className="mp-compact-risk">{money(diagnostic.goalAdLoss)}</dd></div>}{g.demandShort&&<div><dt>부족한 클릭</dt><dd className="mp-compact-risk">{n(diagnostic.missingClicks??0)}회</dd></div>}</dl><details><summary>계산 자세히</summary><KeywordGoalCheck cpc={cpc} perOrder={perOrder} budget={budget} quantity={quantity} months={months} cvr={cvr} volume={volume} device={device} budgetContext={budgetContext}/></details></div>;
+ }
  return <section className={`mp-goal-check ${g.status==='conditional'?'is-conditional':g.status==='unknown'?'is-short':'is-critical'}`} role={g.loss||g.budgetShort||g.demandShort?'alert':undefined} aria-label="판매 목표 점검"><b>{g.loss||g.budgetShort||g.demandShort?'⚠ 목표 달성 위험 · ':''}{title}</b><p>{months}개월 · {n(quantity)}개 목표 · 구매 비율 {n(cvr)}% 가정</p>
  <ul className="mp-goal-causes">
  {g.budgetShort&&<li><strong>광고비 부족: {money(g.extraBudget)}</strong><p>쓸 수 있는 홍보비 {money(budget)}로는 최대 {n(g.budgetOrders)}개 판매가 가능해요. 목표에는 {money(g.neededBudget)}이 필요해요.</p>{budgetContext&&<p>전체 돈 {money(budgetContext.available)} − 상품·배송 등 확보할 비용 {money(budgetContext.reserved)} = 남는 자금 {money(budgetContext.cashRoom)}. 홍보비는 남는 자금과 이익 한도 중 작은 금액으로 제한돼요.</p>}{diagnostic.inventoryCashShortfall!==null&&diagnostic.inventoryCashShortfall>0&&<p>광고를 시작하기 전부터 상품·판매 비용이 {money(diagnostic.inventoryCashShortfall)} 부족해요.</p>}</li>}
