@@ -191,3 +191,9 @@
 .profit-tool .mp-browser-capture summary{font-size:12px;font-weight:700;cursor:pointer;}
 .profit-tool .mp-browser-capture code{background:#e8eefb;padding:2px 4px;border-radius:4px;overflow-wrap:anywhere;}
 @media print{.profit-tool .mp-browser-capture{display:none;}}
+
+.profit-tool .mp-screen-preview>img,.profit-tool .mp-user-screen>img{width:100%;height:auto;display:block;border:1px solid #dce5f5;border-radius:10px;}
+.profit-tool .mp-screen-preview>label{display:flex;align-items:flex-start;gap:10px;margin:16px 0;line-height:1.7;}
+.profit-tool .mp-screen-preview input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin:3px 0 0;}
+.profit-tool .mp-user-screen{margin:0;}.profit-tool .mp-user-screen figcaption{font-size:12px;color:#52657f;padding:12px 0;}
+@media print{.profit-tool .mp-user-screen button{display:none;}}
