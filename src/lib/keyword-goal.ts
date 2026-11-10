@@ -3,7 +3,7 @@ export function breakEvenConversion(cpc:number,perOrder:number){
  return cpc/perOrder*100;
 }
 
-export type GoalBudgetContext = {available:number;reserved:number;cashRoom:number;profitRoom:number};
+export type GoalBudgetContext = {available:number;reserved:number;cashRoom:number;profitRoom:number;basis?:'available'|'sales'};
 
 /** Separate insufficient cash from unprofitable advertising; extra money does not fix a loss. */
 export function keywordGoalDiagnostics(input:Parameters<typeof keywordGoal>[0],context?:GoalBudgetContext){
@@ -12,11 +12,11 @@ export function keywordGoalDiagnostics(input:Parameters<typeof keywordGoal>[0],c
  const estimatedCpa=input.cpc/(input.cvr/100);
  const totalSearches=input.monthlySearches===null?null:input.monthlySearches*input.months;
  const missingClicks=totalSearches===null?null:Math.max(0,goal.neededClicks-totalSearches);
- const validContext=context&&Object.values(context).every(Number.isFinite)?context:null;
+ const validContext=context&&[context.available,context.reserved,context.cashRoom,context.profitRoom].every(Number.isFinite)?context:null;
  return {goal,estimatedCpa,unitAdLoss:Math.max(0,estimatedCpa-input.perOrder),
   goalAdLoss:Math.max(0,goal.neededBudget-input.quantity*input.perOrder),totalSearches,missingClicks,
-  inventoryCashShortfall:validContext?Math.max(0,-validContext.cashRoom):null,
-  extraWorkingCapital:validContext?Math.max(0,goal.neededBudget-validContext.cashRoom):null};
+  inventoryCashShortfall:validContext&&validContext.basis!=='sales'?Math.max(0,-validContext.cashRoom):null,
+  extraWorkingCapital:validContext&&validContext.basis!=='sales'?Math.max(0,goal.neededBudget-validContext.cashRoom):null};
 }
 
 /** Upper bounds, not sales forecasts: at most one paid click per search. */

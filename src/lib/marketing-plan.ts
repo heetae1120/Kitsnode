@@ -5,6 +5,18 @@ export type MarketingPlanInput = {
   marketingBudget?: number; purchaseBudget?: number;
 };
 
+/** Post-sale scenario: fund promotion from total sales less all selling costs. */
+export function salesFundedMarketingPlan(input:MarketingPlanInput){
+  return marketingPlan({...input,available:input.price*input.quantity});
+}
+
+/** Inventory only: shipping, fees and promotion are not part of this purchase ceiling. */
+export function budgetPurchaseCapacity(available:number,cost:number):number|null{
+  if(!Number.isFinite(available)||available<0||!Number.isFinite(cost)||cost<=0)return null;
+  const count=Math.floor(available/cost);
+  return Number.isSafeInteger(count)?count:null;
+}
+
 export function marketingPlan(p: MarketingPlanInput) {
   if (Object.values(p).some(v => !Number.isFinite(v) || v < 0) || p.price <= 0 || !Number.isSafeInteger(p.quantity) || p.quantity < 1 || p.feePercent > 100) {
     throw new Error('판매가·수량은 0보다 크게, 비용은 0 이상으로 입력해 주세요. 수수료는 100% 이하여야 합니다.');
