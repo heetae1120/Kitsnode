@@ -10,10 +10,17 @@ export function normalizeObservedAds(rows){
  return {items,complete:items.length===3};
 }
 
+async function launchShoppingBrowser(chromium,puppeteer){
+ try{return await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});}
+ catch{throw Error('BROWSER_START_FAILED');}
+}
+async function closeShoppingBrowser(browser){
+ try{for(const page of await browser.pages())await page.close();}finally{await browser.close();}
+}
 export async function collectShoppingAds(keyword,options={}){
  if(options.placement==='integrated')return collectIntegratedShoppingAds(keyword);
  const [{default:chromium},{default:puppeteer}]=await Promise.all([import('@sparticuz/chromium'),import('puppeteer-core')]);
- const browser=await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});
+ const browser=await launchShoppingBrowser(chromium,puppeteer);
  try{
   const page=await browser.newPage();
   page.setDefaultTimeout(10000);page.setDefaultNavigationTimeout(30000);
@@ -43,7 +50,7 @@ export async function collectShoppingAds(keyword,options={}){
   const result=normalizeObservedAds(rows);
   await captureObservedAds(page,result,url.href);
   return {keyword,device:'PC',sourceUrl:url.href,observedAt:new Date().toISOString(),context:'서버 브라우저 · 비로그인 · 네이버 랭킹순 · 첫 페이지',...result};
- }finally{await browser.close();}
+ }finally{await closeShoppingBrowser(browser);}
 }
 
 /** Captures only previously verified ads, on the exact entered-keyword page. */
@@ -67,13 +74,13 @@ export async function captureObservedAds(page,result,sourceUrl){
 /** A different, explicitly labelled placement: shopping ads in Naver integrated search. */
 export async function collectIntegratedShoppingAds(keyword){
  const [{default:chromium},{default:puppeteer}]=await Promise.all([import('@sparticuz/chromium'),import('puppeteer-core')]);
- const browser=await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});
+ const browser=await launchShoppingBrowser(chromium,puppeteer);
  try{
   const page=await browser.newPage();page.setDefaultTimeout(10000);page.setDefaultNavigationTimeout(30000);
   await page.setRequestInterception(true);
   page.on('request',request=>{try{const u=new URL(request.url());const allowed=u.protocol==='https:'&&['naver.com','pstatic.net','naver.net'].some(host=>u.hostname===host||u.hostname.endsWith('.'+host));if(!allowed||['media','font'].includes(request.resourceType()))void request.abort().catch(()=>{});else void request.continue().catch(()=>{});}catch{void request.abort().catch(()=>{});}});
   const source=new URL('https://search.naver.com/search.naver');source.searchParams.set('query',keyword);
-  const response=await page.goto(source.href,{waitUntil:'domcontentloaded'});
+  const response=await page.goto(source.href,{waitUntil:'domcontentloaded'}).catch(()=>{throw Error('SEARCH_LOAD_FAILED');});
   if(response&&[403,418,429].includes(response.status()))throw Error('SHOPPING_PAGE_BLOCKED');
   if(!response?.ok())throw Error('SHOPPING_PAGE_UNAVAILABLE');
   await page.waitForSelector('[id^="view_type_guide_"]');
@@ -92,6 +99,6 @@ export async function collectIntegratedShoppingAds(keyword){
   }
   const finalUrl=new URL(page.url());if(finalUrl.origin!==source.origin||finalUrl.pathname!==source.pathname||finalUrl.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
   return {keyword,device:'PC',placement:'integrated',sourceUrl:source.href,observedAt:new Date().toISOString(),context:'네이버 통합검색 · 가격비교 쇼핑광고 · PC · 서버 비로그인 · 확인된 광고 순서',...result};
- }finally{await browser.close();}
+ }finally{await closeShoppingBrowser(browser);}
 }
 

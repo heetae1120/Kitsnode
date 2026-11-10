@@ -32,3 +32,21 @@ test('collector failures and oversized responses are unavailable rather than zer
  assert.equal((await handle(request('other'),{})).status,400);assert.equal(calls,1);
  });
 
+
+test('same-key requests share work and successful captures keep the observed timestamp for one minute',async()=>{
+ let calls=0;let release!:()=>void;let clock=0;
+ const gate=new Promise<void>(resolve=>release=resolve);
+ const handle=createShoppingAdsHandler({maxRequests:1,now:()=>clock,browserCollector:async(keyword:string)=>{calls++;await gate;return {keyword,device:'PC',sourceUrl:'source',observedAt:'original-time',context:'context',complete:false,items:[]};}});
+ const first=handle(request(),{});const duplicate=handle(request(),{});
+ const busy=await handle(request('다른검색어'),{},'other-client');assert.equal(busy.status,429);assert.equal((await busy.json()).code,'COLLECTOR_BUSY');assert.equal(busy.headers.get('Retry-After'),'5');
+ release();const results=await Promise.all([first,duplicate]);assert.deepEqual(await results[0].json(),await results[1].json());assert.equal(calls,1);
+ assert.equal((await (await handle(request(),{})).json()).observedAt,'original-time');assert.equal(calls,1);
+ clock=61000;assert.equal((await handle(request(),{})).status,200);assert.equal(calls,2);
+});
+
+test('failed shared requests release capacity and never enter the success cache',async()=>{
+ let calls=0;const handle=createShoppingAdsHandler({browserCollector:async()=>{calls++;throw Error('BROWSER_START_FAILED');}});
+ assert.equal((await (await handle(request(),{})).json()).reason,'BROWSER_START_FAILED');
+ assert.equal((await handle(request(),{})).status,502);assert.equal(calls,2);
+});
+
