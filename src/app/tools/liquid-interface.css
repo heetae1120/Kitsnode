@@ -250,3 +250,6 @@
 @media(max-width:650px){.profit-tool .mp-reorder{padding:22px 16px;margin-top:45px}.profit-tool .mp-reorder-heading{flex-direction:column;gap:18px}.profit-tool .mp-reorder h2{font-size:21px}.profit-tool .mp-reorder-metrics{gap:10px}.profit-tool .mp-reorder-metrics span{font-size:10px}.profit-tool .mp-reorder-metrics b{font-size:14px}.profit-tool .mp-goal-invitation{padding:28px 8px}.profit-tool .mp-goal-invitation p{font-size:14px}.profit-tool .mp-auto-ad-captures li{grid-template-columns:1fr;padding:12px}.profit-tool .mp-auto-ad-captures li>b{grid-column:1;grid-row:auto}.profit-tool .mp-auto-ad-captures img,.profit-tool .mp-auto-ad-captures li>p{grid-column:1}}
 @media print{.mp-signup-dialog{display:none!important}.profit-tool .mp-reorder{break-inside:avoid}.profit-tool .mp-reorder input{border:0}}
 .mp-signup-dialog{position:fixed;inset:0;margin:auto;max-height:calc(100dvh - 32px);overflow:auto}
+/* Keep original capture proportions without enlarging narrow shopping cards. */
+.profit-tool .mp-auto-ad-captures img{width:auto;max-width:100%;height:auto;max-height:220px;object-fit:contain;object-position:left center;justify-self:start}
+@media(max-width:650px){.profit-tool .mp-auto-ad-captures img{max-height:200px}}
