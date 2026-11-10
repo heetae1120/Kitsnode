@@ -77,17 +77,17 @@ export function MarketingPlanner(){
    {live&&live.profit<0&&<p role="alert"><TriangleAlert size={16}/>한 개 팔 때 {money(-live.profit)} 손해입니다.</p>}
   </aside>}
   <main className="mp-main">
-   {step<3&&<header className="mp-intro"><h1>내 상품<br/><em>팔아도 되는걸까요?</em></h1></header>}
+   {step<3&&<header className="mp-intro"><h1>진단 키트로 빠르게 진단해보기</h1></header>}
    {step<=3&&<ol className="mp-steps" aria-label="분석 진행 단계">{['상품과 자금','빠뜨린 비용 확인','결과'].map((label,index)=><li key={label} aria-current={step===index+1?'step':undefined} data-complete={step>index+1||undefined}><span className="mp-step-number">{step>index+1?<Check size={24}/>:String(index+1).padStart(2,'0')}</span><div><small>STEP {String(index+1).padStart(2,'0')}</small><b>{label}</b></div></li>)}</ol>}
    <section ref={focus} tabIndex={-1} className={`mp-workspace ${step>=3?'mp-workspace-report':'mp-ipad'}`} aria-label={step>=3?'수익성 평가 보고서':'수익성 분석 입력'}>
     {step<3&&<span className="mp-ipad-camera" aria-hidden="true"/>}
     {step<3?<form onSubmit={submit} noValidate>
-     <div className="mp-section-heading"><span>STEP 0{step}</span><h2>{step===1?'상품과 예산을 알려주세요':'이런 비용, 안 빼먹으셨나요?'}</h2></div>
+     <div className="mp-section-heading"><span>STEP 0{step}</span><h2>{step===1?'간단하게 작성해주시면 빠르게 진단해드려요':'이런 비용, 안 빼먹으셨나요?'}</h2></div>
      {step===1&&<>
       <label className="mp-name">품목<input value={draft.name} onChange={event=>update('name',event.target.value)} placeholder="예: 보조배터리" maxLength={100}/></label>
       <div className="mp-plan-row">
        <section className="mp-budget-input" aria-label="사용할 예산"><div className="mp-field"><div className="mp-field-label"><label htmlFor="mp-available">쓸 수 있는 전체 돈</label><PlannerCostHelp field="available" label="쓸 수 있는 전체 돈"/></div><div className="mp-input-wrap"><FormattedNumberInput id="mp-available" value={draft.available} onValueChange={value=>update('available',value)} placeholder="금액 입력"/><span>원</span></div></div></section>
-       <section className="mp-target-input"><label htmlFor="mp-months">판매 목표</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월 이내</span></div></section>
+       <section className="mp-target-input"><label htmlFor="mp-months">몇개월 안에 다 팔아보고 싶으신가요?</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월 이내</span></div></section>
       </div>
      </>}
      <div className={`mp-fields ${step===1?'mp-fields-basic':''}`}>

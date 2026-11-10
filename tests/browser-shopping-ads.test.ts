@@ -15,3 +15,16 @@ test('default API path opens the shopping link through its browser collector wit
  const limited=createShoppingAdsHandler({maxRequests:1,browserCollector:async()=>observations[0]});
  assert.equal((await limited(request(),{},'same-client')).status,200);assert.equal((await limited(request(),{},'same-client')).status,429);
 });
+
+import {captureObservedAds} from '../keyword-api/src/browser-shopping-ads.mjs';
+test('capture keeps verified rank order and refuses changed pages or unconfirmed ad cards',async()=>{
+ const source='https://search.shopping.naver.com/search/all?query=test&frm=NVSCPRO';
+ const items=normalizeObservedAds([{ad:true,title:'one'},{ad:true,title:'two'},{ad:true,title:'three'}]);
+ let screenshots=0;
+ const cards=items.items.map((item,index)=>({evaluate:async(_fn:unknown,title?:string)=>title===undefined?undefined:title===item.title,screenshot:async()=>{screenshots++;return 'capture'+index;}}));
+ const page={url:()=>source,$$:async()=>cards};
+ await captureObservedAds(page,items,source);assert.equal(screenshots,3);assert.deepEqual(items.items.map((item:any)=>item.capture),[0,1,2].map(n=>'data:image/jpeg;base64,capture'+n));
+ await assert.rejects(()=>captureObservedAds({...page,url:()=>source+'&changed=1'},items,source),/SHOPPING_PAGE_CHANGED/);
+ cards[0].evaluate=async()=>false;
+ await assert.rejects(()=>captureObservedAds(page,items,source),/AD_RESULTS_NOT_CONFIRMED/);assert.equal(screenshots,3);
+});

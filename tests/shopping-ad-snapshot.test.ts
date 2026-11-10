@@ -22,3 +22,11 @@ test('review metadata preserves observed values and drops invalid values',()=>{
  const item=validateShoppingAdSnapshot(sample,'가습기',now).items[0];assert.equal(item.rating,4.88);assert.equal(item.reviewCount,'490');assert.equal(item.couponPrice,268200);
  const invalid=validateShoppingAdSnapshot({...sample,items:[{...sample.items[0],rating:6,reviewCount:123,couponPrice:-1}]},'가습기',now).items[0];assert.equal(invalid.rating,null);assert.equal(invalid.reviewCount,'');assert.equal(invalid.couponPrice,null);
 });
+
+test('only bounded JPEG captures survive validation, with rank and query intact',()=>{
+ const capture='data:image/jpeg;base64,'+Buffer.from([255,216,255,224,1,2,3,255,217]).toString('base64');
+ const item={...observation.items[0],capture};
+ assert.equal(validateShoppingAdSnapshot({...observation,items:[item]},'가습기',now).items[0].capture,capture);
+ for(const invalid of ['data:image/svg+xml;base64,PHN2Zz4=',capture.slice(0,-4),'https://evil.test/capture.jpg',capture+'x'.repeat(350000)])assert.throws(()=>validateShoppingAdSnapshot({...observation,items:[{...item,capture:invalid}]},'가습기',now));
+ assert.equal(new URL(shoppingSearchUrl('가습기 & 시계')).searchParams.get('frm'),'NVSCPRO');
+});

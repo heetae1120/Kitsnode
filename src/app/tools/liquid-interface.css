@@ -148,3 +148,22 @@
   .profit-tool .mp-shell .mp-workspace.mp-ipad { border: 0; padding: 0; box-shadow: none; min-height: 0; }
   .profit-tool .mp-shell :is(.mp-ipad-camera,.mp-ipad-home) { display: none; }
 }
+
+/* Diagnosis wording, consolidated profit card and actionable goal warnings. */
+.profit-tool .mp-shell .mp-intro h1 {font-size:clamp(21px,4.8vw,60px);white-space:nowrap;letter-spacing:-.065em;line-height:1.3;color:#2452ff;}
+.profit-tool .mp-unit-summary {padding:28px;border:1px solid #d8e3f5;border-radius:22px;background:#fff;}
+.profit-tool .mp-unit-summary h2 {font-size:clamp(22px,3vw,32px);margin:0 0 22px;}
+.profit-tool .mp-unit-summary .mp-story-sale {border:0;background:transparent;padding:0 0 24px;}
+.profit-tool .mp-unit-ad-limit {display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px;border-radius:14px;background:#edf2ff;}
+.profit-tool .mp-unit-ad-limit strong {font-size:clamp(24px,4vw,36px);color:#2452ff;}
+.profit-tool .mp-goal-check.is-critical {border:2px solid #dc2626;border-left:7px solid #dc2626;background:#fff1f2;color:#7f1d1d;box-shadow:0 6px 22px #dc262612;}
+.profit-tool .mp-goal-check.is-critical>b {display:block;font-size:19px;color:#b91c1c;}
+.profit-tool .mp-goal-causes {padding-left:20px;margin:20px 0;}
+.profit-tool .mp-goal-causes li+li {margin-top:18px;}
+.profit-tool .mp-goal-causes strong {color:#b91c1c;font-size:15px;}
+.profit-tool .mp-goal-causes p {line-height:1.8;color:#7f1d1d;}
+.profit-tool .mp-ad-products .mp-ad-capture {display:block;position:relative;padding-top:38px;}
+.profit-tool .mp-ad-capture>img {width:100%;height:auto;display:block;}
+.profit-tool .mp-ad-capture>.mp-ad-place {top:8px;left:0;}
+.profit-tool .mp-ad-capture-error {padding:40px 15px;text-align:center;line-height:1.8;color:#92400e;background:#fffbeb;border:1px solid #fcd34d;border-radius:14px;}
+@media(max-width:650px){.profit-tool .mp-shell .mp-plan-row .mp-field-label,.profit-tool .mp-shell .mp-plan-row .mp-target-input>label{min-height:48px;display:flex;align-items:center;margin-bottom:8px;}.profit-tool .mp-unit-summary{padding:18px;}.profit-tool .mp-goal-check.is-critical>b{font-size:16px;}}

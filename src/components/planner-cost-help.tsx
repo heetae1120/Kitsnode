@@ -9,7 +9,7 @@ const hints:Record<string,{text:string;links?:[string,string][]}>={
  quantity:{text:'이번에 준비할 개수예요. 예: 100개. 원가와 곱하면 총 구매비가 나와요.'},
  feePercent:{text:'네이버 7%는 참고용 예시예요. 실제 요율은 내 정산서를 보세요. 쿠팡윙은 상품별 4~10.9%, 로켓그로스도 판매수수료는 같아요. 로켓그로스 물류비는 별도예요. 세금·추가 요금도 확인하세요. 2026.11.04 확인.',links:[['네이버','https://help.sell.smartstore.naver.com/faq/content.help?faqId=3962'],['쿠팡윙','https://marketplace.coupang.com/information-center/almyeon-alsurog-deo-joheun-kupang-susuryo-2'],['로켓그로스','https://marketplace.coupang.com/rocket-growth']]},
  logistics:{text:'참고값은 한 개당 3,000원이에요. 내 계약에 맞게 바꾸세요. 입고·보관·배송비 중 내가 부담하는 돈만 더하세요.'},
- packaging:{text:'참고값은 한 개당 500원이에요. 박스·완충재·사은품 비용을 넣으세요. 월 이용료가 있다면 이번 판매 수량으로 나눠 더하세요.'},
+ packaging:{text:'참고값은 한 개당 1,000원이에요. 박스·완충재·사은품 비용을 넣으세요. 월 이용료가 있다면 이번 판매 수량으로 나눠 더하세요.'},
  returnRate:{text:'참고값 5%는 100개 중 5개가 반품된다는 뜻이에요. 실제 평균은 아니에요. 반품 한 건 처리비도 함께 넣어주세요.'},
  returnHandling:{text:'참고값은 한 건당 5,000원이에요. 회수·재포장·다시 팔 수 없는 손실을 더하세요. 반품률 5%라면 한 개당 250원이 비용에 붙어요.'},
 };

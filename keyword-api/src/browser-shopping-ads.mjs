@@ -22,7 +22,7 @@ export async function collectShoppingAds(keyword){
     if(!permitted||['media','font'].includes(request.resourceType()))void request.abort().catch(()=>{});else void request.continue().catch(()=>{});
    }catch{void request.abort().catch(()=>{});}
   });
-  const url=new URL('https://search.shopping.naver.com/search/all');url.searchParams.set('query',keyword);
+  const url=new URL('https://search.shopping.naver.com/search/all');url.searchParams.set('query',keyword);url.searchParams.set('frm','NVSCPRO');
   const response=await page.goto(url.href,{waitUntil:'domcontentloaded'});
   if(response&&[403,418,429].includes(response.status()))throw Error('SHOPPING_PAGE_BLOCKED');
   if(!response||!response.ok())throw Error('SHOPPING_PAGE_UNAVAILABLE');
@@ -40,7 +40,25 @@ export async function collectShoppingAds(keyword){
    return {rating:text('[class*="adProduct_rating"]')?Number(text('[class*="adProduct_rating"]')):null,reviewCount:text('[class*="adProduct_review"] em'),wishCount:text('[class*="adProduct_btn_zzim"] em'),originalPrice:number('[class*="price_org_price"]'),couponPrice:number('[class*="price_discount_price__"]'),promotion:text('[class*="adProduct_brand_message"]')||text('[class*="adProduct_membership_message"]'),shipping:[text('[class*="price_delivery_fee"]'),text('[class*="adProduct_delivery_area"]')].filter(Boolean).join(' · '),category:Array.from(card.querySelectorAll('[class*="adProduct_depth"] a')).map(x=>x.textContent).join(' > '),specifications:Array.from(card.querySelectorAll('[class*="adProduct_detail_box"] a')).map(x=>x.textContent).join(' · ').slice(0,1500),registeredAt:text('[class*="adProduct_etc_box"]').match(/등록일\s*(\d{4}\.\d{2}\.)/)?.[1]||'',ad,title:title?.textContent||'',mall:mall?.textContent||'',price:price?Number(price.textContent.replaceAll(',','')):null,image:image?.getAttribute('src')||null};
   }));
   const result=normalizeObservedAds(rows);
-  if(new URL(page.url()).origin!==url.origin||new URL(page.url()).pathname!==url.pathname)throw Error('SHOPPING_PAGE_CHANGED');
+  await captureObservedAds(page,result,url.href);
   return {keyword,device:'PC',sourceUrl:url.href,observedAt:new Date().toISOString(),context:'서버 브라우저 · 비로그인 · 네이버 랭킹순 · 첫 페이지',...result};
  }finally{await browser.close();}
+}
+
+/** Captures only previously verified ads, on the exact entered-keyword page. */
+export async function captureObservedAds(page,result,sourceUrl){
+ if(page.url()!==sourceUrl)throw Error('SHOPPING_PAGE_CHANGED');
+ const cards=await page.$$('[class*="adProduct_item"]');
+ for(let index=0;index<result.items.length;index++){
+  const card=cards[index];const item=result.items[index];
+  if(!card)throw Error('AD_CAPTURE_UNAVAILABLE');
+  const matches=await card.evaluate((element,title)=>Array.from(element.querySelectorAll('button')).some(button=>button.textContent.trim()==='광고')&&element.querySelector('[class*="adProduct_title"] a[title]')?.textContent.trim()===title,item.title);
+  if(!matches)throw Error('AD_RESULTS_NOT_CONFIRMED');
+  await card.evaluate(element=>element.scrollIntoView({block:'center'}));
+  await card.evaluate(async element=>{await Promise.all(Array.from(element.querySelectorAll('img')).map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});setTimeout(resolve,2000);})));});
+  const capture=await card.screenshot({type:'jpeg',quality:75,encoding:'base64'});
+  if(capture.length>350000)throw Error('AD_CAPTURE_UNAVAILABLE');
+  item.capture='data:image/jpeg;base64,'+capture;
+ }
+ if(page.url()!==sourceUrl)throw Error('SHOPPING_PAGE_CHANGED');
 }
