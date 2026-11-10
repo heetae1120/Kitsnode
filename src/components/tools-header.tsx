@@ -58,7 +58,7 @@ export const ToolsHeader = memo(function ToolsHeader({ active }: { active: ToolI
       <Link className="tool-brand" href="/tools/start/" aria-label="KITSNODE 도구 메인으로" aria-current={active === "start" ? "page" : undefined} onClick={close}>
         KITSNODE
       </Link>
-      <LiquidNavbar id="tools-navigation" ariaLabel="도구 메뉴" items={liquidItems} active={liquidActive} compact={false} sound={false} className={open ? "tool-nav open" : "tool-nav"}>
+      <LiquidNavbar id="tools-navigation" motionKey="tools" ariaLabel="도구 메뉴" items={liquidItems} active={liquidActive} compact={false} sound={false} className={open ? "tool-nav open" : "tool-nav"}>
         {["profit", "keywords"].map((id) => {
           const tool = toolLinks.find((item) => item.id === id)!;
           return (

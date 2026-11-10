@@ -24,6 +24,8 @@ export type LiquidNavItem = {
 
 export type LiquidNavbarProps = {
   /** Decorate existing Next.js links and menu buttons marked .nimbus-item. */
+  /** Continue the selected drop between client-side page transitions. */
+  motionKey?: string
   renderMode?: "auto" | "css"
   children?: React.ReactNode
   id?: string
@@ -63,6 +65,8 @@ const DEFAULT_ITEMS: LiquidNavItem[] = [
   { label: "Weather", icon: NimbusIcons.drop, fx: "drop" },
   { label: "Profile", icon: NimbusIcons.user, fx: "wave" },
 ]
+
+const routeSelections = new Map<string, number>()
 
 const PAD = 14 // canvas bleed around the pill, for shadows and ripples
 
@@ -233,7 +237,7 @@ function supportsRefraction() {
 }
 
 export function LiquidNavbar({
-  children, id, ariaLabel = "메뉴", renderMode = "auto",
+  children, id, ariaLabel = "메뉴", renderMode = "auto", motionKey,
   items = DEFAULT_ITEMS,
   defaultActive = 0,
   active,
@@ -247,6 +251,8 @@ export function LiquidNavbar({
   const filterId = `nimbus-${React.useId().replace(/:/g, "")}`
   const [inner, setInner] = React.useState(defaultActive)
   const current = active ?? inner
+  const previousSelection = React.useRef(motionKey ? routeSelections.get(motionKey) : undefined)
+  React.useEffect(() => { if (motionKey && current >= 0) routeSelections.set(motionKey, current) }, [current, motionKey])
   const navRef = React.useRef<HTMLElement>(null)
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
   const dropRef = React.useRef<HTMLSpanElement>(null)
@@ -421,9 +427,14 @@ export function LiquidNavbar({
     T.cy = PAD + bounds.top - parent.top + el.offsetHeight / 2
     const nx = PAD + bounds.left - parent.left + el.offsetWidth / 2
     if (!s.ready) {
-      s.a.x = s.b.x = nx
+      const previous = previousSelection.current === undefined ? null : itemRefs.current[previousSelection.current]
+      const start = previous ? PAD + previous.getBoundingClientRect().left - parent.left + previous.offsetWidth / 2 : nx
+      s.a.x = s.b.x = start
       s.q = T.q
       s.ready = true
+      s.moving = Math.abs(start - nx) > .5
+      s.lagFrom = performance.now() + 70
+      previousSelection.current = undefined
     } else if (Math.abs(nx - T.x) > 0.5) {
       s.lead = Math.abs(nx - s.a.x) <= Math.abs(nx - s.b.x) ? 0 : 1
       s.lagFrom = performance.now() + 70
