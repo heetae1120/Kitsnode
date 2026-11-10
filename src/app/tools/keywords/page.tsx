@@ -287,9 +287,6 @@ export default function KeywordTool() {
         <header className="kw-title">
           <div>
             <h1>검색어 찾기</h1>
-            <p>
-              한 달 동안 얼마나 검색됐는지, 비슷한 검색어는 무엇인지 보세요.
-            </p>
           </div>
           <p className={`kw-stamp ${data.source}`}>
             {data.source === "demo" ? "예시 자료" : "네이버 검색광고 데이터"}
@@ -321,7 +318,6 @@ export default function KeywordTool() {
               <Search size={18} aria-hidden />
               <input
                 aria-label="찾을 검색어"
-                aria-describedby="kw-search-help"
                 value={query}
                 maxLength={300}
                 onChange={(e) => setQuery(e.target.value)}
@@ -349,9 +345,6 @@ export default function KeywordTool() {
               예시 보기
             </button>
           </form>
-          <p className="kw-search-help" id="kw-search-help">
-            쉼표로 나눠 최대 5개까지 넣으세요. 띄어쓰기는 자동 정리해요.
-          </p>
           {settingsOpen && (
             <form
               className="kw-connection"

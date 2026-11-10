@@ -330,9 +330,6 @@ export function KeywordResearch({
       <section data-preview-stage={m.tab} className="kr-suggestions" aria-labelledby="kr-suggestions-title">
         <div>
           <h2 id="kr-suggestions-title">함께 검색해 볼 말</h2>
-          <p>
-            자동으로 조합한 예시예요. 실제 검색량은 눌러서 확인하세요.
-          </p>
         </div>
         <div>
           {suggestions.map((s) => (
@@ -352,9 +349,6 @@ export function KeywordResearch({
       >
         <div className="kr-heading">
           <h2 id="kr-workbench-title">검색어 자세히 보기</h2>
-          <p>
-            검색량·상품 수·광고 클릭을 보세요. 저장한 검색어는 이 브라우저에만 남아요.
-          </p>
         </div>
         <div className="kr-tabs" aria-label="키워드 리서치 메뉴">
           {(

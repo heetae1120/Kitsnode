@@ -13,7 +13,7 @@ const groups = [
 ] as const;
 
 const liquidItems: LiquidNavItem[] = [
-  {label:"남는 돈 계산",fx:"glow"}, {label:"검색어 찾기",fx:"spin"},
+  {label:"상품 진단",fx:"glow"}, {label:"검색어 찾기",fx:"spin"},
   {label:"설문",fx:"pop"}, {label:"소개",fx:"wave"},
   {label:"스토어 점검",fx:"drop"}, {label:"광고 도구",fx:"spin"},
 ];
@@ -70,7 +70,7 @@ export const ToolsHeader = memo(function ToolsHeader({ active }: { active: ToolI
               onClick={close}
             >
               <span className="nv-ico"><MenuMotion kind={tool.id === "profit" ? "profit" : "keywords"} /></span>
-              <span className="tool-nav-label">{tool.id === "keywords" ? "검색어 찾기" : tool.label}</span>
+              <span className="tool-nav-label">{tool.id === "keywords" ? "검색어 찾기" : "상품 진단"}</span>
             </Link>
           );
         })}

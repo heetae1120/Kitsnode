@@ -11,5 +11,5 @@ export function StoreCard({ className = "", ...props }: HTMLAttributes<HTMLEleme
   return <section {...props} className={"store-card " + className} />;
 }
 export function StoreHeading({ title, description }: { title: string; description: string }) {
-  return <div className="store-heading"><p className="store-eyebrow">KITSNODE / 스토어 점검</p><h1>{title}</h1><p>{description}</p></div>;
+  return <div className="store-heading" aria-description={description}><p className="store-eyebrow">KITSNODE / 스토어 점검</p><h1>{title}</h1></div>;
 }

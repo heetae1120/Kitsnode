@@ -499,7 +499,7 @@ export function LiquidNavbar({
     let lastW = -1
     const ro = new ResizeObserver(() => {
       const w = navRef.current?.offsetWidth ?? 0
-      if (w !== lastW) { lastW = w; st.current.ready = false; measureRef.current() }
+      if (w !== lastW) { const resized = lastW >= 0; lastW = w; if (resized) st.current.ready = false; measureRef.current() }
     })
     if (navRef.current) {
       ro.observe(navRef.current)
