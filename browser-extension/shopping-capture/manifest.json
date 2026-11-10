@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "KITSNODE 쇼핑광고 캡처",
+  "version": "1.0.0",
+  "description": "사용자가 연 네이버쇼핑에서 광고 상위 3개만 캡처해 KITSNODE 보고서로 가져옵니다.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.mjs",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://heetae1120.github.io/Kitsnode/tools/*"
+      ],
+      "js": [
+        "bridge.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
