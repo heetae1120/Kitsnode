@@ -1,4 +1,5 @@
-import {mkdir,copyFile} from 'node:fs/promises';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 /** Read the public shopping page in a browser. No ad clicks, login, proxy or challenge bypass. */
@@ -13,8 +14,19 @@ export function normalizeObservedAds(rows){
  return {items,complete:items.length===3};
 }
 
+let captureFontReady;
+async function prepareCaptureFont(){
+ if(!captureFontReady)captureFontReady=(async()=>{
+  let font;
+  for(const path of [join(process.cwd(),'fonts','NotoSansKR.ttf'),join(process.cwd(),'keyword-api','fonts','NotoSansKR.ttf')]){try{font=await readFile(path);break;}catch{}}
+  if(!font){const response=await fetch('https://raw.githubusercontent.com/google/fonts/4efc2774c63917927efe769ca845def6bd6debae/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf',{signal:AbortSignal.timeout(15000)});if(!response.ok)throw Error();font=Buffer.from(await response.arrayBuffer());}
+  if(createHash('sha256').update(font).digest('hex')!=='194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252')throw Error();
+  const directory=join(tmpdir(),'fonts');await mkdir(directory,{recursive:true});await writeFile(join(directory,'NotoSansKR.ttf'),font);
+ })().catch(()=>{captureFontReady=undefined;throw Error('CAPTURE_FONT_UNAVAILABLE');});
+ await captureFontReady;
+}
 async function launchShoppingBrowser(chromium,puppeteer){
- try{const fonts=join(tmpdir(),'fonts');await mkdir(fonts,{recursive:true});await copyFile(join(process.cwd(),'fonts','NotoSansKR.ttf'),join(fonts,'NotoSansKR.ttf'));}catch{throw Error('CAPTURE_FONT_UNAVAILABLE');}
+ await prepareCaptureFont();
  try{return await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});}
  catch{throw Error('BROWSER_START_FAILED');}
 }
