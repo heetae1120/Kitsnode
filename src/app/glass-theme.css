@@ -14,8 +14,8 @@
   line-height: 1.6;
   overflow: clip;
 }
-.kits-glass .gw-room { position: fixed; object-position: center; filter: saturate(.7); }
-.kits-glass .gw-room-shade { position: fixed; background: linear-gradient(120deg,#f1ecdfb8,#e0e5d68c 60%,#e1d4bead); }
+.kits-glass .gw-room { position: fixed; object-position: center; filter: saturate(.7); opacity: .7; }
+.kits-glass .gw-room-shade { position: fixed; background: linear-gradient(120deg,#eee9dfd9,#e4e8ded6 60%,#e3d8c4db); }
 .kits-glass .gw-workspace { width: min(1440px,100%); }
 .kits-glass .gw-host-content { position: relative; }
 .kits-glass .gw-host-toolbar { position: absolute; right: 24px; top: 19px; z-index: 45; }
@@ -64,6 +64,7 @@
 .profit-tool .kits-glass :is(input,select,textarea):focus-visible { outline-color: #537b5b; border-color: #537b5b; }
 .profit-tool .kits-glass .mp-field > p,.profit-tool .kits-glass .mp-input-wrap > span,.profit-tool .kits-glass .mp-product-hint { color: #59675b; }
 .profit-tool .kits-glass .mp-stock-cost { background: #edf0e3a8; border-color: #56704e26; border-radius: 16px; }
+.profit-tool .kits-glass :is(.mp-budget-input,.mp-target-input) { background: #f3f4eab0; border-color: #52664d26; border-radius: 15px; }
 .profit-tool .kits-glass .mp-stock-top b { color: #294b39; font-size: 21px; }
 .profit-tool .kits-glass .mp-stock-bottom { background: #e4eadbaa; border-color: #56704e26; border-radius: 0 0 15px 15px; }
 .profit-tool .kits-glass :is(.mp-primary,.hc-primary) { background: #326b54; border-color: #326b54; color: white; border-radius: 12px; box-shadow: 0 5px 14px #294b3915; }
@@ -77,6 +78,17 @@
 .profit-tool .kits-glass .mp-live-bar > p { margin: 12px 4px 0; font-size: 11px; color: #59675b; justify-content: flex-end; }
 .profit-tool .kits-glass .mp-workspace.mp-workspace-report { display: block; background: transparent; border: 0; box-shadow: none; padding: 0; backdrop-filter: none; }
 .profit-tool .kits-glass .mp-story { color: #253b31; }
+.profit-tool .kits-glass .mp-story .mp-eyebrow { color: #326b54; }
+.profit-tool .kits-glass .mp-story .mp-scroll-card { background: var(--glass-panel); border: 1px solid var(--glass-edge); padding: 0; box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--gw-blur)); border-radius: 26px; }
+.profit-tool .kits-glass .mp-scroll-card > div,.profit-tool .kits-glass .mp-tablet-budget { background: transparent; }
+.profit-tool .kits-glass .mp-tablet-budget { padding: 32px; }
+.profit-tool .kits-glass :is(.mp-profit-before,.mp-profit-after,.mp-prep-card) { background: #ffffffa0; border-color: #52664d26; border-radius: 20px; }
+.profit-tool .kits-glass .mp-profit-after { background: #e3ecd9c0; border-color: #667e532a; }
+.profit-tool .kits-glass .mp-breakdown > div:last-child { color: #326b54; }
+.profit-tool .kits-glass :is(.mp-quick-costs button,.mp-quick-costs button:first-child) { background: #edf0e3a8; border-color: #52664d26; color: #326b54; }
+.profit-tool .kits-glass .mp-preparation { color: #253b31; }
+.profit-tool .kits-glass .mp-preparation h1 em,.profit-tool .kits-glass .mp-prep-card > strong,.profit-tool .kits-glass .mp-prep-card > svg { color: #326b54; }
+.profit-tool .kits-glass .mp-prep-consult { background: #294b39ed; }
 .profit-tool .kits-glass .mp-story h1 { font-size: clamp(32px,4vw,48px); font-weight: 550; letter-spacing: -2px; }
 .profit-tool .kits-glass .mp-story :is(h1 em,.mp-story-heading em,.mp-story-heading > span) { color: #326b54; }
 .profit-tool .kits-glass .mp-story :is(.mp-story-summary,.mp-story-sale,.mp-story-next li,.mp-keywords,.mp-story-suggestion,.mp-metrics > div,.mp-actual-cost) { background: var(--glass-panel); border: 1px solid var(--glass-edge); border-radius: 24px; box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--gw-blur)); }
@@ -117,6 +129,8 @@
 .profit-tool .kits-glass .keyword-page .kw-title h1 { font-size: 36px; font-weight: 550; letter-spacing: -1.5px; }
 .profit-tool .kits-glass .keyword-page :is(.kw-plate,.kw-results,.kw-summary,.kw-guide,.kr-workbench,.kr-suggestions) { border-radius: 22px; box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--gw-blur)); }
 .profit-tool .kits-glass .keyword-page .kw-plate { overflow: hidden; border: 1px solid #d9e5d050; }
+.profit-tool .kits-glass .keyword-page .kw-stats { gap: 12px; background: transparent; border: 0; }
+.profit-tool .kits-glass .keyword-page .kw-stats > div { background: var(--glass-panel); border: 1px solid var(--glass-edge); border-radius: 20px; box-shadow: var(--glass-shadow); backdrop-filter: blur(var(--gw-blur)); }
 .profit-tool .kits-glass .keyword-page .kw-plate input { background: transparent; color: var(--kw-plate-ink); }
 .profit-tool .kits-glass .keyword-page .kw-plate input::placeholder { color: var(--kw-plate-muted); }
 .profit-tool .kits-glass .kits-page {
@@ -180,6 +194,10 @@
   .profit-tool .kits-glass .mp-steps li { font-size: 10px; gap: 6px; }
   .profit-tool .kits-glass .mp-steps li > span { width: 26px; height: 26px; border-radius: 9px; }
   .profit-tool .kits-glass .mp-workspace { padding: 24px 18px; border-radius: 20px; }
+  .profit-tool .kits-glass .mp-tablet-budget { padding: 22px 16px; }
+  .profit-tool .kits-glass .mp-plan-recap { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px 12px; }
+  .profit-tool .kits-glass .mp-plan-recap > div:last-child { grid-column: 1/-1; }
+  .profit-tool .kits-glass .mp-plan-recap dd { font-size: 20px; white-space: nowrap; }
   .profit-tool .kits-glass .mp-section-heading h2 { font-size: 21px; }
   .profit-tool .kits-glass .mp-fields { gap: 20px; }
   .profit-tool .kits-glass .hc-shell main { padding: 12px 4px 30px; }
