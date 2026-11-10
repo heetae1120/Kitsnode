@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AboutGalleryHero } from "@/components/about-gallery-hero";
+import "./about-gallery.css";
 import { ToolsHeader } from "@/components/tools-header";
 import "../finance-bento.css";
 import "../kits-pages.css";
@@ -10,81 +12,12 @@ export const metadata: Metadata = {
     "광고비와 이익을 함께 보고 브랜드를 키웁니다. 리큐엠을 처음부터 키워온 팀입니다.",
 };
 
-// Agency talking points that circle the core. Angles in degrees; rings rotate
-// in opposite directions while each label counter-rotates to stay upright.
-const outer = [
-  ["검색 노출 점수", 200],
-  ["광고비 대비 매출", 290],
-  ["상위노출", 20],
-  ["광고비", 110],
-] as const;
-const inner = [
-  ["순위 변동", 245],
-  ["클릭 수", 5],
-  ["노출 수", 125],
-] as const;
-const place = (deg: number) => ({
-  left: `${50 + 50 * Math.cos((deg * Math.PI) / 180)}%`,
-  top: `${50 + 50 * Math.sin((deg * Math.PI) / 180)}%`,
-});
-
 export default function AboutPage() {
   return (
-    <div className="kits-page finance-dashboard">
+    <div className="kits-page finance-dashboard about-gallery-page">
       <ToolsHeader active="about" />
       <main className="kp-main">
-        <section className="kp-plate" aria-labelledby="kp-hero-title">
-          <div className="kp-wrap kp-hero">
-            <div>
-              <h1 id="kp-hero-title">
-                순위 말고,
-                <br />
-                브랜드를 남깁니다
-              </h1>
-              <p className="kp-hero-lede">
-                광고를 줄여도 고객이 찾는 브랜드를 만듭니다.
-              </p>
-              <div className="kp-actions">
-                <Link className="kp-button primary" href="/tools/survey/">
-                  진단 설문하기
-                </Link>
-                <a className="kp-button quiet" href="#proof">
-                  리큐엠 사례 보기
-                </a>
-              </div>
-            </div>
-            <div
-              className="kp-orbit"
-              role="img"
-              aria-label="검색 노출 점수, 광고비 대비 매출, 상위노출, 광고비, 순위 변동이 주변을 돌고, 가운데에는 브랜드 기반이 고정되어 있는 그림"
-            >
-              <div
-                className="kp-ring"
-                style={{ "--inset": "4%", "--speed": "60s" } as React.CSSProperties}
-              >
-                {outer.map(([label, deg]) => (
-                  <span key={label} style={place(deg)}>
-                    <b>{label}</b>
-                  </span>
-                ))}
-              </div>
-              <div
-                className="kp-ring reverse"
-                style={{ "--inset": "20%", "--speed": "44s" } as React.CSSProperties}
-              >
-                {inner.map(([label, deg]) => (
-                  <span key={label} style={place(deg)}>
-                    <b>{label}</b>
-                  </span>
-                ))}
-              </div>
-              <div className="kp-core">
-                <strong>브랜드 기반</strong>
-                <span>운영의 중심</span>
-              </div>
-            </div>
-          </div>
-        </section>
+        <AboutGalleryHero />
 
         <section className="kp-section" aria-labelledby="kp-problem-title">
           <div className="kp-wrap">

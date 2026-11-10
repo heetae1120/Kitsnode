@@ -1,0 +1,40 @@
+/* Gallery-scroll hero, composed for KITSNODE with locally hosted product examples. */
+.profit-tool .about-gallery-page{background:#fbfcfe;}
+.profit-tool .about-gallery-page .ag-scroll{height:270vh;position:relative;background:#fff;isolation:isolate;}
+.profit-tool .about-gallery-page .ag-stage{position:sticky;top:76px;height:calc(100svh - 76px);min-height:560px;overflow:hidden;background:#fff;}
+.profit-tool .about-gallery-page .ag-gallery{position:absolute;inset:0;pointer-events:none;}
+.profit-tool .about-gallery-page .ag-tile{position:absolute;overflow:hidden;border-radius:15px;box-shadow:0 12px 35px #172c4f12;border:1px solid #dce5f5;background:#f2f6ff;will-change:transform;}
+.profit-tool .about-gallery-page .ag-tile-1{width:35%;height:29%;left:10%;top:2%;padding:30px 14px 0;background:#e5edff;}
+.profit-tool .about-gallery-page .ag-tile-2{width:15%;height:25%;right:12%;top:11%;}
+.profit-tool .about-gallery-page .ag-tile-3{width:21%;height:18%;left:5%;bottom:9%;padding:22px 7px 0;background:#edf7f3;}
+.profit-tool .about-gallery-page .ag-tile-4{width:24%;height:18%;left:35%;bottom:1%;}
+.profit-tool .about-gallery-page .ag-tile-5{width:16%;height:28%;right:6%;bottom:0;padding:23px 7px 0;background:#e8edff;}
+.profit-tool .about-gallery-page .ag-tile>img{width:100%;height:100%;display:block;object-fit:cover;object-position:center 65%;border-radius:9px 9px 0 0;}
+.profit-tool .about-gallery-page .ag-tile-1>img{object-position:center 62%;}
+.profit-tool .about-gallery-page .ag-tile-3>img{object-position:center 43%;}
+.profit-tool .about-gallery-page .ag-tile-5>img{object-position:center 55%;}
+.profit-tool .about-gallery-page .ag-tile-label{position:absolute;top:10px;left:12px;z-index:2;font-size:9px;font-weight:750;color:#52657f;letter-spacing:.04em;}
+.profit-tool .about-gallery-page .ag-brand{background:#2858f5;color:#fff;border-color:#2858f5;}
+.profit-tool .about-gallery-page .ag-brand .ag-tile-label{color:#e4ebff;}
+.profit-tool .about-gallery-page .ag-brand-art{position:relative;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+.profit-tool .about-gallery-page .ag-brand-art b{font-size:clamp(50px,7vw,105px);font-weight:850;letter-spacing:-.12em;line-height:1;z-index:1;}.profit-tool .about-gallery-page .ag-brand-art b>span{color:#a8c4ff;}
+.profit-tool .about-gallery-page .ag-brand-art small{font-size:10px;margin-top:10px;color:#dce6ff;z-index:1;}
+.profit-tool .about-gallery-page .ag-brand-art i{position:absolute;width:170px;height:170px;border-radius:50%;border:1px solid #ffffff26;transform:rotate(-24deg) scaleY(.6);}.profit-tool .about-gallery-page .ag-brand-art i:nth-child(2){transform:rotate(54deg) scaleY(.6);}
+.profit-tool .about-gallery-page .ag-foundation{background:#f5eee4;color:#87704c;border-color:#eee3d2;}
+.profit-tool .about-gallery-page .ag-foundation .ag-tile-label{color:#87704c;}
+.profit-tool .about-gallery-page .ag-foundation-art{padding:25px 18px 10px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;}.profit-tool .about-gallery-page .ag-foundation-art svg{width:100%;min-height:0;flex:1;}.profit-tool .about-gallery-page .ag-foundation-art>div{display:flex;justify-content:space-between;font-size:10px;font-weight:700;}
+.profit-tool .about-gallery-page .ag-copy{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;z-index:3;transform-origin:center;will-change:transform,opacity;}
+.profit-tool .about-gallery-page .ag-eyebrow{font-size:10px;letter-spacing:.17em;font-weight:700;color:#718097;margin:0 0 18px;}
+.profit-tool .about-gallery-page .ag-copy h1{font-size:clamp(38px,5vw,76px);line-height:1.13;letter-spacing:-.065em;font-weight:800;color:#172c4f;margin:0;}
+.profit-tool .about-gallery-page .ag-copy h1 em{font-style:normal;color:#2858f5;}
+.profit-tool .about-gallery-page .ag-copy>p{font-size:14px;color:#697b94;margin:20px 0 22px;line-height:1.8;}
+.profit-tool .about-gallery-page .ag-actions{display:flex;align-items:center;justify-content:center;gap:22px;}
+.profit-tool .about-gallery-page .ag-actions a{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-decoration:none;}
+.profit-tool .about-gallery-page .ag-primary{padding:14px 20px;border-radius:10px;background:#2858f5;color:#fff;box-shadow:0 8px 22px #2858f525;}
+.profit-tool .about-gallery-page .ag-primary:hover{background:#1948e1;}.profit-tool .about-gallery-page .ag-secondary{color:#52657f;padding:14px 0;}
+.profit-tool .about-gallery-page .ag-scroll-cue{position:absolute;left:28px;bottom:20px;display:flex;align-items:center;gap:9px;color:#7c8a9f;font-size:8px;letter-spacing:.12em;}
+.profit-tool .about-gallery-page .kp-section{padding-top:100px;padding-bottom:100px;}.profit-tool .about-gallery-page .kp-contrast{gap:24px;}.profit-tool .about-gallery-page .kp-contrast>div{border-radius:18px;}.profit-tool .about-gallery-page .kp-proof{scroll-margin-top:80px;}
+@media(min-width:1600px){.profit-tool .about-gallery-page .ag-stage{max-height:1000px;}}
+@media(max-width:700px){.profit-tool .about-gallery-page .ag-scroll{height:210vh;}.profit-tool .about-gallery-page .ag-stage{top:62px;height:calc(100svh - 62px);min-height:580px;}.profit-tool .about-gallery-page .ag-copy{padding:16px;}.profit-tool .about-gallery-page .ag-copy h1{font-size:clamp(29px,7.9vw,48px);}.profit-tool .about-gallery-page .ag-copy>p{font-size:11px;max-width:270px;margin:14px 0 18px;}.profit-tool .about-gallery-page .ag-eyebrow{font-size:7px;letter-spacing:.08em;margin-bottom:14px;}.profit-tool .about-gallery-page .ag-actions{gap:15px;}.profit-tool .about-gallery-page .ag-actions a{font-size:10px;}.profit-tool .about-gallery-page .ag-primary{padding:12px 14px;}.profit-tool .about-gallery-page .ag-tile{border-radius:10px;}.profit-tool .about-gallery-page .ag-tile-1{width:46%;height:22%;left:4%;top:3%;padding:24px 7px 0;}.profit-tool .about-gallery-page .ag-tile-2{width:25%;height:20%;right:6%;top:6%;}.profit-tool .about-gallery-page .ag-tile-3{width:32%;height:16%;left:1%;bottom:7%;padding:22px 5px 0;}.profit-tool .about-gallery-page .ag-tile-4{width:34%;height:15%;left:34%;bottom:0;}.profit-tool .about-gallery-page .ag-tile-5{width:25%;height:22%;right:1%;bottom:7%;padding:21px 5px 0;}.profit-tool .about-gallery-page .ag-tile-label{font-size:6px;left:6px;top:8px;}.profit-tool .about-gallery-page .ag-brand-art small{font-size:7px;}.profit-tool .about-gallery-page .ag-foundation-art{padding:20px 8px 8px;}.profit-tool .about-gallery-page .ag-foundation-art>div{font-size:7px;}.profit-tool .about-gallery-page .ag-scroll-cue{font-size:6px;left:12px;bottom:12px;}.profit-tool .about-gallery-page .kp-section{padding-top:65px;padding-bottom:65px;}}
+@media(prefers-reduced-motion:reduce){.profit-tool .about-gallery-page .ag-scroll{height:auto;}.profit-tool .about-gallery-page .ag-stage{position:relative;top:0;}.profit-tool .about-gallery-page .ag-tile,.profit-tool .about-gallery-page .ag-copy{will-change:auto;}}
+@media print{.profit-tool .about-gallery-page .ag-scroll{height:auto;}.profit-tool .about-gallery-page .ag-stage{position:relative;top:0;min-height:500px;height:500px;}.profit-tool .about-gallery-page .ag-copy{opacity:1!important;transform:none!important;}.profit-tool .about-gallery-page .ag-scroll-cue{display:none;}}
