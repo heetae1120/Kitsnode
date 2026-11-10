@@ -26,12 +26,14 @@ async function prepareCaptureFont(){
  await captureFontReady;
 }
 async function launchShoppingBrowser(chromium,puppeteer){
+ const executablePath=await chromium.executablePath();
  await prepareCaptureFont();
- try{return await puppeteer.launch({args:chromium.args,executablePath:await chromium.executablePath(),headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});}
+ try{return await puppeteer.launch({args:chromium.args,executablePath,headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});}
  catch{throw Error('BROWSER_START_FAILED');}
 }
 async function closeShoppingBrowser(browser){
- try{for(const page of await browser.pages())await page.close();}finally{await browser.close();}
+ try{await Promise.allSettled((await browser.pages()).map(page=>page.close()));}catch{}
+ try{await browser.close();}catch{browser.process()?.kill('SIGKILL');}
 }
 export async function collectShoppingAds(keyword,options={}){
  if(options.placement==='integrated')return collectIntegratedShoppingAds(keyword);
