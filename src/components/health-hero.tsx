@@ -1,19 +1,18 @@
 "use client";
-import { useRef } from 'react';
-import { ArrowRight, X, Sprout, ChartNoAxesCombined } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { ArrowRight, X, Sprout, ChartNoAxesCombined, TrendingUp, PackageCheck, Factory, Target } from 'lucide-react';
 import Link from 'next/link';
-import { TiltedGridHero, type TiltedGridImage } from './ui/tilted-grid-hero';
-
-const images:TiltedGridImage[]=[
-  {src:'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=80',alt:'비즈니스 성과를 살펴보는 화면'},
-  {src:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80',alt:'지표와 데이터 시각화'},
-  {src:'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=900&q=80',alt:'함께 전략을 논의하는 팀'},
-  {src:'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80',alt:'사업 계획과 예산 검토'},
-  {src:'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=900&q=80',alt:'협업하는 업무 공간'},
+import { ChapterPlayer, type ChapterPlayerChapter } from './ui/chapter-player';
+const chapters:ChapterPlayerChapter[]=[{label:'이익 중심 운영',start:0},{label:'리브랜딩',start:7},{label:'첫 판매 시작',start:14},{label:'중국 공장 컨택',start:21}];
+const stories=[
+ {eyebrow:'01 / PROFIT FIRST',title:<>ROAS만 높다고,<br/>이익이 남을까요?</>,em:'중요한 건 ROI입니다.',description:'광고 매출만 보여주는 보고서 대신, 원가와 광고비를 빼고 남는 이익을 봅니다.',Icon:Target},
+ {eyebrow:'02 / REBRANDING',title:<>아무것도 없던 시작에서<br/><em>130억</em> 브랜드까지.</>,em:'리브랜딩으로 만든 변화.',description:'상품의 강점부터 브랜드의 방향까지. 0에서 130억을 만든 경험으로 함께합니다.',Icon:TrendingUp},
+ {eyebrow:'03 / YOUR FIRST SALE',title:<>물건 판매,<br/>시작해보고 싶으신가요?</>,em:'첫 상품부터 같이 준비합니다.',description:'무엇을 팔지, 얼마에 팔지, 얼마가 남을지. 막막한 첫 판매를 하나씩 풀어갑니다.',Icon:PackageCheck},
+ {eyebrow:'04 / SOURCING PARTNER',title:<>좋은 상품의 시작,<br/>공장부터 연결합니다.</>,em:'중국 공장 컨택도 함께.',description:'원하는 품질과 생산 조건에 맞는 중국 공장을 찾고, 샘플·단가·최소 주문수량을 확인합니다.',Icon:Factory}
 ];
 export function HealthHero(){
- const choice=useRef<HTMLDialogElement>(null);
- return <><section className="hc-hero-reel" aria-label="수익 진단 소개"><TiltedGridHero images={images} speed={5} tileHeight={25} axis={62} curve={65} fade={14} className="hc-tilted-hero"><div className="hc-hero-overlay"><div><h1><em>당신의 수익을 진단해보세요</em></h1></div><button type="button" onClick={()=>choice.current?.showModal()} className="hc-primary">진단하러 가기 <ArrowRight size={17}/></button></div></TiltedGridHero></section>
+ const choice=useRef<HTMLDialogElement>(null);const [active,setActive]=useState(0);const story=stories[active];const Icon=story.Icon;
+ return <><section className="hc-chapter-hero" aria-label="KITSNODE 브랜드와 서비스 소개"><ChapterPlayer chapters={chapters} duration={28} brand="KITSNODE" ariaLabel="키츠노드 서비스 소개 · 4개 챕터" onChapterChange={index=>setActive(index)}><div className={'hc-brand-scene hc-brand-scene-'+active} key={active}><div className="hc-brand-copy"><span>{story.eyebrow}</span><h1>{story.title}</h1><h2>{story.em}</h2><p>{story.description}</p></div><div className="hc-brand-art" aria-hidden><div className="hc-art-orbit"/><div className="hc-art-icon"><Icon size={55} strokeWidth={1.4}/></div>{active===0?<><div className="hc-art-metric"><span>매출보다 남는 이익</span><b>ROI</b><small>판매 비용 + 마케팅비용까지</small></div><div className="hc-art-bars">{[30,47,42,66,63,85,100].map((h,i)=><i key={i} style={{height:h+'%'}}/>)}</div></>:active===1?<div className="hc-art-growth"><span>FROM ZERO</span><b>0 <ArrowRight size={30}/> 130억</b><svg viewBox="0 0 240 100"><path d="M5 93 C50 93 35 70 75 76 S110 42 145 49 S187 30 235 5" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round"/></svg></div>:active===2?<div className="hc-art-steps"><span>01 상품 선택</span><span>02 수익 확인</span><span>03 판매 시작 <ArrowRight size={17}/></span></div>:<div className="hc-art-steps"><span>품질 · 샘플 확인</span><span>단가 · 생산 조건</span><span>공장 컨택 <ArrowRight size={17}/></span></div>}</div></div></ChapterPlayer><div className="hc-chapter-action"><button type="button" onClick={()=>choice.current?.showModal()} className="hc-primary">진단하러 가기 <ArrowRight size={17}/></button></div></section>
  <dialog ref={choice} className="hc-stage-dialog" aria-labelledby="hc-stage-title">
  <button type="button" className="hc-stage-close" aria-label="단계 선택 닫기" onClick={()=>choice.current?.close()}><X size={22}/></button>
  <span className="hc-stage-eyebrow">CHOOSE YOUR STAGE</span><h2 id="hc-stage-title">지금 어떤 단계에 계신가요?</h2><p>현재 상황에 맞는 진단을 선택해주세요.</p>
