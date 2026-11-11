@@ -3,9 +3,9 @@ import {useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import {motion,useReducedMotion} from 'framer-motion';
 import {ArrowLeft,ArrowRight} from 'lucide-react';
 import {ReportSignupPrompt} from './report-signup-prompt';
-export function ProfitReportPages({overview,keywords,footer}:{overview:ReactNode;keywords:ReactNode;footer?:ReactNode}){
- const [page,setPage]=useState(0);const [height,setHeight]=useState<number>();
- const [signupOpen,setSignupOpen]=useState(false),[continued,setContinued]=useState(false);
+export function ProfitReportPages({overview,keywords,footer,initialPage=0}:{initialPage?:0|1;overview:ReactNode;keywords:ReactNode;footer?:ReactNode}){
+ const [page,setPage]=useState<number>(initialPage);const [height,setHeight]=useState<number>();
+ const [signupOpen,setSignupOpen]=useState(false),[continued,setContinued]=useState(initialPage===1);
  const root=useRef<HTMLDivElement>(null),first=useRef<HTMLDivElement>(null),second=useRef<HTMLDivElement>(null);const reduced=useReducedMotion();
  useLayoutEffect(()=>{
   const active=page===0?first.current:second.current;if(!active)return;

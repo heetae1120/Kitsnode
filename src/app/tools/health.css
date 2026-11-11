@@ -29,3 +29,10 @@
 
 .hc-hero-overlay{padding-top:108px}
 @media(max-width:560px){.hc-hero-overlay{padding-top:78px}}
+
+/* Independent floating stage cards, without a surrounding panel. */
+.hc-stage-dialog{width:min(860px,calc(100% - 32px));padding:44px 24px 28px;background:transparent;border:0;box-shadow:none;overflow:visible;color:#fff}
+.hc-stage-dialog>h2,.hc-stage-dialog>p,.hc-stage-dialog>.hc-stage-eyebrow{display:none}.hc-stage-dialog .hc-stage-close{right:12px;top:0;background:#fff;color:#526580;box-shadow:0 8px 25px #10285120}
+.hc-stage-cards{gap:40px;margin-top:0;align-items:stretch;padding:16px 6px}.hc-stage-card{min-height:390px;padding:34px;border-radius:28px;box-shadow:0 28px 65px #10285145;transform:rotate(-3deg);background:linear-gradient(145deg,#fff,#e9f1ff)}.hc-stage-card:nth-child(2){transform:rotate(3deg);background:linear-gradient(145deg,#fff,#e9f8f2)}.hc-stage-card:hover,.hc-stage-card:focus-visible{transform:translateY(-12px) rotate(0);box-shadow:0 36px 75px #10285150}.hc-stage-card h3{color:#172f54;text-decoration:none}.hc-stage-card>svg{width:42px;height:42px;margin-bottom:30px}.hc-stage-card h3{font-size:36px}.hc-stage-card strong{font-size:14px}
+@media(max-width:560px){.hc-stage-dialog{max-height:calc(100dvh - 20px);overflow-y:auto;padding:44px 16px 24px}.hc-stage-cards{gap:24px;padding:12px 8px}.hc-stage-card{min-height:250px;padding:24px;transform:rotate(-2deg)}.hc-stage-card:nth-child(2){transform:rotate(2deg)}.hc-stage-card>svg{width:28px;height:28px;margin-bottom:12px}.hc-stage-card h3{font-size:29px;margin-bottom:12px}}
+@media(prefers-reduced-motion:reduce){.hc-stage-card,.hc-stage-card:nth-child(2),.hc-stage-card:hover{transform:none}}

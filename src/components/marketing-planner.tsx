@@ -30,7 +30,7 @@ const empty:Draft={months:'',name:'',available:'',price:'',cost:'',quantity:'',f
 const sampleInput:MarketingPlanInput={price:30000,cost:12000,quantity:100,available:3000000,feePercent:5,logistics:3000,packaging:1000,returns:0,certification:0,fixed:0};
 const previewReport={name:'미리보기 예시',months:3,input:sampleInput,result:marketingPlan(sampleInput),examples:[]};
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
-export function MarketingPlanner(){
+export function MarketingPlanner({mode='starter'}:{mode?:'starter'|'player'}){
  const [draft,setDraft]=useState<Draft>(empty);
  const [step,setStep]=useState(1);
  const [market,setMarket]=useState('');
@@ -89,12 +89,12 @@ export function MarketingPlanner(){
    {live&&live.profit<0&&<p role="alert"><TriangleAlert size={16}/>한 개 팔 때 {money(-live.profit)} 손해입니다.</p>}
   </aside>}
   <main className="mp-main">
-   {step<3&&<header className="mp-intro"><h1>진단 키트로 빠르게 진단해보기</h1></header>}
+   {step<3&&<header className="mp-intro"><h1>{mode==='player'?'어떤 검색어로 홍보할까요?':'진단 키트로 빠르게 진단해보기'}</h1></header>}
    {step<=3&&<ol className="mp-steps" aria-label="분석 진행 단계">{['상품과 자금','빠뜨린 비용 확인','결과'].map((label,index)=><li key={label} aria-current={step===index+1?'step':undefined} data-complete={step>index+1||undefined}><span className="mp-step-number">{step>index+1?<Check size={24}/>:String(index+1).padStart(2,'0')}</span><div><small>STEP {String(index+1).padStart(2,'0')}</small><b>{label}</b></div></li>)}</ol>}
    <section ref={focus} tabIndex={-1} className={`mp-workspace ${step>=3?'mp-workspace-report':'mp-ipad'}`} aria-label={step>=3?'수익성 평가 보고서':'수익성 분석 입력'}>
     {step<3&&<span className="mp-ipad-camera" aria-hidden="true"/>}
     {step<3?<AnimatePresence mode="wait" initial={false} custom={direction}><motion.form key={step} custom={direction} initial="enter" animate="center" exit="leave" variants={{enter:(d:number)=>({x:reducedMotion?0:d*80,opacity:reducedMotion?1:0,filter:reducedMotion?'none':'blur(4px)'}),center:{x:0,opacity:1,filter:'blur(0px)'},leave:(d:number)=>({x:reducedMotion?0:-d*60,opacity:reducedMotion?1:0,filter:reducedMotion?'none':'blur(3px)',pointerEvents:'none' as const})}} transition={{duration:reducedMotion?0:0.28,ease:[0.22,1,0.36,1]}} onSubmit={submit} noValidate>
-     <div className="mp-section-heading"><span>STEP 0{step}</span><h2>{step===1?'간단하게 작성해주시면 빠르게 진단해드려요':'원가 말고도 이런비용도 있습니다.'}</h2></div>
+     <div className="mp-section-heading"><span>STEP 0{step}</span><h2>{step===1?(mode==='player'?'상품과 자금을 입력하고 검색어·광고를 확인하세요':'간단하게 작성해주시면 빠르게 진단해드려요'):'원가 말고도 이런비용도 있습니다.'}</h2></div>
      {step===1&&<>
       <label className="mp-name">품목<input value={draft.name} onChange={event=>update('name',event.target.value)} placeholder="예: 가습기, 시계, 손난로" maxLength={100}/></label>
       <div className="mp-plan-row mp-plan-budget-only">
@@ -120,10 +120,10 @@ export function MarketingPlanner(){
      {step===2&&<aside className={`mp-actual-cost ${live&&live.profit<0?'is-loss':''}`} aria-live="polite"><div className="mp-cost-change"><span><small>처음 원가</small><b>{money(Number(draft.cost))}</b></span><ArrowRight size={22} aria-label="비용 추가 후"/><span><small>비용 포함 원가</small><strong>{live?money(live.unitCost):'—'}</strong></span><span className="mp-cost-delta"><small>추가되는 비용</small><strong>{live?`${live.unitCost-Number(draft.cost)>0?'+':''}${money(live.unitCost-Number(draft.cost))}`:'—'}</strong></span></div></aside>}
      {error&&<p className="mp-error" role="alert">{error}</p>}
      <div className="mp-actions">{step===2&&<button type="button" className="mp-secondary" onClick={()=>move(1)}>이전 단계</button>}<button type="submit" className="mp-primary">{step===1?'다음 · 비용 확인':'결과 보기'}<ArrowRight size={17}/></button></div>
-    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport name={report.name} months={report.months} input={report.input} result={report.result} exampleFields={report.examples} onEdit={()=>move(1)} onMoreCosts={()=>move(4)}/>)}
+    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport initialPage={mode==='player'?1:0} name={report.name} months={report.months} input={report.input} result={report.result} exampleFields={report.examples} onEdit={()=>move(1)} onMoreCosts={()=>move(4)}/>)}
     {step<3&&<span className="mp-ipad-home" aria-hidden="true"/>}
    </section>
   </main>
-  <dialog ref={goalDialog} className="mp-goal-dialog" aria-labelledby="mp-goal-title"><button type="button" className="mp-secondary" onClick={()=>goalDialog.current?.close()} aria-label="목표 개월 입력 닫기">닫기</button><form onSubmit={event=>submit(event,true)} noValidate><span>판매 목표 설정</span><h2 id="mp-goal-title">몇 개월 안에 판매하고 싶으신가요?</h2><p>입력한 기간에 맞춰 판매 계획과 재발주 그래프를 보여드려요.</p><label htmlFor="mp-months">목표 개월</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월</span></div>{error&&<p className="mp-error" role="alert">{error}</p>}<button type="submit" className="mp-primary">진단 결과 확인하기 <ArrowRight size={17}/></button></form></dialog>
+  <dialog ref={goalDialog} className="mp-goal-dialog" aria-labelledby="mp-goal-title"><button type="button" className="mp-secondary" onClick={()=>goalDialog.current?.close()} aria-label="목표 개월 입력 닫기">닫기</button><form onSubmit={event=>submit(event,true)} noValidate><label id="mp-goal-title" htmlFor="mp-months">목표 판매개월</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월</span></div>{error&&<p className="mp-error" role="alert">{error}</p>}<button type="submit" className="mp-primary">진단 결과 확인하기 <ArrowRight size={17}/></button></form></dialog>
  </div>;
 }
