@@ -40,6 +40,7 @@ export function MarketingPlanner(){
  const [error,setError]=useState('');
  const [report,setReport]=useState<{name:string;months:number;input:MarketingPlanInput;result:ReturnType<typeof marketingPlan>;examples:string[]}|null>(null);
  const focus=useRef<HTMLElement>(null);
+ const goalDialog=useRef<HTMLDialogElement>(null);
  const previewStage = useDraftPreviewStage('/tools/');
  useEffect(()=>{if(previewStage){const n=Number(previewStage);if(n>=3)setReport(previewReport);setStep(n);}},[previewStage]);
  const update=(key:keyof Draft,value:string)=>{setDraft(previous=>({...previous,[key]:value}));setExampleFields(keys=>keys.filter(field=>field!==key));setError('');};
@@ -56,10 +57,9 @@ export function MarketingPlanner(){
  const returnCostMissing=Number(draft.returnRate)>0&&draft.returnHandling==='';
  const overBudget=hasBudget&&stockCost!==null&&stockCost>Number(draft.available);
  function move(next:number){setDirection(next>step?1:-1);setStep(next);setError('');requestAnimationFrame(()=>{focus.current?.focus();focus.current?.scrollIntoView({behavior:'smooth',block:'start'});});}
- function submit(event:FormEvent){
+ function submit(event:FormEvent,goalConfirmed=false){
   event.preventDefault();
   if(step===1){
-   if(!Number.isSafeInteger(Number(draft.months))||Number(draft.months)<1||Number(draft.months)>120){setError('판매 목표는 1~120개월의 정수로 입력하세요.');return;}
    if(!draft.name.trim()||!basicReady||!hasBudget||!Number.isFinite(Number(draft.available))||Number(draft.available)<0){setError('품목과 모든 금액·수량을 입력해 주세요. 판매가는 0보다 크게, 수량은 1개 이상의 정수로 입력하세요.');return;}
    move(2);return;
   }
@@ -67,7 +67,10 @@ export function MarketingPlanner(){
   if(missing){setError('비용을 입력하세요. 모르면 참고값을 넣을 수 있어요.');return;}
   if(returnCostMissing){setError('반품 한 건을 처리하는 비용도 입력하세요.');return;}
   if(!live){setError('입력값을 확인해 주세요. 수수료와 반품률은 0~100%여야 합니다.');return;}
+  if(!goalConfirmed){goalDialog.current?.showModal();return;}
+  if(!Number.isSafeInteger(Number(draft.months))||Number(draft.months)<1||Number(draft.months)>120){setError('목표 개월은 1~120개월의 정수로 입력하세요.');return;}
   try{
+   goalDialog.current?.close();
    const input:MarketingPlanInput={price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returns:live.returns,certification:0,fixed:0};
    setReport({name:draft.name.trim(),months:Number(draft.months),input,result:marketingPlan(input),examples:[...exampleFields]});move(3);
   }catch(e){setError(e instanceof Error?e.message:'입력값을 확인해 주세요.');}
@@ -94,9 +97,8 @@ export function MarketingPlanner(){
      <div className="mp-section-heading"><span>STEP 0{step}</span><h2>{step===1?'간단하게 작성해주시면 빠르게 진단해드려요':'원가 말고도 이런비용도 있습니다.'}</h2></div>
      {step===1&&<>
       <label className="mp-name">품목<input value={draft.name} onChange={event=>update('name',event.target.value)} placeholder="예: 가습기, 시계, 손난로" maxLength={100}/></label>
-      <div className="mp-plan-row">
+      <div className="mp-plan-row mp-plan-budget-only">
        <section className="mp-budget-input" aria-label="사용할 예산"><div className="mp-field"><div className="mp-field-label"><label htmlFor="mp-available">쓸 수 있는 전체 금액</label><PlannerCostHelp field="available" label="쓸 수 있는 전체 금액"/></div><div className="mp-input-wrap"><FormattedNumberInput id="mp-available" value={draft.available} onValueChange={value=>update('available',value)} placeholder="금액 입력"/><span>원</span></div></div></section>
-       <section className="mp-target-input"><label htmlFor="mp-months">몇달안에 팔아보고 싶으신가요</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월 이내</span></div></section>
       </div>
      </>}
      <div className={`mp-fields ${step===1?'mp-fields-basic':''}`}>
@@ -122,5 +124,6 @@ export function MarketingPlanner(){
     {step<3&&<span className="mp-ipad-home" aria-hidden="true"/>}
    </section>
   </main>
+  <dialog ref={goalDialog} className="mp-goal-dialog" aria-labelledby="mp-goal-title"><button type="button" className="mp-secondary" onClick={()=>goalDialog.current?.close()} aria-label="목표 개월 입력 닫기">닫기</button><form onSubmit={event=>submit(event,true)} noValidate><span>판매 목표 설정</span><h2 id="mp-goal-title">몇 개월 안에 판매하고 싶으신가요?</h2><p>입력한 기간에 맞춰 판매 계획과 재발주 그래프를 보여드려요.</p><label htmlFor="mp-months">목표 개월</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월</span></div>{error&&<p className="mp-error" role="alert">{error}</p>}<button type="submit" className="mp-primary">진단 결과 확인하기 <ArrowRight size={17}/></button></form></dialog>
  </div>;
 }
