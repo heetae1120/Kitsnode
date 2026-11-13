@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import "./brand.css";
+import "./dark-studio.css";
 import { VisitorAnalytics } from "@/components/visitor-analytics";
 import { DraftPreview } from "@/components/draft-preview";
 import { StudioFooter } from "@/components/studio-footer";
