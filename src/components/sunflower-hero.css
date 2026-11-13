@@ -22,3 +22,30 @@
 .sun-stage[data-still=true] :is(.sun-emblem,.sun-orb,.sun-coil,.sun-pebble){animation-play-state:paused}
 @media(max-width:680px){.sun-stage{min-height:max(590px,calc(100svh - 64px));padding:135px 16px 140px}.sun-stage .sun-copy h1{font-size:clamp(34px,8.4vw,52px)}.sun-emblem{top:3%;left:-2%}.sun-coil{bottom:13%;right:-6%;width:90px}.sun-pebble{bottom:16%;left:-9%}.sun-controls{gap:3px;bottom:16px;flex-wrap:wrap;justify-content:center}.sun-stage .sun-controls button{padding:9px 7px;font-size:11px}.sun-controls small{display:none}}
 @media(prefers-reduced-motion:reduce){.sun-stage *{animation:none!important}}
+
+/* Glossy emoji objects, each moving on a separate gentle orbit. */
+.sun-emoji{position:absolute;pointer-events:none;z-index:0;perspective:900px;will-change:transform;animation:emoji-orbit 9s ease-in-out infinite}
+.sun-emoji img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 24px 18px #0004);animation:emoji-turn 12s ease-in-out infinite}
+.sun-emoji-starter{width:clamp(145px,22vw,310px);height:clamp(145px,22vw,310px);top:0;left:1%;rotate:-13deg}
+.sun-emoji-player{width:clamp(130px,20vw,280px);height:clamp(130px,20vw,280px);bottom:12%;right:1%;rotate:12deg;animation-delay:-4s}
+.sun-emoji-player img{animation-delay:-6s}
+.sun-emoji-heart{top:10%;right:13%;width:58px;height:58px;animation-delay:-2s}
+.sun-emoji-heart i{display:block;width:42px;height:42px;rotate:-45deg;background:linear-gradient(125deg,#ff8b99,#f72450 55%,#a5082d);border-radius:9px;box-shadow:inset 5px 4px 7px #ffffff60,0 14px 20px #0003}
+.sun-emoji-heart i:before,.sun-emoji-heart i:after{content:'';position:absolute;width:42px;height:42px;border-radius:50%;background:inherit}
+.sun-emoji-heart i:before{top:-21px;left:0}.sun-emoji-heart i:after{left:21px;top:0}
+.sun-emoji-message{left:2%;bottom:13%;display:flex;align-items:center;justify-content:center;gap:9px;width:112px;height:80px;border-radius:40px;background:radial-gradient(at 30% 15%,#fff,#f0f0ed 60%,#a6a9af);rotate:15deg;box-shadow:inset 3px 4px 8px #fff,0 15px 20px #0003;animation-delay:-5s}
+.sun-emoji-message:after{content:'';position:absolute;bottom:-10px;left:25px;width:23px;height:25px;border-radius:0 0 5px 10px;background:#d9dadb;transform:skewY(-35deg)}
+.sun-emoji-message i{width:11px;height:15px;background:#25262b;border-radius:50%;box-shadow:inset -2px -2px 2px #000}
+.sun-stage[data-still=true] .sun-emoji,.sun-stage[data-still=true] .sun-emoji img{animation-play-state:paused}
+body .emoji-stage-cards .hc-stage-card{background:linear-gradient(150deg,#fffdf3,#fff5cb);border:1px solid #fff2b6;transform:none;rotate:-2deg;min-height:430px;overflow:hidden;transition:rotate .35s,translate .35s,box-shadow .35s}
+body .emoji-stage-cards .hc-stage-card:nth-child(2){background:linear-gradient(150deg,#f5fff9,#dcf8eb);border-color:#bde9d4;rotate:2deg}
+body .emoji-stage-cards .hc-stage-card:is(:hover,:focus-visible){transform:none;rotate:0deg;translate:0 -8px}
+body .emoji-stage-cards .hc-stage-art{height:210px;background:transparent;mix-blend-mode:normal;filter:drop-shadow(0 12px 9px #553d0a18);animation:card-emoji-float 5s ease-in-out infinite;object-fit:contain;margin-bottom:6px}
+body .emoji-stage-cards .hc-stage-card:nth-child(2) .hc-stage-art{animation-delay:-2.5s}
+body .emoji-stage-cards .hc-stage-card strong{opacity:1;transform:none;color:#075f48}
+body .emoji-stage-cards .hc-stage-card h3{font-size:32px;margin:4px 0 16px;color:#173a2e}
+@keyframes emoji-orbit{0%,100%{transform:translate3d(0,0,0) rotate(-4deg)}50%{transform:translate3d(10px,-18px,0) rotate(6deg)}}
+@keyframes emoji-turn{0%,100%{transform:rotateY(-14deg) rotateZ(-3deg)}50%{transform:rotateY(16deg) rotateZ(4deg)}}
+@keyframes card-emoji-float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-9px) rotate(4deg)}}
+@media(max-width:680px){.sun-emoji-starter{width:155px;height:155px;left:-3%;top:1%}.sun-emoji-player{width:135px;height:135px;right:-4%;bottom:12%}.sun-emoji-heart{scale:.7;right:10%;top:8%}.sun-emoji-message{scale:.65;left:-5%;bottom:16%}body .emoji-stage-cards .hc-stage-card{min-height:290px;rotate:0deg;padding:20px}body .emoji-stage-cards .hc-stage-card:nth-child(2){rotate:0deg}body .emoji-stage-cards .hc-stage-art{height:135px}body .emoji-stage-cards .hc-stage-card h3{font-size:26px;margin-bottom:10px}}
+@media(prefers-reduced-motion:reduce){.sun-emoji,.sun-emoji img,body .emoji-stage-cards .hc-stage-art{animation:none!important}body .emoji-stage-cards .hc-stage-card{transition:none;rotate:0deg}body .emoji-stage-cards .hc-stage-card:nth-child(2){rotate:0deg}body .emoji-stage-cards .hc-stage-card:is(:hover,:focus-visible){translate:none}}

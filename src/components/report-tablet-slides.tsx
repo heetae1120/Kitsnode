@@ -2,13 +2,14 @@
 import {Children,useRef,useState,type ReactNode} from "react";
 import {motion,useReducedMotion} from "framer-motion";
 import {ArrowLeft,ArrowRight} from "lucide-react";
+import '@/app/tools/report-motion.css';
 export function ReportTabletSlides({children}:{children:ReactNode}){
  const slides=Children.toArray(children),[page,setPage]=useState(0);
  const root=useRef<HTMLDivElement>(null),screen=useRef<HTMLDivElement>(null),touch=useRef<number|null>(null);
  const reduced=useReducedMotion();
  const last=page===slides.length-1;
  function finish(){root.current?.dispatchEvent(new Event("kitsnode:report-continue",{bubbles:true}));}
- function move(next:number){setPage(Math.max(0,Math.min(slides.length-1,next)));screen.current?.scrollTo({top:0});}
+ function move(next:number){setPage(Math.max(0,Math.min(slides.length-1,next)));screen.current?.scrollTo({top:0});root.current?.closest('.mp-scroll-card')?.scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});}
  return <div className="kn-tablet-slides" ref={root}>
  <div ref={screen} className="kn-tablet-slide-screen" role="region" aria-label={"수익 보고서 "+(page+1)+" / "+slides.length} tabIndex={0}
  onWheel={e=>{const el=e.currentTarget;if(last&&e.deltaY>30&&el.scrollTop+el.clientHeight>=el.scrollHeight-3){finish();}}}

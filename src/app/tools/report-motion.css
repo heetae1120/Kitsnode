@@ -1,0 +1,70 @@
+/* Keep a complete report chapter inside the tablet at desktop viewport sizes. */
+.profit-tool #report-funds > div{padding-top:16px;padding-bottom:20px}
+.profit-tool #report-funds .mp-scroll-card{max-width:1100px;scroll-margin-top:0;padding:10px;border-radius:26px}
+.profit-tool #report-funds .kn-tablet-slides{height:min(700px,calc(100svh - 126px));min-height:540px}
+.profit-tool #report-funds .kn-tablet-slide{padding:20px 26px}
+.profit-tool #report-funds .kn-tablet-slide-actions{padding:10px 20px;flex-shrink:0}
+.profit-tool #report-funds .kn-tablet-slide-actions button{min-height:40px;padding:9px 16px}
+.profit-tool .mp-tablet-budget{padding:0;background:transparent;border:0}
+.profit-tool .mp-tablet-budget .mp-plan-recap{margin:0;padding:0;gap:12px}
+.profit-tool .mp-tablet-budget .mp-plan-recap>div{padding:12px 16px;border-radius:12px}
+.profit-tool .mp-tablet-budget .mp-plan-recap dd{font-size:23px;margin-top:6px}
+.profit-tool .mp-tablet-budget .mp-plan-recap small{margin-top:4px;font-size:10px}
+.profit-tool .mp-tablet-budget .mp-profit-reality{margin:14px 0}
+.profit-tool .mp-tablet-budget .mp-profit-comparison{gap:12px}
+.profit-tool .mp-tablet-budget :is(.mp-profit-before,.mp-profit-after){padding:13px 16px}
+.profit-tool .mp-tablet-budget :is(.mp-profit-before,.mp-profit-after)>span{font-size:12px}
+.profit-tool .mp-tablet-budget :is(.mp-profit-before,.mp-profit-after) strong{font-size:28px;margin:5px 0}
+.profit-tool .mp-tablet-budget .mp-story-caption{font-size:10px;margin:8px 0 0;line-height:1.6}
+.profit-tool .mp-tablet-budget .mp-profit-deductions{padding:10px 0 0}
+.profit-tool .mp-tablet-budget .mp-unit-summary{padding:16px 20px;margin:12px 0 0;border-radius:16px}
+.profit-tool .mp-tablet-budget .mp-unit-summary h2{font-size:20px;margin:0 0 14px;line-height:1.4}
+.profit-tool .mp-tablet-budget .mp-story-sale{padding:0;gap:12px}
+.profit-tool .mp-tablet-budget .mp-story-sale b{font-size:23px}
+.profit-tool .mp-tablet-budget .mp-story-sale span{font-size:11px}
+.profit-tool .mp-tablet-budget .kn-profit-next{padding:9px 12px;margin:12px 0;font-size:11px}
+.profit-tool .mp-tablet-budget .mp-story-details{margin:0;max-width:none;font-size:11px}
+.profit-tool .kn-tablet-slide .mp-reorder{padding:18px 22px;margin:0;border-radius:16px}
+.profit-tool .kn-tablet-slide .mp-reorder-heading{gap:14px;align-items:center}
+.profit-tool .kn-tablet-slide .mp-reorder h2{font-size:21px;margin:5px 0 0}
+.profit-tool .kn-tablet-slide .mp-reorder-heading label{font-size:10px}
+.profit-tool .kn-tablet-slide .mp-reorder input[type=number]{padding:7px 10px;width:70px}
+.profit-tool .kn-tablet-slide .mp-reorder .kn-stock-chart{height:clamp(120px,calc(100svh - 700px),185px);margin:12px 0 4px;overflow:visible}
+.profit-tool .kn-tablet-slide .mp-reorder-legend{gap:14px;font-size:10px}
+.profit-tool .kn-tablet-slide .mp-reorder-explore{margin:10px 0;font-size:11px}
+.profit-tool .kn-tablet-slide .mp-reorder-explore input{margin-top:6px;height:15px}
+.profit-tool .kn-tablet-slide .mp-reorder-metrics{padding:9px 0;gap:12px}
+.profit-tool .kn-tablet-slide .mp-reorder-metrics span{font-size:10px}
+.profit-tool .kn-tablet-slide .mp-reorder-metrics b{font-size:17px;margin-top:3px}
+.profit-tool .kn-tablet-slide .mp-reorder-metric-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;padding:12px 0;border-top:1px solid #e1e8f4}
+.profit-tool .kn-tablet-slide .mp-reorder-metric-grid .mp-reorder-metrics{display:contents}
+.profit-tool .kn-tablet-slide .mp-reorder-metric-grid b{font-size:15px}
+.profit-tool .kn-tablet-slide .mp-reorder-note{font-size:10px;line-height:1.6;margin:5px 0}
+.profit-tool .kn-tablet-slide .mp-reorder .mp-story-details{padding:6px 0;margin:0;font-size:11px}
+.profit-tool .kn-tablet-slide .kn-reorder-status strong{padding:7px 10px;margin:6px 0;font-size:11px}
+.kn-stock-pulse{transform-box:fill-box;transform-origin:center;animation:stock-pulse 2.4s ease-out infinite}
+@keyframes stock-pulse{0%,100%{transform:scale(.7);opacity:.9}65%{transform:scale(1.5);opacity:0}}
+@media(max-width:650px){
+ .profit-tool #report-funds .kn-tablet-slides{height:calc(100svh - 116px);min-height:430px}
+ .profit-tool #report-funds .mp-scroll-card{padding:5px;border-radius:20px;scroll-margin-top:0}
+ .profit-tool #report-funds .kn-tablet-slide{padding:14px 12px}
+ .profit-tool .mp-tablet-budget .mp-plan-recap{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .profit-tool .mp-tablet-budget .mp-plan-recap>div{padding:9px 7px}
+ .profit-tool .mp-tablet-budget .mp-plan-recap :is(dt,small){font-size:9px}
+ .profit-tool .mp-tablet-budget .mp-plan-recap dd{font-size:16px;overflow-wrap:anywhere}
+ .profit-tool .mp-tablet-budget :is(.mp-profit-before,.mp-profit-after){padding:10px}
+ .profit-tool .mp-tablet-budget :is(.mp-profit-before,.mp-profit-after) strong{font-size:22px}
+ .profit-tool .mp-tablet-budget .mp-unit-summary{padding:14px 12px}
+ .profit-tool .mp-tablet-budget .mp-unit-summary h2{font-size:17px}
+ .profit-tool .mp-tablet-budget .mp-story-sale{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:5px}
+ .profit-tool .mp-tablet-budget .mp-story-sale b{font-size:16px}
+ .profit-tool .mp-tablet-budget .mp-story-sale span{font-size:9px}
+ .profit-tool .kn-tablet-slide .mp-reorder{padding:14px 12px}
+ .profit-tool .kn-tablet-slide .mp-reorder-heading{flex-direction:row;align-items:flex-start}
+ .profit-tool .kn-tablet-slide .mp-reorder h2{font-size:17px}
+ .profit-tool .kn-tablet-slide .mp-reorder .kn-stock-chart{height:auto;min-height:135px}
+ .profit-tool .kn-tablet-slide .mp-reorder-metrics b{font-size:14px}
+ .profit-tool .kn-tablet-slide .mp-reorder-metric-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 8px}
+}
+@media(prefers-reduced-motion:reduce){.kn-stock-pulse{animation:none}}
+@media print{.profit-tool #report-funds .kn-tablet-slides{height:auto;min-height:0}.profit-tool #report-funds .kn-tablet-slide-screen{overflow:visible}.profit-tool #report-funds .mp-scroll-card{max-width:none;border:0;padding:0}}
