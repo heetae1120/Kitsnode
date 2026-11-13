@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import "./brand.css";
 import { VisitorAnalytics } from "@/components/visitor-analytics";
 import { DraftPreview } from "@/components/draft-preview";
 import { PublishedLayout } from "@/components/published-layout";

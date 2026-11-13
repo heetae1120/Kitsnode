@@ -11,7 +11,7 @@
 }
 .business-intake .intake-hero h1 em {
   font-style: normal;
-  color: #2563eb;
+  color: #086952;
 }
 .business-intake .intake-hero p {
   color: #64748b;
@@ -43,8 +43,8 @@
   flex: 0 0 34px;
   height: 34px;
   border-radius: 10px;
-  color: #2563eb;
-  background: #eff6ff;
+  color: #086952;
+  background: #f5fbf8;
   font-size: 12px;
 }
 .business-intake .intake-choices {
@@ -64,8 +64,8 @@
   font-size: 13px;
 }
 .business-intake button[aria-pressed="true"] {
-  color: #1d4ed8;
-  background: #eff6ff;
+  color: #07654d;
+  background: #f5fbf8;
   border-color: #93b4ff;
 }
 .business-intake button:disabled {
@@ -82,7 +82,7 @@
   align-items: center;
   gap: 8px;
   margin-top: 20px;
-  color: #1d4ed8;
+  color: #07654d;
   font-weight: 600;
 }
 .business-intake .intake-section-heading {
@@ -99,7 +99,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #2563eb;
+  color: #086952;
   font-size: 12px;
 }
 .business-intake .intake-market-form {
@@ -116,7 +116,7 @@
   background: #f8fafc;
   border-radius: 10px;
   padding: 0 14px;
-  color: #2563eb;
+  color: #086952;
 }
 .business-intake .intake-market-form input {
   min-width: 0;
@@ -128,9 +128,9 @@
 }
 .business-intake .intake-market-form > button,
 .business-intake .intake-build {
-  background: #2563eb;
+  background: #086952;
   color: #fff;
-  border-color: #2563eb;
+  border-color: #086952;
 }
 .business-intake .intake-note {
   font-size: 11px;
@@ -159,7 +159,7 @@
   line-height: 1.8;
 }
 .business-intake .intake-market-stats strong {
-  color: #1d4ed8;
+  color: #07654d;
   display: block;
   font-size: 30px;
   margin: 12px 0;
@@ -167,8 +167,8 @@
 }
 .business-intake .intake-market-stats button {
   margin-top: 12px;
-  color: #1d4ed8;
-  background: #eff6ff;
+  color: #07654d;
+  background: #f5fbf8;
   font-size: 11px;
 }
 .business-intake .intake-data-notice {
@@ -217,7 +217,7 @@
   overflow-wrap: anywhere;
 }
 .business-intake .intake-product-grid strong {
-  color: #1d4ed8;
+  color: #07654d;
 }
 .business-intake .intake-product-grid p {
   color: #64748b;

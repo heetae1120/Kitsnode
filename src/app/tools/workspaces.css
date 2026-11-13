@@ -8,10 +8,10 @@
 .tools-workspace .workspace-summary p { color: #bfcee3; line-height: 1.8; font-size: 13px; }
 .tools-workspace .workspace-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
 .tools-workspace .workspace-panel { min-width: 0; padding: 26px; border: 1px solid #e2e8f0; border-radius: 18px; background: #fff; }
-.tools-workspace .workspace-panel > svg { color: #2563eb; margin-bottom: 18px; }
+.tools-workspace .workspace-panel > svg { color: #086952; margin-bottom: 18px; }
 .tools-workspace .workspace-panel h2 { font-size: 19px; margin-bottom: 10px; }
 .tools-workspace .workspace-panel p { color: #64748b; font-size: 13px; line-height: 1.8; }
-.tools-workspace .workspace-pending { display: inline-block; margin-top: 20px; padding: 6px 9px; border-radius: 7px; background: #eff6ff; color: #345786; font-size: 11px; }
+.tools-workspace .workspace-pending { display: inline-block; margin-top: 20px; padding: 6px 9px; border-radius: 7px; background: #f5fbf8; color: #345786; font-size: 11px; }
 .tools-workspace .seo-status-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 24px 0; }
 .tools-workspace .seo-status { border: 1px solid; padding: 20px; border-radius: 14px; }
 .tools-workspace .positive { color: #166534; background: #ecfdf5; border-color: #bbf7d0; }

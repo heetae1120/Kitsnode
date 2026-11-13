@@ -1,0 +1,33 @@
+:root {
+  --brand-mint: #91fbd6;
+  --brand-accent: #086952;
+  --paper: #fff;
+  --lime: var(--brand-mint);
+  --green: var(--brand-accent);
+}
+html body, body .profit-tool, body .profit-tool .finance-dashboard,
+body .profit-tool .hc-shell:has(.hc-chapter-hero), body .profit-tool .pr-workspace {
+  --green: var(--brand-accent);
+  --blue: var(--brand-accent);
+  --soft: #f4fbf8;
+  --background: #fff;
+  background: white;
+}
+body :is(.mp-primary,.hc-primary,.pr-primary,.bid-rank-submit,.kp-button.primary,.ag-primary),
+body .profit-tool .finance-dashboard :is(.mp-primary,.hc-primary,.pr-primary,.kp-button.primary) {
+  background: var(--brand-mint)!important;
+  color: #11382d!important;
+  border-color: #69dcb6!important;
+}
+body .profit-tool :is(.mp-intro h1,.mp-story-heading em,.mp-section-heading>span,.ag-copy h1 em,.mp-steps .is-active,.nimbus-item[aria-current=page]) {color:var(--brand-accent)}
+body .profit-tool :is(a,button,input,select):focus-visible {outline:2px solid var(--brand-accent);outline-offset:2px}
+body .hc-cinema-player .hc-cinema-stage {background:white}
+body .hc-cinema-player .hc-cinema-stage:after {background:linear-gradient(90deg,#fffffff9 0%,#fffffff2 31%,#ffffffa8 48%,transparent 73%)}
+body .hc-shell .hc-cinema-message h1 {color:#162c27}
+body .hc-shell .hc-cinema-message :is(h2,em),body .hc-cinema-message .hc-brand-copy>span {color:var(--brand-accent)}
+body .hc-shell .hc-cinema-message p {color:#374d45}
+body .hc-cinema-player .lscp-progress-chapters {background:white}
+body .hc-cinema-player .lscp-progress-chapters button {background:white;color:#233c33;border-color:#d8e2df}
+body .hc-cinema-player .lscp-progress-chapters button[aria-current=true] {background:#effcf7;color:var(--brand-accent);border-color:#63cba7}
+body .hc-cinema-player .lscp-play {background:#143f34}
+@media(max-width:650px){body .hc-cinema-player .hc-cinema-stage:after{background:linear-gradient(90deg,#fffffff5,#ffffffe0 58%,#ffffff50)}}

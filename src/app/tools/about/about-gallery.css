@@ -14,7 +14,7 @@
 .profit-tool .about-gallery-page .ag-tile-3>img{object-position:center 43%;}
 .profit-tool .about-gallery-page .ag-tile-5>img{object-position:center 55%;}
 .profit-tool .about-gallery-page .ag-tile-label{position:absolute;top:10px;left:12px;z-index:2;font-size:9px;font-weight:750;color:#52657f;letter-spacing:.04em;}
-.profit-tool .about-gallery-page .ag-brand{background:#2858f5;color:#fff;border-color:#2858f5;}
+.profit-tool .about-gallery-page .ag-brand{background:#086952;color:#fff;border-color:#086952;}
 .profit-tool .about-gallery-page .ag-brand .ag-tile-label{color:#e4ebff;}
 .profit-tool .about-gallery-page .ag-brand-art{position:relative;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;}
 .profit-tool .about-gallery-page .ag-brand-art b{font-size:clamp(50px,7vw,105px);font-weight:850;letter-spacing:-.12em;line-height:1;z-index:1;}.profit-tool .about-gallery-page .ag-brand-art b>span{color:#a8c4ff;}
@@ -26,11 +26,11 @@
 .profit-tool .about-gallery-page .ag-copy{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;z-index:3;transform-origin:center;will-change:transform,opacity;}
 .profit-tool .about-gallery-page .ag-eyebrow{font-size:10px;letter-spacing:.17em;font-weight:700;color:#718097;margin:0 0 18px;}
 .profit-tool .about-gallery-page .ag-copy h1{font-size:clamp(38px,5vw,76px);line-height:1.13;letter-spacing:-.065em;font-weight:800;color:#172c4f;margin:0;}
-.profit-tool .about-gallery-page .ag-copy h1 em{font-style:normal;color:#2858f5;}
+.profit-tool .about-gallery-page .ag-copy h1 em{font-style:normal;color:#086952;}
 .profit-tool .about-gallery-page .ag-copy>p{font-size:14px;color:#697b94;margin:20px 0 22px;line-height:1.8;}
 .profit-tool .about-gallery-page .ag-actions{display:flex;align-items:center;justify-content:center;gap:22px;}
 .profit-tool .about-gallery-page .ag-actions a{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;text-decoration:none;}
-.profit-tool .about-gallery-page .ag-primary{padding:14px 20px;border-radius:10px;background:#2858f5;color:#fff;box-shadow:0 8px 22px #2858f525;}
+.profit-tool .about-gallery-page .ag-primary{padding:14px 20px;border-radius:10px;background:#086952;color:#fff;box-shadow:0 8px 22px #2858f525;}
 .profit-tool .about-gallery-page .ag-primary:hover{background:#1948e1;}.profit-tool .about-gallery-page .ag-secondary{color:#52657f;padding:14px 0;}
 .profit-tool .about-gallery-page .ag-scroll-cue{position:absolute;left:28px;bottom:20px;display:flex;align-items:center;gap:9px;color:#7c8a9f;font-size:8px;letter-spacing:.12em;}
 .profit-tool .about-gallery-page .kp-section{padding-top:100px;padding-bottom:100px;}.profit-tool .about-gallery-page .kp-contrast{gap:24px;}.profit-tool .about-gallery-page .kp-contrast>div{border-radius:18px;}.profit-tool .about-gallery-page .kp-proof{scroll-margin-top:80px;}

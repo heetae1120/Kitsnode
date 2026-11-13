@@ -33,8 +33,8 @@
 }
 .profit-tool .expanded-tools .tool-nav a[aria-current="page"],
 .profit-tool .expanded-tools .tool-nav-group > button[data-active="true"] {
-  color: #1d4ed8;
-  background: #eff6ff;
+  color: #07654d;
+  background: #f5fbf8;
   font-weight: 700;
 }
 .profit-tool .expanded-tools .tool-nav a:hover,
@@ -102,7 +102,7 @@
     min-width: 0;
     margin: 4px 0 8px 12px;
     border: 0;
-    border-left: 2px solid #dbeafe;
+    border-left: 2px solid #d8f4e9;
     border-radius: 0;
     box-shadow: none;
     background: #f8fafc;
@@ -120,7 +120,7 @@
 }
 .profit-tool .expanded-tools .tool-nav > a:hover,
 .profit-tool .expanded-tools .tool-nav-group > button:hover {
-  background: #eff6ff;
+  background: #f5fbf8;
   box-shadow: 0 3px 12px #2563eb0a;
 }
 .profit-tool .expanded-tools .menu-motion {
@@ -144,8 +144,8 @@
   stroke-linejoin: round;
 }
 .profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible, [aria-current="page"], [data-active="true"]) .menu-motion {
-  color: #2563eb;
-  background: #dbeafe;
+  color: #086952;
+  background: #d8f4e9;
 }
 .profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .menu-motion { transform: translateY(-2px); }
 .profit-tool .expanded-tools .tool-nav-label {
@@ -160,7 +160,7 @@
   bottom: -5px;
   height: 2px;
   border-radius: 2px;
-  background: #2563eb;
+  background: #086952;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 250ms cubic-bezier(.2,.8,.2,1);
@@ -173,7 +173,7 @@
 .profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .glyph-bar {
   animation: kits-bars 1100ms ease-in-out var(--glyph-delay) infinite;
 }
-.profit-tool .expanded-tools .glyph-orbit { transform-origin: 10px 10px; fill: currentColor; stroke: #eff6ff; }
+.profit-tool .expanded-tools .glyph-orbit { transform-origin: 10px 10px; fill: currentColor; stroke: #f5fbf8; }
 .profit-tool .expanded-tools :is(a, button):is(:hover, :focus-visible) .glyph-orbit { animation: kits-orbit 1600ms linear infinite; }
 .profit-tool .expanded-tools .glyph-tile { fill: currentColor; fill-opacity: .12; transform-box: fill-box; transform-origin: center; }
 .profit-tool .expanded-tools .tile-one { --glyph-delay: 0ms; }
@@ -192,7 +192,7 @@
 .profit-tool .expanded-tools .tool-subnav a:nth-child(2) { animation-delay: 65ms; }
 .profit-tool .expanded-tools .tool-subnav a:nth-child(3) { animation-delay: 100ms; }
 .profit-tool .expanded-tools .tool-subnav a { transition: background-color 160ms ease, color 160ms ease, padding-left 180ms ease; }
-.profit-tool .expanded-tools .tool-subnav a:hover { padding-left: 17px; color: #1d4ed8; }
+.profit-tool .expanded-tools .tool-subnav a:hover { padding-left: 17px; color: #07654d; }
 .profit-tool .expanded-tools .tool-menu-toggle { display: block; position: relative; width: 22px; height: 22px; }
 .profit-tool .expanded-tools .tool-menu-toggle > span { position: absolute; left: 1px; width: 20px; height: 1.7px; border-radius: 2px; background: currentColor; transition: transform 230ms ease, opacity 160ms ease; }
 .profit-tool .expanded-tools .tool-menu-toggle > span:nth-child(1) { top: 4px; }
