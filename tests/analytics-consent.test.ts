@@ -50,3 +50,5 @@ test('v3 requires renewed permission and preserves previous refusals', () => {
   assert.equal(readAnalyticsConsent(old('allow')),'unset');
   assert.equal(readAnalyticsConsent(old('deny')),'deny');
 });
+
+test('v4 requires new consent and keeps v3 refusal',()=>{const old=(v:string)=>({getItem:(key:string)=>key==='kitsnode-analytics-consent-v3'?v:null,setItem(){}});assert.equal(readAnalyticsConsent(old('allow')),'unset');assert.equal(readAnalyticsConsent(old('deny')),'deny');});
