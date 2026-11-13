@@ -85,7 +85,10 @@ export default function KeywordTool() {
     } catch {
       setEndpoint("");
     }
-    return () => controller.current?.abort();
+    return () => {
+      controller.current?.abort();
+      controller.current = null;
+    };
   }, []);
   // Unrelated keywords are excluded throughout results, totals, exports and research.
   const relevance = useMemo(
@@ -248,6 +251,7 @@ export default function KeywordTool() {
         );
       const result = validateKeywordResponse(payload);
       if (controller.current !== current) return;
+      if (current.signal.aborted) throw new Error("조회 시간이 초과되었습니다.");
       setData(result);
       resetFilters();
       results.current?.scrollIntoView({ behavior: "smooth", block: "start" });
