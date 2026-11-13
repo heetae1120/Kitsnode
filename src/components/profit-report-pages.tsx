@@ -1,5 +1,5 @@
 "use client";
-import {useLayoutEffect,useRef,useState,type ReactNode} from 'react';
+import {useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import {motion,useReducedMotion} from 'framer-motion';
 import {ArrowLeft,ArrowRight} from 'lucide-react';
 import {ReportSignupPrompt} from './report-signup-prompt';
@@ -11,6 +11,7 @@ export function ProfitReportPages({overview,keywords,footer,initialPage=0}:{init
   const active=page===0?first.current:second.current;if(!active)return;
   const update=()=>setHeight(Math.ceil(active.getBoundingClientRect().height));update();const observer=new ResizeObserver(update);observer.observe(active);return()=>observer.disconnect();
  },[page]);
+ useEffect(()=>{const el=root.current;const proceed=()=>{if(!continued)setSignupOpen(true);else move(1)};el?.addEventListener("kitsnode:report-continue",proceed);return()=>el?.removeEventListener("kitsnode:report-continue",proceed)},[continued]);
  function move(next:number){if(next===page)return;setPage(next);requestAnimationFrame(()=>{(next===0?first:second).current?.focus({preventScroll:true});root.current?.scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});});}
  function requestMove(next:number){if(next===1&&!continued){setSignupOpen(true);return;}move(next);}
  return <div className="mp-report-pages" ref={root}>
@@ -20,3 +21,4 @@ export function ProfitReportPages({overview,keywords,footer,initialPage=0}:{init
  <div id="profit-report-keywords" className="mp-report-page" ref={second} tabIndex={-1} inert={page!==1} aria-hidden={page!==1}><div className="mp-report-keyword-screen"><span className="mp-report-camera" aria-hidden="true"/>{continued?keywords:null}<div className="mp-report-page-actions"><button type="button" className="mp-secondary" onClick={()=>move(0)}><ArrowLeft size={18}/>이전 · 수익·예산</button><span>02 / 02</span></div><span className="mp-report-home" aria-hidden="true"/></div>{footer}</div>
  </motion.div></div>{signupOpen&&<ReportSignupPrompt onClose={()=>setSignupOpen(false)} onContinue={()=>{setContinued(true);setSignupOpen(false);move(1);}}/>}</div>;
 }
+
