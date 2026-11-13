@@ -41,14 +41,14 @@ export function countRange(value: SearchCount): CountRange | null {
     return Number.isSafeInteger(value) && value >= 0
       ? { min: value, max: value }
       : null;
-  const trimmed = value.replaceAll(",", "").trim();
-  if (/^\d+$/.test(trimmed)) {
-    const n = Number(trimmed);
+  const trimmed = value.trim();
+  if (/^(?:\d+|\d{1,3}(?:,\d{3})+)$/.test(trimmed)) {
+    const n = Number(trimmed.replaceAll(",", ""));
     return Number.isSafeInteger(n) ? { min: n, max: n } : null;
   }
-  const bounded = trimmed.match(/^<\s*(\d+)$/);
+  const bounded = trimmed.match(/^<\s*(\d+|\d{1,3}(?:,\d{3})+)$/);
   if (bounded) {
-    const n = Number(bounded[1]);
+    const n = Number(bounded[1].replaceAll(",", ""));
     return Number.isSafeInteger(n) && n > 0 ? { min: 0, max: n - 1 } : null;
   }
   return null;

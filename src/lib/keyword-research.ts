@@ -43,11 +43,11 @@ export function productSearchRatio(
     : null;
 }
 export function parseProductCount(value: string): number | null {
-  const text = value.replaceAll(",", "").trim();
+  const text = value.trim();
   if (!text) return null;
-  if (!/^\d+$/.test(text))
-    throw new Error("상품 수는 0 이상의 정수로 입력해 주세요.");
-  const n = Number(text);
+  if (!/^(?:\d+|\d{1,3}(?:,\d{3})+)$/.test(text))
+    throw new Error("상품 수는 0 이상의 정수로 입력하세요. 천 단위 쉼표는 1,000처럼 입력해 주세요.");
+  const n = Number(text.replaceAll(",", ""));
   if (!Number.isSafeInteger(n) || n > 1_000_000_000_000)
     throw new Error("상품 수는 1조 이하의 정수로 입력해 주세요.");
   return n;
