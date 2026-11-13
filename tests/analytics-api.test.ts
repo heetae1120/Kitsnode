@@ -11,6 +11,7 @@ function harness(options:Record<string,unknown> = {}) {
   const handler=createAnalyticsHandler({projectUrl:'https://storage.example',serviceKey:'synthetic-service-key',ingestEnabled:true,frontendOrigins:[front],adminOrigins:[admin],fetchImpl:async (url:unknown, init?:RequestInit) => {
     calls.push({url:String(url),body:init?.body?JSON.parse(String(init.body)):null});
     if(String(url).startsWith('https://api.github.com/')) return Response.json({permissions:{push:true}});
+    if(String(url).endsWith('kitsnode_main_session_report')) return Response.json({landing:'main',rows:[]});
     return Response.json(String(url).endsWith('_report')?report:{status:'ok'});
   },...options});
   return {handler,calls};
@@ -53,7 +54,7 @@ test('reject malformed, oversize streaming, MIME and unknown data before RPC',as
 test('report requires admin origin, token and independently verified repository push permission',async()=>{
   const h=harness();assert.equal((await h.handler(getReport(front))).status,403);assert.equal((await h.handler(getReport(admin,''))).status,401);assert.equal(h.calls.length,0);
   const denied=harness({fetchImpl:async()=>Response.json({permissions:{push:false}})});assert.equal((await denied.handler(getReport())).status,403);
-  const res=await h.handler(getReport());assert.equal(res.status,200);assert.deepEqual(await res.json(),report);assert.equal(h.calls.length,2);
+  const res=await h.handler(getReport());assert.equal(res.status,200);assert.deepEqual(await res.json(),{...report,sessions:{landing:'main',rows:[]}});assert.equal(h.calls.length,3);
   assert.equal((await h.handler(getReport(admin,token,'days=365'))).status,400);
 });
 test('global SQL cap is surfaced and errors never disclose secrets',async()=>{
@@ -62,7 +63,7 @@ test('global SQL cap is surfaced and errors never disclose secrets',async()=>{
 });
 test('duplicate beacons are accepted without retrying and report rate limit bounds GitHub requests',async()=>{
   const h=harness({fetchImpl:async()=>Response.json({status:'duplicate'})});assert.equal((await h.handler(collect())).status,202);
-  const reports=harness({now:()=>0});for(let i=0;i<30;i++)await reports.handler(getReport());assert.equal((await reports.handler(getReport())).status,429);assert.equal(reports.calls.length,60);
+  const reports=harness({now:()=>0});for(let i=0;i<30;i++)await reports.handler(getReport());assert.equal((await reports.handler(getReport())).status,429);assert.equal(reports.calls.length,90);
 });
 test('migration keeps raw data private, uses invoker and atomic monotonic snapshots, retention explicit',()=>{
   const sql=readFileSync(new URL('../supabase/migrations/20261107145249_kitsnode_private_analytics.sql',import.meta.url),'utf8');
@@ -87,3 +88,13 @@ test('v2 validated timing reaches the same private RPC without adding answer fie
   assert.equal((await h.handler(collect(v2))).status,202);
   assert.deepEqual(h.calls[0].body,{p_origin:front,p_event:v2});
 });
+
+ test('main sessions reject extra private fields and require allowed origin',async()=>{
+  const h=harness();const session={version:1,sessionId:'491b857a-7641-4cef-8a22-28d383a498c2',landing:'main',attribution:{source:'instagram',medium:'social',campaign:'none',basis:'referrer'}};
+  const req=(payload:unknown,origin=front)=>new Request('https://endpoint.example/analytics?resource=session',{method:'POST',headers:{origin,'content-type':'text/plain'},body:JSON.stringify(payload)});
+  assert.equal((await h.handler(req(session))).status,202);
+  assert.equal((await h.handler(req({...session,email:'private'}))).status,400);
+  assert.equal((await h.handler(req({...session,attribution:{...session.attribution,source:'https://example.com'}}))).status,400);
+  assert.equal((await h.handler(req(session,'https://bad.example'))).status,403);
+  assert.equal(h.calls.length,1);
+ });

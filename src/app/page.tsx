@@ -1,7 +1,8 @@
-"use client";
-import {useEffect} from 'react';
-import Link from 'next/link';
-export default function Page(){
- useEffect(()=>{window.location.replace((process.env.NEXT_PUBLIC_BASE_PATH||'')+'/tools/start/');},[]);
- return <main><h1>KITSNODE</h1><Link href="/tools/start/">수익 진단 시작하기</Link></main>;
+import ToolsLayout from './tools/layout';
+import StartPage from './tools/start/page';
+
+// Render the main experience at the entry URL so the original referrer and
+// campaign parameters remain available after the visitor chooses consent.
+export default function Page() {
+  return <ToolsLayout><StartPage /></ToolsLayout>;
 }

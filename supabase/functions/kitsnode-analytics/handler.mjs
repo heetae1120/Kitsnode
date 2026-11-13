@@ -59,12 +59,23 @@ export function createAnalyticsHandler({projectUrl, serviceKey, ingestEnabled = 
   return async request => {
     const url = new URL(request.url); const resource = url.searchParams.get('resource') || 'collect';
     const origin = request.headers.get('origin') || '';
-    const allowed = resource === 'report' ? admins.has(origin) : resource === 'collect' && front.has(origin);
+    const allowed = resource === 'report' ? admins.has(origin) : ['collect','session'].includes(resource) && front.has(origin);
     const headers = {'Cache-Control':'no-store','Vary':'Origin','Content-Type':'application/json; charset=utf-8','X-Content-Type-Options':'nosniff', ...(allowed ? {'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':resource === 'report' ? 'GET, OPTIONS' : 'POST, OPTIONS','Access-Control-Allow-Headers':resource === 'report' ? 'x-github-token' : 'content-type'} : {})};
     const respond = (body, status = 200, extra = {}) => new Response(JSON.stringify(body), {status,headers:{...headers,...extra}});
     if (!allowed) return respond({error:'origin_not_allowed'},403);
     if (request.method === 'OPTIONS') return new Response(null,{status:204,headers});
     try {
+      if (resource === 'session') {
+        if (request.method !== 'POST') return respond({error:'method_not_allowed'},405);
+        if (!ingestEnabled) return respond({error:'collection_disabled'},503);
+        if ([...url.searchParams.keys()].some(key=>key!=='resource') || url.searchParams.getAll('resource').length!==1) return respond({error:'invalid_query'},400);
+        if (!['application/json','text/plain'].includes((request.headers.get('content-type')||'').split(';')[0].trim().toLowerCase())) return respond({error:'unsupported_content_type'},415);
+        let data; try { data=JSON.parse(await limitedBody(request)); } catch { return respond({error:'invalid_json'},400); }
+        if (!exactKeys(data,['version','sessionId','landing','attribution']) || data.version!==1 || data.landing!=='main' || typeof data.sessionId!=='string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(data.sessionId) || !validateAttribution(data.attribution) || data.attribution.basis==='internal' || data.attribution.source==='internal' || data.attribution.medium==='internal') return respond({error:'invalid_event'},400);
+        const result=await rpc('kitsnode_record_main_session',{p_origin:origin,p_event:data});
+        if (result?.status==='rate_limited') return respond({error:'rate_limited'},429);
+        return result?.status==='ok'?respond({accepted:true},202):respond({error:'invalid_event'},400);
+      }
       if (resource === 'collect') {
         if (request.method !== 'POST') return respond({error:'method_not_allowed'},405);
         if (!ingestEnabled) return respond({error:'collection_disabled'},503);
@@ -100,6 +111,7 @@ export function createAnalyticsHandler({projectUrl, serviceKey, ingestEnabled = 
       const report = await rpc('kitsnode_analytics_report',{p_days:Number(days)});
       // SQL returns aggregates only. Never fall back to raw table reads.
       if (!object(report) || !Array.isArray(report.pages) || !object(report.survey)) throw new Error('invalid_report');
+      report.sessions = await rpc('kitsnode_main_session_report',{p_days:Number(days)});
       return respond(report);
     } catch { return respond({error:'service_unavailable'},503); }
   };

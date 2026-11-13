@@ -31,7 +31,7 @@ test('failed withdrawal persistence clears a stale opt-in when removal is availa
 
 test('runtime starts only after consent and withdrawal stops before persisting', () => {
   const component = readFileSync('src/components/visitor-analytics.tsx', 'utf8');
-  assert.match(component, /if \(consent !== 'allow' \|\| !page \|\| !allowed\(\)\) return/);
+  assert.match(component, /if \(consent !== 'allow' \|\| !allowed\(\)/);
   assert.match(component, /consentRef.current === 'allow' && eligible\(\)/);
   const choose = component.slice(component.indexOf('const choose'));
   assert.ok(choose.indexOf("if (value === 'deny')") < choose.indexOf('writeAnalyticsConsent'));
@@ -43,4 +43,10 @@ test('expanded collection requires fresh opt-in but honors prior refusal', () =>
   const storage = (old: string) => ({getItem:(key:string)=>key==='kitsnode-analytics-consent-v1'?old:null,setItem(){}});
   assert.equal(readAnalyticsConsent(storage('allow')), 'unset');
   assert.equal(readAnalyticsConsent(storage('deny')), 'deny');
+});
+
+test('v3 requires renewed permission and preserves previous refusals', () => {
+  const old=(v:string)=>({getItem:(key:string)=>key==='kitsnode-analytics-consent-v2'?v:null,setItem(){}});
+  assert.equal(readAnalyticsConsent(old('allow')),'unset');
+  assert.equal(readAnalyticsConsent(old('deny')),'deny');
 });

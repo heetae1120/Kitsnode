@@ -145,3 +145,9 @@ After fresh optional consent (preference v2), each page view carries an immutabl
 `basis` is `utm`, `referrer`, `internal`, or `unknown`. Only explicitly registered source and medium aliases in `analytics-attribution.ts` survive classification. Unknown tagged values become `other_tagged`. Campaign is only `none` or `other_tagged` (미등록 캠페인), indicating tag presence, not a campaign-name breakdown. There are no registered campaign names yet. A future campaign-name feature must register a public, non-identifying taxonomy and update server validation first.
 
 An absent/invalid referrer is `direct_or_unknown`, not proof of direct traffic: apps, browser policies and stripped referrers can hide the source. Same-origin and SPA route transitions are `internal`; later SPA views do not reattribute a stale initial document referrer. Explicit supported UTM tags take precedence. Metrics count page views, not unique users or sessions. Legacy v1/v2 records remain unattributed; historical attribution is never inferred or backfilled. Heartbeats for one view retain its initial accepted categories.
+
+## 메인 유입 세션 (v3 동의)
+
+루트 주소와 `/tools/start/`는 같은 맞춤 진단 메인이다. 루트에서 같은 화면을 직접 렌더링하여 최초 외부 출처를 유지한다. 새 동의를 받은 방문만 현재 탭의 임의 UUID와 마지막 활동 시각을 `sessionStorage`에 보관한다. 첫 관측이 메인이며 내부 이동이 아닐 때만 세션 시작 이벤트를 한 번 전송한다. 30분 활동이 없으면 만료되며, 비메인 페이지에서 시작한 세션은 대상이 아니다. 탭 간 사용자 중복을 제거하지 않으며 고유 방문자 수가 아니다. 브라우저 저장 불가, 네트워크 오류, 출처 미전달, 거부 및 DNT/GPC로 누락될 수 있다.
+
+DB는 허용된 유입 범주만 저장하며 세션 이벤트는 재전송되어도 UUID 기준 중복 집계되지 않는다. 관리자 API는 한국시간 날짜·플랫폼·매체·캠페인 분류별 집계만 제공한다. 기존 일일 보관 작업이 90일 초과 세션을 삭제한다. 이전 동의는 v3 새 동의가 필요하며, 기존 거부는 유지한다. 이전 페이지 조회 기록은 세션으로 소급 변환하지 않는다.
