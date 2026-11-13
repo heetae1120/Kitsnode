@@ -1,11 +1,13 @@
 "use client";
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { DATA_TEMPLATES, parseDataset, summarize, type Dataset } from '@/lib/ad-health';
 import { num, won } from '@/lib/calculator';
 
 export function downloadText(name:string,text:string,type='text/plain') {const url=URL.createObjectURL(new Blob(['\uFEFF'+text],{type:type+';charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 const labels:Record<Dataset['kind'],string>={daily:'일별 판매·방문·광고',audience:'성별·연령대 방문',channels:'유입 경로',products:'상품별 판매'};
 export function HealthData({onAdMetrics}:{onAdMetrics:(cpc:number,cvr:number)=>void}) {
+  const importRequest=useRef(0);
+  useEffect(()=>()=>{importRequest.current++;},[]);
   const [kind,setKind]=useState<Dataset['kind']>('daily');const [data,setData]=useState<Dataset|null>(null);const [pending,setPending]=useState<Dataset|null>(null);const [error,setError]=useState('');
   const [product,setProduct]=useState('');const [from,setFrom]=useState('');const [to,setTo]=useState('');const [target,setTarget]=useState('');const [adConfirmed,setAdConfirmed]=useState(false);
   const rows=useMemo(()=>data?.rows.filter(r=>(!product||r.productId===product)&&(!from||r.date>=from)&&(!to||r.date<=to))??[],[data,product,from,to]);
@@ -21,7 +23,7 @@ export function HealthData({onAdMetrics}:{onAdMetrics:(cpc:number,cvr:number)=>v
   return <section className="hc-card" id="store-data">
     <div className="hc-section-title"><div><span>03 / STORE EVIDENCE</span><h2>스토어 데이터로 한 번 더 확인</h2></div><span className="hc-chip">브라우저 안에서만 처리</span></div>
     <p>관리센터 통계에서 필요한 열만 CSV(UTF-8)로 내보내거나 JSON 배열을 올려주세요. 고객 이름·전화번호·주소는 받지 않습니다. 아래 템플릿의 열 이름에 맞춰 정리합니다.</p>
-    <div className="hc-import-controls"><label>통계 종류<select value={kind} onChange={e=>{setKind(e.target.value as Dataset['kind']);setPending(null);setError('');}}>{Object.entries(labels).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label><button type="button" className="hc-secondary" onClick={()=>downloadText(`kits-${kind}-template.csv`,DATA_TEMPLATES[kind],'text/csv')}>CSV 양식 받기</button><label className="hc-upload">통계 파일 선택<input type="file" accept=".csv,.json" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;setError('');setPending(null);try{if(file.size>2e6)throw new Error('2MB 이하 파일을 사용하세요.');setPending(parseDataset(await file.text(),kind,file.name));}catch(err){setError(err instanceof Error?err.message:'파일을 읽지 못했습니다.');}e.target.value='';}}/></label></div>
+    <div className="hc-import-controls"><label>통계 종류<select value={kind} onChange={e=>{importRequest.current++;setKind(e.target.value as Dataset['kind']);setPending(null);setError('');}}>{Object.entries(labels).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label><button type="button" className="hc-secondary" onClick={()=>downloadText(`kits-${kind}-template.csv`,DATA_TEMPLATES[kind],'text/csv')}>CSV 양식 받기</button><label className="hc-upload">통계 파일 선택<input type="file" accept=".csv,.json" onChange={async e=>{const file=e.target.files?.[0];if(!file)return;e.target.value='';const requestId=++importRequest.current;setError('');setPending(null);try{if(file.size>2e6)throw new Error('2MB 이하 파일을 사용하세요.');const text=await file.text();if(importRequest.current!==requestId)return;setPending(parseDataset(text,kind,file.name));}catch(err){if(importRequest.current===requestId)setError(err instanceof Error?err.message:'파일을 읽지 못했습니다.');}}}/></label></div>
     <p className="hc-note">누락된 열은 ‘자료 없음’으로 처리합니다. 체류시간은 초 단위 평균, 방문수는 고유 방문자 수가 아닌 방문 횟수입니다. 전체와 상품별 합계, 서로 다른 분류 통계를 한 파일에 섞지 마세요.</p>
     {error&&<p role="alert" className="hc-error">{error}</p>}
     {pending&&<div className="hc-notice"><b>업로드 미리보기 · {pending.rows.length}행</b><p>{pending.source} / {labels[pending.kind]} / {pending.rows.map(r=>r.date).sort()[0]} ~ {pending.rows.map(r=>r.date).sort().at(-1)}</p><p>상품 {new Set(pending.rows.map(r=>r.productId)).size}개 · 첫 행: {Object.entries(pending.rows[0]).map(([k,v])=>`${k}: ${v}`).join(' / ')}</p><button className="hc-primary" type="button" onClick={()=>{setData(pending);setPending(null);setProduct('');setFrom('');setTo('');setAdConfirmed(false);}}>이 통계로 분석하기</button><button className="hc-secondary" type="button" onClick={()=>setPending(null)}>취소</button></div>}
@@ -35,7 +37,7 @@ export function HealthData({onAdMetrics}:{onAdMetrics:(cpc:number,cvr:number)=>v
     {stats.cvr!==null&&<p className="hc-notice">관찰: 방문 {num(stats.visits)}회에서 결제 {num(stats.orders)}건, 전환율 {num(stats.cvr)}%입니다. <b>확인 가설:</b> 전환율이 하락했다면 상세페이지·가격·배송·유입 품질을 함께 점검하세요. 낮다고 판단할 비교 기준은 별도로 필요합니다.</p>}
     {findings.map(f=><p className="hc-notice" key={f}>{f}</p>)}
     {data.kind==='daily'&&stats.complete&&stats.clicks&&stats.cpc!==null&&<div className="hc-notice"><label className="hc-check"><input type="checkbox" checked={adConfirmed} onChange={e=>setAdConfirmed(e.target.checked)}/>이 파일의 결제건수는 전체 스토어 주문이 아닌, 같은 기간·상품의 광고 구매완료 전환수임을 확인했습니다.</label><button className="hc-secondary" disabled={!adConfirmed||(!product&&productIds.length>1)} type="button" onClick={()=>onAdMetrics(stats.cpc!,stats.orders!/stats.clicks!*100)}>광고 CPC·전환율을 검진에 적용</button><p className="hc-note">스토어 전체 결제건수를 광고 클릭수로 나누면 광고 전환율이 과대 계산될 수 있습니다. 상품을 하나 선택하고 전환 정의를 확인하세요.</p></div>}
-    </> }<button className="hc-text" type="button" onClick={()=>{setData(null);setPending(null);}}>통계 지우기</button></>}
+    </> }<button className="hc-text" type="button" onClick={()=>{importRequest.current++;setData(null);setPending(null);}}>통계 지우기</button></>}
     <details className="hc-details"><summary>공식 API와 연결 가능한 범위</summary><p>현재 이 화면은 자동 연결되지 않았습니다. 검색광고 성과는 서버에서 계정 권한·전환 정의를 확인하는 어댑터로, 주문·상품은 커머스API 어댑터로 확장할 수 있습니다. 체류시간·성별·연령별 스토어 방문 통계는 API 제공을 확인하지 못해 파일 업로드를 사용합니다.</p><a href="https://naver.github.io/searchad-apidoc/" target="_blank" rel="noreferrer">검색광고 API 문서 ↗</a> · <a href="https://apicenter.commerce.naver.com/docs/commerce-api/current" target="_blank" rel="noreferrer">커머스API 문서 ↗</a><p className="hc-note">인증키는 브라우저에 입력받지 않습니다. 네이버 데이터랩의 시장 클릭 비중을 내 스토어 고객 비중으로 대체하지 않습니다.</p></details>
   </section>;
 }
