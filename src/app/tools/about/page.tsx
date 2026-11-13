@@ -9,7 +9,7 @@ import "../kits-pages.css";
 export const metadata: Metadata = {
   title: "소개 | KITSNODE",
   description:
-    "광고비와 이익을 함께 보고 브랜드를 키웁니다. 리큐엠을 처음부터 키워온 팀입니다.",
+    "광고비와 이익을 함께 보고 브랜드를 키웁니다. 브랜드을 처음부터 키워온 팀입니다.",
 };
 
 export default function AboutPage() {
@@ -98,7 +98,7 @@ export default function AboutPage() {
           <div className="kp-wrap">
             <div className="kp-proof-grid">
               <div>
-                <h2 id="kp-proof-title">리큐엠도 처음부터 시작했습니다</h2>
+                <h2 id="kp-proof-title">브랜드도 처음부터 시작했습니다</h2>
                 <p className="kp-figure">
                   <strong>
                     130억
@@ -114,7 +114,7 @@ export default function AboutPage() {
               <div className="kp-proof-side">
                 <p>
                   광고 순위에 기대지 않고, 꾸준히 팔 수 있는 기반부터
-                  쌓았습니다. 그 결과가 지금의 리큐엠입니다.
+                  쌓았습니다. 그 결과가 지금의 브랜드입니다.
                 </p>
                 <p>말보다 스토어를 직접 확인해 보세요.</p>
                 <a
@@ -123,7 +123,7 @@ export default function AboutPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  리큐엠 브랜드스토어 보기
+                  브랜드 브랜드스토어 보기
                 </a>
               </div>
             </div>

@@ -23,7 +23,7 @@ export function AboutGalleryHero(){
  return <section className="ag-scroll" ref={section} aria-labelledby="kp-hero-title"><div className="ag-stage">
  <div className="ag-gallery" aria-hidden="true">{tiles.map((tile,index)=><GalleryTile key={tile.kind} index={index} progress={progress} reduced={reduced}/>)}</div>
  <motion.div className="ag-copy" style={{scale:reduced?1:scale,opacity:reduced?1:opacity,y:reduced?0:y}} inert={!reduced&&hidden} aria-hidden={!reduced&&hidden}>
-  <span className="ag-eyebrow">KITSNODE · BRAND GROWTH PARTNER</span><h1 id="kp-hero-title">순위 말고,<br/><em>브랜드를 남깁니다.</em></h1><p>광고를 줄여도 고객이 찾는 브랜드를 만듭니다.</p><div className="ag-actions"><a href="#proof" className="ag-secondary">리큐엠 사례 보기<ArrowDown size={15}/></a></div>
+  <span className="ag-eyebrow">KITSNODE · BRAND GROWTH PARTNER</span><h1 id="kp-hero-title">순위 말고,<br/><em>브랜드를 남깁니다.</em></h1><p>광고를 줄여도 고객이 찾는 브랜드를 만듭니다.</p><div className="ag-actions"><a href="#proof" className="ag-secondary">브랜드 사례 보기<ArrowDown size={15}/></a></div>
  </motion.div><span className="ag-scroll-cue" aria-hidden="true">SCROLL TO EXPLORE <ArrowDown size={13}/></span>
  </div></section>;
 }
