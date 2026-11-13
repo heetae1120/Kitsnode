@@ -24,7 +24,11 @@ export function keywordGoal(input:{cpc:number;perOrder:number;budget:number;quan
  const {cpc,perOrder,budget,quantity,months,cvr,monthlySearches}=input;
  if(![cpc,perOrder,budget,quantity,months,cvr].every(Number.isFinite)||cpc<=0||perOrder<0||budget<0||!Number.isSafeInteger(quantity)||quantity<1||!Number.isSafeInteger(months)||months<1||cvr<=0||cvr>100||monthlySearches!==null&&(!Number.isSafeInteger(monthlySearches)||monthlySearches<0))return null;
  const rate=cvr/100;
- const neededClicks=Math.ceil(quantity/rate);
+ let neededClicks=Math.ceil(quantity/rate);
+ if(!Number.isSafeInteger(neededClicks))return null;
+ // Correct division rounding only when multiplication proves the target is met.
+ while(neededClicks>0&&(neededClicks-1)*rate>=quantity)neededClicks--;
+ while(neededClicks*rate<quantity){neededClicks++;if(!Number.isSafeInteger(neededClicks))return null;}
  const neededBudget=Math.ceil(neededClicks*cpc);
  const budgetClicks=Math.floor(budget/cpc);
  const searchClicks=monthlySearches===null?null:monthlySearches*months;
