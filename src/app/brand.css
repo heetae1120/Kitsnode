@@ -98,37 +98,4 @@ body .kn-report-reader>:is(section,.mp-tablet-budget){margin:0;width:100%;min-he
 .kn-reorder-status strong {display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px 16px;background:#fff0ef;color:#a1222c;border-radius:8px}
 .kn-reorder-status i {flex:none;width:10px;height:10px;border-radius:50%;background:#d32d3b;box-shadow:0 0 0 4px #ffd4d6}
 
-/* Glossy studio hero: scoped to the main landing page. */
-body:has(.hc-chapter-hero),body:has(.hc-chapter-hero) .profit-tool,
-body .profit-tool .hc-shell:has(.hc-chapter-hero){background:#000;color:#fff}
-body:has(.hc-chapter-hero) .tool-topbar.expanded-tools{background:#080808;border-color:#272727}
-body:has(.hc-chapter-hero) .tool-topbar :is(a,button){color:#e7f4ef}
-body:has(.hc-chapter-hero) .tool-topbar .tool-brand{color:#91fbd6}
-body .profit-tool .hc-shell .hc-chapter-hero{border-color:#252a2d;background:#000}
-body .hc-cinema-player .hc-cinema-stage,body .hc-cinema-still{background-color:#000}
-body .hc-cinema-player .hc-cinema-stage:after{background:linear-gradient(90deg,#000 0%,#000f 29%,#0009 46%,transparent 70%)}
-body .hc-shell .hc-cinema-message h1{color:#fff}
-body .hc-shell .hc-cinema-message :is(h2,em),body .hc-cinema-message .hc-brand-copy>span{color:#91fbd6}
-body .hc-shell .hc-cinema-message p{color:#b4c3c0}
-body .hc-cinema-player .lscp-progress-chapters{background:#050505}
-body .hc-cinema-player .lscp-progress-chapters button{background:#111;color:#d6e2df;border-color:#303b38}
-body .hc-cinema-player .lscp-progress-chapters button[aria-current=true]{background:#102b23;color:#91fbd6;border-color:#55c9a1}
-body .hc-cinema-player .lscp-progress-chapters button::before{background-color:#000}
-body:has(.hc-chapter-hero) .studio-footer{background:#080808;color:#bac8c3;border-color:#252a2d}
-@media(max-width:650px){body .hc-cinema-player .hc-cinema-stage:after{background:linear-gradient(90deg,#000f,#000c 58%,#0004)}}
-body:has(.hc-chapter-hero){--kn-ink:#f5f7f6;--kn-rule:#292e2c;--kn-wash:#111513;--brand-accent:#91fbd6}
-body:has(.hc-chapter-hero) .liquid-surfaces,body:has(.hc-chapter-hero) .tools-route-content{background:#000}
-body:has(.hc-chapter-hero) .tool-nav{background:#111;border-color:#303832}
-body:has(.hc-chapter-hero) .nimbus-item{color:#d8dedb}
-body:has(.hc-chapter-hero) .nimbus-item[aria-current=page]{background:#14271f;color:#91fbd6}
-body:has(.hc-chapter-hero) .kn-colophon{background:#050505;color:#c1c9c5;border-color:#282e2b}
-body:has(.hc-chapter-hero) .kn-colophon strong{color:#fff}
-body:has(.hc-chapter-hero) .kn-colophon a{color:#c1c9c5}
-body:has(.hc-chapter-hero) .hc-stage-dialog{background:#101412;color:#fff;border-color:#35453c}
-body:has(.hc-chapter-hero) .hc-stage-card{background:#181e1b;border-color:#35453c;color:#fff}
-body:has(.hc-chapter-hero) .hc-stage-card :is(h3,b){color:#fff}
-body:has(.hc-chapter-hero) .hc-stage-card :is(svg,strong,span){color:#91fbd6}
-body:has(.hc-chapter-hero) .hc-stage-card p{color:#bbc7c0}
-body .hc-cinema-player .lscp-progress-chapters button>i{background:linear-gradient(90deg,#91fbd615,#91fbd640)}
-body .hc-cinema-player .lscp-progress-chapters button:focus-visible{outline-color:#91fbd6}
-body .hc-cinema-player .lscp-progress-chapters button:hover{border-color:#91fbd6}
+

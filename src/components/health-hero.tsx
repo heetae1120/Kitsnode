@@ -12,7 +12,7 @@ const stories=[
 ];
 export function HealthHero(){
  const choice=useRef<HTMLDialogElement>(null);const [active,setActive]=useState(0);const story=stories[active];
- return <><section className="hc-chapter-hero" aria-label="KITSNODE 브랜드와 서비스 소개"><ChapterPlayer chapters={chapters} duration={28} brand="" className="hc-cinema-player" navigation="progress" background={['#000','#000','#000','#000','#000']} backgroundRight='#000' accent='#91fbd6' accentLine='#91fbd6' edgeColors={['#111','#333','#91fbd6','#111']} ariaLabel="키츠노드 서비스 소개 · 4개 챕터" onChapterChange={index=>setActive(index)}><div className="hc-cinema-stage">
+ return <><section className="hc-chapter-hero" aria-label="KITSNODE 브랜드와 서비스 소개"><ChapterPlayer chapters={chapters} duration={28} brand="" className="hc-cinema-player" navigation="progress" background={['#fff','#fff','#fff','#fff','#fff']} backgroundRight='#fff' accent='#91fbd6' accentLine='#91fbd6' edgeColors={['#111','#333','#91fbd6','#111']} ariaLabel="키츠노드 서비스 소개 · 4개 챕터" onChapterChange={index=>setActive(index)}><div className="hc-cinema-stage">
     {chapters.map((chapter, index) => <div key={chapter.start} aria-hidden="true" className="hc-cinema-still" data-visible={active === index} style={{backgroundImage: "url(" + chapter.image + ")"}} />)}
    <div className="hc-cinema-message">
     <div key={active} className="hc-brand-copy hc-cinema-slide">
@@ -24,6 +24,7 @@ export function HealthHero(){
   </div></ChapterPlayer></section>
  <dialog ref={choice} className="hc-stage-dialog" aria-label="진단 단계 선택"><button type="button" className="hc-stage-close" aria-label="단계 선택 닫기" onClick={()=>choice.current?.close()}><X size={22}/></button><div className="hc-stage-cards"><Link href="/tools/" className="hc-stage-card"><img className="hc-stage-art" src={(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/mint-2.webp"} alt=""/><span>STARTER</span><h3>스타터</h3><b>판매가 처음이에요</b><p>판매를 시작하기 전, 필요한 금액과 예상 이익을 확인해보세요.</p><strong>진단하러 가기 <ArrowRight size={17}/></strong></Link><Link href="/tools/player/" className="hc-stage-card"><img className="hc-stage-art" src={(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/mint-0.webp"} alt=""/><span>PLAYER</span><h3>플레이어</h3><b>판매 경험이 있어요</b><p>광고를 시작하거나, 운영 중인 광고와 대행사 성과를 점검해보세요.</p><strong>점검하러 가기 <ArrowRight size={17}/></strong></Link></div></dialog></>;
 }
+
 
 
 
