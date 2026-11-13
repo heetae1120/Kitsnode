@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import { ArrowRight, X } from 'lucide-react';
 import Link from 'next/link';
 import { ChapterPlayer, type ChapterPlayerChapter } from './ui/chapter-player';
-const chapters:ChapterPlayerChapter[]=[{label:'이익 중심 운영',start:0,image:(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/campaign-0.webp"},{label:'리브랜딩',start:7,image:(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/campaign-1.webp"},{label:'첫 판매 시작',start:14,image:(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/campaign-2.webp"},{label:'중국 공장 컨택',start:21,image:(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/campaign-3.webp"}];
+const chapters:ChapterPlayerChapter[]=[{label:'이익 중심 운영',start:0,image:(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/pop-0.webp"},{label:'리브랜딩',start:7,image:(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/pop-1.webp"},{label:'첫 판매 시작',start:14,image:(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/pop-2.webp"},{label:'중국 공장 컨택',start:21,image:(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/pop-3.webp"}];
 const stories=[
  {eyebrow:'Profit first',title:<>ROAS만 높다고,<br/>이익이 남을까요?</>,em:'중요한 건 ROI입니다.',description:'광고 매출만 보여주는 보고서 대신, 원가와 광고비를 빼고 남는 이익을 봅니다.'},
  {eyebrow:'Rebranding',title:<>아무것도 없던 시작에서<br/><em>130억</em> 브랜드까지.</>,em:'리브랜딩으로 만든 변화.',description:'상품의 강점부터 브랜드의 방향까지. 0에서 130억을 만든 경험으로 함께합니다.'},
@@ -22,8 +22,10 @@ export function HealthHero(){
    </div>
    
   </div></ChapterPlayer></section>
- <dialog ref={choice} className="hc-stage-dialog" aria-label="진단 단계 선택"><button type="button" className="hc-stage-close" aria-label="단계 선택 닫기" onClick={()=>choice.current?.close()}><X size={22}/></button><div className="hc-stage-cards"><Link href="/tools/" className="hc-stage-card"><img className="hc-stage-art" src={(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/campaign-person-0.webp"} alt=""/><span>STARTER</span><h3>스타터</h3><b>판매가 처음이에요</b><p>판매를 시작하기 전, 필요한 금액과 예상 이익을 확인해보세요.</p><strong>진단하러 가기 <ArrowRight size={17}/></strong></Link><Link href="/tools/player/" className="hc-stage-card"><img className="hc-stage-art" src={(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/campaign-person-1.webp"} alt=""/><span>PLAYER</span><h3>플레이어</h3><b>판매 경험이 있어요</b><p>광고를 시작하거나, 운영 중인 광고와 대행사 성과를 점검해보세요.</p><strong>점검하러 가기 <ArrowRight size={17}/></strong></Link></div></dialog></>;
+ <dialog ref={choice} className="hc-stage-dialog" aria-label="진단 단계 선택"><button type="button" className="hc-stage-close" aria-label="단계 선택 닫기" onClick={()=>choice.current?.close()}><X size={22}/></button><div className="hc-stage-cards"><Link href="/tools/" className="hc-stage-card"><img className="hc-stage-art" src={(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/toy-person-0.webp"} alt=""/><span>STARTER</span><h3>스타터</h3><b>판매가 처음이에요</b><p>판매를 시작하기 전, 필요한 금액과 예상 이익을 확인해보세요.</p><strong>진단하러 가기 <ArrowRight size={17}/></strong></Link><Link href="/tools/player/" className="hc-stage-card"><img className="hc-stage-art" src={(process.env.NEXT_PUBLIC_BASE_PATH || "")+"/hero-menu/toy-person-1.webp"} alt=""/><span>PLAYER</span><h3>플레이어</h3><b>판매 경험이 있어요</b><p>광고를 시작하거나, 운영 중인 광고와 대행사 성과를 점검해보세요.</p><strong>점검하러 가기 <ArrowRight size={17}/></strong></Link></div></dialog></>;
 }
+
+
 
 
 
