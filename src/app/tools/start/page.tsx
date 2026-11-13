@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { AdHealthCheck } from "@/components/ad-health-check";
+import { AgencyHome } from "@/components/agency/agency-home";
 export const metadata: Metadata = {
-  title: "광고 건강검진 | KITS Tools",
+  title: "kitsnode — Independent Creative Studio",
   description:
-    "이익 확보와 재고 회전 목표에 맞춰 광고 수익성, 필요한 예산과 개선 우선순위를 확인하세요.",
+    "브랜드 전략과 크리에이티브, 퍼포먼스 마케팅을 연결하는 독립 크리에이티브 스튜디오.",
 };
 export default function Page() {
-  return <AdHealthCheck />;
+  return <AgencyHome />;
 }

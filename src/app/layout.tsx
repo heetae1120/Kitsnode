@@ -15,13 +15,13 @@ const pretendard = localFont({
 });
 export const metadata: Metadata = {
   referrer: "no-referrer",
-  title: "KITSNODE — 셀러를 위한 수익성·키워드 분석",
+  title: "kitsnode — Independent Creative Studio",
   description:
-    "상품 비용과 광고 예산을 계산하고 네이버 키워드를 비교하는 KITSNODE 도구입니다.",
+    "브랜드 전략과 크리에이티브, 퍼포먼스 마케팅을 연결하는 독립 크리에이티브 스튜디오.",
   openGraph: {
-    title: "KITSNODE — 셀러를 위한 수익성·키워드 분석",
+    title: "kitsnode — Independent Creative Studio",
     description:
-      "판매 계획에 맞는 수익성 분석과 키워드 리서치를 시작하세요.",
+      "Independent creative thinking for brands that move forward.",
     type: "website",
     locale: "ko_KR",
   },
@@ -31,7 +31,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ko" className={pretendard.variable}>
+    <html lang="ko" className={pretendard.variable} data-scroll-behavior="smooth">
       <body>{children}<StudioFooter /><PublishedLayout /><DraftPreview /><VisitorAnalytics /></body>
     </html>
   );
