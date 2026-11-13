@@ -82,3 +82,10 @@ body .profit-tool .mp-candidates-concise>li:has(.mp-goal-compact>.mp-compact-ris
 body .profit-tool .mp-conversion-input input {text-align:center;padding-inline:.4em;appearance:textfield}
 body .mp-conversion-input input::-webkit-inner-spin-button {appearance:none}
 body .profit-tool .mp-auto-ad-captures img {width:100%;max-height:none;height:auto}
+body .profit-tool .mp-story ol.mp-candidates-concise>li:has(.mp-goal-compact>.mp-compact-good){background:#d7f4e1!important;border-color:#84c99b!important}
+body .profit-tool .mp-story ol.mp-candidates-concise>li:has(.mp-goal-compact>.mp-compact-risk){background:#ffe2e0!important;border-color:#e7a7a2!important}
+.kn-report-reader{height:min(72svh,800px);overflow-y:auto;scroll-snap-type:y proximity;scrollbar-color:#728e81 white}
+.kn-report-reader>*{scroll-snap-align:start}
+body .kn-report-reader>:is(section,.mp-tablet-budget){margin:0;width:100%;min-height:100%;padding:clamp(18px,3vw,42px);box-sizing:border-box}
+.kn-stock-chart{display:block;width:100%;cursor:crosshair;background:repeating-linear-gradient(135deg,#edf4f0 0 1px,white 1px 12px);border:1px solid #c9d9cf}
+@media print{.kn-report-reader{height:auto;overflow:visible}.kn-report-reader>*{min-height:0!important}}
