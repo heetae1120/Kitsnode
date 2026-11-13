@@ -31,3 +31,17 @@ body .hc-cinema-player .lscp-progress-chapters button {background:white;color:#2
 body .hc-cinema-player .lscp-progress-chapters button[aria-current=true] {background:#effcf7;color:var(--brand-accent);border-color:#63cba7}
 body .hc-cinema-player .lscp-play {background:#143f34}
 @media(max-width:650px){body .hc-cinema-player .hc-cinema-stage:after{background:linear-gradient(90deg,#fffffff5,#ffffffe0 58%,#ffffff50)}}
+body .hc-cinema-still {
+  background-size: auto 88%;
+  background-position: right 5% center;
+  background-repeat: no-repeat;
+  background-color: #fbf9f5;
+}
+body .hc-cinema-player .lscp-progress-chapters button::before {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: #fbf9f5;
+}
+@media (max-width:650px) {
+  body .hc-cinema-still {background-size:auto 48%;background-position:right bottom}
+}
