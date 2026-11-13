@@ -1,0 +1,24 @@
+.profit-tool .hc-shell main:has(.sun-stage){width:100%;max-width:none!important;padding:0!important;margin:0;gap:0}
+.sun-stage{--sun:#ffd329;position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;min-height:max(610px,calc(100svh - 76px));padding:80px 24px 145px;background:#20201e;color:#fff;text-align:center}
+.sun-scene{display:contents}
+.sun-stage .sun-copy{z-index:2;position:relative;animation:sun-enter .7s ease-out both}
+.sun-stage .sun-copy h1{color:#fff;font-size:clamp(46px,6.6vw,118px);line-height:1.07;font-weight:800;letter-spacing:-.075em;margin:0;word-break:keep-all}
+.sun-copy h1 em,.sun-stage .sun-copy h2{color:var(--sun);font-style:normal}
+.sun-stage .sun-copy h2{font-weight:700;font-size:clamp(20px,2.2vw,34px);margin:32px 0 8px}
+.sun-stage .sun-copy p{font-size:clamp(14px,1.15vw,18px);color:#deded8;max-width:45ch;margin:0 auto;word-break:keep-all}
+.sun-stage .sun-cta{position:relative;z-index:2;display:inline-flex;align-items:center;gap:12px;color:#171710;background:var(--sun);border:0;border-radius:40px;padding:14px 22px;margin-top:26px;font-weight:750}
+.sun-emblem,.sun-orb,.sun-coil,.sun-pebble{position:absolute;pointer-events:none;z-index:0;animation:sun-float 6s ease-in-out infinite alternate}
+.sun-emblem{left:4%;top:1%;width:clamp(125px,19vw,330px);rotate:-14deg;filter:drop-shadow(0 14px 14px #0005)}
+.sun-orb{right:13%;top:10%;width:clamp(34px,5vw,82px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 33% 26%,#fff 1%,#fff4bc 20%,#ffce20 53%,#896200 93%);animation-delay:-2s}
+.sun-coil{right:4%;bottom:19%;width:clamp(100px,15vw,240px);aspect-ratio:1;border-radius:50%;background:repeating-radial-gradient(ellipse at 76% 18%,#ffd329 0 3%,#8e6500 4%,#22221f 6% 8%);box-shadow:inset -12px -14px 19px #0009;rotate:-25deg;animation-delay:-3s}
+.sun-pebble{left:-2%;bottom:9%;width:clamp(82px,12vw,195px);aspect-ratio:1;border-radius:50%;background:radial-gradient(#282823 15%,transparent 19%) 0 0/16px 16px,radial-gradient(at 34% 24%,white,#efeddf 55%,#828077);rotate:21deg;animation-delay:-4s}
+.sun-controls{position:absolute;bottom:24px;display:flex;gap:6px;max-width:94%;z-index:3}
+.sun-stage .sun-controls button{display:flex;align-items:center;justify-content:center;gap:7px;border:1px solid #53534e;background:#262624;color:#eee;border-radius:24px;padding:10px 15px;font-size:13px}
+.sun-stage .sun-controls button[aria-pressed=true]{background:var(--sun);border-color:var(--sun);color:#1d1c12}
+.sun-controls small{font-variant-numeric:tabular-nums;font-size:10px}
+.sun-stage button:focus-visible{outline:3px solid white;outline-offset:3px}
+@keyframes sun-float{to{transform:translate(7px,-12px) rotate(8deg)}}
+@keyframes sun-enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.sun-stage[data-still=true] :is(.sun-emblem,.sun-orb,.sun-coil,.sun-pebble){animation-play-state:paused}
+@media(max-width:680px){.sun-stage{min-height:max(590px,calc(100svh - 64px));padding:135px 16px 140px}.sun-stage .sun-copy h1{font-size:clamp(34px,8.4vw,52px)}.sun-emblem{top:3%;left:-2%}.sun-coil{bottom:13%;right:-6%;width:90px}.sun-pebble{bottom:16%;left:-9%}.sun-controls{gap:3px;bottom:16px;flex-wrap:wrap;justify-content:center}.sun-stage .sun-controls button{padding:9px 7px;font-size:11px}.sun-controls small{display:none}}
+@media(prefers-reduced-motion:reduce){.sun-stage *{animation:none!important}}
