@@ -221,6 +221,16 @@ export function KeywordResearch({
   useEffect(() => {
     setProductDraft(product ? String(product.count) : "");
   }, [product?.count]);
+  function editProductDraft(value: string) {
+    if (shoppingController.current) {
+      shoppingController.current.abort();
+      shoppingController.current = null;
+      setProductLoading(false);
+      setShoppingNotice("직접 입력을 시작해 자동 조회를 취소했습니다. 입력값은 저장 버튼으로 저장하세요.");
+    }
+    setProductDraft(value);
+    setProductError("");
+  }
   function saveProduct() {
     try {
       const count = parseProductCount(productDraft);
@@ -308,7 +318,10 @@ export function KeywordResearch({
         );
     } finally {
       clearTimeout(timer);
-      if (shoppingController.current === controller) setProductLoading(false);
+      if (shoppingController.current === controller) {
+        shoppingController.current = null;
+        setProductLoading(false);
+      }
     }
   }
   function download(text: string, name: string) {
@@ -433,7 +446,7 @@ export function KeywordResearch({
                           inputMode="numeric"
                           placeholder="상품 수를 입력해 주세요"
                           value={productDraft}
-                          onChange={(e) => setProductDraft(e.target.value)}
+                          onChange={(e) => editProductDraft(e.target.value)}
                         />
                       </label>
                       <button onClick={saveProduct}>직접 입력 저장</button>

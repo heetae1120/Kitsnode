@@ -54,7 +54,7 @@ export function parseDataset(text: string, kind: Dataset['kind'], source: string
       if(textKeys.has(key)) { if(typeof v!=='string'&&typeof v!=='number')throw new Error('텍스트 열 형식 오류');clean[key]=String(v).slice(0,150); }
       else {if(typeof v!=='number'&&typeof v!=='string')throw new Error(`${i+1}행 ${raw} 숫자 형식이 유효하지 않습니다.`);if(typeof v==='string'&&!/^(?:\d+(?:\.\d+)?|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\.\d+)$/.test(v.trim()))throw new Error(`${i+1}행 ${raw} 숫자 형식이 유효하지 않습니다. 1000 또는 1,000 같은 일반 숫자를 사용하세요. 소수는 체류시간초에만 허용됩니다. Excel의 지수·과학적 표기(예: 1e3)는 일반 숫자(1000)로 변환하세요.`);const n=typeof v==='number'?v:Number(v.trim().replaceAll(',',''));if(!Number.isFinite(n)||n<0||n>1e12)throw new Error(`${i+1}행 ${raw} 값이 유효하지 않습니다.`); if(key!=='dwellSeconds'&&!Number.isInteger(n))throw new Error(`${raw}은 정수여야 합니다.`);clean[key]=n;}
     }
-    if(typeof clean.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(clean.date)||new Date(clean.date).toISOString().slice(0,10)!==clean.date)throw new Error(`${i+1}행 날짜는 YYYY-MM-DD 형식이어야 합니다.`);
+    if(typeof clean.date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(clean.date)||!Number.isFinite(Date.parse(clean.date))||new Date(clean.date).toISOString().slice(0,10)!==clean.date)throw new Error(`${i+1}행 날짜는 실제 존재하는 날짜를 YYYY-MM-DD 형식으로 입력하세요.`);
     if(!clean.productId)throw new Error(`${i+1}행 상품번호가 필요합니다. 스토어 전체는 ALL로 입력하세요.`);
     if(kind==='audience' && (!clean.gender||!clean.age||clean.visits===undefined))throw new Error('고객 통계에는 성별·연령대·방문수가 필요합니다.');
     if(kind==='channels' && (!clean.channel||clean.visits===undefined))throw new Error('경로 통계에는 유입경로·방문수가 필요합니다.');
