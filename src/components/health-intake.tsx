@@ -17,7 +17,22 @@ function AgencyCheck(){
 }
 export function ConsultationForm(){
   const [form,setForm]=useState({store:'',company:'',nameRole:'',phone:''});const [consent,setConsent]=useState(false);const [saved,setSaved]=useState('');const [error,setError]=useState('');const [busy,setBusy]=useState(false);
-  async function submit(e:FormEvent){e.preventDefault();if(busy)return;setSaved('');setError('');setBusy(true);try{if(!form.company.trim()||!form.nameRole.trim()||!form.phone.trim())throw new Error('상호명, 이름 및 직급, 연락처를 입력해 주세요.');if(!consent)throw new Error('상담을 위한 개인정보 수집에 동의해 주세요.');const response=await fetch(consultationEndpoint(),{method:'POST',headers:{'Content-Type':'application/json'},credentials:'omit',body:JSON.stringify({...form,consent}),signal:AbortSignal.timeout(15000)});const data=await response.json();if(!response.ok)throw new Error(data.error||'상담 신청을 저장하지 못했습니다.');if(typeof data.id!=='string')throw new Error('접수 결과를 확인하지 못했습니다. 중복 신청 전에 관리자에게 확인해 주세요.');setSaved(data.id);setForm({store:'',company:'',nameRole:'',phone:''});setConsent(false);}catch(e){setError(e instanceof Error?e.message:'접수 결과를 확인하지 못했습니다.');}finally{setBusy(false);}}
+  async function submit(e:FormEvent){
+    e.preventDefault();if(busy)return;setSaved('');setError('');setBusy(true);
+    const uncertain='접수 결과를 확인하지 못했습니다. 서버에는 이미 접수됐을 수 있으니, 중복 접수를 피하려면 다시 보내기 전에 문의해 주세요.';
+    let requestStarted=false;
+    try{
+      if(!form.company.trim()||!form.nameRole.trim()||!form.phone.trim())throw new Error('상호명, 이름 및 직급, 연락처를 입력해 주세요.');
+      if(!consent)throw new Error('상담을 위한 개인정보 수집에 동의해 주세요.');
+      const endpoint=consultationEndpoint();requestStarted=true;
+      const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'omit',body:JSON.stringify({...form,consent}),signal:AbortSignal.timeout(15000)});
+      const data=await response.json().catch(()=>null);
+      if(!response.ok){const message=[400,422].includes(response.status)&&data&&typeof data.error==='string'&&data.error.trim()?data.error:null;throw new Error(message||uncertain);}
+      if(!data||typeof data.id!=='string'||!data.id.trim())throw new Error(uncertain);
+      setSaved(data.id);setForm({store:'',company:'',nameRole:'',phone:''});setConsent(false);
+    }catch(e){setError(requestStarted&&e instanceof Error&&(e.name==='TimeoutError'||e.name==='AbortError'||e instanceof TypeError)?uncertain:e instanceof Error?e.message:uncertain);}
+    finally{setBusy(false);}
+  }
   return <><span className="hc-eyebrow">CONSULTING</span><h2>상담을 위한 정보를 남겨주세요.</h2><form className="hc-branch-form" onSubmit={submit} noValidate><div className="hc-fields">{([['store','스마트스토어 링크','url'],['company','상호명','text'],['nameRole','이름 및 직급','text'],['phone','연락처','tel']] as const).map(([key,label,type])=><label key={key}>{label}{key==='store'?' · 미운영 시 생략 가능':' *'}<input aria-label={label} type={type} maxLength={key==='store'?1000:100} disabled={busy} value={form[key]} onChange={e=>{setForm({...form,[key]:e.target.value});setSaved('');}} placeholder={key==='store'?'https://smartstore.naver.com/…':key==='nameRole'?'홍길동 / 대표':key==='phone'?'010-0000-0000':''}/></label>)}</div><p className="hc-note">수집 항목: 스토어 링크(선택), 상호명, 이름·직급, 연락처. 목적: 상담 연락과 신청 관리. 신청 정보는 관리자만 조회하며 상담 목적 달성 시 삭제합니다. 동의를 거부할 수 있으나 상담 접수는 제한됩니다.</p><label style={{display:'flex',alignItems:'center',gap:10}}><input type="checkbox" checked={consent} disabled={busy} onChange={e=>setConsent(e.target.checked)} style={{width:18,height:18}}/>상담을 위한 개인정보 수집·이용에 동의합니다.</label>{error&&<p className="hc-error" role="alert">{error}</p>}<button type="submit" className="hc-primary" disabled={busy}>{busy?'접수 중…':'상담 신청하기'} <ArrowRight size={16}/></button>{saved&&<p role="status">상담 신청이 접수되었습니다. 접수번호: {saved}</p>}</form></>;
 }
 export function HealthIntake({answers,onChange,onComplete}:{answers:IntakeAnswers;onChange:(value:IntakeAnswers)=>void;onComplete:()=>void}){
