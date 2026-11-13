@@ -3,7 +3,7 @@
 import * as React from 'react';
 import {Pause,Play} from 'lucide-react';
 import './chapter-player.css';
-export interface ChapterPlayerChapter{label:string;start:number}
+export interface ChapterPlayerChapter{label:string;start:number;image?:string}
 export interface ChapterPlayerProps{
  navigation?:'tabs'|'dots'|'progress';src?:string;poster?:string;chapters?:ChapterPlayerChapter[];autoPlay?:boolean;loop?:boolean;muted?:boolean;playbackRate?:number;startAt?:number;duration?:number;children?:React.ReactNode;onChapterChange?:(index:number,chapter:ChapterPlayerChapter)=>void;background?:string[];backgroundRight?:string;accent?:string;accentLine?:string;edgeColors?:string[];tab?:string;tabText?:string;tabActive?:string;tabActiveText?:string;tick?:string;ticks?:number;brand?:string;brandColor?:string;watermark?:boolean;font?:string;ariaLabel?:string;className?:string;style?:React.CSSProperties;
 }
@@ -37,7 +37,7 @@ export function ChapterPlayer({navigation='tabs',src,poster,chapters=defaults,au
  {watermark&&<span className="lscp-watermark">{brand}</span>}{failed&&<p className="lscp-unavailable" role="status">영상을 재생할 수 없어요.</p>}
  <button type="button" className="lscp-play" aria-label={playing?'일시정지':'재생'} onClick={()=>setPlaying(v=>!v)} disabled={failed}>{playing?<Pause size={17}/>:<Play size={17}/>}</button>
  </div></div>
- <div className={navigation==='dots'?'lscp-dots':navigation==='progress'?'lscp-progress-chapters':'lscp-chapters'} role="group" aria-label="챕터 선택">{available.map((c,i)=><button type="button" key={c.start+':'+c.label} aria-label={c.label} title={c.label} aria-current={i===active?'true':undefined} onClick={()=>seek(c.start)}>{navigation!=='dots'&&<span>{c.label}</span>}{navigation==='tabs'&&i===active&&<i aria-hidden style={{left:(chapterProgress*100)+'%'}}/>}{navigation==='progress'&&i===active&&<i aria-hidden style={{width:(chapterProgress*100)+'%'}}/>}</button>)}</div>
+ <div className={navigation==='dots'?'lscp-dots':navigation==='progress'?'lscp-progress-chapters':'lscp-chapters'} role="group" aria-label="챕터 선택">{available.map((c,i)=><button type="button" style={c.image ? { "--chapter-image": "url("+c.image+")" } as React.CSSProperties : undefined} key={c.start+':'+c.label} aria-label={c.label} title={c.label} aria-current={i===active?'true':undefined} onClick={()=>seek(c.start)}>{navigation!=='dots'&&<span>{c.label}</span>}{navigation==='tabs'&&i===active&&<i aria-hidden style={{left:(chapterProgress*100)+'%'}}/>}{navigation==='progress'&&i===active&&<i aria-hidden style={{width:(chapterProgress*100)+'%'}}/>}</button>)}</div>
  {navigation==='tabs'&&<><div className="lscp-timeline"><div className="lscp-ticks" aria-hidden>{Array.from({length:Math.max(2,ticks)},(_,i)=><i key={i} data-passed={i/(ticks-1)<=time/safeLength||undefined}/>)}</div><input type="range" min="0" max={safeLength} step="0.1" value={Math.min(time,safeLength)} aria-label="재생 위치" aria-valuetext={fmt(time)+' / '+fmt(safeLength)+' · '+available[active].label} onChange={e=>seek(Number(e.target.value))}/></div>
  <div className="lscp-time"><span>{String(active+1).padStart(2,'0')} / {String(available.length).padStart(2,'0')}</span><span>{fmt(time)} / {fmt(safeLength)}</span></div></>}
  </div>;
