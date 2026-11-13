@@ -30,12 +30,12 @@ const aliases: Record<string, keyof MetricRow> = { 날짜:'date', 상품번호:'
 const keys = new Set(['date','productId','visits','views','orders','revenue','clicks','adSpend','dwellSeconds','gender','age','channel']);
 const textKeys = new Set(['date','productId','gender','age','channel']);
 export function csvRows(text: string): string[][] {
-  const rows: string[][] = []; let row: string[] = [], value = '', quoted = false;
+  const rows: string[][] = []; let row: string[] = [], value = '', quoted = false, quoteClosed = false;
   for (let i=0; i<text.length; i++) { const c=text[i];
-    if (c==='"') { if (quoted && text[i+1]==='"') {value+='"';i++;} else quoted=!quoted; }
-    else if (c===',' && !quoted) {row.push(value);value='';}
-    else if ((c==='\n'||c==='\r')&&!quoted) { if(c==='\r'&&text[i+1]==='\n')i++; row.push(value); if(row.some(v=>v.trim()))rows.push(row); row=[];value=''; }
-    else value+=c;
+    if (c==='"') { if (quoted && text[i+1]==='"') {value+='"';i++;} else if(quoted){quoted=false;quoteClosed=true;} else {if(value!==''||quoteClosed)throw new Error('CSV 따옴표는 필드 시작과 끝에만 사용할 수 있습니다.');quoted=true;} }
+    else if (c===',' && !quoted) {row.push(value);value='';quoteClosed=false;}
+    else if ((c==='\n'||c==='\r')&&!quoted) { if(c==='\r'&&text[i+1]==='\n')i++; row.push(value); if(row.some(v=>v.trim()))rows.push(row); row=[];value='';quoteClosed=false; }
+    else {if(quoteClosed)throw new Error('CSV 닫는 따옴표 다음에는 쉼표 또는 줄바꿈이 필요합니다.');value+=c;}
   }
   if(quoted)throw new Error('CSV의 따옴표가 닫히지 않았습니다.');
   row.push(value);if(row.some(v=>v.trim()))rows.push(row); return rows;
