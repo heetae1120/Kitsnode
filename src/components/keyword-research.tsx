@@ -214,7 +214,10 @@ export function KeywordResearch({
     shoppingController.current = null;
     setProductLoading(false);
   }, [keyword]);
-  useEffect(() => () => shoppingController.current?.abort(), []);
+  useEffect(() => () => {
+    shoppingController.current?.abort();
+    shoppingController.current = null;
+  }, []);
   useEffect(() => {
     setProductDraft(product ? String(product.count) : "");
   }, [product?.count]);
@@ -274,6 +277,7 @@ export function KeywordResearch({
             : "상품 수를 조회하지 못했습니다.",
         );
       if (shoppingController.current !== controller) return;
+      if (controller.signal.aborted) throw new Error("상품 수 조회 시간이 초과되었습니다.");
       const row = result.products?.find(
         (p: { keyword: string }) => p.keyword === keyword,
       );
