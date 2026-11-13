@@ -49,23 +49,28 @@
 
 .hc-chapter-action{background:#e8f2ff;padding:8px 20px 26px}.hc-shell .hc-chapter-action .hc-primary{background:#2563eb;border-color:#2563eb;box-shadow:0 10px 25px #2563eb25}
 
-/* Split hero and photographic chapter index. */
-.hc-chapter-hero .hc-swiss-player {padding:0;border-radius:0;background:#f6f9ff!important}
-.hc-swiss-player .lscp-frame,.hc-swiss-player .lscp-film {padding:0;border-radius:0;box-shadow:none}
-.hc-swiss-player .lscp-film {aspect-ratio:auto;background:#f6f9ff}
-.hc-swiss-player .lscp-edge,.hc-swiss-player .lscp-tint {display:none}
-.hc-swiss-stage {display:grid;grid-template-columns:1.12fr 1fr;min-height:clamp(370px,36vw,510px)}
-.hc-swiss-message {padding:clamp(24px,4vw,64px);display:grid;align-content:center;justify-items:start;gap:18px}
-.hc-swiss-message .hc-brand-copy h1 {font-size:clamp(28px,3.5vw,54px);line-height:1.12;word-break:keep-all}
-.hc-swiss-message .hc-primary {background:#2563eb;color:white}
-.hc-swiss-mark {background:#3975d8;color:#071c46;display:grid;align-items:center;justify-content:center;overflow:hidden;font:bold  clamp(240px,37vw,570px)/.82 Arial,sans-serif;letter-spacing:-.08em}
-.hc-swiss-slide {animation:hc-chapter-slide .54s cubic-bezier(.22,.68,.18,1) both}
-@keyframes hc-chapter-slide {from {opacity:0;transform:translateX(36px)} to {opacity:1;transform:translateX(0)}}
-.hc-swiss-player .lscp-progress-chapters {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0;padding:10px;background:#f6f9ff}
-.hc-swiss-player .lscp-progress-chapters button {display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;padding:0 0 9px;background:white;color:#142b4d;border-radius:0;text-align:left;height:auto}
-.hc-swiss-player .lscp-progress-chapters button::before {content:'';display:block;aspect-ratio:2.8;background:var(--chapter-image) center/cover}
-.hc-swiss-player .lscp-progress-chapters button span {padding:9px 8px 0}
-.hc-swiss-player .lscp-progress-chapters button[aria-current=true] {color:#164bb2;background:#e8f2ff}
-.hc-swiss-player .lscp-progress-chapters button i {top:auto;bottom:0;height:4px;background:linear-gradient(90deg,#a8ccff,#2563eb)}
-@media(max-width:650px){.hc-swiss-stage {grid-template-columns:minmax(0,3fr) minmax(0,1fr);min-height:380px}.hc-swiss-message {padding:18px}.hc-swiss-mark {font-size:180px}.hc-swiss-player .lscp-progress-chapters {grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(prefers-reduced-motion:reduce){.hc-swiss-slide {animation:none}}
+
+.hc-shell:has(.hc-cinema-player) {background:linear-gradient(150deg,#e7fafb,#bbebf5)}
+.hc-chapter-hero:has(.hc-cinema-player) {background:#083d4e;border:0;border-radius:20px}
+.hc-chapter-hero .hc-cinema-player {padding:0;border-radius:0;background:#073849!important}
+.hc-cinema-player .lscp-frame,.hc-cinema-player .lscp-film {padding:0;border-radius:0;box-shadow:none;background:transparent;aspect-ratio:auto}
+.hc-cinema-player .lscp-edge,.hc-cinema-player .lscp-tint {display:none}
+.hc-cinema-stage {position:relative;isolation:isolate;display:grid;align-items:center;min-height:clamp(460px,44vw,620px);background:#06485b}
+.hc-cinema-still {position:absolute;inset:0;z-index:-2;background-size:cover;background-position:center;opacity:0;transition:opacity .85s ease}
+.hc-cinema-still[data-visible=true] {opacity:1}
+.hc-cinema-stage:after {content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#032c3fee,rgba(4,50,66,.8) 32%,transparent 78%)}
+.hc-cinema-message {padding:clamp(26px,5vw,78px);max-width:680px;color:white}
+.hc-cinema-message .hc-brand-copy>span {color:#9affde;font:italic 300 clamp(24px,3vw,42px)/1.2 'Segoe Script','Apple Chancery','Brush Script MT',cursive;letter-spacing:0}
+.hc-shell .hc-cinema-message h1 {color:#fff;font-size:clamp(31px,4vw,64px);letter-spacing:-.055em;line-height:1.13;word-break:keep-all}
+.hc-shell .hc-cinema-message h2,.hc-cinema-message h1 em {color:#a1ffe0}
+.hc-shell .hc-cinema-message p {color:#ebf9fb}
+.hc-shell .hc-cinema-message .hc-primary {margin-top:18px;background:#91fbd6;border-color:#91fbd6;color:#073f48}
+.hc-cinema-slide {animation:hc-cinema-enter .65s ease both}
+@keyframes hc-cinema-enter {from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.hc-cinema-player .lscp-progress-chapters {margin:0;padding:14px;gap:8px;background:#073849}
+.hc-cinema-player .lscp-progress-chapters button {display:flex;align-items:center;gap:10px;text-align:left;padding:8px;background:#104657;color:#e2faf7;border:1px solid #386371;border-radius:6px}
+.hc-cinema-player .lscp-progress-chapters button:before {content:'';flex:0 0 30%;height:42px;background:var(--chapter-image) center/cover;border-radius:3px}
+.hc-cinema-player .lscp-progress-chapters button[aria-current=true] {color:#a0ffdb;border-color:#86edcc}
+.hc-cinema-player .lscp-progress-chapters button i {top:auto;height:3px;background:#8af6d2}
+@media(max-width:650px){.hc-cinema-stage {min-height:420px}.hc-cinema-message {padding:24px 22px}.hc-cinema-player .lscp-progress-chapters {grid-template-columns:repeat(2,minmax(0,1fr))}.hc-cinema-stage:after {background:linear-gradient(90deg,#042e40ec,#04314566)}}
+@media(prefers-reduced-motion:reduce){.hc-cinema-slide{animation:none}.hc-cinema-still{transition:none}}
