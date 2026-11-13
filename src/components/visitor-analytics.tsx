@@ -46,11 +46,11 @@ export function VisitorAnalytics() {
 
   useEffect(() => {
     const endpoint = process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT || '';
-    const page = pathname === '/' ? '/tools/start/' : canonicalAnalyticsPage(pathname, process.env.NEXT_PUBLIC_BASE_PATH || '');
+    const page = pathname === '/' ? null : canonicalAnalyticsPage(pathname, process.env.NEXT_PUBLIC_BASE_PATH || '');
     const allowed = () => consentRef.current === 'allow' && eligible();
     if (consent !== 'allow' || !allowed() || (!page && pathname !== '/')) return;
     const attr = classifyAttribution(window.location.search, document.referrer, window.location.origin, navigation.current.internal);
-    const main = pathname === '/' || page === '/tools/start/';
+    const main = pathname === '/';
     let firstTouch = true;
     const touch = () => {
       if (!allowed()) return;
@@ -67,7 +67,7 @@ export function VisitorAnalytics() {
     stopRef.current = stop;
     return () => {
       for (const event of ['pointerdown','keydown','scroll','touchstart']) document.removeEventListener(event,touch);
-      stop(window.location.pathname !== (process.env.NEXT_PUBLIC_BASE_PATH || '') + '/' && canonicalAnalyticsPage(window.location.pathname, process.env.NEXT_PUBLIC_BASE_PATH || '') !== page);
+      stop(canonicalAnalyticsPage(window.location.pathname, process.env.NEXT_PUBLIC_BASE_PATH || '') !== page);
       if (stopRef.current === stop) stopRef.current = null;
     };
   }, [pathname, consent]);
