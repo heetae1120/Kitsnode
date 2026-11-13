@@ -75,3 +75,10 @@ body .store-main h1 {letter-spacing:-.055em}
 .kn-colophon a:hover {color:var(--brand-accent);border-color:currentColor}
 @media(max-width:650px){.kn-colophon {align-items:start;flex-direction:column;padding-bottom:72px}}
 @media print {.kn-colophon {display:none}}
+
+body .hc-shell .hc-cinema-message .hc-brand-copy>span {font:650 14px/1.4 var(--font-pretendard),sans-serif;letter-spacing:.06em}
+body .profit-tool .mp-candidates-concise>li:has(.mp-goal-compact>.mp-compact-good) {background:#edf9f2;border-color:#aed8c0}
+body .profit-tool .mp-candidates-concise>li:has(.mp-goal-compact>.mp-compact-risk) {background:#fff2f1;border-color:#ecc4bf}
+body .profit-tool .mp-conversion-input input {text-align:center;padding-inline:.4em;appearance:textfield}
+body .mp-conversion-input input::-webkit-inner-spin-button {appearance:none}
+body .profit-tool .mp-auto-ad-captures img {width:100%;max-height:none;height:auto}
