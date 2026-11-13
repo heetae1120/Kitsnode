@@ -73,7 +73,7 @@ export function DraftPreview() {
       apply();
     };
     window.addEventListener('message', receive);
-    const timeout = window.setTimeout(() => { if (!applied) { active = false; setStatus('초안을 연결하지 못했습니다. 어드민에서 다시 열거나 프론트 연결 설정을 확인해 주세요.'); } }, 12000);
+    const timeout = window.setTimeout(() => { if (active && !applied) { active = false; setStatus('초안을 연결하지 못했습니다. 어드민에서 다시 열거나 프론트 연결 설정을 확인해 주세요.'); } }, 12000);
     if (opener && isPreviewSession(session) && PREVIEW_PAGES.includes(page as typeof PREVIEW_PAGES[number])) {
       // Readiness is emitted only from an effect, after hydration. Never broadcast to '*'.
       origins.forEach(origin => opener.postMessage({ protocol: PREVIEW_PROTOCOL, session, type: 'ready' }, origin));

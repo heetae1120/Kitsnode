@@ -47,35 +47,37 @@ export function useKeywordResearch(data: KeywordData) {
   const [notice, setNotice] = useState("");
   const [ready, setReady] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const storageReadable = useRef({ favorites: false, products: false });
   useEffect(() => {
+    storageReadable.current = { favorites: false, products: false };
     if (isDraftPreviewMode()) { setReady(true); return; }
     try {
-      setFavorites(
-        restoreSnapshots(
-          JSON.parse(localStorage.getItem("kits.keyword-favorites") || "[]"),
-        ),
-      );
-      setProducts(
-        restoreProducts(
-          JSON.parse(localStorage.getItem("kits.keyword-products") || "[]"),
-        ),
-      );
-    } catch {}
+      const raw = JSON.parse(localStorage.getItem("kits.keyword-favorites") ?? "[]");
+      const restored = restoreSnapshots(raw);
+      setFavorites(restored);
+      if (!Array.isArray(raw) || restored.length !== raw.length) throw new Error("Invalid saved keywords");
+      storageReadable.current.favorites = true;
+    } catch { setNotice("저장한 검색어를 읽지 못해 원본을 보존했습니다. 검색어 변경은 현재 페이지에서만 유지됩니다."); }
+    try {
+      const raw = JSON.parse(localStorage.getItem("kits.keyword-products") ?? "[]");
+      const restored = restoreProducts(raw);
+      setProducts(restored);
+      if (!Array.isArray(raw) || restored.length !== raw.length) throw new Error("Invalid saved products");
+      storageReadable.current.products = true;
+    } catch { setNotice("저장한 상품 수를 읽지 못해 원본을 보존했습니다. 상품 수 변경은 현재 페이지에서만 유지됩니다."); }
     setReady(true);
   }, []);
   useEffect(() => {
-    if (ready && !isDraftPreviewMode())
-      try {
-        localStorage.setItem(
-          "kits.keyword-favorites",
-          JSON.stringify(favorites),
-        );
-        localStorage.setItem("kits.keyword-products", JSON.stringify(products));
-      } catch {
-        setNotice(
-          "이 브라우저에서 저장 공간을 사용할 수 없습니다. 현재 페이지에서만 유지됩니다.",
-        );
-      }
+    if (!ready || isDraftPreviewMode()) return;
+    if (!storageReadable.current.favorites || !storageReadable.current.products) setNotice("일부 저장 자료를 읽지 못해 원본을 보존했습니다. 해당 자료의 변경은 현재 페이지에서만 유지됩니다.");
+    for (const [key, value, readable] of [
+      ["kits.keyword-favorites", favorites, storageReadable.current.favorites],
+      ["kits.keyword-products", products, storageReadable.current.products],
+    ] as const) {
+      if (!readable) continue;
+      try { localStorage.setItem(key, JSON.stringify(value)); }
+      catch { setNotice("이 브라우저에서 저장 공간을 사용할 수 없습니다. 현재 페이지에서만 유지됩니다."); }
+    }
   }, [favorites, products, ready]);
   const snapshot = (row: KeywordRow): KeywordSnapshot => ({
     row,
