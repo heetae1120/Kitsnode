@@ -39,3 +39,9 @@ body .hc-cinema-player .lscp-progress-chapters button>i{background:linear-gradie
 body .hc-stage-art{background:#fff;mix-blend-mode:multiply}
 body .hc-cinema-still{mask-image:none;background-color:#fff;mix-blend-mode:multiply}
 body .hc-cinema-player .lscp-progress-chapters button::before{mix-blend-mode:multiply}
+.profit-tool .about-gallery-page .ag-zoom-scene{position:absolute;inset:0;transform-origin:50% 50%;will-change:transform,opacity}
+.profit-tool .about-gallery-page .ag-scroll{height:300svh;background:transparent}
+.profit-tool .about-gallery-page .ag-stage{pointer-events:none;z-index:2;background:transparent}
+.profit-tool .about-gallery-page .ag-copy a{pointer-events:auto}
+.profit-tool .about-gallery-page .ag-scroll+.kp-section{position:relative;margin-top:-65svh;z-index:1}
+@media(prefers-reduced-motion:reduce){.profit-tool .about-gallery-page .ag-scroll{height:100svh}.profit-tool .about-gallery-page .ag-scroll+.kp-section{margin-top:0}.profit-tool .about-gallery-page .ag-zoom-scene{transform:none!important;opacity:1!important}}

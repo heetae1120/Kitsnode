@@ -17,13 +17,14 @@ function GalleryTile({index,progress,reduced}:{index:number;progress:MotionValue
 export function AboutGalleryHero(){
  const section=useRef<HTMLElement>(null);const reduced=!!useReducedMotion();const [hidden,setHidden]=useState(false);
  const {scrollYProgress}=useScroll({target:section,offset:['start start','end end']});
- const progress=useTransform(scrollYProgress,[0,0.75],[0,1]);
- const scale=useTransform(progress,[0,.65,1],[1,.75,.5]);const opacity=useTransform(progress,[0,.4,.68],[1,1,0]);const y=useTransform(progress,[0,1],[0,-45]);
- useMotionValueEvent(progress,'change',value=>setHidden(previous=>previous===(value>.67)?previous:value>.67));
- return <section className="ag-scroll" ref={section} aria-labelledby="kp-hero-title"><div className="ag-stage">
+ const progress=useTransform(scrollYProgress,[0,.92],[0,1]);
+ const scale=useTransform(progress,[0,.4,.8,1],[1,1.8,7,18]);const opacity=useTransform(progress,[0,.66,.9,1],[1,1,0,0]);const y=useTransform(progress,[0,1],[0,0]);
+ useMotionValueEvent(progress,'change',value=>setHidden(previous=>previous===(value>.9)?previous:value>.9));
+ return <section className="ag-scroll" ref={section} aria-labelledby="kp-hero-title"><div className="ag-stage"><motion.div className="ag-zoom-scene" style={{scale:reduced?1:scale,opacity:reduced?1:opacity}}>
  <div className="ag-gallery" aria-hidden="true">{tiles.map((tile,index)=><GalleryTile key={tile.kind} index={index} progress={progress} reduced={reduced}/>)}</div>
- <motion.div className="ag-copy" style={{scale:reduced?1:scale,opacity:reduced?1:opacity,y:reduced?0:y}} inert={!reduced&&hidden} aria-hidden={!reduced&&hidden}>
+ <motion.div className="ag-copy" style={{y:reduced?0:y}} inert={!reduced&&hidden} aria-hidden={!reduced&&hidden}>
   <span className="ag-eyebrow">KITSNODE · BRAND GROWTH PARTNER</span><h1 id="kp-hero-title">순위 말고,<br/><em>브랜드를 남깁니다.</em></h1><p>광고를 줄여도 고객이 찾는 브랜드를 만듭니다.</p><div className="ag-actions"><a href="#proof" className="ag-secondary">브랜드 사례 보기<ArrowDown size={15}/></a></div>
  </motion.div><span className="ag-scroll-cue" aria-hidden="true">SCROLL TO EXPLORE <ArrowDown size={13}/></span>
- </div></section>;
+ </motion.div></div></section>;
 }
+
