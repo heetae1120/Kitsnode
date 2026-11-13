@@ -89,3 +89,11 @@ body .profit-tool .mp-story ol.mp-candidates-concise>li:has(.mp-goal-compact>.mp
 body .kn-report-reader>:is(section,.mp-tablet-budget){margin:0;width:100%;min-height:100%;padding:clamp(18px,3vw,42px);box-sizing:border-box}
 .kn-stock-chart{display:block;width:100%;cursor:crosshair;background:repeating-linear-gradient(135deg,#edf4f0 0 1px,white 1px 12px);border:1px solid #c9d9cf}
 @media print{.kn-report-reader{height:auto;overflow:visible}.kn-report-reader>*{min-height:0!important}}
+
+@media screen {
+  body .profit-tool .finance-dashboard .mp-main {box-sizing:border-box;width:100%;max-width:1120px;margin-inline:auto;padding-inline:clamp(16px,2.5vw,28px)}
+  body .profit-tool .mp-main :is(.mp-workspace,.mp-scroll-card,.mp-report-keyword-screen,.kn-report-reader>section,.kn-report-reader>.mp-tablet-budget) {box-sizing:border-box;width:100%;max-width:none;margin-inline:0}
+}
+.kn-profit-next {margin-block:24px;padding:16px 20px;border-inline-start:3px solid #149773;background:#f1faf6;color:#174b3a;font-weight:650}
+.kn-reorder-status strong {display:flex;align-items:center;gap:10px;margin-top:12px;padding:12px 16px;background:#fff0ef;color:#a1222c;border-radius:8px}
+.kn-reorder-status i {flex:none;width:10px;height:10px;border-radius:50%;background:#d32d3b;box-shadow:0 0 0 4px #ffd4d6}
