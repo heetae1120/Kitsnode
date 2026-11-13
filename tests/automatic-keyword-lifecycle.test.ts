@@ -1,0 +1,9 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import ts from 'typescript';
+const source=readFileSync(new URL('../src/components/automatic-keyword-discovery.tsx',import.meta.url),'utf8');
+function mount(){const block=source.slice(source.indexOf(' useEffect(()=>{'),source.indexOf('\n const main='));const code=ts.transpileModule(block,{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;let release:(r:unknown)=>void=()=>{},timer:()=>void=()=>{},cleanup:()=>void=()=>{};const rows:unknown[][]=[],errors:string[]=[],busy:boolean[]=[];const keyword={keyword:'fixture'};
+new Function('useEffect','isDraftPreviewMode','setBusy','setError','setRows','setSourceRows','setTimeout','clearTimeout','process','productName','retry','productKeywordSeed','shoppingVolumeReferences','fetch','validateKeywordResponse','selectProductKeywords',code)((f:()=>()=>void)=>cleanup=f(),()=>false,(v:boolean)=>busy.push(v),(v:string)=>errors.push(v),(v:unknown[])=>rows.push(v),()=>{},(f:()=>void)=>{timer=f},()=>{},{env:{}},'fixture',0,(x:string)=>x,[],async()=>({ok:true,json:()=>new Promise(r=>release=r)}),(x:unknown)=>x,(_s:unknown,r:unknown)=>r);
+return{rows,errors,busy,tick:()=>timer(),cleanup:()=>cleanup(),finish:()=>release({keywords:[keyword]}),keyword};}
+async function settle(){await new Promise(r=>setImmediate(r));}
+test('normal automatic keyword response is displayed',async()=>{const m=mount();await settle();m.finish();await settle();assert.deepEqual(m.rows.at(-1),[m.keyword]);});
+test('timeout remains terminal and late body cannot revive keyword estimates',async()=>{const m=mount();await settle();m.tick();m.finish();await settle();assert.deepEqual(m.rows,[[]]);assert.match(m.errors.at(-1)!,/초과/);assert.equal(m.busy.at(-1),false);});
+test('unmounted keyword result remains ignored',async()=>{const m=mount();await settle();m.cleanup();m.finish();await settle();assert.deepEqual(m.rows,[[]]);});

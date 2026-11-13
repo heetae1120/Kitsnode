@@ -27,7 +27,7 @@ export function AutomaticKeywordDiscovery({productName,perOrder,budget,quantity,
    if(!response.ok)throw Error(raw.error||'연관 키워드를 불러오지 못했습니다.');
    const data=validateKeywordResponse(raw);const found=selectProductKeywords(seed,data.keywords);
    if(!found.length)throw Error('이 품목의 관련 키워드를 찾지 못했습니다. 상품 종류가 포함되도록 품목명을 수정해 주세요.');
-   if(active){setRows(found);setSourceRows(data.keywords);}
+   if(active&&!controller.signal.aborted){setRows(found);setSourceRows(data.keywords);}
   }catch(e){if(active&&!controller.signal.aborted)setError(e instanceof Error?e.message:'키워드 분석 실패');}
   finally{clearTimeout(timeout);if(active)setBusy(false);}})();
   return()=>{active=false;controller.abort();clearTimeout(timeout);};

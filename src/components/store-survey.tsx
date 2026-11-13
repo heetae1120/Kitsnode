@@ -124,8 +124,12 @@ export function StoreSurvey() {
       return;
     }
     setBusy(true);
+    const uncertainMessage = "접수 결과를 확인하지 못했습니다. 서버에는 이미 접수됐을 수 있으니, 중복 접수를 피하려면 다시 보내기 전에 문의해 주세요.";
+    let requestStarted = false;
     try {
-      const response = await fetch(consultationEndpoint(), {
+      const endpoint = consultationEndpoint();
+      requestStarted = true;
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "omit",
@@ -140,18 +144,21 @@ export function StoreSurvey() {
         signal: AbortSignal.timeout(15000),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok)
-        throw new Error(
-          typeof data.error === "string" ? data.error : "설문을 저장하지 못했습니다. 다시 시도해 주세요.",
-        );
-      if (typeof data.id !== "string")
-        throw new Error("접수 결과를 확인하지 못했습니다. 다시 보내기 전에 문의해 주세요.");
+      if (!response.ok) {
+        const validationMessage = [400, 422].includes(response.status) &&
+          data && typeof data.error === "string" && data.error.trim() ? data.error : null;
+        throw new Error(validationMessage || uncertainMessage);
+      }
+      if (!data || typeof data.id !== "string" || !data.id.trim())
+        throw new Error(uncertainMessage);
       setSavedId(data.id);
     } catch (e) {
       setError(
-        e instanceof Error && e.name !== "TimeoutError"
-          ? e.message
-          : "서버 응답이 없습니다. 잠시 후 다시 시도해 주세요.",
+        requestStarted && e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError" || e instanceof TypeError)
+          ? uncertainMessage
+          : e instanceof Error
+            ? e.message
+            : "접수 결과를 확인하지 못했습니다. 다시 보내기 전에 문의해 주세요.",
       );
     } finally {
       setBusy(false);
