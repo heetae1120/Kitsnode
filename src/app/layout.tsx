@@ -4,6 +4,7 @@ import "./globals.css";
 import "./brand.css";
 import { VisitorAnalytics } from "@/components/visitor-analytics";
 import { DraftPreview } from "@/components/draft-preview";
+import { StudioFooter } from "@/components/studio-footer";
 import { PublishedLayout } from "@/components/published-layout";
 const pretendard = localFont({
   src: "./fonts/PretendardVariable.woff2",
@@ -30,7 +31,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" className={pretendard.variable}>
-      <body>{children}<PublishedLayout /><DraftPreview /><VisitorAnalytics /></body>
+      <body>{children}<StudioFooter /><PublishedLayout /><DraftPreview /><VisitorAnalytics /></body>
     </html>
   );
 }

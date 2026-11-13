@@ -45,3 +45,33 @@ body .hc-cinema-player .lscp-progress-chapters button::before {
 @media (max-width:650px) {
   body .hc-cinema-still {background-size:auto 48%;background-position:right bottom}
 }
+
+/* Studio edition: paper, ink and one signal colour. */
+body {--kn-ink:#172c25;--kn-rule:#cad8d2;--kn-wash:#f4f8f6}
+body ::selection {background:#a4f4d5;color:#102a20}
+body :where(main h1,main h2,main h3) {text-wrap:balance;word-break:keep-all}
+body :where(main strong,main output,main td) {font-variant-numeric:tabular-nums}
+body .profit-tool .tool-topbar.expanded-tools,body .store-topbar {background:#fff;border-bottom:1px solid var(--kn-rule);box-shadow:none}
+body .profit-tool .expanded-tools .tool-nav {box-shadow:none}
+body .profit-tool .hc-shell .hc-chapter-hero {border:1px solid var(--kn-rule);border-radius:12px;overflow:hidden;box-shadow:none}
+body .hc-shell .hc-cinema-message h1 {font-weight:800;letter-spacing:-.065em;line-height:1.12}
+body .hc-shell .hc-cinema-message .hc-brand-copy>span {display:inline-flex;align-items:center;gap:.65rem;letter-spacing:.15em;text-transform:uppercase}
+body .hc-shell .hc-cinema-message .hc-brand-copy>span:before {content:"";width:1.8rem;height:3px;background:#37bf91}
+body .profit-tool .finance-dashboard .mp-steps li {border-radius:8px;box-shadow:none}
+body .profit-tool .mp-steps li.is-active {background:#ecfaf4;border-color:#62b999}
+body .profit-tool .finance-dashboard :is(.mp-section-heading,.mp-story-heading) {border-top:1px solid var(--kn-rule);padding-top:1.1rem}
+body .profit-tool .mp-live-bar {background:#fff;border-bottom:1px solid var(--kn-rule);box-shadow:none}
+body .profit-tool .finance-dashboard :is(.mp-keyword-main,.mp-stock-cost,.mp-actual-cost) {background:var(--kn-wash);border-color:var(--kn-rule);border-radius:10px}
+body .profit-tool :is(.mp-keyword-candidates>li,.hc-stage-card) {border-color:var(--kn-rule);box-shadow:0 5px 20px #102e2010}
+body .profit-tool :is(input:not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea):focus-visible {outline:2px solid var(--brand-accent);outline-offset:2px}
+body .store-theme {--store-canvas:#fff;--store-rail:#f6f9f7;--store-selected:#ddf5e9;--store-primary:#086952;--store-primary-hover:#06513f;--store-primary-soft:#e8f8ef;--store-text:#172c25;--store-divider:#d8e2dc;--store-border:#cad8d2}
+body .store-main h1 {letter-spacing:-.055em}
+.kn-colophon {background:#fff;color:var(--kn-ink);border-top:1px solid var(--kn-rule);display:flex;align-items:center;justify-content:space-between;gap:24px;padding:clamp(30px,5vw,76px) max(6vw,calc((100% - 1200px)/2));font-family:var(--font-pretendard),sans-serif}
+.kn-colophon strong {font-size:clamp(28px,4vw,52px);letter-spacing:-.075em;line-height:1}
+.kn-colophon strong span {color:#169676}
+.kn-colophon p {margin:8px 0 0;color:#4c6258;font-size:13px}
+.kn-colophon nav {display:flex;flex-wrap:wrap;gap:8px 24px}
+.kn-colophon a {color:inherit;font-size:14px;font-weight:650;padding:8px 0;text-decoration:none;border-bottom:1px solid var(--kn-rule)}
+.kn-colophon a:hover {color:var(--brand-accent);border-color:currentColor}
+@media(max-width:650px){.kn-colophon {align-items:start;flex-direction:column;padding-bottom:72px}}
+@media print {.kn-colophon {display:none}}
