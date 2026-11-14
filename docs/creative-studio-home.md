@@ -14,7 +14,9 @@ The homepage is shared by `/` and `/tools/start/`. Existing tools remain availab
 
 ## Hero behavior
 
-One reversible timeline coordinates four full-viewport scenes over approximately 400vh of desktop scroll distance and 320vh on mobile. No wheel/touch interception, snap behavior, autoplay, or smooth-scroll library is used. Words reveal through masks. Geometric transitions connect black, orange, warm white, then black compositions. Hidden scenes are inert. A separate, unpinned consultation section follows the four scenes and links to the contact section.
+One reversible timeline coordinates four full-viewport scenes over approximately 400vh of desktop scroll distance and 320vh on mobile. No wheel/touch interception, snap behavior, autoplay, or smooth-scroll library is used. Words reveal through masks. Geometric transitions connect black, orange, warm white, then black compositions. Hidden scenes are inert. A separate, unpinned diagnosis section follows the four scenes. Its Next.js Link routes to the existing `/tools/` product diagnosis, including the configured GitHub Pages base path.
+
+Headlines, navigation, service titles, sample artwork, contact, and footer use Korean copy. The `as-korean-site` typography rules adjust line height and responsive sizing while preserving the GSAP timeline and icon motion.
 
 OS reduced motion uses ordinary stacked scenes. An initialization failure removes the pin and inline animation styles so the full content remains available. GSAP contexts and matchMedia revert animations/triggers on unmount and media changes.
 
