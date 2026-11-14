@@ -1,0 +1,47 @@
+/* Official Naver assets and dimensions: https://developers.naver.com/docs/login/bi/bi.md */
+.imageButton {
+  display: inline-block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  line-height: 0;
+  vertical-align: middle;
+}
+
+.imageButton img {
+  display: block;
+  width: 210px;
+  height: 48px;
+}
+
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 210px;
+  height: 48px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 6px;
+  background: #03a94d;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.linkButton img {
+  display: block;
+  flex: none;
+  width: 48px;
+  height: 48px;
+}
+
+.linkButton span {
+  margin-left: -7px;
+}
+
+.imageButton:disabled,
+.linkButton:disabled {
+  cursor: wait;
+}

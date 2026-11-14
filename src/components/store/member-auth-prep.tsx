@@ -8,6 +8,7 @@ import { bindConsentToUser, createMemberConsent, MEMBER_PRIVACY_VERSION, MEMBER_
 import { EmailAuthForm, type EmailAuth } from './member-email-auth-form';
 import { MemberConsentGate } from './member-consent-gate';
 import { MemberConsentWithdraw } from './member-consent-withdraw';
+import naverStyles from './naver-login.module.css';
 
 let client: SupabaseClient | null = null;
 const naverErrorText: Record<string,string> = {
@@ -109,8 +110,8 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
       const result=await consent.withdraw(id);
       return memberUserIdRef.current===id ? result : {ok:false};
     }} onWithdrawn={()=>{if(memberUserIdRef.current===memberUserId)setConsentStatus('needed');}}/>}
-    {canUseMemberNaver(config) && !signedIn && <div><button type="button" disabled={busy} onClick={()=>void go('signIn')}>네이버로 시작하기</button><p>네이버 로그인은 현재 등록된 시험 계정만 사용할 수 있습니다. 인증 후 이용약관과 임시 개인정보 처리방침을 확인합니다. 기존 이메일 회원은 이메일로 로그인한 뒤 네이버 계정을 연결할 수 있습니다.</p></div>}
-    {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.canLinkEmail && !naverIdentity.linked && <div><button type="button" disabled={busy} onClick={()=>void go('link')}>네이버 계정 연결</button><p>현재 이메일 계정에 네이버 계정을 연결합니다. 네이버 앱 검수 전에는 등록된 시험 계정만 사용할 수 있습니다.</p></div>}
+    {canUseMemberNaver(config) && !signedIn && <div><button type="button" className={naverStyles.imageButton} aria-label="네이버 로그인" disabled={busy} onClick={()=>void go('signIn')}><img src={`${basePath}/naver-login/login.png`} alt="" width="210" height="48" /></button><p>네이버 로그인은 현재 등록된 시험 계정만 사용할 수 있습니다. 인증 후 이용약관과 임시 개인정보 처리방침을 확인합니다. 기존 이메일 회원은 이메일로 로그인한 뒤 네이버 계정을 연결할 수 있습니다.</p></div>}
+    {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.canLinkEmail && !naverIdentity.linked && <div><button type="button" className={naverStyles.linkButton} disabled={busy} onClick={()=>void go('link')}><img src={`${basePath}/naver-login/icon.png`} alt="" width="48" height="48" /><span>네이버 계정 연결</span></button><p>현재 이메일 계정에 네이버 계정을 연결합니다. 네이버 앱 검수 전에는 등록된 시험 계정만 사용할 수 있습니다.</p></div>}
     {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.linked && <p>네이버 계정이 연결되어 있습니다.</p>}
     {error && <p role="alert">{error}</p>}
   </section>;
