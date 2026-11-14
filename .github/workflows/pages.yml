@@ -60,6 +60,17 @@ jobs:
           NEXT_PUBLIC_KEYWORD_API_URL: https://kitsnode.vercel.app/api/keywords
           NEXT_PUBLIC_ANALYTICS_ENABLED: 'true'
           NEXT_PUBLIC_ANALYTICS_ENDPOINT: https://bjpguxwqxlsteektkhwf.supabase.co/functions/v1/kitsnode-analytics
+          # These values are public browser configuration, never service-role keys.
+          # Missing variables keep the member-auth interface disabled by default.
+          NEXT_PUBLIC_MEMBER_AUTH_ENABLED: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_ENABLED }}
+          NEXT_PUBLIC_MEMBER_AUTH_PROJECT_REF: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_PROJECT_REF }}
+          NEXT_PUBLIC_MEMBER_AUTH_URL: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_URL }}
+          NEXT_PUBLIC_MEMBER_AUTH_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_MEMBER_AUTH_SIGNUP_ENABLED: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_SIGNUP_ENABLED }}
+          NEXT_PUBLIC_MEMBER_AUTH_NAVER_ENABLED: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_NAVER_ENABLED }}
+          NEXT_PUBLIC_MEMBER_AUTH_NAVER_LINK_ENABLED: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_NAVER_LINK_ENABLED }}
+      - name: Test member authentication
+        run: node --import tsx --test tests/member-auth-prep.test.ts tests/member-auth-form.test.tsx tests/member-email-auth.test.mjs tests/member-consent.test.mjs tests/member-consent-gate.test.tsx tests/member-consent-withdraw.test.tsx
       - run: npm run typecheck
       - uses: actions/upload-pages-artifact@v3
         with:
