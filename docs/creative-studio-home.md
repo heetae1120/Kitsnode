@@ -14,7 +14,7 @@ The homepage is shared by `/` and `/tools/start/`. Existing tools remain availab
 
 ## Hero behavior
 
-One reversible timeline coordinates four full-viewport scenes over approximately 400vh of desktop scroll distance and 320vh on mobile. No wheel/touch interception, snap behavior, autoplay, or smooth-scroll library is used. Words reveal through masks. Geometric transitions connect black, orange, warm white, then black compositions. Hidden scene controls are inert, and the final CTA enters the tab order after its reveal.
+One reversible timeline coordinates four full-viewport scenes over approximately 400vh of desktop scroll distance and 320vh on mobile. No wheel/touch interception, snap behavior, autoplay, or smooth-scroll library is used. Words reveal through masks. Geometric transitions connect black, orange, warm white, then black compositions. Hidden scenes are inert. A separate, unpinned consultation section follows the four scenes and links to the contact section.
 
 OS reduced motion uses ordinary stacked scenes. An initialization failure removes the pin and inline animation styles so the full content remains available. GSAP contexts and matchMedia revert animations/triggers on unmount and media changes.
 

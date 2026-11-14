@@ -10,7 +10,6 @@ export function useAgencyMotion(){
   const root=useRef<HTMLDivElement>(null);
   const [scene,setScene]=useState(0);
   const [enhanced,setEnhanced]=useState(false);
-  const [ctaReady,setCtaReady]=useState(false);
   const [tone,setTone]=useState('dark');
   useGSAP(()=>{
     const el=root.current;if(!el)return;
@@ -32,7 +31,6 @@ export function useAgencyMotion(){
             const time=timeline?.time()??0;
             const index=time<1.65?0:time<3.65?1:time<6?2:3;
             setScene(index);
-            setCtaReady(time>=7.2);
             const trigger=timeline?.scrollTrigger;
             if(trigger?.isActive||trigger?.progress===0)setTone(index===1?'orange':index===2?'light':'dark');
             if(progress)progress.style.transform=`scaleX(${time/8})`;
@@ -61,7 +59,7 @@ export function useAgencyMotion(){
           .from('.as-scene-04 .as-word',{yPercent:120,stagger:.12,duration:.7},6)
           .from('.as-final-orbit',{scale:.3,rotation:-65,opacity:0,duration:1},6)
           .from('.as-scene-04 .as-scene-copy',{y:25,opacity:0,duration:.5},6.45)
-          .from('.as-hero-cta',{y:24,opacity:0,duration:.5},6.7)
+          .from('.as-scene-04 .as-service-description',{y:24,opacity:0,duration:.5},6.7)
           .to('.as-final-orbit',{rotation:25,duration:.7},7.3);
         setEnhanced(true);
         return ()=>{timeline?.scrollTrigger?.kill();timeline?.kill();delete hero.dataset.motion;setEnhanced(false);setScene(0);};
@@ -85,5 +83,5 @@ export function useAgencyMotion(){
     });
     return ()=>media.revert();
   },{scope:root});
-  return {root,scene,enhanced,tone,ctaReady};
+  return {root,scene,enhanced,tone};
 }
