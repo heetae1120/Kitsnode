@@ -1,33 +1,22 @@
-# Creative studio homepage
+# Diagnosis landing page
 
-The homepage is shared by `/` and `/tools/start/`. Existing tools remain available at their original routes. The root renders without redirecting, preserving incoming attribution parameters.
+The homepage is shared by `/` and `/tools/start/`. It ends with the diagnosis CTA. The former About, Services, Work, Contact, footer, sample dialogs and local brief form have been removed. Header and final CTA link directly to the existing `/tools/` diagnosis using Next.js Link, preserving the configured GitHub Pages base path.
 
 ## Files
 
-- `src/data/agency-content.ts`: editable headlines, Korean descriptions, services, sample projects, and contact details.
-- `src/components/agency/agency-home.tsx`: semantic page, responsive dialog menu, sample project dialogs, and local project-brief form.
-- `src/components/agency/use-agency-motion.ts`: GSAP master timeline, ScrollTrigger pin/scrub, header contrast, section reveals, and cleanup.
-- `src/components/agency/agency.css`: scoped black/orange/warm-white system, responsive composition, reduced-motion and print styles.
-- `src/app/page.tsx`, `src/app/tools/start/page.tsx`: shared page entry points and metadata.
-- `src/app/layout.tsx`: default studio metadata; existing analytics, editor integration, and local font remain.
-- `package.json`, `package-lock.json`: GSAP and `@gsap/react`. Existing animation dependencies used by tools are retained; the new homepage uses GSAP alone.
+- `src/data/agency-content.ts`: Korean service headlines, descriptions and diagnosis CTA.
+- `src/components/agency/agency-home.tsx`: four scenes and the final diagnosis section.
+- `src/components/agency/use-agency-motion.ts`: GSAP pin/scrub timeline, reveals and cleanup.
+- `src/components/agency/agency.css`: scoped black/orange system and responsive typography.
 
-## Hero behavior
+## Behavior
 
-One reversible timeline coordinates four full-viewport scenes over approximately 400vh of desktop scroll distance and 320vh on mobile. No wheel/touch interception, snap behavior, autoplay, or smooth-scroll library is used. Words reveal through masks. Geometric transitions connect black, orange, warm white, then black compositions. Hidden scenes are inert. A separate, unpinned diagnosis section follows the four scenes. Its Next.js Link routes to the existing `/tools/` product diagnosis, including the configured GitHub Pages base path.
+The reversible timeline coordinates four full-screen scenes over 400vh of desktop scroll distance and 320vh on mobile. Existing transition timing, icon rotation and enlargement remain unchanged. A separate, unpinned section ends the page with “지금 진단하러 가기”. No content follows it.
 
-Headlines, navigation, service titles, sample artwork, contact, and footer use Korean copy. The `as-korean-site` typography rules adjust line height and responsive sizing while preserving the GSAP timeline and icon motion.
+Mobile layouts emphasize Korean headlines and keep abstract symbols visible between the headline and supporting text. The final CTA spans the content width. A compact header diagnosis link replaces navigation to removed sections. The 360×640 layout uses smaller symbols and copy spacing to avoid collisions.
 
-OS reduced motion uses ordinary stacked scenes. An initialization failure removes the pin and inline animation styles so the full content remains available. GSAP contexts and matchMedia revert animations/triggers on unmount and media changes.
-
-## Content and contact limitations
-
-Work artwork is code-native and explicitly labeled as sample concepts. No customer names, awards, or performance claims are invented. Replace the work data and artwork with approved actual cases when available.
-
-The contact form validates required browser fields and prepares a local UTF-8 text file or clipboard copy. It does not submit to a backend. Set the optional contact email in the content file to expose a real mail link; a production submission channel needs a separate integration.
+Reduced-motion preferences use ordinary stacked scenes. Initialization failure exposes all scene content. GSAP contexts and matchMedia clean up on unmount and media changes.
 
 ## Verification
 
-Verified desktop forward/reverse scene transitions, pinning, progress, final CTA navigation, dialog focus/Escape, mobile menu navigation, 390px horizontal layout, and actual brief copy/download. The 388 existing tests passed. A fresh browser session reported no runtime errors. Initial development hot reload after adding a hook required a full reload; clean sessions were used for final verification.
-
-Implementation references: [GSAP ScrollTrigger](https://gsap.com/docs/v3/Plugins/ScrollTrigger/) and [GSAP React cleanup](https://gsap.com/resources/React/).
+Checked 390×844 and 360×640 layouts, forward scene transitions, the document ending at the diagnosis section, absence of removed sections/footer and actual navigation to the existing product/budget input page. The production build includes TypeScript checking. GitHub Actions tests and deploys the static output.
