@@ -1,10 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {readMemberAuthConfig,memberRedirect} from '../src/lib/member-auth-config.mjs';
-import {createNaverAuth} from '../src/lib/member-naver-auth.mjs';
+import {canUseMemberNaver,readMemberAuthConfig,memberRedirect} from '../src/lib/member-auth-config.mjs';
+import {createNaverAuth, naverIdentityState, oauthCallbackError} from '../src/lib/member-naver-auth.mjs';
 
 const ref='abcdefghijklmnopqrst';
 const valid={enabled:'true',projectRef:ref,url:`https://${ref}.supabase.co`,key:'sb_publishable_test_key'};
+test('naver login cannot be turned on when the consent gate is disabled',()=>{
+  assert.equal(canUseMemberNaver(null),false);
+  assert.equal(canUseMemberNaver({signup:false,naver:true}),false);
+  assert.equal(canUseMemberNaver({signup:true,naver:false}),false);
+  assert.equal(canUseMemberNaver({signup:true,naver:true}),true);
+});
 test('hosted auth is off by default and validates exact project origin and public key',()=>{
   assert.equal(readMemberAuthConfig({...valid,enabled:undefined}),null);
   for(const invalid of [
@@ -42,6 +48,36 @@ test('linking rejects users without a confirmed email identity',async()=>{
     assert.equal((await social.link()).code,'unauthenticated');
   }
   assert.equal(called,false);
+});
+test('naver login uses the custom provider and approved callback',async()=>{
+  let received:any=null;
+  const auth:any={signInWithOAuth:async (options:any)=>{received=options;return {error:null}}};
+  const social=createNaverAuth({auth,trustedOrigin:'https://example.test',redirectTo:'https://example.test/Kitsnode/store/login/',allowSignIn:true,allowLink:false});
+  assert.equal((await social.signIn()).code,'redirecting');
+  assert.deepEqual(received,{provider:'custom:naver',options:{redirectTo:'https://example.test/Kitsnode/store/login/'}});
+  assert.equal((await social.link()).code,'disabled');
+});
+test('link status distinguishes a verified email user and a naver-only user',()=>{
+  assert.deepEqual(naverIdentityState(null),{linked:false,canLinkEmail:false});
+  assert.deepEqual(naverIdentityState({id:'user',email_confirmed_at:null,identities:[{provider:'email'}]}),{linked:false,canLinkEmail:false});
+  assert.deepEqual(naverIdentityState({id:'user',email_confirmed_at:'2026',identities:[{provider:'email'}]}),{linked:false,canLinkEmail:true});
+  assert.deepEqual(naverIdentityState({id:'user',email_confirmed_at:null,identities:[{provider:'custom:naver'}]}),{linked:true,canLinkEmail:false});
+  assert.deepEqual(naverIdentityState({id:'user',email_confirmed_at:'2026',identities:[{provider:'email'},{provider:'custom:naver'}]}),{linked:true,canLinkEmail:true});
+});
+test('linking an already connected identity does not start a second linking flow',async()=>{
+  let calls=0;
+  const auth:any={getUser:async()=>({data:{user:{id:'user',email_confirmed_at:'2026',identities:[{provider:'email'},{provider:'custom:naver'}]}},error:null}),linkIdentity:async()=>{calls++;return {error:null}}};
+  const social=createNaverAuth({auth,trustedOrigin:'https://example.test',redirectTo:'https://example.test/login/',allowSignIn:false,allowLink:true});
+  assert.equal((await social.link()).code,'already_linked');
+  assert.equal(calls,0);
+});
+test('oauth callback reports known errors without exposing remote text or consuming valid tokens',()=>{
+  assert.equal(oauthCallbackError('https://example.test/login/#error=access_denied&error_description=private'), 'cancelled');
+  assert.equal(oauthCallbackError('https://example.test/login/#error=server_error&error_code=identity_already_exists'), 'identity_conflict');
+  assert.equal(oauthCallbackError('https://example.test/login/?error=server_error&error_description=private'), 'unavailable');
+  assert.equal(oauthCallbackError('https://example.test/login/#access_token=synthetic&error=access_denied'), null);
+  assert.equal(oauthCallbackError('https://example.test/login/?code=synthetic&error=access_denied'), null);
+  assert.equal(oauthCallbackError('https://example.test/login/'), null);
 });
 test('social redirects reject cross origin, tokens and insecure scheme',()=>{
   for(const url of ['https://evil.test/login','https://example.test/login?token=x','http://example.test/login']) {

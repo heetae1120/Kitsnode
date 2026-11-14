@@ -1,15 +1,22 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { MEMBER_INTAKE_REVIEWED, readMemberAuthConfig, memberRedirect } from '@/lib/member-auth-config.mjs';
+import { MEMBER_INTAKE_REVIEWED, canUseMemberNaver, readMemberAuthConfig, memberRedirect } from '@/lib/member-auth-config.mjs';
 import { createEmailAuthClient } from '@/lib/member-email-auth.mjs';
-import { createNaverAuth } from '@/lib/member-naver-auth.mjs';
+import { createNaverAuth, naverIdentityState, oauthCallbackError } from '@/lib/member-naver-auth.mjs';
 import { bindConsentToUser, createMemberConsent, MEMBER_PRIVACY_VERSION, MEMBER_TERMS_VERSION } from '@/lib/member-consent.mjs';
 import { EmailAuthForm, type EmailAuth } from './member-email-auth-form';
 import { MemberConsentGate } from './member-consent-gate';
 import { MemberConsentWithdraw } from './member-consent-withdraw';
 
 let client: SupabaseClient | null = null;
+const naverErrorText: Record<string,string> = {
+  identity_conflict:'이미 다른 계정에 연결된 네이버 계정입니다. 기존 연결을 확인해 주세요.',
+  already_linked:'이미 네이버 계정이 연결되어 있습니다.',
+  unauthenticated:'이메일 인증을 완료한 계정으로 로그인한 뒤 연결해 주세요.',
+  cancelled:'네이버 인증이 취소되었습니다. 다시 시도할 수 있습니다.',
+  unavailable:'네이버 인증을 완료하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+};
 
 export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const [api,setApi] = useState<EmailAuth|null>(null);
@@ -17,6 +24,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const [consent,setConsent] = useState<ReturnType<typeof createMemberConsent>|null>(null);
   const [consentStatus,setConsentStatus] = useState<'checking'|'needed'|'accepted'|'error'>('checking');
   const [signedIn,setSignedIn] = useState(false);
+  const [naverIdentity,setNaverIdentity] = useState({linked:false,canLinkEmail:false});
   const [recovery,setRecovery] = useState(false);
   const [error,setError] = useState('');
   const [busy,setBusy] = useState(false);
@@ -36,14 +44,23 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     if (!config || window.location.protocol !== 'https:') return;
     const redirectTo = memberRedirect(window.location.origin,process.env.NEXT_PUBLIC_BASE_PATH || '');
     if (!redirectTo) return;
+    const callbackError=oauthCallbackError(window.location.href);
+    if (callbackError) {
+      setError(naverErrorText[callbackError]);
+      window.history.replaceState(null,'',window.location.pathname);
+    }
     const current = client ?? createClient(config.url,config.key);
     client = current;
     const email = createEmailAuthClient({auth:current.auth,trustedOrigin:window.location.origin,confirmationRedirectTo:redirectTo,recoveryRedirectTo:redirectTo,signupAllowed:MEMBER_INTAKE_REVIEWED && config.signup});
-    const naver = createNaverAuth({auth:current.auth,trustedOrigin:window.location.origin,redirectTo,allowSignIn:MEMBER_INTAKE_REVIEWED && config.naver,allowLink:config.link});
+    // The Naver button must not outlive the member consent gate. These are UI
+    // flags only; database authorisation remains a separate security boundary.
+    const socialEnabled=canUseMemberNaver(config);
+    const naver = createNaverAuth({auth:current.auth,trustedOrigin:window.location.origin,redirectTo,allowSignIn:socialEnabled,allowLink:socialEnabled && config.link});
     const {data:{subscription}} = current.auth.onAuthStateChange((event,session) => {
       const nextId=session?.user?.id || null;
       if (memberUserIdRef.current !== nextId) { memberUserIdRef.current=nextId; setConsentStatus('checking'); setMemberUserId(nextId); }
       setSignedIn(Boolean(session?.user));
+      setNaverIdentity(naverIdentityState(session?.user));
       if(event === 'PASSWORD_RECOVERY') setRecovery(true);
       if(event === 'SIGNED_OUT') setRecovery(false);
     });
@@ -83,7 +100,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
       return api.signUp(email,password);
     },
   } : undefined;
-  const go = async (action:'signIn'|'link') => { if(busyRef.current)return;busyRef.current=true;setBusy(true);setError('');try {const result=await social[action]();if(!result.ok)setError('네이버 연결을 시작하지 못했습니다. 잠시 후 다시 시도해 주세요.');} finally {busyRef.current=false;setBusy(false);} };
+  const go = async (action:'signIn'|'link') => { if(busyRef.current)return;busyRef.current=true;setBusy(true);setError('');try {const result=await social[action]();if(!result.ok)setError(naverErrorText[result.code] || naverErrorText.unavailable);} finally {busyRef.current=false;setBusy(false);} };
   return <section>
     <EmailAuthForm key={recovery?'recovery':'normal'} auth={api} signedIn={signedIn} recovery={recovery} initialMode={mode==='signup'?'signup':'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent}/>
     {intakeEnabled && signedIn && !recovery && consent && memberUserId && consentStatus==='accepted' && <MemberConsentWithdraw key={memberUserId} withdraw={async()=>{
@@ -92,8 +109,9 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
       const result=await consent.withdraw(id);
       return memberUserIdRef.current===id ? result : {ok:false};
     }} onWithdrawn={()=>{if(memberUserIdRef.current===memberUserId)setConsentStatus('needed');}}/>}
-    {MEMBER_INTAKE_REVIEWED && config.naver && !signedIn && <button type="button" disabled={busy} onClick={()=>void go('signIn')}>네이버로 로그인</button>}
-    {config.link && signedIn && !recovery && <button type="button" disabled={busy} onClick={()=>void go('link')}>네이버 계정 연결</button>}
+    {canUseMemberNaver(config) && !signedIn && <div><button type="button" disabled={busy} onClick={()=>void go('signIn')}>네이버로 시작하기</button><p>네이버 로그인은 현재 등록된 시험 계정만 사용할 수 있습니다. 인증 후 이용약관과 임시 개인정보 처리방침을 확인합니다. 기존 이메일 회원은 이메일로 로그인한 뒤 네이버 계정을 연결할 수 있습니다.</p></div>}
+    {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.canLinkEmail && !naverIdentity.linked && <div><button type="button" disabled={busy} onClick={()=>void go('link')}>네이버 계정 연결</button><p>현재 이메일 계정에 네이버 계정을 연결합니다. 네이버 앱 검수 전에는 등록된 시험 계정만 사용할 수 있습니다.</p></div>}
+    {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.linked && <p>네이버 계정이 연결되어 있습니다.</p>}
     {error && <p role="alert">{error}</p>}
   </section>;
 }

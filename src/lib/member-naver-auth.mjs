@@ -1,11 +1,36 @@
-// No automatic account linking. Explicit linking requires server-validated user.
+// Manual linking requires a server-validated existing email user. Provider-side
+// automatic identity matching is a separate Supabase Auth policy.
+export function naverIdentityState(user) {
+  const identities = Array.isArray(user?.identities) ? user.identities : [];
+  return {
+    linked: identities.some(identity => identity?.provider === 'custom:naver'),
+    canLinkEmail: Boolean(user?.id && user.email_confirmed_at && identities.some(identity => identity?.provider === 'email')),
+  };
+}
+
+// Do not display provider supplied error text or touch successful OAuth tokens.
+export function oauthCallbackError(value) {
+  let u;
+  try { u = new URL(value); } catch { return null; }
+  const hash = new URLSearchParams(u.hash.slice(1));
+  if (hash.has('access_token') || hash.has('refresh_token') || u.searchParams.has('code')) return null;
+  const params = hash.has('error') || hash.has('error_code') ? hash : u.searchParams;
+  if (!params.has('error') && !params.has('error_code')) return null;
+  const code = params.get('error_code') || params.get('error');
+  if (code === 'identity_already_exists' || code === 'identity_already_linked') return 'identity_conflict';
+  if (code === 'access_denied') return 'cancelled';
+  return 'unavailable';
+}
+
 export function createNaverAuth({auth, redirectTo, trustedOrigin, allowSignIn, allowLink}) {
   const target = new URL(redirectTo), origin = new URL(trustedOrigin);
   if (target.protocol !== 'https:' || target.origin !== origin.origin || target.username || target.password || target.search || target.hash || origin.pathname !== '/' || origin.search || origin.hash) throw new TypeError('invalid_redirect');
   async function start(method) {
     try {
       const result = await method({provider:'custom:naver', options:{redirectTo:target.href}});
-      return result && !result.error ? {ok:true,code:'redirecting'} : {ok:false,code:'unavailable'};
+      if (result && !result.error) return {ok:true,code:'redirecting'};
+      const code = result?.error?.code;
+      return {ok:false,code:code === 'identity_already_exists' || code === 'identity_already_linked' ? 'identity_conflict' : 'unavailable'};
     } catch { return {ok:false,code:'unavailable'}; }
   }
   return {
@@ -20,7 +45,8 @@ export function createNaverAuth({auth, redirectTo, trustedOrigin, allowSignIn, a
       try {
         const {data,error} = await auth.getUser();
         const user = data?.user;
-        if (error || !user?.id || !user.email_confirmed_at || !Array.isArray(user.identities) || !user.identities.some(identity=>identity.provider === 'email')) return {ok:false,code:'unauthenticated'};
+        if (error || !naverIdentityState(user).canLinkEmail) return {ok:false,code:'unauthenticated'};
+        if (naverIdentityState(user).linked) return {ok:false,code:'already_linked'};
         return start(auth.linkIdentity.bind(auth));
       } catch { return {ok:false,code:'unavailable'}; }
     },

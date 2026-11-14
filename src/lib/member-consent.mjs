@@ -1,6 +1,6 @@
 // Scoped to the signed-in user by database RLS. This is not an employee role.
 export const MEMBER_TERMS_VERSION = '2026-11-14';
-export const MEMBER_PRIVACY_VERSION = '2026-11-14';
+export const MEMBER_PRIVACY_VERSION = '2026-11-14-naver';
 
 // An asynchronous insert for an old session must never unlock a new account.
 export function bindConsentToUser(consent, userId, currentUserId) {

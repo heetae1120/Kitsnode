@@ -24,7 +24,7 @@ export function MemberConsentGate({accept, signOut, onAccepted, basePath}: {
   };
   return <section aria-labelledby="member-consent-title">
     <h2 id="member-consent-title">회원 이용 안내 확인</h2>
-    <p>이메일 확인 후 회원 이용을 시작하기 전에 아래 내용을 다시 확인해 주세요.</p>
+    <p>처음 로그인했거나 개인정보 처리방침이 변경된 경우 회원 이용을 시작하기 전에 아래 내용을 확인해 주세요.</p>
     <form onSubmit={submit}>
       <label><input type="checkbox" checked={terms} onChange={event=>setTerms(event.target.checked)} required disabled={busy}/> <a href={`${basePath}/terms/`} target="_blank" rel="noopener noreferrer">이용약관</a>에 동의합니다.</label>
       <label><input type="checkbox" checked={privacy} onChange={event=>setPrivacy(event.target.checked)} required disabled={busy}/> <a href={`${basePath}/privacy/`} target="_blank" rel="noopener noreferrer">임시 개인정보 처리방침</a>을 확인했습니다.</label>

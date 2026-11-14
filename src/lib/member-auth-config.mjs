@@ -1,6 +1,11 @@
 // Change only when published notices, scoped consent and production setup are ready.
 export const MEMBER_INTAKE_REVIEWED = true;
 
+// A social sign-in must not become available while the member consent gate is off.
+export function canUseMemberNaver(config) {
+  return Boolean(MEMBER_INTAKE_REVIEWED && config?.signup && config?.naver);
+}
+
 // Public configuration is feature-gated and rejects secret or service-role keys.
 export function readMemberAuthConfig(env) {
   if (env.enabled !== 'true') return null;
