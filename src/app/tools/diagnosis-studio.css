@@ -1,0 +1,135 @@
+/* The diagnosis journey shares the hero's ink, orange and flat geometry. */
+body:has(.diagnosis-studio){background:#0b0b0b;color:#f5f2eb}
+body:has(.diagnosis-studio)>.kn-colophon{display:none}
+.diagnosis-studio{color-scheme:dark;scrollbar-color:#ff5a1f #171717;scrollbar-width:thin}
+.diagnosis-studio *{scrollbar-color:#ff5a1f #171717;scrollbar-width:thin}
+.profit-tool .mp-shell.diagnosis-studio{--green:#ff5a1f;--ink:#f5f2eb;--muted:#aaa7a0;--line:#ffffff26;background:#0b0b0b;color:#f5f2eb;min-height:100svh;font-family:var(--font-pretendard),Arial,sans-serif;letter-spacing:-.025em;word-break:keep-all}
+.profit-tool .mp-shell.diagnosis-studio :is(a,button,input,select,textarea):focus-visible{outline:2px solid #ff8c61!important;outline-offset:4px}
+.profit-tool .mp-shell.diagnosis-studio :is(button,a){touch-action:manipulation}
+.ds-header{height:88px;display:flex;align-items:center;gap:48px;padding:0 6vw;border-bottom:1px solid #ffffff26;background:#0b0b0bf5;color:#f5f2eb;position:sticky;top:0;z-index:100}
+.ds-wordmark{font-size:39px;font-weight:850;letter-spacing:-2.7px;line-height:1;color:inherit;text-decoration:none}
+.ds-wordmark>span{font-size:12px;vertical-align:top;display:inline-block;margin:4px 0 0 5px;letter-spacing:0}
+.ds-header-note{font-size:11px;line-height:1.7;color:#aaa7a0}
+.ds-header nav{display:flex;gap:22px;align-items:center;margin-left:auto;font-size:12px}
+.ds-header nav :is(button,a){display:inline-flex;align-items:center;gap:7px;background:none;color:#f5f2eb;padding:10px 0;border:0;font:inherit;cursor:pointer}
+.ds-header nav button{color:#ff8c61}.ds-mode-label{color:#aaa7a0;border-right:1px solid #ffffff26;padding-right:22px}
+.profit-tool .ds-choice{display:block;width:100%;max-width:1400px;margin:auto;padding:70px 6vw 40px;position:relative}
+.profit-tool .mp-shell.diagnosis-studio .ds-eyebrow{font-size:12px;letter-spacing:.025em;font-weight:650;color:#ff8c61;margin:0 0 20px}
+.profit-tool .mp-shell.diagnosis-studio .ds-choice h1{font-size:clamp(42px,6vw,90px);line-height:1.18;letter-spacing:-.055em;font-weight:800;margin:0;color:#f5f2eb}
+.profit-tool .mp-shell.diagnosis-studio .ds-choice h1 em{color:#ff5a1f;font-style:normal}
+.ds-choice-description{font-size:15px;line-height:1.9;color:#aaa7a0;margin:24px 0 40px}
+.ds-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.ds-choice-card{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:380px;padding:32px;background:#171717;color:#f5f2eb;border:1px solid #ffffff30;border-radius:0;font:inherit;cursor:pointer;transition:transform .25s,border-color .25s}
+.ds-choice-card:hover{transform:translateY(-6px);border-color:#ff5a1f}
+.ds-choice-card.ds-player{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f}
+.ds-card-number{font-size:11px;font-weight:650;letter-spacing:.02em;opacity:.65;margin-bottom:65px}
+.ds-card-title{font-size:clamp(38px,4.3vw,64px);line-height:1.2;letter-spacing:-.055em;font-weight:800;position:relative;z-index:1}
+.ds-choice-card>strong{font-size:17px;margin:15px 0 10px;position:relative;z-index:1}
+.ds-card-description{font-size:13px;line-height:1.85;opacity:.75;position:relative;z-index:1}
+.ds-card-action{margin-top:32px;display:flex;align-items:center;justify-content:space-between;width:100%;border-top:1px solid currentColor;padding-top:20px;font-size:14px;font-weight:700;position:relative;z-index:1}
+.ds-choice-art{position:absolute;right:32px;top:50px;width:clamp(90px,11vw,160px);aspect-ratio:1;transition:transform .65s cubic-bezier(.22,1,.36,1);pointer-events:none}
+.ds-choice-card:hover .ds-choice-art{transform:rotate(35deg) scale(1.06)}
+.ds-art-target{border-radius:50%;background:#ff5a1f;display:grid;place-items:center}
+.ds-art-target>i{width:58%;height:58%;border:6px solid #0b0b0b;border-radius:50%;border-right-color:transparent;transform:rotate(-25deg)}
+.ds-art-target>b{position:absolute;width:22%;height:22%;border:4px solid #0b0b0b;border-radius:50%}
+.ds-art-star>i{position:absolute;inset:0 42%;background:#0b0b0b}
+.ds-choice-note{font-size:11px;line-height:1.8;color:#aaa7a0;margin:26px 0 0}
+.profit-tool .mp-shell.diagnosis-studio .mp-main{max-width:1200px;padding:64px 6vw 80px;background:none;color:#f5f2eb}
+.profit-tool .mp-shell.diagnosis-studio .mp-intro h1{font-size:clamp(34px,4.6vw,66px);font-weight:800;line-height:1.25;letter-spacing:-.055em;margin:0 0 22px;color:#f5f2eb}
+.profit-tool .mp-shell.diagnosis-studio .mp-intro h1 em{color:#ff5a1f;font-style:normal}
+.profit-tool .mp-shell.diagnosis-studio .mp-intro p{color:#aaa7a0;max-width:54ch}
+.profit-tool .mp-shell.diagnosis-studio .mp-intro .ds-eyebrow{color:#ff8c61;margin-bottom:20px}
+.profit-tool .mp-shell.diagnosis-studio .mp-live-bar{position:static;background:#171717;border:0;border-bottom:1px solid #ffffff26;color:#f5f2eb;padding:22px 6vw;box-shadow:none;border-radius:0}
+.profit-tool .mp-shell.diagnosis-studio .mp-live-values{max-width:1200px;margin:auto;gap:24px}
+.profit-tool .mp-shell.diagnosis-studio .mp-live-values span{color:#aaa7a0;font-size:11px}
+.profit-tool .mp-shell.diagnosis-studio .mp-live-values b{color:#f5f2eb;font-size:20px;margin-top:7px}
+.profit-tool .mp-shell.diagnosis-studio .mp-live-values .mp-positive{color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps{gap:0;margin:12px 0 28px;border-top:1px solid #ffffff26;border-bottom:1px solid #ffffff26;padding:24px 0;justify-content:space-between}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li{color:#8d8b86;flex:1;gap:12px}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li>span{background:none;border-color:#ffffff40;color:#aaa7a0;border-radius:0;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]{color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]>span{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-workspace.mp-ipad{padding:36px;background:#171717;border:1px solid #ffffff26;border-radius:0;box-shadow:none;transform:none}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-ipad-camera,.mp-ipad-home,.mp-report-camera,.mp-report-home){display:none}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-section-heading h2,.mp-report h2){color:#f5f2eb;font-size:26px;line-height:1.4}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-section-heading>span,.mp-market-applied strong){color:#ff8c61;letter-spacing:.01em}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-field-label,.mp-name,.mp-field>label){color:#f5f2eb;font-size:14px}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-name input,.mp-input-wrap input,.mp-keywords input,.mp-keywords select,.mp-target-input input,.mp-reorder input[type=number]){background:#0b0b0b;color:#f5f2eb;border:1px solid #ffffff40;border-radius:0;box-shadow:none;font-size:16px}
+.profit-tool .mp-shell.diagnosis-studio input::placeholder{color:#817e77}
+.profit-tool .mp-shell.diagnosis-studio .mp-input-wrap>span{color:#aaa7a0}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-budget-input,.mp-sales-summary,.mp-actual-cost,.mp-note,.mp-bep,.mp-budget,.mp-keyword-main,.mp-keyword-verdict,.mp-shopping-reference,.mp-volume-ranks,.mp-prep-card,.mp-prep-consult,.mp-priority-action,.mp-brand-partner){background:#202020;color:#f5f2eb;border:1px solid #ffffff26;border-radius:0;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-budget-input{padding:22px;background:#131313}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-field>p,.mp-quantity-capacity,.mp-market-applied,.mp-cost-change small,.mp-sales-summary span,.mp-field small,.mp-keyword-source,.mp-story-caption,.mp-story-details,.mp-reorder-note,.mp-reorder-legend,.mp-assumptions,.mp-preparation p,.mp-preparation small){color:#aaa7a0}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-sales-summary b,.mp-cost-change b,.mp-cost-change strong){color:#f5f2eb}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-primary,.kn-tablet-slide-actions .mp-primary){background:#ff5a1f;color:#0b0b0b;border:1px solid #ff5a1f;border-radius:0;box-shadow:none;min-height:52px;font-size:14px}
+.profit-tool .mp-shell.diagnosis-studio .mp-primary:hover{background:#ff7a48;border-color:#ff7a48;transform:translateY(-2px)}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-secondary,.mp-quick-costs button){background:transparent;color:#f5f2eb;border:1px solid #ffffff40;border-radius:0;box-shadow:none;min-height:44px}
+.profit-tool .mp-shell.diagnosis-studio .mp-market-options button{background:#0b0b0b;color:#f5f2eb;border:1px solid #ffffff30;border-radius:0;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-market-options button[aria-pressed=true]{background:#2e1a13;color:#ff8c61;border-color:#ff5a1f;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-market-options small{color:#aaa7a0}
+.profit-tool .mp-shell.diagnosis-studio .mp-market-icon{border-radius:0}
+.profit-tool .mp-shell.diagnosis-studio .mp-hint-button{color:#aaa7a0;background:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-help-content{background:#282828;color:#f5f2eb;border:1px solid #ffffff40;border-radius:0;box-shadow:0 16px 48px #0008}
+.profit-tool .mp-shell.diagnosis-studio .mp-help-content :is(b,a){color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-negative,.mp-error,.mp-story-alert,.mp-reorder-warning,.mp-keyword-over){color:#ff9b88}
+.profit-tool .mp-shell.diagnosis-studio .mp-error{background:#3b1c18;border:1px solid #ff9b8850;border-radius:0}
+.profit-tool .mp-shell.diagnosis-studio .mp-goal-dialog{background:#171717;color:#f5f2eb;border:1px solid #ffffff40;border-radius:0;box-shadow:0 30px 100px #000a;padding:36px;max-width:calc(100% - 32px)}
+.profit-tool .mp-shell.diagnosis-studio .mp-goal-dialog::backdrop{background:#000b;backdrop-filter:blur(8px)}
+.profit-tool .mp-shell.diagnosis-studio .mp-goal-dialog h2{color:#f5f2eb;line-height:1.4}
+/* Result pages and their nested cards retain the same dark canvas. */
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-story,.mp-preparation,.mp-report-pages,.mp-report-page,.mp-report-keyword-screen){color:#f5f2eb;background:transparent}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-story h1,.mp-story h2,.mp-story h3,.mp-preparation h1,.mp-preparation h2,.mp-story-sale b,.mp-plan-recap dd,.mp-reorder h2,.mp-keywords h4){color:#f5f2eb}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-story h1 em,.mp-story-heading em,.mp-preparation em,.mp-goal-invitation em,.mp-goal-invitation strong,.mp-profit-after strong,.mp-story-sale .is-positive,.mp-positive,.mp-breakdown>div:last-child,.mp-bep strong,.mp-keyword-main strong,.mp-keyword-candidates strong){color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-scroll-card,.mp-scroll-card>div,.kn-tablet-slide-screen,.kn-tablet-slide,.kn-tablet-slide-actions,.mp-reorder,.mp-unit-summary,.mp-story-summary,.mp-tablet-budget,.mp-plan-recap>div,.mp-profit-before,.mp-profit-after,.mp-reorder-metrics,.mp-story-budget,.mp-story-details,.mp-keyword-candidates>li){background:#171717;color:#f5f2eb;border-color:#ffffff26;border-radius:0;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-scroll-card{border:1px solid #ffffff30;padding:0}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-story p,.mp-story small,.mp-story-sale span,.mp-plan-recap dt,.mp-plan-recap small,.mp-breakdown dt,.mp-reorder-metrics span,.mp-keyword-main span,.mp-keyword-main p,.mp-keywords small,.mp-keyword-candidates p,.mp-keyword-live p,.mp-keyword-table th){color:#aaa7a0}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-story-summary h2 strong,.mp-story-budget strong,.mp-reorder-metrics b,.mp-keyword-table td:nth-child(2)){color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-report-page-nav button,.mp-story-nav a){background:#171717;color:#aaa7a0;border:1px solid #ffffff30;border-radius:0;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-report-page-nav button[aria-current]{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f}
+.profit-tool .mp-shell.diagnosis-studio .mp-page-line{background:#ffffff30}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-breakdown>div,.mp-story-details,.mp-reorder-table td,.mp-reorder-table th,.mp-keyword-table td,.mp-keyword-table th,.mp-profit-deductions){border-color:#ffffff26}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-keyword-table thead,.kn-profit-next){background:#2e1a13;color:#ff8c61;border-color:#ff5a1f}
+.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart{background:#131313;border-color:#ffffff26}
+.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart text{fill:#aaa7a0}
+.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart stop:first-child{stop-color:#ff5a1f}.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart stop:last-child{stop-color:#171717}
+.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart path[stroke="#183d32"]{stroke:#ff8c61}.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart path[stroke="#008664"]{stroke:#f5f2eb}
+.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart rect[fill="#fff3df"]{fill:#35271b}.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart rect[fill="#183d32"]{fill:#ff5a1f}
+.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart circle[stroke]{stroke:#ff8c61;fill:#171717}
+.profit-tool .mp-shell.diagnosis-studio input[type=range]{accent-color:#ff5a1f}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li{background:#171717;border:1px solid #ffffff26;border-radius:0;box-shadow:none;min-height:70px;padding:16px}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]{background:#2e1a13;color:#ff8c61;border-color:#ff5a1f}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li>.mp-step-number{background:transparent;border-color:#ffffff40;color:#aaa7a0;border-radius:0;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]>.mp-step-number,.profit-tool .mp-shell.diagnosis-studio .mp-steps li[data-complete]>.mp-step-number{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-plan-row>.mp-budget-input{background:#131313;border:1px solid #ffffff26;border-radius:0}
+.profit-tool .mp-shell.diagnosis-studio .mp-live-values>span b{color:#f5f2eb}.profit-tool .mp-shell.diagnosis-studio .mp-live-values>span:last-child b{color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio .mp-actions button{border-radius:0}
+body .profit-tool .finance-dashboard.mp-shell.diagnosis-studio .mp-primary{background:#ff5a1f!important;color:#0b0b0b!important;border-color:#ff5a1f!important;border-radius:0!important}
+.profit-tool .mp-shell.diagnosis-studio .mp-positive{color:#ff8c61!important}.profit-tool .mp-shell.diagnosis-studio .mp-negative{color:#ff9b88!important}.profit-tool .mp-shell.diagnosis-studio .mp-neutral{color:#aaa7a0!important}
+.profit-tool .mp-shell.diagnosis-studio .mp-profit-after strong{color:#ff8c61!important}
+.profit-tool .mp-shell.diagnosis-studio #report-funds .mp-scroll-card,.profit-tool .mp-shell.diagnosis-studio .mp-scroll-card>div{border-radius:0;background:#171717;border-color:#ffffff30;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-story-details summary,.mp-story-details p,.mp-reorder-legend span){color:#aaa7a0}
+.profit-tool .mp-shell.diagnosis-studio .mp-reorder-legend span:first-child{color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-reorder-heading>div>span,.mp-story-heading>span,.mp-brand-partner>span,.mp-prep-card>span){color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio .kn-tablet-slide-screen{scrollbar-color:#ff5a1f #171717}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-signup-dialog,.mp-goal-check,.mp-return-handling,.mp-keyword-candidates .mp-goal-check){background:#202020;color:#f5f2eb;border:1px solid #ffffff30;border-radius:0;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-signup-dialog h2,.mp-signup-dialog p,.mp-signup-later,.mp-signup-close,.mp-goal-check p,.mp-goal-check small,.mp-goal-check .mp-goal-solution){color:#f5f2eb}
+.profit-tool .mp-shell.diagnosis-studio .mp-signup-icon{background:#2e1a13;color:#ff8c61;border-radius:0}
+.profit-tool .mp-shell.diagnosis-studio :is(input:not([type=checkbox]):not([type=range]):not([type=color]),select,textarea){background-image:none;box-shadow:none;border-radius:0}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-field,.mp-name,.mp-target-input):hover{background-image:none}
+@media(max-width:760px){
+ .ds-header{height:68px;padding:0 22px;gap:12px}.ds-wordmark{font-size:33px}.ds-header-note,.ds-mode-label{display:none}.ds-header nav{gap:16px;font-size:11px}
+ .profit-tool .ds-choice{padding:44px 22px 30px}.profit-tool .mp-shell.diagnosis-studio .ds-choice h1{font-size:clamp(36px,10vw,58px)}
+ .ds-choice-description{font-size:13px;margin:22px 0 28px}.ds-choice-grid{grid-template-columns:1fr;gap:16px}
+ .ds-choice-card{min-height:240px;padding:22px}.ds-card-number{margin-bottom:20px}.ds-card-title{font-size:38px}.ds-choice-card>strong{font-size:15px;margin-top:10px}
+ .ds-choice-art{width:82px;right:23px;top:28px}.ds-card-description{font-size:12px}.ds-card-action{margin-top:20px;padding-top:14px}.ds-choice-note{font-size:11px}
+ .profit-tool .mp-shell.diagnosis-studio .mp-main{padding:36px 22px 60px}.profit-tool .mp-shell.diagnosis-studio .mp-intro h1{font-size:clamp(30px,8.4vw,46px)}
+ .profit-tool .mp-shell.diagnosis-studio .mp-live-bar{padding:18px 22px}.profit-tool .mp-shell.diagnosis-studio .mp-live-values{gap:16px;overflow-x:auto;flex-wrap:nowrap;padding-bottom:6px}.profit-tool .mp-shell.diagnosis-studio .mp-live-values>span{min-width:108px;flex-shrink:0}.profit-tool .mp-shell.diagnosis-studio .mp-live-values b{font-size:17px}
+ .profit-tool .mp-shell.diagnosis-studio .mp-steps{padding:18px 0;gap:10px}.profit-tool .mp-shell.diagnosis-studio .mp-steps li{gap:7px;font-size:10px}.profit-tool .mp-shell.diagnosis-studio .mp-steps li>span{width:25px;height:25px;min-width:25px}.profit-tool .mp-shell.diagnosis-studio .mp-steps small{font-size:8px}
+ .profit-tool .mp-shell.diagnosis-studio .mp-workspace.mp-ipad{padding:24px 18px}.profit-tool .mp-shell.diagnosis-studio .mp-section-heading h2{font-size:22px}.profit-tool .mp-shell.diagnosis-studio .mp-budget-input{padding:18px 14px}
+ .profit-tool .mp-shell.diagnosis-studio .mp-goal-dialog{padding:28px 22px}.profit-tool .mp-shell.diagnosis-studio .mp-goal-dialog h2{font-size:22px}
+ .profit-tool .mp-shell.diagnosis-studio .mp-actions{gap:12px}.profit-tool .mp-shell.diagnosis-studio .mp-primary{width:100%}.profit-tool .mp-shell.diagnosis-studio .mp-prep-card{padding:22px}
+ .profit-tool .mp-shell.diagnosis-studio .mp-steps li{padding:13px 8px;min-height:86px}.profit-tool .mp-shell.diagnosis-studio .mp-steps li>.mp-step-number{width:28px;height:28px;font-size:13px}.profit-tool .mp-shell.diagnosis-studio .mp-steps b{font-size:11px}
+ .profit-tool .mp-shell.diagnosis-studio .mp-live-values{display:flex}
+}
+@media(prefers-reduced-motion:reduce){.profit-tool .mp-shell.diagnosis-studio *{transition:none!important;animation:none!important}.ds-choice-card:hover,.ds-choice-card:hover .ds-choice-art{transform:none}}
+@media print{body:has(.diagnosis-studio){background:white;color:black}.profit-tool .mp-shell.diagnosis-studio .ds-header{display:none}.profit-tool .mp-shell.diagnosis-studio{background:white;color:black}.profit-tool .mp-shell.diagnosis-studio :is(.mp-story,.mp-story h1,.mp-story h2,.mp-story h3,.mp-story p,.mp-story small,.mp-scroll-card,.mp-scroll-card>div,.kn-tablet-slide,.kn-tablet-slide-screen,.mp-plan-recap>div,.mp-profit-before,.mp-profit-after,.mp-unit-summary,.mp-reorder){background:white;color:black}.profit-tool .mp-shell.diagnosis-studio .mp-primary{display:none}}
