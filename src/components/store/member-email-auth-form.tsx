@@ -39,10 +39,10 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
     try {
       const result = await fn();
       const messages: Record<string, string> = {
-        signup_requested: '요청을 처리했습니다. 입력한 이메일에서 인증 안내를 확인해 주세요. 발신자 이름은 키츠 인트라넷입니다.',
+        signup_requested: '요청을 처리했습니다. 입력한 이메일에서 인증 안내를 확인해 주세요.',
         signed_in: '로그인되었습니다.',
         signed_out: '로그아웃되었습니다.',
-        reset_requested: '요청을 처리했습니다. 해당 계정이 있다면 이메일의 안내를 확인해 주세요. 발신자 이름은 키츠 인트라넷입니다.',
+        reset_requested: '요청을 처리했습니다. 해당 계정이 있다면 이메일의 안내를 확인해 주세요.',
         password_updated: '비밀번호가 변경되었습니다.',
       };
       if (result.ok && messages[result.code]) { setMessage(messages[result.code]); setPassword(''); }
