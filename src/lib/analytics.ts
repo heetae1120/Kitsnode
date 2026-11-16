@@ -7,11 +7,12 @@ type Field = typeof ANALYTICS_FIELDS[number];
 export type Reason = 'heartbeat' | 'hidden' | 'pagehide' | 'navigation' | 'complete';
 export type SurveyTiming = { elapsedMs: number; visibleMs: number; engagedMs: number };
 export type Snapshot = { version: 3; viewId: string; sequence: number; page: string; visibleMs: number; engagedMs: number; reason: Reason; attribution: Attribution; survey: null | { step: Step; lastField: Field | null; lastInputAgoMs: number | null; completed: boolean; timing: SurveyTiming | null } };
-const PAGES = new Set(['', 'start', 'rankings', 'seo', 'traffic', 'bidding', 'negative-search', 'keywords', 'survey', 'about', 'market', 'consultation'].map(p => `/tools/${p ? p + '/' : ''}`));
+const PAGES = new Set(['/', ...['', 'start', 'player', 'rankings', 'seo', 'traffic', 'bidding', 'negative-search', 'keywords', 'survey', 'about', 'market', 'consultation'].map(p => `/tools/${p ? p + '/' : ''}`)]);
 const ms = (v: number) => Math.min(86_400_000, Math.max(0, Math.floor(v)));
 export function canonicalAnalyticsPage(pathname: string, basePath = ''): string | null {
   let path = pathname;
-  if (basePath && path.startsWith(basePath + '/')) path = path.slice(basePath.length);
+  if (basePath && path === basePath) path = '/';
+  else if (basePath && path.startsWith(basePath + '/')) path = path.slice(basePath.length);
   if (!path.endsWith('/')) path += '/';
   return PAGES.has(path) ? path : null;
 }

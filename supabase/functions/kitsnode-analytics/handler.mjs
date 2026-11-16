@@ -1,5 +1,5 @@
 // No request bodies, URLs, IP addresses, tokens, or user agents are logged here.
-export const ANALYTICS_PAGES = ['/tools/','/tools/start/','/tools/rankings/','/tools/seo/','/tools/traffic/','/tools/bidding/','/tools/negative-search/','/tools/keywords/','/tools/survey/','/tools/about/','/tools/market/','/tools/consultation/'];
+export const ANALYTICS_PAGES = ['/','/tools/player/','/tools/','/tools/start/','/tools/rankings/','/tools/seo/','/tools/traffic/','/tools/bidding/','/tools/negative-search/','/tools/keywords/','/tools/survey/','/tools/about/','/tools/market/','/tools/consultation/'];
 export const SURVEY_STEPS = ['brandVision','audience','category','stage','budget','support','brandGoal','contact'];
 export const SURVEY_FIELDS = ['brandVision','audience','categoryOther','brandGoal','store','company','nameRole','phone'];
 const reasons = ['heartbeat','hidden','pagehide','navigation','complete'];
@@ -119,11 +119,12 @@ export function createAnalyticsHandler({projectUrl, serviceKey, ingestEnabled = 
         repo = await gh.json();
       } catch { return respond({error:'github_unavailable'},503); }
       if (repo?.permissions?.push !== true) return respond({error:'github_write_required'},403);
-      const report = await rpc('kitsnode_analytics_report',{p_days:Number(days)});
+      const report = await rpc(origin === 'https://kitz-intranet-prototype-v1.junho960809.chatgpt.site' ? 'kitsnode_analytics_report' : 'kitsnode_analytics_legacy_report',{p_days:Number(days)});
       // SQL returns aggregates only. Never fall back to raw table reads.
       if (!object(report) || !Array.isArray(report.pages) || !object(report.survey)) throw new Error('invalid_report');
-      report.sessions = await rpc('kitsnode_main_session_report',{p_days:Number(days)});
+      report.sessions = await rpc(origin === 'https://kitz-intranet-prototype-v1.junho960809.chatgpt.site' ? 'kitsnode_intranet_session_report' : 'kitsnode_main_session_report',{p_days:Number(days)});
       report.basic = await rpc('kitsnode_basic_load_report',{p_days:Number(days)});
+      if (origin === 'https://kitz-intranet-prototype-v1.junho960809.chatgpt.site') report.pageTimeline = await rpc('kitsnode_intranet_page_timeline',{p_days:Number(days)});
       return respond(report);
     } catch { return respond({error:'service_unavailable'},503); }
   };

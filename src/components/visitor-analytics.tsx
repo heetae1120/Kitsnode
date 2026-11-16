@@ -58,7 +58,7 @@ export function VisitorAnalytics() {
 
   useEffect(() => {
     const endpoint = process.env.NEXT_PUBLIC_ANALYTICS_ENDPOINT || '';
-    const page = pathname === '/' ? null : canonicalAnalyticsPage(pathname, process.env.NEXT_PUBLIC_BASE_PATH || '');
+    const page = canonicalAnalyticsPage(pathname, process.env.NEXT_PUBLIC_BASE_PATH || '');
     const allowed = () => consentRef.current === 'allow' && eligible();
     if (consent !== 'allow' || !allowed() || !trackedSitePage(pathname)) return;
     const attr = classifyAttribution(window.location.search, document.referrer, window.location.origin, navigation.current.internal);

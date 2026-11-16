@@ -10,7 +10,17 @@ test('disabled by default; preview, local, privacy opt-out and unsafe endpoints 
 });
 test('canonical pages reject arbitrary, query, hash and partial base paths', () => {
   assert.equal(canonicalAnalyticsPage('/Kitsnode/tools/survey', '/Kitsnode'), '/tools/survey/');
+  for (const path of ['/', '/Kitsnode', '/Kitsnode/']) assert.equal(canonicalAnalyticsPage(path, '/Kitsnode'), '/');
+  for (const path of ['/tools/player', '/Kitsnode/tools/player/']) assert.equal(canonicalAnalyticsPage(path, '/Kitsnode'), '/tools/player/');
   for (const path of ['/private/', '/tools/unknown', '/tools/?phone=secret', '/tools/#secret', '/KitsnodeX/tools/']) assert.equal(canonicalAnalyticsPage(path, '/Kitsnode'), null);
+});
+test('home and player snapshots preserve consent-based view metadata without page content', () => {
+  for (const page of ['/', '/tools/player/']) {
+    let time=0; const view=createAnalyticsView(page,id,()=>time,true); time=15000;
+    const snapshot=view.snapshot('heartbeat')!;
+    assert.equal(snapshot.page,page); assert.equal(snapshot.visibleMs,15000); assert.equal(snapshot.survey,null);
+    assert.equal(JSON.stringify(snapshot).includes('price'),false);
+  }
 });
 test('visible/engaged time excludes hidden, caps idle at 30 seconds, resumes bfcache', () => {
   let time = 0; const view = createAnalyticsView('/tools/', id, () => time, true);

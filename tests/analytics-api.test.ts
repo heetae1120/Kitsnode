@@ -30,6 +30,7 @@ test('analytics contract permits only bounded metadata and rejects PII-bearing e
   assert.equal(validateAnalyticsEvent({...event(),reason:'complete'}),false);
   assert.equal(validateAnalyticsEvent({...event(),reason:'complete',survey:{...event().survey,step:'contact',completed:true}}),true);
   assert.equal(validateAnalyticsEvent({...event(),page:'/tools/',survey:null}),true);
+  for (const page of ['/','/tools/player/']) {assert.equal(validateAnalyticsEvent({...event(),page,survey:null}),true);assert.equal(validateAnalyticsEvent({...event(),page,reason:'complete',survey:null}),false);}
   assert.equal(validateAnalyticsEvent({...event(),page:'/tools/',reason:'complete',survey:null}),false);
 });
 test('origin config allows exact HTTPS origins only',()=>{
@@ -107,4 +108,20 @@ test('basic load accepts no identifiers or attribution and respects origin',asyn
  assert.equal((await h.handler(req({version:1,referrer:'private'}))).status,400);
  assert.equal((await h.handler(req({version:1},'https://bad.example'))).status,403);
  assert.equal(h.calls.length,1);assert.deepEqual(h.calls[0].body,{p_origin:front});
+});
+
+test('intranet receives extended reports while older dashboards keep the legacy page contract',async()=>{
+ const intranet='https://kitz-intranet-prototype-v1.junho960809.chatgpt.site';
+ const h=harness({adminOrigins:[admin,intranet],fetchImpl:async(url:unknown,init?:RequestInit)=>{
+  const target=String(url);if(target.startsWith('https://api.github.com/'))return Response.json({permissions:{push:true}});
+  if(target.endsWith('kitsnode_intranet_page_timeline'))return Response.json([]);
+  if(target.endsWith('kitsnode_intranet_session_report'))return Response.json({landing:'site',rows:[],hourly:[],dateHours:[]});
+  if(target.endsWith('kitsnode_main_session_report'))return Response.json({landing:'site',rows:[]});
+  if(target.endsWith('kitsnode_basic_load_report'))return Response.json({timezone:'Asia/Seoul',days:7,rows:[]});
+  if(target.endsWith('kitsnode_analytics_report'))return Response.json({...report,kind:'extended'});
+  if(target.endsWith('kitsnode_analytics_legacy_report'))return Response.json({...report,kind:'legacy'});
+  throw Error(`unexpected endpoint ${target} ${String(init?.method)}`);
+ }});
+ const old=await h.handler(getReport());assert.equal(old.status,200);assert.equal((await old.json()).kind,'legacy');
+ const current=await h.handler(getReport(intranet));assert.equal(current.status,200);const body=await current.json();assert.equal(body.kind,'extended');assert.deepEqual(body.pageTimeline,[]);
 });
