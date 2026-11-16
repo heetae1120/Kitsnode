@@ -20,3 +20,8 @@ export function writeAnalyticsConsent(storage: ConsentStorage, value: Exclude<An
     return false;
   }
 }
+
+/** A refusal is asked again on a new page load; a saved opt-in is respected. */
+export function shouldShowAnalyticsBanner(consent: AnalyticsConsent, dismissed: boolean, settings: boolean): boolean {
+  return !dismissed && (consent !== 'allow' || settings);
+}

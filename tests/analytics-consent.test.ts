@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ANALYTICS_CONSENT_KEY, readAnalyticsConsent, writeAnalyticsConsent } from '../src/lib/analytics-consent';
+import { ANALYTICS_CONSENT_KEY, readAnalyticsConsent, writeAnalyticsConsent, shouldShowAnalyticsBanner } from '../src/lib/analytics-consent';
 
 test('consent fails closed unless an explicit saved choice is valid', () => {
   for (const value of [null, '', 'true', 'yes', '{"allow":true}', 'unknown']) {
@@ -52,3 +52,12 @@ test('v3 requires renewed permission and preserves previous refusals', () => {
 });
 
 test('v4 requires new consent and keeps v3 refusal',()=>{const old=(v:string)=>({getItem:(key:string)=>key==='kitsnode-analytics-consent-v3'?v:null,setItem(){}});assert.equal(readAnalyticsConsent(old('allow')),'unset');assert.equal(readAnalyticsConsent(old('deny')),'deny');});
+
+test('banner reappears for a refusal on the next load but preserves an opt-in', () => {
+  assert.equal(shouldShowAnalyticsBanner('unset', false, false), true);
+  assert.equal(shouldShowAnalyticsBanner('deny', true, false), false);
+  assert.equal(shouldShowAnalyticsBanner('deny', false, false), true);
+  assert.equal(shouldShowAnalyticsBanner('allow', false, false), false);
+  assert.equal(shouldShowAnalyticsBanner('allow', false, true), true);
+  assert.equal(shouldShowAnalyticsBanner('unset', false, false), true);
+});

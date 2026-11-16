@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { analyticsAllowed, canonicalAnalyticsPage, startVisitorAnalytics } from '@/lib/analytics';
-import { ANALYTICS_CONSENT_KEY, readAnalyticsConsent, writeAnalyticsConsent, type AnalyticsConsent } from '@/lib/analytics-consent';
+import { ANALYTICS_CONSENT_KEY, readAnalyticsConsent, writeAnalyticsConsent, shouldShowAnalyticsBanner, type AnalyticsConsent } from '@/lib/analytics-consent';
 import { classifyAttribution, UNKNOWN_ATTRIBUTION } from '@/lib/analytics-attribution';
 import styles from './visitor-analytics.module.css';
 import {clearSurveyAttempt} from '@/lib/analytics-survey-funnel';
@@ -29,6 +29,7 @@ export function VisitorAnalytics() {
   const [consent, setConsent] = useState<AnalyticsConsent>('unset');
   const [available, setAvailable] = useState(false);
   const [settings, setSettings] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [saved, setSaved] = useState(true);
   const consentRef = useRef<AnalyticsConsent>('unset');
   const stopRef = useRef<null | ((navigation?: boolean) => void)>(null);
@@ -55,6 +56,7 @@ export function VisitorAnalytics() {
 
   useEffect(() => {
     if (navigation.current.pathname !== pathname) navigation.current = {pathname, internal: true};
+    if (new URLSearchParams(window.location.search).get('analytics_settings') === '1') { setDismissed(false); setSettings(true); }
     setAvailable(trackedSitePage(pathname) && eligible());
   }, [pathname]);
 
@@ -92,13 +94,13 @@ export function VisitorAnalytics() {
     setSaved(writeAnalyticsConsent(storage(), value));
     setConsent(value);
     setSettings(false);
+    setDismissed(true);
   };
 
   if (!available) return null;
-  if (consent !== 'unset' && !settings) return <div className={styles.settingsWrap}>
-    {!saved && <p role="status">선택을 저장하지 못했습니다. 이번 탭에만 적용되며, 다시 열면 분석 설정을 확인해 주세요.</p>}
-    <button type="button" className={styles.settings} onClick={() => setSettings(true)}>방문 분석 설정</button>
-  </div>;
+  if (!shouldShowAnalyticsBanner(consent, dismissed, settings)) {
+    return !saved ? <p role="status" className={styles.saveWarning}>선택을 저장하지 못했습니다. 이번 탭에만 적용되며, 다시 열면 분석 설정을 확인해 주세요.</p> : null;
+  }
   return <aside className={styles.banner} aria-labelledby="analytics-title">
     <div className={styles.content}>
       <h2 id="analytics-title">더 나은 키츠노드를 위해 방문 분석에 동의해 주세요.</h2>
