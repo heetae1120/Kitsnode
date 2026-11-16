@@ -9,6 +9,7 @@ import {ContainerScroll} from './ui/container-scroll-animation';
 import {KeywordBudgetReport} from './keyword-budget-report';
 import {marketingPlan,salesFundedMarketingPlan,type MarketingPlanInput} from '@/lib/marketing-plan';
 import {ReorderTimeline} from './reorder-timeline';
+import {GoalInvitation} from './goal-invitation';
 const tone=(value:number)=>value<0?'mp-negative':value>0?'mp-positive':'mp-neutral';
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
 type Props={initialPage?:0|1;name:string;months:number;input:MarketingPlanInput;result:ReturnType<typeof marketingPlan>;onEdit:()=>void;onMoreCosts:()=>void;exampleFields?:string[]};
@@ -34,7 +35,7 @@ export function BeginnerProfitReport({initialPage=0,name,months,input,onEdit,onM
    <details className="mp-story-details"><summary>한 개당 비용 보기</summary><dl className="mp-breakdown">{([['상품 구매·제조비',input.cost],['판매 수수료',r.fee],['배송·물류비',input.logistics],['포장·기타 비용',input.packaging],['반품 예상 비용',input.returns],...(r.fixed>0?[['나눠 반영한 고정비',r.fixed/input.quantity]]:[])] as [string,number][]).map(([label,value])=><div key={label}><dt>{label}</dt><dd className={tone(value)}>{money(value)}</dd></div>)}</dl></details>
   </section></div>
   <ReorderTimeline quantity={input.quantity} months={months}/>
-  <section id="report-budget" className="mp-story-chapter mp-goal-invitation"><h2>당신은 <em>{months}개월</em> 동안<br/><strong>{money(r.profitRoom)}</strong>을 벌려고 하는 거예요.</h2><p>이게 가능한지, 이것도 어려운지는 이제 확인해볼까요?</p></section>
+  <GoalInvitation months={months} profit={r.profitRoom}/>
   </ReportTabletSlides></ContainerScroll></section></>} keywords={<>
   <section id="report-keywords" className="mp-story-chapter"><div className="mp-story-heading"><span><Search size={18}/> 검색어 고르기</span><h2>어떤 검색어로<br/><em>홍보할까요?</em></h2><p>내 상품과 맞는지, 클릭 비용은 얼마인지 확인하세요.</p></div><KeywordBudgetReport budgetContext={{basis:'sales',available:r.sales,reserved:r.reserved,cashRoom:r.cashRoom,profitRoom:r.profitRoom}} productName={name} perOrder={r.perOrder} budget={r.marketing} quantity={input.quantity} months={months}/></section>
   <section id="report-breakeven" className="mp-story-chapter"><div className="mp-story-heading"><span>본전 판매량</span><h2>마케팅비용까지 돌려받으려면<br/><em>몇 개를 팔아야 할까요?</em></h2></div><section className="mp-story-summary mp-breakeven-lower" aria-label="본전을 위한 최소 판매량">{r.breakEvenUnits===null?<><h2>지금 비용으로는<br/>본전을 찾기 어려워요.</h2><p>{problem}</p></>:<><p>마케팅비용을 최대 {money(r.marketing)} 쓴다면</p><h2>최소 <strong>{r.breakEvenUnits.toLocaleString('ko-KR')}<small>개</small></strong>를 팔아야 본전이에요.</h2>{r.breakEvenUnits>input.quantity&&<p className="mp-story-alert">계획한 수량을 모두 팔아도 부족해요.</p>}</>}</section><details className="mp-story-details"><summary>본전은 어떻게 계산했나요?</summary><p>(고정비 + 마케팅비용 최대 금액) ÷ 한 개당 남는 금액. 소수점은 올려요.</p><p>광고 매출은 광고비의 {r.breakEvenRoas===null?'계산 불가':`${(r.breakEvenRoas/100).toLocaleString('ko-KR',{maximumFractionDigits:2})}배`} 이상이어야 본전이에요. 이 비율을 손익분기 ROAS라고 해요.</p></details></section>
