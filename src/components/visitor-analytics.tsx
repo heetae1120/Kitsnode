@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { analyticsAllowed, canonicalAnalyticsPage, startVisitorAnalytics } from '@/lib/analytics';
 import { ANALYTICS_CONSENT_KEY, readAnalyticsConsent, writeAnalyticsConsent, type AnalyticsConsent } from '@/lib/analytics-consent';
 import { classifyAttribution, UNKNOWN_ATTRIBUTION } from '@/lib/analytics-attribution';
@@ -31,6 +32,13 @@ export function VisitorAnalytics() {
   const [saved, setSaved] = useState(true);
   const consentRef = useRef<AnalyticsConsent>('unset');
   const stopRef = useRef<null | ((navigation?: boolean) => void)>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const showDialog = available && (consent === 'unset' || settings);
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (showDialog && dialog && !dialog.open) dialog.showModal();
+    return () => { if (dialog?.open) dialog.close(); };
+  }, [showDialog]);
   useEffect(() => {
     if (initialLoadChecked.current) return;
     initialLoadChecked.current = true;
@@ -98,16 +106,24 @@ export function VisitorAnalytics() {
     {!saved && <p role="status">선택을 저장하지 못했습니다. 이번 탭에만 적용되며, 다시 열면 분석 설정을 확인해 주세요.</p>}
     <button type="button" className={styles.settings} onClick={() => setSettings(true)}>방문 분석 설정</button>
   </div>;
-  return <aside className={styles.panel} aria-label="선택적 방문 분석 설정">
-    <strong>서비스 개선을 위한 방문 분석</strong>
-    <p>사이트 운영을 위해 브라우저가 사이트를 연 횟수를 기본 통계로 집계합니다. 기본 통계는 Supabase kits(일본)에 날짜별 합계로 저장하며, 식별자, 페이지 주소, 유입 경로를 보내지 않습니다. 새로고침이나 새 탭은 별도 집계되며, 거부를 선택하거나 브라우저 추적 거부 설정을 켜면 이후 기본 통계도 수집하지 않습니다.</p>
-    <p>허용하면 페이지 체류시간, 유입 출처·매체의 제한된 분류, 캠페인 태그 유무, 설문 단계별 도달·이탈과 작성 시간·마지막 입력 항목 이름을 Supabase kits(일본)에 저장합니다. 사이트 접속 세션을 집계하기 위해 이 탭의 임시 식별자를 사용합니다. 30분간 활동이 없으면 새 세션으로 계산하며 탭을 닫으면 식별자가 사라집니다. 전체 주소·검색어·UTM 원문·캠페인 이름·답변 내용·이름·연락처는 보내지 않습니다.</p>
-    <p>상세 분석 기록은 90일이 지나면 매일 삭제하고, 기본 일별 합계는 최근 90일간 보관합니다. 거부해도 모든 도구를 사용할 수 있고, ‘방문 분석 설정’에서 언제든 이후 수집을 중단할 수 있습니다. 허용·거부 선택은 브라우저에, 임시 세션·설문 식별자와 마지막 활동 시각은 현재 탭에 저장됩니다. 이미 전송된 기록은 개인을 다시 식별해 찾아낼 수 없습니다.</p>
-    {!saved && <p role="status">브라우저 저장이 차단되어 선택은 이번 탭에만 적용됩니다. 다시 열면 분석 설정을 확인해 주세요.</p>}
-    <div className={styles.actions}>
-      <button type="button" onClick={() => choose('deny')}>거부</button>
-      <button type="button" onClick={() => choose('allow')}>상세 분석 허용</button>
-      {consent !== 'unset' && <button type="button" onClick={() => setSettings(false)}>닫기</button>}
+  return <dialog ref={dialogRef} className={styles.panel} aria-labelledby="analytics-title" onCancel={(event) => event.preventDefault()}>
+    <div className={styles.content}>
+      <header className={styles.header}>
+        <span className={styles.badge}>선택 동의</span>
+        <h2 id="analytics-title">서비스 개선을 위한<br />방문 분석</h2>
+        <p>더 편리한 키츠노드를 만들기 위해 사이트 이용 현황을 분석합니다.</p>
+      </header>
+      <dl className={styles.details}>
+        <div><dt>이용 목적</dt><dd>방문과 이용 흐름을 살펴보고 서비스를 개선합니다.</dd></div>
+        <div><dt>수집 항목</dt><dd>방문 페이지, 표시·활동 시간, 유입 출처와 매체, 캠페인 태그 유무, 설문 진행·이탈 단계와 작성 시간, 마지막 입력 항목 이름을 수집합니다. 답변 내용과 이름·연락처는 방문 분석에 포함하지 않습니다. 이용 흐름을 집계하기 위해 현재 탭에 임시 세션·설문 식별자를 사용하며, 30분 동안 활동이 없으면 새 세션으로 계산합니다.</dd></div>
+        <div><dt>보관 및 관리</dt><dd>상세 분석 기록은 90일이 지나면 매일 삭제합니다. 수집한 정보는 안전하게 관리하며, 보관 및 처리에 관한 자세한 내용은 개인정보 처리방침에서 확인할 수 있습니다. <Link href="/privacy/" target="_blank" rel="noopener noreferrer">개인정보 처리방침 보기 <span aria-hidden="true">↗</span></Link></dd></div>
+        <div><dt>동의와 선택</dt><dd>동의하지 않아도 서비스를 이용할 수 있으며, 언제든 ‘방문 분석 설정’에서 변경할 수 있습니다. 선택은 이 브라우저에 저장됩니다.</dd></div>
+      </dl>
+      {!saved && <p role="status" className={styles.warning}>브라우저 저장이 차단되어 선택은 이번 탭에만 적용됩니다. 다시 열면 분석 설정을 확인해 주세요.</p>}
     </div>
-  </aside>;
+    <div className={styles.actions}>
+      <button type="button" className={styles.reject} onClick={() => choose('deny')}>동의하지 않음</button>
+      <button type="button" className={styles.accept} onClick={() => choose('allow')}>동의하기</button>
+    </div>
+  </dialog>;
 }
