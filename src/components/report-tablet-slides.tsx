@@ -30,7 +30,7 @@ export function ReportTabletSlides({children}:{children:ReactNode}){
   <nav className="kn-tablet-slide-actions" aria-label="진단 결과 넘기기">
    <button type="button" className="mp-secondary" disabled={page===0} onClick={()=>move(page-1)}><ArrowLeft size={16}/>이전</button>
    <span aria-live="polite">{page+1} / {slides.length}</span>
-   <button type="button" className="mp-primary" onClick={()=>last?finish():move(page+1)}>{last?"진단 이어가기":"다음 페이지"}<ArrowRight size={16}/></button>
+   <button type="button" className="mp-primary" onClick={()=>last?finish():move(page+1)}>{last?'이 목표에 맞는 검색어를 찾아볼까요?':page===0?'그럼 재고는 어떨까요?':'이제 판매 목표를 확인해볼까요?'}<ArrowRight size={16}/></button>
   </nav>
  </div>;
 }

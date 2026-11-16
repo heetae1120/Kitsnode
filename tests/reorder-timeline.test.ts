@@ -10,3 +10,10 @@ test('late lead time requires immediate ordering and zero lead time orders at de
  const instant=reorderTimeline(100,1,0)!;assert.equal(instant.reorderDay,30);assert.equal(instant.stockAtReorder,0);
  for(const args of [[0,1,14],[10,0,14],[10,121,14],[10,2,-1],[10,2,1.5],[10,2,Infinity]])assert.equal(reorderTimeline(...args as [number,number,number]),null);
 });
+test('recommended order date precedes the deadline with an explicit bounded buffer',()=>{
+ const regular=reorderTimeline(200,2,14)!;
+ assert.equal(regular.reorderDay,46);assert.equal(regular.bufferDays,4);assert.equal(regular.recommendedDay,42);
+ assert.equal(reorderTimeline(200,2,40)!.bufferDays,7);
+ assert.equal(reorderTimeline(200,1,60)!.recommendedDay,0);
+ const instant=reorderTimeline(200,2,0)!;assert.equal(instant.bufferDays,0);assert.equal(instant.recommendedDay,60);
+});

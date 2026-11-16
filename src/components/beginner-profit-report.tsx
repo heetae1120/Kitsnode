@@ -31,7 +31,6 @@ export function BeginnerProfitReport({initialPage=0,name,months,input,onEdit,onM
    <section id="report-sales" className="mp-story-chapter mp-unit-summary" aria-labelledby="unit-profit-title">
    <h2 id="unit-profit-title">한 개 팔면 내 손에 얼마가 남을까요?</h2>
    <div className="mp-story-sale"><div><span>판매가</span><b>{money(input.price)}</b></div><span>−</span><div><span>모든 판매 비용</span><b>{money(r.variable)}</b></div><span>=</span><div><span>홍보 전 개당 이익</span><b className={tone(r.margin)}>{money(r.margin)}</b></div></div>
-   <p className="kn-profit-next">{r.margin > 0 ? "이제 남은 이익으로 무엇을 할 수 있을까요?" : "이제 다음 판매를 어떻게 준비할지 살펴볼까요?"}</p>
    <details className="mp-story-details"><summary>한 개당 비용 보기</summary><dl className="mp-breakdown">{([['상품 구매·제조비',input.cost],['판매 수수료',r.fee],['배송·물류비',input.logistics],['포장·기타 비용',input.packaging],['반품 예상 비용',input.returns],...(r.fixed>0?[['나눠 반영한 고정비',r.fixed/input.quantity]]:[])] as [string,number][]).map(([label,value])=><div key={label}><dt>{label}</dt><dd className={tone(value)}>{money(value)}</dd></div>)}</dl></details>
   </section></div>
   <ReorderTimeline quantity={input.quantity} months={months}/>

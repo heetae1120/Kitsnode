@@ -12,6 +12,7 @@ import {marketingPlan,budgetPurchaseCapacity,type MarketingPlanInput} from '@/li
 import {plannerExamples} from '@/lib/planner-examples';
 import {plannerMarketFees} from '@/lib/planner-market-fees';
 import {plannerLiveCosts} from '@/lib/planner-live-costs';
+import {useDiagnosisInputGuide} from './use-diagnosis-input-guide';
 import '@/app/tools/marketing-planner.css';
 import '@/app/tools/diagnosis-studio.css';
 
@@ -45,6 +46,8 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const focus=useRef<HTMLElement>(null);
  const choiceHeading=useRef<HTMLHeadingElement>(null);
  const goalDialog=useRef<HTMLDialogElement>(null);
+ const guideRoot=useRef<HTMLDivElement>(null);
+ const guideMessage=useDiagnosisInputGuide(guideRoot,selectedMode!==null,JSON.stringify([draft,step,market]));
  const previewStage = useDraftPreviewStage(initialMode === 'player' ? '/tools/player/' : '/tools/');
  useEffect(()=>{if(previewStage&&previewStage!=='choice'){const n=previewStage==='3-keywords'?3:Number(previewStage);if(n>=3)setReport(previewReport);setStep(n);}},[previewStage]);
  const update=(key:keyof Draft,value:string)=>{setDraft(previous=>({...previous,[key]:value}));setExampleFields(keys=>keys.filter(field=>field!==key));setError('');};
@@ -94,7 +97,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
    </div>
   </main>
  </div>;
- return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow" data-preview-stage={step===3&&report&&previewStage==='3-keywords'?'3-keywords':String(step)} data-diagnosis-stage={step}>
+ return <div ref={guideRoot} className="finance-dashboard mp-shell diagnosis-studio ds-flow" data-preview-stage={step===3&&report&&previewStage==='3-keywords'?'3-keywords':String(step)} data-diagnosis-stage={step}>
   <DiagnosisHeader mode={mode} onChoose={()=>{setSelectedMode(null);requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>
   {step<3&&<aside className={`mp-live-bar ${live&&live.profit<0?'is-loss':''}`} aria-label="실시간 상품 손익" aria-live="polite">
    <div className="mp-live-values">
@@ -107,12 +110,13 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
    {live&&live.profit<0&&<p role="alert"><TriangleAlert size={16}/>한 개 팔 때 {money(-live.profit)} 손해입니다.</p>}
   </aside>}
   <main className="mp-main">
+   <p className="ds-input-guide" role="status" aria-live="polite">{guideMessage}</p>
    {step<3&&<header className="mp-intro"><p className="ds-eyebrow">{mode==='player'?'플레이어 / 다음 광고 준비':'스타터 / 첫 판매 준비'}</p><p>입력한 숫자로 살펴보는 내 사업의 현재와 다음.</p></header>}
    {step<=3&&<ol className="mp-steps" aria-label="분석 진행 단계">{['상품과 자금','빠뜨린 비용','진단 결과'].map((label,index)=><li key={label} aria-current={step===index+1?'step':undefined} data-complete={step>index+1||undefined}><span className="mp-step-number">{step>index+1?<Check size={24}/>:String(index+1).padStart(2,'0')}</span><div><small>{String(index+1).padStart(2,'0')} 단계</small><b>{label}</b></div></li>)}</ol>}
    <section ref={focus} tabIndex={-1} className={`mp-workspace ${step>=3?'mp-workspace-report':'mp-ipad'}`} aria-label={step>=3?'수익성 평가 보고서':'수익성 분석 입력'}>
     {step<3&&<span className="mp-ipad-camera" aria-hidden="true"/>}
     {step<3?<AnimatePresence mode="wait" initial={false} custom={direction}><motion.form key={step} custom={direction} initial="enter" animate="center" exit="leave" variants={{enter:(d:number)=>({x:reducedMotion?0:d*80,opacity:reducedMotion?1:0,filter:reducedMotion?'none':'blur(4px)'}),center:{x:0,opacity:1,filter:'blur(0px)'},leave:(d:number)=>({x:reducedMotion?0:-d*60,opacity:reducedMotion?1:0,filter:reducedMotion?'none':'blur(3px)',pointerEvents:'none' as const})}} transition={{duration:reducedMotion?0:0.28,ease:[0.22,1,0.36,1]}} onSubmit={submit} noValidate>
-     <div className="mp-section-heading"><div><span>{step===1?'01 / PRODUCT & CAPITAL':'02 / COST STRUCTURE'}</span><motion.h1 initial={reducedMotion?false:{clipPath:'inset(100% 0 0)',y:16}} animate={{clipPath:'inset(0)',y:0}} transition={{duration:.4,ease:[.22,1,.36,1]}}>{step===1?<>판매하기 전,<br/>숫자부터 확인하세요.</>:<>놓치고 있던 비용까지,<br/>확인해볼까요?</>}</motion.h1><p>{step===1?'상품과 비용을 입력하고 실제 수익 구조를 살펴보세요.':'판매에 필요한 비용을 하나씩 점검하고 수익 구조를 살펴봅니다.'}</p></div><motion.svg className="ds-flow-symbol" viewBox="0 0 120 120" aria-hidden="true" initial={reducedMotion?false:{rotate:-65,scale:.85}} animate={{rotate:0,scale:1}} transition={{duration:.6,ease:[.22,1,.36,1]}}><circle cx="60" cy="60" r="43" fill="none" stroke="currentColor" strokeWidth="18" strokeDasharray="43 24"/><circle cx="60" cy="60" r="11" fill="currentColor"/></motion.svg></div>
+     <div className="mp-section-heading"><div><span>{step===1?'01 / PRODUCT & CAPITAL':'02 / COST STRUCTURE'}</span><motion.h1 initial={reducedMotion?false:{clipPath:'inset(100% 0 0)',y:16}} animate={{clipPath:'inset(0)',y:0}} transition={{duration:.4,ease:[.22,1,.36,1]}}>{step===1?'판매 전, 수익부터 확인하세요.':'놓친 비용도 확인해보세요.'}</motion.h1></div><motion.svg className="ds-flow-symbol" viewBox="0 0 120 120" aria-hidden="true" initial={reducedMotion?false:{rotate:-65,scale:.85}} animate={{rotate:0,scale:1}} transition={{duration:.6,ease:[.22,1,.36,1]}}><circle cx="60" cy="60" r="43" fill="none" stroke="currentColor" strokeWidth="18" strokeDasharray="43 24"/><circle cx="60" cy="60" r="11" fill="currentColor"/></motion.svg></div>
      {step===1&&<>
       <div className="ds-product-capital"><label className="mp-name"><span className="ds-group-index">01 / 상품 기본 정보</span>품목<input value={draft.name} onChange={event=>update('name',event.target.value)} placeholder="예: 가습기, 시계, 손난로" maxLength={100}/></label>
       <div className="mp-plan-row mp-plan-budget-only">
@@ -120,14 +124,15 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
       </div></div>
      </>}
      <div className="ds-input-group"><div className="ds-group-heading"><span className="ds-group-index">{step===1?'03 / 판매 조건':'COST CHECKLIST'}</span><p>{step===1?'가격과 수량을 함께 확인하세요.':'실제 비용을 알면 입력하고, 모르면 참고값으로 시작하세요.'}</p></div><div className={`mp-fields ${step===1?'mp-fields-basic':''}`}>
-      {(step===1?basics:extras).map(([key,label,unit])=><div className="mp-field" key={key}>
+      {(step===1?basics:extras).map(([key,label,unit])=><div className="mp-field" key={key} data-guide-field={key==='feePercent'?'판매 수수료':undefined} data-guide-complete={key==='feePercent'?Boolean(market&&draft.feePercent!==''):undefined}>
        <div className="mp-field-label">{key==='feePercent'&&market!=='other'?<span>{label}</span>:<label htmlFor={`mp-${key}`}>{label}</label>}<PlannerCostHelp field={key} label={label}/></div>
        {key==='feePercent'&&<div className="mp-market-options" role="group" aria-label="판매 플랫폼">{plannerMarketFees.map(item=><button type="button" key={item.id} aria-pressed={market===item.id} onClick={()=>{setMarket(item.id);update('feePercent',item.rate);setExampleFields(keys=>[...new Set([...keys,'feePercent'])]);}}><span className={`mp-market-icon mp-market-${item.id}`} aria-hidden="true">{item.mark}</span><b>{item.name}</b><small>참고 {item.rate}%</small></button>)}<button type="button" aria-pressed={market==='other'} onClick={()=>{setMarket('other');update('feePercent','');}}><span className="mp-market-icon" aria-hidden="true">+</span><b>그 외</b><small>직접 입력</small></button></div>}
        {(key!=='feePercent'||market==='other')&&<div className="mp-input-wrap"><FormattedNumberInput id={`mp-${key}`} aria-describedby={key==='quantity'?'mp-quantity-capacity':undefined} value={draft[key]} onValueChange={value=>update(key,value)} placeholder={key==='quantity'?'수량 입력':unit==='%'?'비율 입력':'금액 입력'}/><span>{unit}</span></div>}
        {key==='quantity'&&<p id="mp-quantity-capacity" className="mp-quantity-capacity" aria-live="polite">{purchaseCapacity!==null?<>현재 예산으로 최대 <b>{purchaseCapacity.toLocaleString('ko-KR')}개</b> 구매 가능<small>상품 원가 기준 · 배송 등 추가 비용 제외</small></>:draft.cost!==''&&Number(draft.cost)===0?'원가가 0원이면 최대 구매수량을 계산할 수 없어요.':'예산과 상품 원가를 입력하면 구매 가능 수량을 확인할 수 있어요.'}</p>}
        {key==='feePercent'&&selectedMarket&&<p className="mp-market-applied">{selectedMarket.name} 참고율 <strong>{draft.feePercent}%</strong> 적용</p>}
+       {step===2&&key==='feePercent'&&<div className="mp-quick-costs"><button type="button" data-guide-example onClick={()=>{setMarket('other');useExample('feePercent');}}>참고값 넣기</button><small>간편 계산용 7% · 실제 수수료와 다를 수 있어요.</small></div>}
        {step===2&&key!=='feePercent'&&<div className="mp-quick-costs"><button type="button" onClick={()=>useExample(key as keyof typeof plannerExamples)}>참고값 넣기</button><button type="button" onClick={()=>update(key,'0')}>{key==='returnRate'?'예상수량 없음':'비용 없음 · 0원'}</button>{exampleFields.includes(key)&&<small>참고값 적용</small>}</div>}
-       {key==='returnRate'&&Number(draft.returnRate)>0&&<div className="mp-return-handling"><div className="mp-field-label"><label htmlFor="mp-returnHandling">반품 한 건 처리비</label><PlannerCostHelp field="returnHandling" label="반품 한 건 처리비"/></div><div className="mp-input-wrap"><FormattedNumberInput id="mp-returnHandling" value={draft.returnHandling} onValueChange={value=>update('returnHandling',value)} placeholder="처리비 입력"/><span>원 / 건</span></div><p>개당 반품 비용: {returnCostMissing?'처리비 입력 필요':live?money(live.returns):'—'}</p></div>}
+       {key==='returnRate'&&Number(draft.returnRate)>0&&<div className="mp-return-handling"><div className="mp-field-label"><label htmlFor="mp-returnHandling">반품 한 건 처리비</label><PlannerCostHelp field="returnHandling" label="반품 한 건 처리비"/></div><div className="mp-input-wrap"><FormattedNumberInput id="mp-returnHandling" value={draft.returnHandling} onValueChange={value=>update('returnHandling',value)} placeholder="처리비 입력"/><span>원 / 건</span></div><div className="mp-quick-costs"><button type="button" data-guide-example onClick={()=>useExample('returnHandling')}>참고값 넣기</button><button type="button" onClick={()=>update('returnHandling','0')}>비용 없음 · 0원</button></div><p>개당 반품 비용: {returnCostMissing?'처리비 입력 필요':live?money(live.returns):'—'}</p></div>}
       </div>)}
      </div>
      </div>

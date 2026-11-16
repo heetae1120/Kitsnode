@@ -7,3 +7,11 @@ Starter begins its completed report at profit/budget. Player begins at keyword/a
 `diagnosis-studio.css` scopes the hero's black/orange/warm-white typography, flat cards, focus states, inputs, modals, report reader, reorder visualization and preparation screens to `MarketingPlanner`. Other tools retain their styles. The dedicated header links back to the hero and exposes mode selection instead of the old tools navigation.
 
 Verification covers both choices, changing mode, empty-field validation, product/budget entry, platform and ancillary costs, goal duration, calculated profit, report pagination, reorder visualization and 390px layout. Example: price 30,000, unit cost 12,000, quantity 100, fee 6%, packaging 1,000, logistics 3,000 and no returns yields 12,200 per item and 1,220,000 before advertising. Existing automated tests verify the unchanged calculations.
+
+## Guided inputs and report chapters
+
+The first unanswered visible input is outlined in orange across the selected diagnosis, cost step, goal dialog and report forms. Focus remains with the person typing. After ten seconds without input, the active reference-value control becomes orange and an adjacent hint explains how to use it. Entering a value, applying a reference, changing steps or leaving the journey clears the previous timer and emphasis. Reference fees and return-handling examples are explicitly marked as assumptions.
+
+Report chapter buttons span the content width and describe the next chapter. The redundant overview-to-keyword button is removed; the last chapter's continuation and report tabs retain navigation. The signup notice ignores stale close events from a cleanup/reopen cycle.
+
+Reorder planning uses a static green/red horizontal timeline. Deadline = target days minus lead time, clamped to zero. Recommended date = deadline minus a planning buffer of 25% of lead days (rounded up, at most seven days), clamped to zero. The screen labels both dates and exposes this assumption. Zero lead time and lead times exceeding the selling period are supported. This is a steady-sales plan, not an inventory forecast or guarantee.
