@@ -133,3 +133,165 @@ body .profit-tool .finance-dashboard.mp-shell.diagnosis-studio .mp-primary{backg
 }
 @media(prefers-reduced-motion:reduce){.profit-tool .mp-shell.diagnosis-studio *{transition:none!important;animation:none!important}.ds-choice-card:hover,.ds-choice-card:hover .ds-choice-art{transform:none}}
 @media print{body:has(.diagnosis-studio){background:white;color:black}.profit-tool .mp-shell.diagnosis-studio .ds-header{display:none}.profit-tool .mp-shell.diagnosis-studio{background:white;color:black}.profit-tool .mp-shell.diagnosis-studio :is(.mp-story,.mp-story h1,.mp-story h2,.mp-story h3,.mp-story p,.mp-story small,.mp-scroll-card,.mp-scroll-card>div,.kn-tablet-slide,.kn-tablet-slide-screen,.mp-plan-recap>div,.mp-profit-before,.mp-profit-after,.mp-unit-summary,.mp-reorder){background:white;color:black}.profit-tool .mp-shell.diagnosis-studio .mp-primary{display:none}}
+
+/* Selected diagnosis only: editorial input and result layout. */
+/* Limited to the existing starter/player diagnosis. No shared navigation or hero rules. */
+@media screen {
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow {--green:#ff5a1f;--ink:#f5f2eb;--muted:#a6a6a6;--line:#353535;background:#0b0b0b;color:#f5f2eb;min-height:100svh}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-main{max-width:1180px;padding:48px 32px 80px}
+
+body .mp-shell.diagnosis-studio.ds-flow .mp-live-bar{background:#171717;border-block:1px solid #353535;box-shadow:none;color:#f5f2eb}
+body .mp-shell.diagnosis-studio.ds-flow .mp-live-values{max-width:1116px;margin:auto}
+body .mp-shell.diagnosis-studio.ds-flow .mp-live-values>span{color:#a6a6a6;border-color:#353535;font-size:12px;padding:16px 20px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-live-values b{color:#f5f2eb;font-size:clamp(18px,2vw,27px);font-variant-numeric:tabular-nums;letter-spacing:-.04em;overflow-wrap:anywhere}
+body .mp-shell.diagnosis-studio.ds-flow .mp-live-values>span:nth-child(4) b{color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin:0 0 48px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-steps li{position:relative;border:0;border-top:2px solid #353535;border-radius:0;background:transparent;box-shadow:none;padding:18px 0;color:#a6a6a6;transition:border-color .3s,color .3s}
+body .mp-shell.diagnosis-studio.ds-flow .mp-steps li[aria-current]{color:#ff5a1f;border-color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-steps li[data-complete]{color:#f5f2eb;border-color:#777}
+body .mp-shell.diagnosis-studio.ds-flow .mp-step-number{background:transparent!important;border:0!important;color:inherit!important;box-shadow:none;width:32px;height:36px;font-size:24px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-steps small{color:inherit;font-size:10px;letter-spacing:.12em}
+body .mp-shell.diagnosis-studio.ds-flow .mp-steps b{font-size:15px;color:inherit}
+body .mp-shell.diagnosis-studio.ds-flow .mp-workspace{background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;overflow:visible}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-ipad-camera,.mp-ipad-home,.mp-report-camera,.mp-report-home){display:none}
+body .mp-shell.diagnosis-studio.ds-flow .mp-workspace>form{padding:0;background:transparent}
+body .mp-shell.diagnosis-studio.ds-flow .mp-section-heading{position:relative;padding:10px 130px 36px 0;margin-bottom:36px;border-bottom:1px solid #353535}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-section-heading>span,.ds-result-heading>span){font-size:11px;letter-spacing:.16em;color:#ff5a1f;font-weight:700}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-section-heading h2,.ds-result-heading h1){font-size:clamp(32px,4.5vw,64px);font-weight:750;line-height:1.16;letter-spacing:-.055em;margin:22px 0;color:#f5f2eb;animation:kn-diagnosis-reveal .4s cubic-bezier(.22,1,.36,1) both}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-section-heading p,.ds-result-heading p){font-size:15px;color:#a6a6a6;line-height:1.8}
+body .mp-shell.diagnosis-studio.ds-flow .mp-shell.diagnosis-studio.ds-flow-symbol{position:absolute;right:0;top:26px;width:100px;height:100px;color:#ff5a1f;animation:kn-diagnosis-turn .6s cubic-bezier(.22,1,.36,1) both}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-field-label,.mp-name,.mp-goal-dialog label){color:#f5f2eb;font-size:15px}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-name input,.mp-input-wrap input){background:#171717;color:#f5f2eb;border:1px solid #454545;border-radius:4px;min-height:64px;font-size:20px;box-shadow:none}
+body .mp-shell.diagnosis-studio.ds-flow input::placeholder{color:#828282;font-size:16px}
+body .mp-shell.diagnosis-studio.ds-flow input:focus-visible{outline:2px solid #ff5a1f;outline-offset:3px}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-input-wrap>span,.mp-field>p,.mp-quantity-capacity,.mp-quantity-capacity small){color:#a6a6a6;font-size:13px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-fields{gap:36px 32px}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-budget-input,.mp-return-handling){background:transparent;border:0;border-radius:0;padding:0;box-shadow:none}
+body .mp-shell.diagnosis-studio.ds-flow .mp-plan-row{margin-block:28px 36px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-sales-summary{border-block:1px solid #353535;padding:28px 0;margin-top:32px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-sales-summary b{font-size:clamp(26px,3vw,40px);color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-sales-summary span{color:#a6a6a6}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-primary){background:#ff5a1f!important;color:#0b0b0b!important;border:1px solid #ff5a1f!important;border-radius:4px;min-height:52px;font-size:15px;box-shadow:none;font-weight:750}
+body .mp-shell.diagnosis-studio.ds-flow .mp-primary:hover{background:#ff7847!important}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-secondary,.mp-quick-costs button){background:#171717!important;color:#f5f2eb!important;border:1px solid #454545!important;box-shadow:none;border-radius:4px;min-height:44px}
+body .mp-shell.diagnosis-studio.ds-flow :is(button,summary,a):focus-visible{outline:2px solid #ff5a1f;outline-offset:4px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-market-options button{background:#171717;color:#f5f2eb;border-color:#454545;box-shadow:none;border-radius:4px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-market-options button[aria-pressed=true]{background:#2f1c15;border-color:#ff5a1f;color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-market-options small{color:#a6a6a6}
+body .mp-shell.diagnosis-studio.ds-flow .mp-market-icon{background:#353535!important;color:#f5f2eb!important}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-market-applied,.mp-quick-costs small){color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-actual-cost{background:#171717;border:1px solid #353535;border-radius:4px;padding:28px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-cost-change :is(small,b){color:#a6a6a6}
+body .mp-shell.diagnosis-studio.ds-flow .mp-cost-change strong{color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-error{background:#321a13;color:#ffb89f;border-left:3px solid #ff5a1f;font-size:15px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog{background:#171717;color:#f5f2eb;border:1px solid #454545;border-radius:8px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog::backdrop{background:#000b;backdrop-filter:blur(8px)}
+body .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog h2{color:#f5f2eb}
+body .mp-shell.diagnosis-studio.ds-flow .mp-story{background:transparent;color:#f5f2eb}
+body .mp-shell.diagnosis-studio.ds-flow .mp-story :is(p,small,dt,summary){color:#a6a6a6}
+body .mp-shell.diagnosis-studio.ds-flow .mp-story :is(h1,h2,h3,b,dd){color:#f5f2eb}
+body .mp-shell.diagnosis-studio.ds-flow .mp-story :is(em,.mp-positive,.mp-neutral){color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-negative{color:#ffb89f!important}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-scroll-card,.mp-report-keyword-screen){background:#171717;border:1px solid #454545;border-radius:8px;box-shadow:none}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-scroll-card>.bg-white,.kn-tablet-slide-screen,.kn-tablet-slide,.mp-tablet-budget,.mp-unit-summary,.mp-goal-invitation,.mp-reorder,.mp-keywords){background:#171717!important;color:#f5f2eb;border-color:#353535;box-shadow:none}
+body .mp-shell.diagnosis-studio.ds-flow :is(.kn-tablet-slide-screen){scrollbar-color:#666 #171717}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-profit-before,.mp-profit-after,.mp-story-summary,.mp-goal-check,.mp-conversion-stat,.mp-keyword-main,.mp-priority-action,.mp-brand-partner,.mp-keyword-candidates>li,.mp-story-sale,.mp-rank-reference,.mp-ranks,.mp-ad-tablet,.mp-ad-screen,.mp-ad-capture-placeholder,.kn-profit-next){background:#222!important;border-color:#454545!important;color:#f5f2eb;box-shadow:none;border-radius:6px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-profit-before strong{color:#f5f2eb}
+body .mp-shell.diagnosis-studio.ds-flow .mp-profit-after strong{color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-profit-after{border-left:3px solid #ff5a1f!important}
+body .mp-shell.diagnosis-studio.ds-flow .mp-story :is(.mp-story-flow,.mp-breakdown>div,.mp-plan-recap,.mp-story-details,.mp-story-footer,.mp-report-page-actions){border-color:#353535}
+body .mp-shell.diagnosis-studio.ds-flow .mp-story :is(.mp-report-page-nav button){background:#171717;color:#a6a6a6;border-color:#454545;box-shadow:none}
+body .mp-shell.diagnosis-studio.ds-flow .mp-story .mp-report-page-nav button[aria-current]{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-story :is(.mp-rank-reference strong,.mp-conversion-stat strong,.mp-keyword-candidates h4,.mp-keyword-candidates strong){color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .ds-result-heading{text-align:left}
+body .mp-shell.diagnosis-studio.ds-flow .mp-ad-screen img{background:white}
+body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart{background:#171717}
+body .mp-shell.diagnosis-studio.ds-flow .mp-actions{padding-block:12px;gap:12px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-cost-help{color:#ff5a1f;background:#2f1c15}
+}
+@media screen {
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-signup-dialog,.mp-help-popover,.mp-prep-card,.mp-prep-consult,.mp-prep-certificate){background:#171717;color:#f5f2eb;border:1px solid #454545;box-shadow:none}
+body .mp-shell.diagnosis-studio.ds-flow .mp-signup-dialog :is(h2,p){color:#f5f2eb}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-signup-icon,.mp-signup-close){background:#2f1c15;color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-signup-later,.mp-prep h2){color:#f5f2eb}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-compact-risk,.mp-keyword-over,.mp-story-alert){color:#ffb89f!important}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-compact-good,.mp-compact-unknown){color:#f5f2eb!important}
+body .mp-shell.diagnosis-studio.ds-flow .mp-goal-check.is-critical{border-left:3px solid #ff5a1f!important}
+body .mp-shell.diagnosis-studio.ds-flow .mp-keyword-candidates>li:has(.mp-compact-risk){background:#2c1b16!important}
+body .mp-shell.diagnosis-studio.ds-flow .mp-keyword-candidates>li:has(.mp-compact-good){background:#252525!important}
+body .mp-shell.diagnosis-studio.ds-flow .mp-story svg [stroke="#2b50ff"]{stroke:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart text{fill:#a6a6a6}
+body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart [stroke="#183d32"],body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart [stroke="#075f48"]{stroke:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart [stroke="#008664"]{stroke:#f5f2eb}
+body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart [stroke="#d2ddd7"],body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart [stroke="#324c41"]{stroke:#666}
+body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart [fill="#fff3df"]{fill:#302018}
+body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart [fill="#183d32"]{fill:#353535}
+body .mp-shell.diagnosis-studio.ds-flow .kn-stock-chart stop{stop-color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-reorder input{background:#222;color:#f5f2eb;border-color:#454545;accent-color:#ff5a1f}
+body .mp-shell.diagnosis-studio.ds-flow .mp-reorder :is(td,th){color:#f5f2eb;border-color:#454545}
+}
+@keyframes kn-diagnosis-reveal{from{opacity:0;clip-path:inset(100% 0 0);transform:translateY(16px)}to{opacity:1;clip-path:inset(0);transform:none}}
+@keyframes kn-diagnosis-turn{from{transform:rotate(-80deg);opacity:0}to{transform:rotate(0);opacity:1}}
+@media screen and (max-width:700px){
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-main{padding:28px 18px 48px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-live-bar{position:static}
+body .mp-shell.diagnosis-studio.ds-flow .mp-live-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:0}
+body .mp-shell.diagnosis-studio.ds-flow .mp-live-values>span{padding:12px;border-bottom:1px solid #353535}
+body .mp-shell.diagnosis-studio.ds-flow .mp-live-values>span:last-child{grid-column:1/-1}
+body .mp-shell.diagnosis-studio.ds-flow .mp-steps{gap:12px;margin-bottom:24px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-steps li{gap:4px;align-items:flex-start}
+body .mp-shell.diagnosis-studio.ds-flow .mp-steps b{font-size:12px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-step-number{font-size:18px;width:25px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-section-heading{padding-right:0}
+body .mp-shell.diagnosis-studio.ds-flow .mp-shell.diagnosis-studio.ds-flow-symbol{display:none}
+body .mp-shell.diagnosis-studio.ds-flow .mp-fields{grid-template-columns:1fr}
+body .mp-shell.diagnosis-studio.ds-flow .mp-market-options{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-market-options button{padding:12px 2px;min-width:0}
+body .mp-shell.diagnosis-studio.ds-flow .mp-market-options b{font-size:10px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-market-options small{font-size:10px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-profit-comparison{grid-template-columns:1fr}
+body .mp-shell.diagnosis-studio.ds-flow .mp-cost-change{display:flex;flex-wrap:wrap;gap:20px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-cost-change>span{flex:1 1 120px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-actions{position:static;flex-wrap:wrap}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-keyword-candidates,.mp-conversion-dashboard){grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){body .mp-shell.diagnosis-studio.ds-flow *,body .mp-shell.diagnosis-studio.ds-flow *::before{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+@media screen {
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-workspace.mp-ipad{padding:0;background:transparent;border:0}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-intro{display:flex;justify-content:space-between;gap:20px;padding-bottom:24px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-intro p{font-size:12px;margin:0}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-section-heading{display:flex;justify-content:space-between;align-items:center;padding:8px 0 40px;margin-bottom:36px}
+.ds-flow .mp-section-heading h1{font-size:clamp(36px,4.8vw,68px);line-height:1.15;font-weight:800;letter-spacing:-.055em;margin:24px 0;color:#f5f2eb}
+.ds-flow .mp-section-heading>div>span{font-size:11px;color:#ff5a1f;letter-spacing:.14em}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-flow-symbol{position:static;width:112px;flex:none;margin-left:24px;color:#ff5a1f}
+.ds-flow .ds-product-capital{display:grid;grid-template-columns:1.15fr 1fr;gap:64px;margin-bottom:48px;align-items:start}
+.ds-flow .ds-group-index{display:block;font-size:11px!important;letter-spacing:.08em;color:#a6a6a6;margin-bottom:24px;font-weight:600}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-plan-row{margin:0;display:block}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-budget-input{padding:0 0 0 28px;border:0;border-left:2px solid #ff5a1f;background:transparent}
+.ds-flow .ds-input-group{border-top:1px solid #353535;padding-top:28px}
+.ds-flow .ds-group-heading{display:flex;align-items:baseline;justify-content:space-between;gap:24px;margin-bottom:20px}
+.ds-flow .ds-group-heading p{font-size:13px;color:#a6a6a6}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fields-basic{grid-template-columns:repeat(3,minmax(0,1fr))}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fields:not(.mp-fields-basic)>.mp-field{border-top:1px solid #353535;padding-top:24px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-actions>.mp-primary{min-width:270px;padding:20px 32px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-steps{border:0;padding:0}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-profit-comparison{grid-template-columns:.8fr 1.2fr}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-profit-after strong{font-size:clamp(34px,4.5vw,64px);overflow-wrap:anywhere}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-profit-before strong{font-size:clamp(27px,3vw,42px);overflow-wrap:anywhere}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-result-heading{text-align:left}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-values{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0}
+}
+@media screen and (max-width:700px){
+.ds-flow .ds-product-capital{grid-template-columns:1fr;gap:16px;margin-bottom:32px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-budget-input{padding:16px 0 16px 16px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fields-basic{grid-template-columns:1fr}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-values{grid-template-columns:repeat(2,minmax(0,1fr))}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-values>span{min-width:0;white-space:normal}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-values>span:last-child{grid-column:1/-1}
+.ds-flow .ds-group-heading{display:block}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-intro>p:last-child{display:none}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-flow-symbol{display:none}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-profit-comparison{grid-template-columns:1fr}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-actions>.mp-primary{min-width:0;width:100%}
+}
