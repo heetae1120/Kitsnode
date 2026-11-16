@@ -68,10 +68,10 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
     <h2 id="auth-title">{heading}</h2>
     {mode === 'signup' && canSignup && <p>이메일 인증 후 로그인하면 회원 이용 안내를 다시 확인합니다.</p>}
     {signedIn && !recovery ? <button type="button" disabled={busy} onClick={() => void execute(() => auth.signOut())}>로그아웃</button> : <form onSubmit={submit}>
-      {mode !== 'update' && <label>이메일<input type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>}
-      {mode !== 'reset' && <label>비밀번호<input type="password" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} required minLength={8} value={password} onChange={event => setPassword(event.target.value)} disabled={busy} /></label>}
+      {mode !== 'update' && <label>이메일<input data-auth-edit="email-input" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>}
+      {mode !== 'reset' && <label>비밀번호<input data-auth-edit="password-input" type="password" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} required minLength={8} value={password} onChange={event => setPassword(event.target.value)} disabled={busy} /></label>}
       {mode === 'signup' && canSignup && signupConsent && <fieldset><legend>가입 안내 확인</legend><label><input type="checkbox" checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} required disabled={busy} /> <a href={signupConsent.terms.href} target="_blank" rel="noopener noreferrer">이용약관</a>에 동의합니다.</label><label><input type="checkbox" checked={privacyAcknowledged} onChange={event => setPrivacyAcknowledged(event.target.checked)} required disabled={busy} /> <a href={signupConsent.privacy.href} target="_blank" rel="noopener noreferrer">임시 개인정보 처리방침</a>을 확인했습니다.</label></fieldset>}
-      <button type="submit" disabled={busy || (mode === 'signup' && (!canSignup || !termsAccepted || !privacyAcknowledged))}>{busy ? '처리 중…' : heading}</button>
+      <button data-auth-edit="submit-button" type="submit" disabled={busy || (mode === 'signup' && (!canSignup || !termsAccepted || !privacyAcknowledged))}>{busy ? '처리 중…' : heading}</button>
     </form>}
     {message && <p role="status">{message}</p>}{error && <p role="alert">{error}</p>}
     {!signedIn && !recovery && <nav aria-label="회원 인증 메뉴">

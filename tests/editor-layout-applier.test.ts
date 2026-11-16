@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createEditorLayoutApplier } from '../src/lib/editor-layout-applier';
-import type { LayoutChanges } from '../src/lib/layout-edits';
+import { applyPageLayout, START_DIAGNOSIS_SELECTOR, type LayoutChanges } from '../src/lib/layout-edits';
 
 function fixture(original = 'original') {
   let mutations = 0, data = original;
@@ -18,6 +18,20 @@ function fixture(original = 'original') {
   return { el, node, style, mutations: () => mutations };
 }
 const changes = (patch: Record<string, unknown>): LayoutChanges => ({ '/tools/': { 'body:has(.stage1) p': patch } });
+
+test('start diagnosis patch applies only with one exact target in both appliers', () => {
+  const a = fixture('first'), b = fixture('second');
+  let matches: HTMLElement[] = [a.el, b.el];
+  const doc = { querySelectorAll: () => matches, querySelector: () => a.el } as unknown as Document;
+  const snapshot = { '/tools/start/': { [START_DIAGNOSIS_SELECTOR]: { text: '합성 문구' } } };
+  const applier = createEditorLayoutApplier(doc, '/tools/start/');
+  applier.apply(snapshot); applyPageLayout(doc, snapshot, '/tools/start/');
+  assert.equal(a.node.data, 'first'); assert.equal(b.node.data, 'second');
+  matches = [a.el]; applier.apply(snapshot);
+  assert.equal(a.node.data, '합성 문구');
+  applier.dispose(); assert.equal(a.node.data, 'first');
+  applyPageLayout(doc, snapshot, '/tools/start/'); assert.equal(a.node.data, '합성 문구');
+});
 function setup() {
   const first = fixture();
   let target: HTMLElement | null = first.el;

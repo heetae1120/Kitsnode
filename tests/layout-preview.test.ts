@@ -93,6 +93,17 @@ test('stage is page-scoped, nonpersonal, and detected from the actual nested DOM
   assert.equal(validPreviewStage('/tools/', { phone: 'private' }), false);
   assert.equal(validPreviewStage('/tools/', undefined), true);
   const fakeDoc = { querySelectorAll: () => ['intake', 'intake-contact'].map(value => ({ getAttribute: () => value })) } as unknown as Document;
-  assert.equal(detectPreviewStage(fakeDoc, '/tools/start/'), 'intake-contact');
+  assert.equal(detectPreviewStage(fakeDoc, '/tools/start/'), undefined);
   assert.equal(detectPreviewStage(fakeDoc, '/tools/survey/'), undefined);
+});
+
+test('landing, player and member snapshots are accepted without widening arbitrary routes', () => {
+  const selector = 'body > main:nth-of-type(1)';
+  for (const page of ['/', '/tools/player/']) {
+    assert.equal(validPreviewSnapshot(page, { [page]: { [selector]: { text: '합성 문구' } } }), true);
+  }
+  assert.equal(validPreviewStage('/tools/player/', '3-keywords'), true);
+  assert.equal(validPreviewStage('/tools/', '3-keywords'), true);
+  assert.equal(validPreviewSnapshot('/store/login/', { '/store/login/': { 'body [data-auth-edit="email-input"]': { color: '#111' } } }), true);
+  assert.equal(validPreviewSnapshot('/admin/', { '/admin/': { [selector]: { text: 'x' } } }), false);
 });

@@ -3,11 +3,13 @@ import {useEffect,useState} from 'react';
 import {ImageOff} from 'lucide-react';
 import {type ShoppingAdSnapshot} from '@/lib/shopping-ad-snapshot';
 import {fetchShoppingAdSnapshot} from '@/lib/fetch-shopping-ad-snapshot';
+import {isDraftPreviewMode} from '@/lib/draft-preview-stage';
 export function ShoppingAdPodium({keyword}:{keyword:string}){
  const [attempt,setAttempt]=useState(0);
  const [waiting,setWaiting]=useState(false);
  const [result,setResult]=useState<{keyword:string;snapshot?:ShoppingAdSnapshot;error?:string}|null>(null);
  useEffect(()=>{
+  if(isDraftPreviewMode()){setResult({keyword,error:'편집 미리보기에서는 실제 광고를 조회하지 않습니다.'});return;}
   const controller=new AbortController();const timer=setTimeout(()=>{setResult({keyword,error:'조회 시간이 초과됐어요. 다시 조회해 주세요.'});controller.abort();},120000);
   async function load(){
    try{

@@ -28,7 +28,7 @@ export function AgencyHome(){
     <header className="as-header" data-tone={tone}>
       <Link href="/" className="as-wordmark" aria-label="kitsnode 홈">kitsnode<span>®</span></Link>
       <span className="as-header-note">브랜드의 다음을<br/>함께 만듭니다.</span>
-      <Link href={content.heroCta.href} className="as-header-diagnosis">상품 진단 <ArrowUpRight size={17}/></Link>
+      <Link href={content.heroCta.href} className="as-header-diagnosis" data-layout-target="start-diagnosis-link">상품 진단 <ArrowUpRight size={17}/></Link>
       <Link href="/store/login/" className="as-header-login">로그인 <span className="as-header-signup">/ 회원가입</span></Link>
     </header>
     <main className="as-main">

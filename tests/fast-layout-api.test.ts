@@ -22,6 +22,22 @@ const create = (push = true) => createHandler({projectUrl:'https://example.supab
 const request = (resource:string, options:RequestInit={}) => new Request(`https://service.test/kitsnode-layout?resource=${resource}`, options);
 const headers = {origin, 'x-github-token':token,'content-type':'application/json'};
 
+test('landing, player and restricted member fields are accepted without accepting unrelated paths', () => {
+  const selector = 'body > main:nth-of-type(1)';
+  assert.equal(validateLayout({ '/': { [selector]: { text: '합성' } }, '/tools/player/': { [selector]: { color: '#123' } } }), true);
+  assert.equal(validateLayout({ '/store/login/': { 'body [data-auth-edit="email-input"]': { color: '#123' } } }), true);
+  assert.equal(validateLayout({ '/store/login/': { 'body [data-auth-edit="email-input"]': { hidden: true } } }), false);
+  assert.equal(validateLayout({ '/admin/': { [selector]: { text: 'x' } } }), false);
+});
+
+test('start diagnosis selector is allowed only exactly and only on the start page', () => {
+  const selector = 'body [data-layout-target="start-diagnosis-link"]';
+  assert.equal(validateLayout({ '/tools/start/': { [selector]: { text: '합성 문구' } } }), true);
+  assert.equal(validateLayout({ '/': { [selector]: { text: '합성 문구' } } }), false);
+  assert.equal(validateLayout({ '/tools/start/': { [selector + ' > span']: { text: '합성 문구' } } }), false);
+  assert.equal(validateLayout({ '/tools/start/': { [selector + '\n']: { text: '합성 문구' } } }), false);
+});
+
 test('public read exposes approved layout only; draft requires authenticated origin', async () => {
   const h=create(); const result=await (await h(request('published'))).json();
   assert.deepEqual(result.changes,sample); assert.equal('draft' in result,false);

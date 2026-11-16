@@ -7,6 +7,7 @@ import {breakEvenConversion,type GoalBudgetContext} from '@/lib/keyword-goal';
 import {rowVolume,validateKeywordResponse,type KeywordRow,type Device} from '@/lib/naver-keywords';
 import {ShoppingAdPodium} from './shopping-ad-podium';
 import {FormattedNumberInput} from './formatted-number-input';
+import {isDraftPreviewMode} from '@/lib/draft-preview-stage';
 const money=(v:number)=>`${Math.round(v).toLocaleString('ko-KR')}원`;
 export function KeywordBudgetReport({productName,perOrder,budget,quantity,months,budgetContext}:{productName:string;perOrder:number;budget:number;quantity:number;months:number;budgetContext?:GoalBudgetContext}){
  const category=inferProductCategory(productName);
@@ -16,7 +17,7 @@ export function KeywordBudgetReport({productName,perOrder,budget,quantity,months
  const [volumeError,setVolumeError]=useState('');
  const seeds=category?[category.main,...category.alternatives.slice().sort((a,b)=>a.cpc-b.cpc).slice(0,3)].map(r=>r.keyword).join(','):'';
  useEffect(()=>{
-  setVolumes([]);setVolumeError('');if(!seeds)return;
+  setVolumes([]);setVolumeError('');if(isDraftPreviewMode()){setVolumeError('편집 미리보기에서는 실제 검색량을 조회하지 않습니다.');return;}if(!seeds)return;
   const controller=new AbortController();let active=true;const timeout=setTimeout(()=>controller.abort(),15000);
   void(async()=>{try{const url=new URL(process.env.NEXT_PUBLIC_KEYWORD_API_URL||'https://kitsnode.vercel.app/api/keywords');url.searchParams.set('keywords',seeds);const response=await fetch(url,{signal:controller.signal,credentials:'omit',cache:'no-store'});if(!response.ok)throw Error();const data=validateKeywordResponse(await response.json());if(active)setVolumes(data.keywords);}catch{if(active)setVolumeError('검색량을 불러오지 못했어요. 목표 기간은 아직 판단할 수 없어요.');}finally{clearTimeout(timeout);}})();
   return()=>{active=false;controller.abort();clearTimeout(timeout);};
