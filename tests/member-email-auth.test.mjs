@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {MEMBER_TERMS_VERSION, MEMBER_PRIVACY_VERSION} from '../src/lib/member-consent.mjs';
+const consent={termsVersion:MEMBER_TERMS_VERSION,privacyVersion:MEMBER_PRIVACY_VERSION,termsAccepted:true,privacyAcknowledged:true};
 import {createEmailAuthClient} from '../src/lib/member-email-auth.mjs';
 
 function fixture(overrides = {}) {
@@ -27,8 +29,10 @@ test('rejects redirects to another origin or nonlocal unencrypted host', () => {
 
 test('signup requests confirmation, with no automatic login',async()=>{
   const {client,calls}=fixture();
-  assert.deepEqual(await client.signUp('person@example.test','synthetic-password'),{ok:true,code:'signup_requested'});
+  assert.deepEqual(await client.signUp('person@example.test','synthetic-password',consent),{ok:true,code:'signup_requested'});
   assert.equal(calls[0][1].options.emailRedirectTo,'http://127.0.0.1:3000/auth/confirm');
+  assert.deepEqual(calls[0][1].options.data.kitsnode_consent,consent);
+  assert.deepEqual(await client.signUp('person@example.test','synthetic-password'),{ok:false,code:'invalid_input'});
   assert.deepEqual(await client.signUp('invalid','short'),{ok:false,code:'invalid_input'});
   assert.equal(calls.length,1);
 });
@@ -36,23 +40,23 @@ test('signup requests confirmation, with no automatic login',async()=>{
 test('signup is disabled by default and makes no Auth API request',async()=>{
   const {config,calls}=fixture();
   const client=createEmailAuthClient({...config,signupAllowed:undefined});
-  assert.deepEqual(await client.signUp('person@example.test','synthetic-password'),{ok:false,code:'signup_disabled'});
+  assert.deepEqual(await client.signUp('person@example.test','synthetic-password',consent),{ok:false,code:'signup_disabled'});
   assert.deepEqual(calls,[]);
   client.dispose();
 });
 
 test('signup rejects projects that issue unconfirmed sessions',async()=>{
   const calls=[];const {client}=fixture({async signUp(){return {data:{session:{synthetic:true}},error:null};},async signOut(){calls.push('signout');return {error:null};}});
-  assert.deepEqual(await client.signUp('person@example.test','synthetic-password'),{ok:false,code:'confirmation_required'});
+  assert.deepEqual(await client.signUp('person@example.test','synthetic-password',consent),{ok:false,code:'confirmation_required'});
   assert.deepEqual(calls,['signout']);
 });
 
 test('login rejects unconfirmed or malformed result; logout works',async()=>{
   const {client}=fixture();
-  assert.deepEqual(await client.signIn('person@example.test','synthetic-password'),{ok:true,code:'signed_in'});
+  assert.deepEqual(await client.signIn('person@example.test','synthetic-password',consent),{ok:true,code:'signed_in'});
   assert.deepEqual(await client.signOut(),{ok:true,code:'signed_out'});
   const unconfirmed=fixture({async signInWithPassword(){return {data:{user:{},session:{synthetic:true}},error:null};}});
-  assert.deepEqual(await unconfirmed.client.signIn('person@example.test','synthetic-password'),{ok:false,code:'requires_confirmation'});
+  assert.deepEqual(await unconfirmed.client.signIn('person@example.test','synthetic-password',consent),{ok:false,code:'requires_confirmation'});
   assert.ok(unconfirmed.calls.includes('signout'));
 });
 
@@ -70,4 +74,10 @@ test('provider errors and exceptions do not leak details or report success',asyn
   const {client}=fixture({async signInWithPassword(){throw new Error('secret-details');},async resetPasswordForEmail(){return {error:{message:'private'}};}});
   assert.deepEqual(await client.signIn('person@example.test','password'),{ok:false,code:'unavailable'});
   assert.deepEqual(await client.requestPasswordReset('person@example.test'),{ok:false,code:'unavailable'});
+});
+
+test('email rate limits produce a safe actionable result', async()=>{
+  const limited=fixture({async resetPasswordForEmail(){return {error:{code:'over_email_send_rate_limit'}};},async signUp(){return {error:{code:'over_email_send_rate_limit'}};}});
+  assert.deepEqual(await limited.client.requestPasswordReset('person@example.test'),{ok:false,code:'email_rate_limited'});
+  assert.deepEqual(await limited.client.signUp('person@example.test','synthetic-password',consent),{ok:false,code:'email_rate_limited'});
 });

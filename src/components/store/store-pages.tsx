@@ -1,3 +1,6 @@
+"use client";
+
+import {saveMemberReturn} from '@/lib/member-return';
 import Link from "next/link";
 import { ArrowRight, BarChart3, CircleUserRound, LockKeyhole, Package, PlugZap } from "lucide-react";
 import { StoreBadge, StoreButton, StoreCard, StoreHeading } from "./store-ui";
@@ -5,7 +8,7 @@ import { MEMBER_INTAKE_REVIEWED } from '@/lib/member-auth-config.mjs';
 import { MemberAccountEntry } from './member-account-entry';
 
 export function MemberPreparation() {
-  if (MEMBER_INTAKE_REVIEWED && process.env.NEXT_PUBLIC_MEMBER_AUTH_ENABLED === 'true' && process.env.NEXT_PUBLIC_MEMBER_AUTH_SIGNUP_ENABLED === 'true') return <StoreCard className="store-access" aria-labelledby="member-access-title"><div className="store-icon"><LockKeyhole aria-hidden="true" size={22}/></div><div><StoreBadge tone="primary">회원 계정</StoreBadge><h2 id="member-access-title">회원 계정으로 시작하세요</h2><p>이메일 회원가입과 로그인을 이용할 수 있습니다. 광고 계정 연결과 개인 성과 조회는 준비 중입니다.</p><div className="store-actions"><Link className="store-button" href="/store/login/">로그인</Link><Link className="store-button store-button--secondary" href="/store/signup/">회원가입</Link></div></div></StoreCard>;
+  if (MEMBER_INTAKE_REVIEWED && process.env.NEXT_PUBLIC_MEMBER_AUTH_ENABLED === 'true' && process.env.NEXT_PUBLIC_MEMBER_AUTH_SIGNUP_ENABLED === 'true') return <StoreCard className="store-access" aria-labelledby="member-access-title"><div className="store-icon"><LockKeyhole aria-hidden="true" size={22}/></div><div><StoreBadge tone="primary">회원 계정</StoreBadge><h2 id="member-access-title">회원 계정으로 시작하세요</h2><p>이메일 회원가입과 로그인을 이용할 수 있습니다. 광고 계정 연결과 개인 성과 조회는 준비 중입니다.</p><div className="store-actions"><Link className="store-button" href="/store/login/" onClick={saveMemberReturn}>로그인</Link><Link className="store-button store-button--secondary" href="/store/signup/" onClick={saveMemberReturn}>회원가입</Link></div></div></StoreCard>;
   return <StoreCard className="store-access" aria-labelledby="member-access-title"><div className="store-icon"><LockKeyhole aria-hidden="true" size={22} /></div><div><StoreBadge tone="warning">회원 기능 준비 중</StoreBadge><h2 id="member-access-title">내 성과 확인은 로그인부터</h2><p>회원가입·로그인 후 광고 계정을 별도로 연결하는 흐름입니다. 지금은 인증 서버가 연결되지 않아 가입, 로그인, 개인 실적 조회를 시작할 수 없습니다.</p><div className="store-actions"><Link className="store-button" href="/store/login/">로그인 안내</Link><Link className="store-button store-button--secondary" href="/store/signup/">회원가입 안내</Link></div></div></StoreCard>;
 }
 export function StoreOverview() {

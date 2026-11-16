@@ -288,6 +288,8 @@ html:has(.agency-site){scroll-padding-top:88px}
 .as-header-diagnosis{margin-left:auto;display:inline-flex;align-items:center;gap:12px;border:1px solid currentColor;padding:12px 18px;font-size:13px;font-weight:650;transition:background .2s,color .2s}
 .as-header-diagnosis:hover{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f}
 .as-header-login{display:inline-flex;align-items:center;white-space:nowrap;font-size:13px;font-weight:650;padding:12px 0;text-decoration:none}
+button.as-header-login{border:0;background:none;color:inherit;font-family:inherit;cursor:pointer}
+button.as-header-login:disabled{opacity:.6;cursor:wait}
 .as-header-login:hover{text-decoration:underline;text-underline-offset:4px}
 .as-header-login:focus-visible{outline:2px solid currentColor;outline-offset:4px}
 .as-diagnosis-landing .as-conversion{position:relative;isolation:isolate;overflow:hidden;min-height:75svh;display:flex;flex-direction:column;justify-content:center}

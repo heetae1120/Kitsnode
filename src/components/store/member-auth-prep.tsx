@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import {memberBrowserClient} from '@/lib/member-browser-client';
+import {takeMemberReturn} from '@/lib/member-return';
 import { MEMBER_INTAKE_REVIEWED, canUseMemberNaver, readMemberAuthConfig, memberRedirect } from '@/lib/member-auth-config.mjs';
 import { createEmailAuthClient } from '@/lib/member-email-auth.mjs';
 import { createNaverAuth, naverIdentityState, oauthCallbackError } from '@/lib/member-naver-auth.mjs';
@@ -11,7 +12,6 @@ import { MemberConsentWithdraw } from './member-consent-withdraw';
 import { MemberNaverSignIn } from './member-naver-sign-in';
 import naverStyles from './naver-login.module.css';
 
-let client: SupabaseClient | null = null;
 const naverErrorText: Record<string,string> = {
   identity_conflict:'이미 다른 계정에 연결된 네이버 계정입니다. 기존 연결을 확인해 주세요.',
   already_linked:'이미 네이버 계정이 연결되어 있습니다.',
@@ -24,6 +24,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const [api,setApi] = useState<EmailAuth|null>(null);
   const [social,setSocial] = useState<ReturnType<typeof createNaverAuth>|null>(null);
   const [consent,setConsent] = useState<ReturnType<typeof createMemberConsent>|null>(null);
+  const consentUserRef = useRef<string|null>(null);
   const [consentStatus,setConsentStatus] = useState<'checking'|'needed'|'accepted'|'error'>('checking');
   const [signedIn,setSignedIn] = useState(false);
   const [naverIdentity,setNaverIdentity] = useState({linked:false,canLinkEmail:false});
@@ -51,8 +52,8 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
       setError(naverErrorText[callbackError]);
       window.history.replaceState(null,'',window.location.pathname);
     }
-    const current = client ?? createClient(config.url,config.key);
-    client = current;
+    const current = memberBrowserClient();
+    if (!current) return;
     const email = createEmailAuthClient({auth:current.auth,trustedOrigin:window.location.origin,confirmationRedirectTo:redirectTo,recoveryRedirectTo:redirectTo,signupAllowed:MEMBER_INTAKE_REVIEWED && config.signup});
     // The Naver button must not outlive the member consent gate. These are UI
     // flags only; database authorisation remains a separate security boundary.
@@ -60,7 +61,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     const naver = createNaverAuth({auth:current.auth,trustedOrigin:window.location.origin,redirectTo,allowSignIn:socialEnabled,allowLink:socialEnabled && config.link});
     const {data:{subscription}} = current.auth.onAuthStateChange((event,session) => {
       const nextId=session?.user?.id || null;
-      if (memberUserIdRef.current !== nextId) { memberUserIdRef.current=nextId; setConsentStatus('checking'); setMemberUserId(nextId); }
+      if (memberUserIdRef.current !== nextId) { memberUserIdRef.current=nextId; consentUserRef.current=null; setConsentStatus('checking'); setMemberUserId(nextId); }
       setSignedIn(Boolean(session?.user));
       setNaverIdentity(naverIdentityState(session?.user));
       if(event === 'PASSWORD_RECOVERY') setRecovery(true);
@@ -76,12 +77,19 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   useEffect(() => {
     if (!MEMBER_INTAKE_REVIEWED || !config?.signup || !signedIn || recovery || !consent) return;
     let active=true;
+    const checkedUserId=memberUserId;
+    consentUserRef.current=null;
     setConsentStatus('checking');
     void consent.hasCurrent().then(result => {
-      if (active) setConsentStatus(!result.ok ? 'error' : result.accepted ? 'accepted' : 'needed');
-    }).catch(()=>{if(active)setConsentStatus('error');});
+      if (active && checkedUserId && memberUserIdRef.current===checkedUserId) { consentUserRef.current=result.ok && result.accepted ? checkedUserId : null; setConsentStatus(!result.ok ? 'error' : result.accepted ? 'accepted' : 'needed'); }
+    }).catch(()=>{if(active && checkedUserId && memberUserIdRef.current===checkedUserId)setConsentStatus('error');});
     return ()=>{active=false;};
   },[signedIn,memberUserId,recovery,consent,config?.signup]);
+  useEffect(() => {
+    if (!signedIn || recovery || !config?.signup || consentStatus !== 'accepted' || !memberUserId || consentUserRef.current !== memberUserId || memberUserIdRef.current !== memberUserId) return;
+    const target = takeMemberReturn();
+    if (target) window.location.assign(target);
+  },[signedIn,recovery,consentStatus,memberUserId,config?.signup]);
   if (!config || !api || !social) return <p>회원 인증을 준비하고 있습니다.</p>;
   const intakeEnabled=MEMBER_INTAKE_REVIEWED && config.signup;
   const basePath=process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -90,7 +98,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     if (consentStatus === 'error') return <section><p role="alert">회원 이용 안내를 확인하지 못했습니다. 잠시 후 다시 로그인해 주세요.</p><button type="button" onClick={()=>void api.signOut()}>로그아웃</button></section>;
     if (consentStatus === 'needed' && memberUserId) {
       const consentUserId=memberUserId;
-      return <MemberConsentGate key={consentUserId} basePath={basePath} accept={bindConsentToUser(consent,consentUserId,()=>memberUserIdRef.current)} signOut={api.signOut} onAccepted={()=>{if(memberUserIdRef.current===consentUserId)setConsentStatus('accepted');}}/>;
+      return <MemberConsentGate key={consentUserId} basePath={basePath} accept={bindConsentToUser(consent,consentUserId,()=>memberUserIdRef.current)} signOut={api.signOut} onAccepted={()=>{if(memberUserIdRef.current===consentUserId){consentUserRef.current=consentUserId;setConsentStatus('accepted');}}}/>;
     }
     if (consentStatus !== 'accepted') return <p role="alert">회원 이용 안내를 확인하지 못했습니다. 다시 로그인해 주세요.</p>;
   }
@@ -99,7 +107,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     privacy:{href:`${basePath}/privacy/`,version:MEMBER_PRIVACY_VERSION},
     register:async (email:string,password:string,evidence:{termsVersion:string;privacyVersion:string;termsAccepted:true;privacyAcknowledged:true}) => {
       if(evidence.termsAccepted!==true || evidence.privacyAcknowledged!==true || evidence.termsVersion!==MEMBER_TERMS_VERSION || evidence.privacyVersion!==MEMBER_PRIVACY_VERSION) return {ok:false,code:'invalid_input'};
-      return api.signUp(email,password);
+      return api.signUp(email,password,evidence);
     },
   } : undefined;
   const go = async (action:'signIn'|'link') => { if(busyRef.current)return;busyRef.current=true;setBusy(true);setError('');try {const result=await social[action]();if(!result.ok)setError(naverErrorText[result.code] || naverErrorText.unavailable);} finally {busyRef.current=false;setBusy(false);} };

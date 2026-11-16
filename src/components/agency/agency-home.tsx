@@ -4,6 +4,7 @@ import {ArrowDown,ArrowUpRight} from 'lucide-react';
 import {agencyContent as content} from '@/data/agency-content';
 import {useAgencyMotion} from './use-agency-motion';
 import './agency.css';
+import {MemberMenu} from './member-menu';
 
 function TargetMark(){
   return <svg viewBox="0 0 200 200" fill="none" aria-hidden="true"><circle cx="100" cy="100" r="72" stroke="currentColor" strokeWidth="10" strokeDasharray="405 48" transform="rotate(-20 100 100)"/><circle cx="100" cy="100" r="35" stroke="currentColor" strokeWidth="10"/><circle cx="100" cy="100" r="7" fill="currentColor"/></svg>;
@@ -29,7 +30,7 @@ export function AgencyHome(){
       <Link href="/" className="as-wordmark" aria-label="kitsnode 홈">kitsnode<span>®</span></Link>
       <span className="as-header-note">브랜드의 다음을<br/>함께 만듭니다.</span>
       <Link href={content.heroCta.href} className="as-header-diagnosis" data-layout-target="start-diagnosis-link">상품 진단 <ArrowUpRight size={17}/></Link>
-      <Link href="/store/login/" className="as-header-login">로그인 <span className="as-header-signup">/ 회원가입</span></Link>
+      <MemberMenu/>
     </header>
     <main className="as-main">
       <section className="as-hero" aria-label="kitsnode의 네 가지 관점">

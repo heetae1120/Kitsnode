@@ -1,3 +1,4 @@
+import { MEMBER_TERMS_VERSION, MEMBER_PRIVACY_VERSION } from './member-consent.mjs';
 // Isolated adapter. It has no project URL or keys and never logs credentials.
 const ok = code => ({ok:true,code});
 const fail = code => ({ok:false,code});
@@ -23,17 +24,17 @@ export function createEmailAuthClient({auth, confirmationRedirectTo, recoveryRed
     else if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') recovery = false;
   });
   const run = async (call, success, failure = 'unavailable') => {
-    try { const result = await call(); return !result || result.error ? fail(failure) : ok(success); }
+    try { const result = await call(); if (result?.error?.code === 'over_email_send_rate_limit') return fail('email_rate_limited'); return !result || result.error ? fail(failure) : ok(success); }
     catch { return fail('unavailable'); }
   };
   return {
-    async signUp(email,password) {
+    async signUp(email,password,evidence) {
       // Defense in depth only: direct requests to the public Auth API bypass this.
       if (signupAllowed !== true) return fail('signup_disabled');
-      if (!emailValid(email) || !passwordValid(password)) return fail('invalid_input');
+      if (!emailValid(email) || !passwordValid(password) || evidence?.termsAccepted !== true || evidence?.privacyAcknowledged !== true || evidence?.termsVersion !== MEMBER_TERMS_VERSION || evidence?.privacyVersion !== MEMBER_PRIVACY_VERSION) return fail('invalid_input');
       try {
-        const result = await auth.signUp({email:email.trim(),password,options:{emailRedirectTo:confirmationRedirectTo}});
-        if (result?.error) return fail('unavailable');
+        const result = await auth.signUp({email:email.trim(),password,options:{emailRedirectTo:confirmationRedirectTo,data:{kitsnode_consent:{termsVersion:evidence.termsVersion,privacyVersion:evidence.privacyVersion,termsAccepted:true,privacyAcknowledged:true}}}});
+        if (result?.error) return fail(result.error.code === 'over_email_send_rate_limit' ? 'email_rate_limited' : 'unavailable');
         // A session here means project email confirmation is disabled: do not proceed.
         if (result?.data?.session) {
           await auth.signOut();

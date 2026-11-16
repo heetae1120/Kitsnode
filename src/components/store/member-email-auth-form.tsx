@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 type Result = { ok: boolean; code: string };
 export type EmailAuth = {
-  signUp(email: string, password: string): Promise<Result>;
+  signUp(email: string, password: string, evidence: {termsVersion:string;privacyVersion:string;termsAccepted:true;privacyAcknowledged:true}): Promise<Result>;
   signIn(email: string, password: string): Promise<Result>;
   signOut(): Promise<Result>;
   requestPasswordReset(email: string): Promise<Result>;
@@ -39,13 +39,14 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
     try {
       const result = await fn();
       const messages: Record<string, string> = {
-        signup_requested: '요청을 처리했습니다. 입력한 이메일에서 인증 안내를 확인해 주세요.',
+        signup_requested: '요청을 처리했습니다. 인증 메일을 확인해 주세요. 이미 가입한 계정이라면 로그인하거나 비밀번호를 재설정해 주세요.',
         signed_in: '로그인되었습니다.',
         signed_out: '로그아웃되었습니다.',
         reset_requested: '요청을 처리했습니다. 해당 계정이 있다면 이메일의 안내를 확인해 주세요.',
         password_updated: '비밀번호가 변경되었습니다.',
       };
       if (result.ok && messages[result.code]) { setMessage(messages[result.code]); setPassword(''); }
+      else if (result.code === 'email_rate_limited') setError('요청이 너무 잦습니다. 잠시 기다린 뒤 다시 시도해 주세요.');
       else if (result.code === 'invalid_input') setError('이메일과 비밀번호를 다시 확인해 주세요.');
       else if (result.code === 'requires_confirmation') setError('이메일 인증을 완료한 뒤 다시 로그인해 주세요.');
       else if (result.code === 'sign_in_failed') setError('로그인 정보를 확인해 주세요.');
@@ -66,7 +67,8 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
   return <section aria-labelledby="auth-title">
     {!canSignup && <p role="note">회원가입은 준비 중입니다.</p>}
     <h2 id="auth-title">{heading}</h2>
-    {mode === 'signup' && canSignup && <p>이메일 인증 후 로그인하면 회원 이용 안내를 다시 확인합니다.</p>}
+    {mode === 'reset' && <p>가입한 이메일을 입력하고 아래 버튼을 누르면 재설정 안내를 보내드립니다.</p>}
+    {mode === 'signup' && canSignup && <p>가입 시 이용약관과 개인정보 처리방침을 확인해 주세요.</p>}
     {signedIn && !recovery ? <button type="button" disabled={busy} onClick={() => void execute(() => auth.signOut())}>로그아웃</button> : <form onSubmit={submit}>
       {mode !== 'update' && <label>이메일<input data-auth-edit="email-input" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>}
       {mode !== 'reset' && <label>비밀번호<input data-auth-edit="password-input" type="password" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} required minLength={8} value={password} onChange={event => setPassword(event.target.value)} disabled={busy} /></label>}
