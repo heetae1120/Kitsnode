@@ -11,7 +11,7 @@ export function GoalInvitation({months,profit}:{months:number;profit:number}){
   <motion.div className="ds-goal-impact-copy" initial={reduced?false:{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{duration:reduced?0:.65,delay:reduced?0:.15}}>
    <p>당신은 <em>{months}개월</em> 동안</p>
    <h2><strong>{Math.round(profit).toLocaleString('ko-KR')}<small>원</small></strong><span>을 벌려고 하는 거예요.</span></h2>
-   <p>이게 가능한지, 이제 확인해볼까요?</p>
+   <p className="ds-goal-question">이게 가능한지,<br/><strong>이제 확인해볼까요?</strong></p>
   </motion.div>
  </section>;
 }

@@ -349,3 +349,34 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder-metric-grid{gri
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact{min-height:460px;padding:48px 12px}
 }
 @media print{.ds-goal-orbit{display:none}.ds-reorder-details{display:block}}
+/* Open report chapters: the document scrolls, without a device frame. */
+@media screen {
+body .profit-tool .mp-shell.diagnosis-studio .ds-choice h1{margin-bottom:44px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog .mp-input-wrap{border:1px solid #555;border-radius:0;padding:0}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog .mp-input-wrap input{border:0!important;border-radius:0!important;outline:none!important;box-shadow:none!important;width:100%;padding:18px 70px 18px 18px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog .mp-input-wrap:focus-within{outline:2px solid #ff5a1f;outline-offset:3px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog .mp-input-wrap>span{border:0!important;background:transparent!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-open-report{width:100%;max-width:none}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-open-report .ds-result-heading{padding-block:32px 48px;max-width:none}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters{display:block;height:auto!important;min-height:0!important;width:100%;border:0!important;box-shadow:none;padding:0;scroll-margin-top:105px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters .kn-tablet-slide-screen{height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden;border:0!important;padding:0;border-radius:0!important;outline-offset:4px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters .kn-tablet-slide{width:100%;min-height:0!important;max-width:none;padding:0!important;border:0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters .kn-tablet-slide-actions{margin-top:32px;padding:24px 0;border:0;border-top:1px solid #353535}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-tablet-budget .mp-plan-recap dd{font-size:clamp(24px,3vw,36px)}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-tablet-budget .mp-plan-recap small{font-size:12px;line-height:1.7}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact-copy>p.ds-goal-question{font-size:clamp(24px,3.2vw,40px);font-weight:700;line-height:1.5;color:#f5f2eb;margin-top:40px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-question strong{color:#ff5a1f}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact{min-height:620px}
+}
+@media screen and (max-width:700px){
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-tablet-budget .mp-plan-recap{grid-template-columns:1fr;gap:20px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-tablet-budget .mp-plan-recap>div{padding:0 0 16px;border-bottom:1px solid #353535}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-tablet-budget .mp-story-sale{display:flex;flex-direction:column;align-items:stretch;gap:20px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-tablet-budget .mp-story-sale b{font-size:24px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-tablet-budget .mp-story-sale span{font-size:13px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact{min-height:540px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters{scroll-margin-top:84px}
+}
+@media screen {
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-chapters :is(.mp-tablet-budget,.mp-unit-summary,.mp-reorder,.mp-goal-invitation){width:100%;max-width:none;margin-inline:0}
+}

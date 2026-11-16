@@ -87,13 +87,11 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  if(selectedMode===null&&!previewStage)return <div className="finance-dashboard mp-shell diagnosis-studio" data-diagnosis-stage="choose">
   <DiagnosisHeader/>
   <main className="ds-choice" aria-labelledby="ds-choice-title">
-   <p className="ds-eyebrow">내 사업의 다음 단계</p><h1 id="ds-choice-title" ref={choiceHeading} tabIndex={-1}>지금, 어느 단계에<br/><em>서 있나요?</em></h1>
-   <p className="ds-choice-description">판매 경험에 맞춰 시작하세요.<br/>내 상품에 남는 이익부터, 다음 광고의 방향까지.</p>
+   <h1 id="ds-choice-title" ref={choiceHeading} tabIndex={-1}>지금, 어느 단계에<br/><em>서 있나요?</em></h1>
    <div className="ds-choice-grid">
     <button type="button" className="ds-choice-card ds-starter" onClick={()=>chooseMode('starter')}><span className="ds-card-number">01 / 첫 판매 준비</span><span className="ds-choice-art ds-art-target" aria-hidden="true"><i/><b/></span><span className="ds-card-title">스타터</span><strong>판매가 처음이에요.</strong><span className="ds-card-description">판매 전에 필요한 금액과<br/>실제로 남는 이익을 확인하세요.</span><span className="ds-card-action">내 상품 진단하기 <ArrowUpRight size={25}/></span></button>
     <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-card-number">02 / 다음 성장 준비</span><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><strong>판매 경험이 있어요.</strong><span className="ds-card-description">상품의 수익 구조를 점검하고<br/>검색어와 광고 방향을 확인하세요.</span><span className="ds-card-action">다음 광고 준비하기 <ArrowUpRight size={25}/></span></button>
    </div>
-   <p className="ds-choice-note">가입 없이 시작할 수 있어요. 입력한 값으로 계산하며, 실제 매출을 예측하지 않습니다.</p>
   </main>
  </div>;
  return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow" data-preview-stage={step===3&&report&&previewStage==='3-keywords'?'3-keywords':String(step)} data-diagnosis-stage={step}>
