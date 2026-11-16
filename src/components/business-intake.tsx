@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { isDraftPreviewMode, useDraftPreviewStage } from "@/lib/draft-preview-stage";
+import { marketPreviewState, marketStageFor } from "@/lib/market-preview";
 import Link from "next/link";
 import {
   AdTypeSwitch,
@@ -106,6 +108,7 @@ export function BusinessIntake() {
     ads: null,
     agency: null,
   });
+  const previewStage = useDraftPreviewStage('/tools/market/');
   const path = diagnosisPath(answers);
   const [adType, setAdType] = useState<AdType>("shopping-search");
   const [targetType, setTargetType] = useState("id");
@@ -133,6 +136,15 @@ export function BusinessIntake() {
   const controller = useRef<AbortController | null>(null);
   const reportRef = useRef<HTMLElement>(null);
   useEffect(() => () => controller.current?.abort(), []);
+  useEffect(() => {
+    if (!previewStage) return;
+    const preview = marketPreviewState(previewStage);
+    if (!preview) return;
+    setAnswers(preview.answers);
+    setReport(preview.report);
+    setReportAt(preview.report ? '미리보기 예시' : '');
+    setError('');
+  }, [previewStage]);
   function answer(next: SellerAnswers) {
     setAnswers(next);
     setReport(null);
@@ -175,6 +187,10 @@ export function BusinessIntake() {
   }
   async function lookup(event: FormEvent) {
     event.preventDefault();
+    if (isDraftPreviewMode()) {
+      setMarketErrors(['편집 미리보기에서는 실제 시장 데이터를 조회하지 않습니다.']);
+      return;
+    }
     controller.current?.abort();
     const current = new AbortController();
     controller.current = current;
@@ -435,7 +451,7 @@ export function BusinessIntake() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   return (
-    <div className="finance-dashboard tools-workspace business-intake">
+    <div className="finance-dashboard tools-workspace business-intake" data-preview-stage={marketStageFor(answers, Boolean(report))}>
       <ToolsHeader active="start" />
       <main>
         <section className="intake-hero">

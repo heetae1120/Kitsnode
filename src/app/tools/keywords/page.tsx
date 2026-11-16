@@ -24,6 +24,7 @@ import {
   researchKeywordsCsv,
 } from "@/lib/keyword-research";
 import { ToolsHeader } from "@/components/tools-header";
+import { isDraftPreviewMode } from "@/lib/draft-preview-stage";
 import { Help } from "@/components/ui/tooltip";
 import { classifyKeywords } from "@/lib/keyword-relevance";
 import {
@@ -76,6 +77,7 @@ export default function KeywordTool() {
   const controller = useRef<AbortController | null>(null);
   const results = useRef<HTMLElement>(null);
   useEffect(() => {
+    if (isDraftPreviewMode()) return;
     try {
       const url = validateEndpoint(
         localStorage.getItem(storageKey) || configuredEndpoint,

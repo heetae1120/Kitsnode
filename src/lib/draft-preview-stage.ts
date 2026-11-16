@@ -13,5 +13,5 @@ export function useDraftPreviewStage(page: string): string | null {
   return useSyncExternalStore(subscribe, () => current?.page === page ? current.stage : null, () => null);
 }
 export function isDraftPreviewMode() {
-  return typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('kits_preview');
+  return typeof window !== 'undefined' && (new URLSearchParams(window.location.search).has('kits_preview') || new URLSearchParams(window.location.search).has('kits_live_editor'));
 }

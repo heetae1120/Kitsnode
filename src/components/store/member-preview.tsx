@@ -1,28 +1,41 @@
-import { StoreButton, StoreCard } from './store-ui';
+'use client';
+
+import { EmailAuthForm, type EmailAuth, type SignupConsent } from './member-email-auth-form';
+import { MemberConsentGate } from './member-consent-gate';
+import { MemberConsentWithdraw } from './member-consent-withdraw';
+import { MemberNaverSignIn } from './member-naver-sign-in';
+import { MEMBER_INTAKE_REVIEWED, canUseMemberNaver, readMemberAuthConfig } from '@/lib/member-auth-config.mjs';
+import { MEMBER_PRIVACY_VERSION, MEMBER_TERMS_VERSION } from '@/lib/member-consent.mjs';
 
 export type MemberPreviewStage = 'default' | 'error' | 'verification' | 'authenticated' | 'consent';
+const denied = async () => ({ ok: false, code: 'preview_only' });
+const previewAuth: EmailAuth = { signUp: denied, signIn: denied, signOut: denied, requestPasswordReset: denied, updatePassword: denied };
 
-/** Synthetic and inert: no session, credentials, form submissions, or OAuth. */
-export function MemberPreview({mode, stage}: {mode: 'login' | 'signup'; stage: MemberPreviewStage}) {
-  return <StoreCard className="store-account-card" aria-labelledby="account-title" data-preview-stage={stage}>
-    <p className="store-caption">예시 화면 · 실제 가입 및 로그인 요청 없음</p>
-    {stage === 'verification' ? <><h2 id="account-title">인증 메일을 확인해 주세요</h2><p>예시 안내입니다. 메일을 발송하지 않았습니다.</p></> :
-     stage === 'authenticated' ? <><h2 id="account-title">로그인 완료</h2><p>로그인 완료 상태의 예시입니다.</p></> :
-     stage === 'consent' ? <><h2 id="account-title">서비스 이용 동의</h2><p>약관 확인 상태의 예시입니다. 실제 동의가 아닙니다.</p>
-      <div className="store-auth-terms">{(['이용약관', '개인정보 수집·이용 안내'] as const).map((label) => <section key={label}>
-        <h3>{label}</h3><p className="store-caption">문서 버전: 예시</p>
-        <div className="store-auth-terms-copy">실제 문서가 아닌 미리보기 예시입니다.</div>
-        <label className="store-auth-check"><input type="checkbox" disabled /> [필수] {label}에 동의합니다.</label>
-      </section>)}</div><StoreButton disabled>동의하고 계속하기</StoreButton></> : <>
-      <h2 id="account-title">{mode === 'signup' ? '이메일 회원가입' : '이메일 로그인'}</h2>
-      <div className="store-auth-form">
-        <label htmlFor="preview-member-email">이메일</label><input id="preview-member-email" data-auth-edit="email-input" type="email" autoComplete="off" readOnly tabIndex={-1} />
-        <label htmlFor="preview-member-password">비밀번호</label><input id="preview-member-password" data-auth-edit="password-input" type="password" autoComplete="off" readOnly tabIndex={-1} />
-        {mode === 'signup' && <label className="store-auth-check"><input type="checkbox" disabled /> [필수] 만 14세 이상입니다.</label>}
-        {stage === 'error' && <p role="alert">예시 오류: 입력 내용을 확인해 주세요.</p>}
-        <StoreButton data-auth-edit="submit-button" aria-disabled="true" tabIndex={-1}>{mode === 'signup' ? '회원가입' : '로그인'}</StoreButton>
-        <StoreButton className="store-button--secondary" data-auth-edit="naver-button" aria-disabled="true" tabIndex={-1}>네이버로 계속하기</StoreButton>
-      </div>
-    </>}
-  </StoreCard>;
+/** Reuses the visitor UI without creating a client, reading a session or sending a request. */
+export function MemberPreview({ mode, stage }: { mode: 'login' | 'signup'; stage: MemberPreviewStage }) {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  const config = readMemberAuthConfig({
+    enabled: process.env.NEXT_PUBLIC_MEMBER_AUTH_ENABLED,
+    projectRef: process.env.NEXT_PUBLIC_MEMBER_AUTH_PROJECT_REF,
+    url: process.env.NEXT_PUBLIC_MEMBER_AUTH_URL,
+    key: process.env.NEXT_PUBLIC_MEMBER_AUTH_PUBLISHABLE_KEY,
+    signup: process.env.NEXT_PUBLIC_MEMBER_AUTH_SIGNUP_ENABLED,
+    naver: process.env.NEXT_PUBLIC_MEMBER_AUTH_NAVER_ENABLED,
+    link: process.env.NEXT_PUBLIC_MEMBER_AUTH_NAVER_LINK_ENABLED,
+  });
+  const intakeEnabled = Boolean(MEMBER_INTAKE_REVIEWED && config?.signup);
+  const signupConsent: SignupConsent | undefined = intakeEnabled ? {
+    terms: { href: `${basePath}/terms/`, version: MEMBER_TERMS_VERSION },
+    privacy: { href: `${basePath}/privacy/`, version: MEMBER_PRIVACY_VERSION },
+    register: denied,
+  } : undefined;
+  const content = stage === 'consent' ?
+    <MemberConsentGate basePath={basePath} accept={denied} signOut={denied} onAccepted={() => {}} /> :
+    stage === 'default' && !config ? <p>회원 인증을 준비하고 있습니다.</p> :
+    <section>
+      <EmailAuthForm key={`${mode}-${stage}`} auth={previewAuth} signedIn={stage === 'authenticated'} initialMode={mode === 'signup' ? 'signup' : 'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent} previewStatus={stage === 'error' || stage === 'verification' ? stage : undefined}/>
+      {intakeEnabled && stage === 'authenticated' && <MemberConsentWithdraw withdraw={denied} onWithdrawn={() => {}} />}
+      {config && canUseMemberNaver(config) && stage !== 'authenticated' && <MemberNaverSignIn basePath={basePath} busy={false} signIn={() => {}} />}
+    </section>;
+  return <div data-preview-stage={stage} style={{ display: 'contents' }}>{content}</div>;
 }

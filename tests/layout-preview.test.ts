@@ -86,6 +86,8 @@ test('handshake rejects wrong origin/source/session; sends only clicked-page sna
 
 test('stage is page-scoped, nonpersonal, and detected from the actual nested DOM marker', () => {
   assert.equal(validPreviewStage('/tools/', '4'), true);
+  assert.equal(validPreviewStage('/tools/', 'choice'), true);
+  assert.equal(validPreviewStage('/tools/player/', 'choice'), false);
   assert.equal(validPreviewStage('/tools/', 'survey-7'), false);
   assert.equal(validPreviewStage('/tools/survey/', 'survey-7'), true);
   assert.equal(validPreviewStage('/tools/survey/', 'survey-8'), false);

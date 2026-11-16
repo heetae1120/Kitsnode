@@ -28,3 +28,24 @@ test('member draft preview never mounts the authentication client', () => {
     assert.equal(authMounts, 0);
   }
 });
+
+test('disabled auth default preview reuses the visitor preparation card without mounting auth', () => {
+  const source = readFileSync(new URL('../src/components/store/member-account-entry.tsx', import.meta.url), 'utf8');
+  const code = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText;
+  const visitorCard = { visitor: 'preparation card' };
+  const modules: Record<string, unknown> = {
+    react: { useState: () => [true, () => {}], useEffect: () => {} },
+    'react/jsx-runtime': { jsx: (type: unknown, props: unknown) => ({ type, props }) },
+    'next/dynamic': { __esModule: true, default: () => () => { throw new Error('Unexpected authentication client'); } },
+    '@/lib/draft-preview-stage': { isDraftPreviewMode: () => true, useDraftPreviewStage: () => 'default' },
+    './member-preview': { MemberPreview: () => { throw new Error('Unexpected separate preview'); } },
+  };
+  const exports: Record<string, Function> = {};
+  new Function('require', 'exports', 'process', code)((id: string) => { assert.ok(id in modules, id); return modules[id]; }, exports, { env: {} });
+  for (const mode of ['login', 'signup']) {
+    const output = exports.MemberAccountEntry({ mode, children: visitorCard }) as { type: unknown; props: { children: unknown; 'data-preview-stage': string } };
+    assert.equal(output.type, 'div');
+    assert.equal(output.props.children, visitorCard);
+    assert.equal(output.props['data-preview-stage'], 'default');
+  }
+});

@@ -13,6 +13,14 @@ export function MemberAccountEntry({ mode, children }: { mode: 'login' | 'signup
   const stage = useDraftPreviewStage(mode === 'login' ? '/store/login/' : '/store/signup/');
   useEffect(() => { setPreview(isDraftPreviewMode()); }, []);
   if (preview === null) return null;
-  if (preview) return <MemberPreview mode={mode} stage={(stage || 'default') as MemberPreviewStage} />;
+  if (preview) {
+    // When auth is disabled, the visitor sees the supplied preparation card.
+    // Reuse it for the default stage so frontend changes appear in the editor.
+    // Other stages remain explicitly synthetic and never mount the auth client.
+    if (process.env.NEXT_PUBLIC_MEMBER_AUTH_ENABLED !== 'true' && (!stage || stage === 'default')) {
+      return <div data-preview-stage="default" style={{ display: 'contents' }}>{children}</div>;
+    }
+    return <MemberPreview mode={mode} stage={(stage || 'default') as MemberPreviewStage} />;
+  }
   return process.env.NEXT_PUBLIC_MEMBER_AUTH_ENABLED === 'true' ? <MemberAuthPrep mode={mode} /> : children;
 }

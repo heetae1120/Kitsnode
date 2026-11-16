@@ -19,7 +19,7 @@ export function analyticsAllowed(c: { enabled?: string; endpoint?: string; hostn
   if (c.enabled !== 'true' || c.framed || c.hasOpener || c.dnt === '1' || c.dnt === 'yes' || c.gpc) return false;
   if (/^(localhost|127\.|0\.0\.0\.0|\[?::1\]?)/i.test(c.hostname) || c.hostname.endsWith('.localhost')) return false;
   const query = new URLSearchParams(c.search);
-  if (query.has('kits_editor') || query.has('kits_preview') || query.has('kits_preview_session')) return false;
+  if (query.has('kits_editor') || query.has('kits_preview') || query.has('kits_preview_session') || query.has('kits_live_editor')) return false;
   try { const url = new URL(c.endpoint || ''); return url.protocol === 'https:' && !url.username && !url.password && !url.search && !url.hash; } catch { return false; }
 }
 export function createAnalyticsView(page: string, viewId: string, now: () => number, initiallyVisible: boolean, attribution: Attribution = UNKNOWN_ATTRIBUTION) {

@@ -11,7 +11,7 @@ export function PublishedLayout() {
   const pathname = usePathname();
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    if (query.has("kits_editor") || query.has("kits_preview")) return;
+    if (query.has("kits_editor") || query.has("kits_preview") || query.has("kits_live_editor")) return;
     const page = pathname.endsWith("/") ? pathname : `${pathname}/`;
     if (page !== '/' && !page.startsWith('/tools/') && !isAuthLayoutPage(page)) return;
     let current: LayoutChanges = published as LayoutChanges;
@@ -23,7 +23,7 @@ export function PublishedLayout() {
     };
     try { const stored = JSON.parse(localStorage.getItem(FAST_LAYOUT_CACHE) || 'null'); if (isLayoutChanges(stored)) current = stored; } catch { /* use bundled fallback */ }
     const observer = new MutationObserver(() => { if (!cancelled && !pending) { pending = true; queueMicrotask(() => { if (!cancelled) apply(); }); } });
-    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-preview-stage'] });
     apply();
     const controller = new AbortController();
     const timer = window.setTimeout(() => controller.abort(), 5000);

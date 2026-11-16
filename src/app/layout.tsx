@@ -5,6 +5,7 @@ import "./brand.css";
 import "./dark-studio.css";
 import { VisitorAnalytics } from "@/components/visitor-analytics";
 import { DraftPreview } from "@/components/draft-preview";
+import { LiveEditorBridge } from "@/components/live-editor-bridge";
 import { StudioFooter } from "@/components/studio-footer";
 import { PublishedLayout } from "@/components/published-layout";
 const pretendard = localFont({
@@ -32,7 +33,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ko" className={pretendard.variable} data-scroll-behavior="smooth">
-      <body>{children}<StudioFooter /><PublishedLayout /><DraftPreview /><VisitorAnalytics /></body>
+      <body>{children}<StudioFooter /><PublishedLayout /><DraftPreview /><LiveEditorBridge /><VisitorAnalytics /></body>
     </html>
   );
 }

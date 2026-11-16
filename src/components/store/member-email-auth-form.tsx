@@ -22,13 +22,13 @@ function validNotice(notice: {href:string;version:string}) {
   return /^\/(?!\/)[A-Za-z0-9/_-]+\/$/.test(notice.href) && /^[A-Za-z0-9._-]{1,64}$/.test(notice.version);
 }
 
-export function EmailAuthForm({ auth, recovery = false, signedIn = false, initialMode = 'signin', allowSignup = false, signupConsent }: { auth: EmailAuth; recovery?: boolean; signedIn?: boolean; initialMode?: 'signin' | 'signup'; allowSignup?: boolean; signupConsent?: SignupConsent }) {
+export function EmailAuthForm({ auth, recovery = false, signedIn = false, initialMode = 'signin', allowSignup = false, signupConsent, previewStatus }: { auth: EmailAuth; recovery?: boolean; signedIn?: boolean; initialMode?: 'signin' | 'signup'; allowSignup?: boolean; signupConsent?: SignupConsent; previewStatus?: 'error' | 'verification' }) {
   const canSignup = Boolean(allowSignup && signupConsent && validNotice(signupConsent.terms) && validNotice(signupConsent.privacy) && typeof signupConsent.register === 'function');
   const [mode, setMode] = useState<Mode>(recovery ? 'update' : initialMode === 'signup' && !canSignup ? 'signin' : initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState(previewStatus === 'verification' ? '요청을 처리했습니다. 입력한 이메일에서 인증 안내를 확인해 주세요.' : '');
+  const [error, setError] = useState(previewStatus === 'error' ? '로그인 정보를 확인해 주세요.' : '');
   const [busy, setBusy] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false);

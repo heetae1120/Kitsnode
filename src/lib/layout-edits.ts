@@ -3,7 +3,7 @@ export type LayoutChanges = Record<string, Record<string, LayoutPatch>>;
 export const AUTH_LAYOUT_PAGES = ['/store/login/', '/store/signup/'] as const;
 export const isAuthLayoutPage = (page: string) => (AUTH_LAYOUT_PAGES as readonly string[]).includes(page);
 export const START_DIAGNOSIS_SELECTOR = 'body [data-layout-target="start-diagnosis-link"]';
-export const isUniqueLayoutSelector = (page: string, selector: string) => isAuthLayoutPage(page) || (page === '/tools/start/' && selector === START_DIAGNOSIS_SELECTOR);
+export const isUniqueLayoutSelector = (page: string, selector: string) => isAuthLayoutPage(page) || (page === '/tools/start/' && selector === START_DIAGNOSIS_SELECTOR) || (page === '/tools/market/' && isMarketStageLayoutSelector(selector));
 export const AUTH_TEXT_SELECTORS = ['body [data-auth-edit="heading"]', 'body [data-auth-edit="description"]'] as const;
 export const AUTH_CONTROL_SELECTORS = ['body [data-auth-edit="email-input"]', 'body [data-auth-edit="password-input"]', 'body [data-auth-edit="submit-button"]', 'body [data-auth-edit="naver-button"]'] as const;
 export const isAuthLayoutSelector = (selector: string) => ([...AUTH_TEXT_SELECTORS, ...AUTH_CONTROL_SELECTORS] as readonly string[]).includes(selector);
@@ -13,6 +13,11 @@ export function validAuthLayoutPatch(selector: string, patch: unknown): boolean 
   return Object.entries(patch).every(([key,value]) => allowed.includes(key) && typeof value === 'string');
 }
 
+/** New stage-specific entries override legacy entries without rewriting existing drafts. */
+export function isMarketStageLayoutSelector(selector: string): boolean {
+  return /^body:has\(\.business-intake\[data-preview-stage="market-[a-z-]+"\]\) > /.test(selector);
+}
+
 /** Common-section selectors have explicit priority, independent of JSONB key order. */
 export function isCommonLayoutSelector(selector: string): boolean {
   return ['body .tool-topbar', 'body .mp-live-bar'].some((prefix) => selector === prefix || selector.startsWith(`${prefix} > `));
@@ -20,7 +25,11 @@ export function isCommonLayoutSelector(selector: string): boolean {
 
 export function orderedLayoutEntries(patches: Record<string, LayoutPatch>): [string, LayoutPatch][] {
   const entries = Object.entries(patches);
-  return [...entries.filter(([selector]) => !isCommonLayoutSelector(selector)), ...entries.filter(([selector]) => isCommonLayoutSelector(selector))];
+  return [
+    ...entries.filter(([selector]) => !isCommonLayoutSelector(selector) && !isMarketStageLayoutSelector(selector)),
+    ...entries.filter(([selector]) => isMarketStageLayoutSelector(selector)),
+    ...entries.filter(([selector]) => isCommonLayoutSelector(selector)),
+  ];
 }
 
 // A patch targets one direct text node, never replaces descendant markup.

@@ -46,7 +46,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const choiceHeading=useRef<HTMLHeadingElement>(null);
  const goalDialog=useRef<HTMLDialogElement>(null);
  const previewStage = useDraftPreviewStage(initialMode === 'player' ? '/tools/player/' : '/tools/');
- useEffect(()=>{if(previewStage){const n=previewStage==='3-keywords'?3:Number(previewStage);if(n>=3)setReport(previewReport);setStep(n);}},[previewStage]);
+ useEffect(()=>{if(previewStage&&previewStage!=='choice'){const n=previewStage==='3-keywords'?3:Number(previewStage);if(n>=3)setReport(previewReport);setStep(n);}},[previewStage]);
  const update=(key:keyof Draft,value:string)=>{setDraft(previous=>({...previous,[key]:value}));setExampleFields(keys=>keys.filter(field=>field!==key));setError('');};
  const basicReady=basics.every(([key])=>draft[key]!==''&&Number.isFinite(Number(draft[key]))&&Number(draft[key])>=0)&&Number(draft.price)>0&&Number.isSafeInteger(Number(draft.quantity))&&Number(draft.quantity)>0;
  const hasBudget=draft.available!=='';
@@ -84,7 +84,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
   setSelectedMode(next);setDraft(empty);setStep(1);setMarket('');setReport(null);setExampleFields([]);setError('');
   requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});
  }
- if(selectedMode===null&&!previewStage)return <div className="finance-dashboard mp-shell diagnosis-studio" data-diagnosis-stage="choose">
+ if(selectedMode===null&&(!previewStage||previewStage==='choice'))return <div className="finance-dashboard mp-shell diagnosis-studio" data-preview-stage="choice" data-diagnosis-stage="choose">
   <DiagnosisHeader/>
   <main className="ds-choice" aria-labelledby="ds-choice-title">
    <h1 id="ds-choice-title" ref={choiceHeading} tabIndex={-1}>지금, 어느 단계에<br/><em>서 있나요?</em></h1>

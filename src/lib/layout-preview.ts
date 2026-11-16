@@ -4,9 +4,12 @@ import type { LayoutChanges } from './layout-edits';
 export const PREVIEW_PROTOCOL = 'kitsnode-draft-preview-v2';
 export const PREVIEW_PAGES = ['/', '/tools/', '/tools/start/', '/tools/player/', '/tools/rankings/', '/tools/seo/', '/tools/traffic/', '/tools/bidding/', '/tools/negative-search/', '/tools/keywords/', '/tools/survey/', '/tools/about/', '/tools/market/', '/tools/consultation/', '/store/login/', '/store/signup/'] as const;
 export const PREVIEW_STAGES: Record<string, readonly string[]> = {
-  '/tools/': ['1', '2', '3', '3-keywords', '4'],
+  '/tools/': ['choice', '1', '2', '3', '3-keywords', '4'],
   '/tools/player/': ['1', '2', '3', '3-keywords', '4'],
   '/tools/survey/': ['survey-0', 'survey-1', 'survey-2', 'survey-3', 'survey-4', 'survey-5', 'survey-6', 'survey-7'],
+  '/tools/market/': ['market-start', 'market-ads', 'market-agency', 'market-starter', 'market-profit', 'market-direct', 'market-outsourced', 'market-starter-result', 'market-profit-result', 'market-direct-result', 'market-outsourced-result'],
+  '/tools/seo/': ['seo-default', 'seo-checked'],
+  '/tools/consultation/': ['consultation-default', 'consultation-invalid', 'consultation-sending', 'consultation-success', 'consultation-failed'],
   '/tools/keywords/': ['detail', 'compare', 'saved'],
   '/store/login/': ['default', 'error', 'verification', 'authenticated', 'consent'],
   '/store/signup/': ['default', 'error', 'verification', 'authenticated', 'consent'],
@@ -59,12 +62,12 @@ export function validPreviewSnapshot(page: unknown, changes: unknown): changes i
 }
 
 /** Call directly from a user click. Only this page's immutable snapshot crosses origins. */
-export function startFrontendPreview(options: { page: string; changes: LayoutChanges; stage?: string; onStatus: (status: PreviewStatus) => void; frontendUrl?: string }) {
+export function startFrontendPreview(options: { page: string; changes: LayoutChanges; stage?: string; onStatus: (status: PreviewStatus) => void; frontendUrl?: string; popup?: Window }) {
   const changes: LayoutChanges = JSON.parse(JSON.stringify({ [options.page]: options.changes[options.page] || {} }));
   if (!validPreviewSnapshot(options.page, changes) || !validPreviewStage(options.page, options.stage)) throw new Error('Invalid draft snapshot');
   const session = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
   const url = previewUrl(options.frontendUrl || process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://heetae1120.github.io/Kitsnode', options.page, session);
-  const popup = window.open(url.href, '_blank');
+  const popup = options.popup || window.open(url.href, '_blank');
   if (!popup) { options.onStatus('blocked'); return { close() {} }; }
   let ended = false, sent = false;
   const envelope = (type: string) => ({ protocol: PREVIEW_PROTOCOL, session, type });
@@ -84,5 +87,8 @@ export function startFrontendPreview(options: { page: string; changes: LayoutCha
   const timeout = window.setTimeout(() => { popup.postMessage(envelope('cancel'), url.origin); finish('timeout'); }, 12000);
   const closed = window.setInterval(() => { if (popup.closed) finish('closed'); }, 500);
   options.onStatus('connecting');
+  // A blank window may have been opened during the user click while the editor
+  // waits for the live frame to finish a pending edit.
+  if (options.popup) popup.location.href = url.href;
   return { close() { popup.close(); if (!ended) { finish('closed'); } } };
 }
