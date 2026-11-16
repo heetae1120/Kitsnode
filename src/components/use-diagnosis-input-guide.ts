@@ -10,6 +10,9 @@ export function useDiagnosisInputGuide(root:RefObject<HTMLDivElement|null>,enabl
   let active:HTMLElement|null=null,timer:ReturnType<typeof setTimeout>|undefined,frame=0;
   function clear(){if(timer)clearTimeout(timer);active?.removeAttribute('data-guide-active');active?.removeAttribute('data-guide-idle');}
   function find(){
+   // Keep the current edit highlighted until blur/Tab, including after its first digit.
+   const editing=document.activeElement;
+   if(editing instanceof HTMLElement&&el!.contains(editing)&&editing.matches('input:not([type=hidden]):not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea')&&!editing.closest('[inert],[aria-hidden=true],dialog:not([open])'))return editing.closest<HTMLElement>('[data-guide-field]')??editing;
    const candidates=el!.querySelectorAll<HTMLElement>('[data-guide-field],input:not([type=hidden]):not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea');
    for(const field of candidates){
     if(!field.getClientRects().length||field.closest('[inert],[aria-hidden=true],dialog:not([open])'))continue;
@@ -33,6 +36,8 @@ export function useDiagnosisInputGuide(root:RefObject<HTMLDivElement|null>,enabl
    setMessage(`다음 입력: ${label}`);
    timer=setTimeout(()=>{
     if(!active)return;
+    const unanswered=field.hasAttribute('data-guide-field')?field.dataset.guideComplete!=='true':!(field as HTMLInputElement).value.trim();
+    if(!unanswered)return;
     active.dataset.guideIdle='true';
     const hasExample=!!active.querySelector('[data-guide-example],.mp-quick-costs button:first-child');
     setMessage(hasExample?`${label}을 모르겠다면, 주황색 ‘참고값 넣기’를 눌러 입력하세요. 참고값은 실제 비용과 다를 수 있어요.`:`${label}을 입력해 주세요. 입력하면 다음 빈칸을 안내합니다.`);
@@ -42,9 +47,9 @@ export function useDiagnosisInputGuide(root:RefObject<HTMLDivElement|null>,enabl
   const activity=()=>update(true);
   const observer=new MutationObserver(queue);
   observer.observe(el,{childList:true,subtree:true,attributes:true,attributeFilter:['data-guide-complete','aria-hidden','inert','open']});
-  el.addEventListener('input',activity);el.addEventListener('change',activity);el.addEventListener('click',queue);
+  el.addEventListener('input',activity);el.addEventListener('change',activity);el.addEventListener('click',queue);el.addEventListener('focusin',queue);el.addEventListener('focusout',queue);
   sync.current=queue;queue();
-  return()=>{clear();cancelAnimationFrame(frame);observer.disconnect();el.removeEventListener('input',activity);el.removeEventListener('change',activity);el.removeEventListener('click',queue);sync.current=null;};
+  return()=>{clear();cancelAnimationFrame(frame);observer.disconnect();el.removeEventListener('input',activity);el.removeEventListener('change',activity);el.removeEventListener('click',queue);el.removeEventListener('focusin',queue);el.removeEventListener('focusout',queue);sync.current=null;};
  },[root,enabled]);
  useEffect(()=>{sync.current?.();},[revision]);
  return message;
