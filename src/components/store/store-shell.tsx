@@ -13,7 +13,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
   if (pathname === "/store/login" || pathname === "/store/signup") return <div className="member-page">
     <a className="member-skip" href="#member-main">본문으로 바로가기</a>
     <header className="member-header"><Link className="member-brand" href="/tools/start/" aria-label="키츠노드 홈">kitsnode<span>®</span></Link><Link className="member-back" href="/tools/start/"><ArrowLeft size={16} aria-hidden="true"/>홈으로 돌아가기</Link></header>
-    <main id="member-main" className="member-main" tabIndex={-1}><div className="member-intro"><span>YOUR NEXT STEP</span><h1>브랜드의 다음을<br/><em>함께 만듭니다.</em></h1><p>키츠노드 계정으로 로그인하고<br/>나에게 필요한 도구를 만나보세요.</p><div className="member-mark" aria-hidden="true">✳</div></div><div className="member-panel">{children}</div></main>
+    <main id="member-main" className="member-main" tabIndex={-1}><div className="member-intro"><span>YOUR NEXT STEP</span><h1>브랜드의 다음을<br/><em>함께 만듭니다.</em></h1><p>키츠노드 계정으로 로그인하고<br/>나에게 필요한 도구를 만나보세요.</p><div className="member-mark" aria-hidden="true" /></div><div className="member-panel">{children}</div></main>
   </div>;
   return <div className="store-theme">
     <a className="store-skip" href="#store-main">본문으로 바로가기</a>

@@ -9,7 +9,7 @@ function TargetMark(){
   return <svg viewBox="0 0 200 200" fill="none" aria-hidden="true"><circle cx="100" cy="100" r="72" stroke="currentColor" strokeWidth="10" strokeDasharray="405 48" transform="rotate(-20 100 100)"/><circle cx="100" cy="100" r="35" stroke="currentColor" strokeWidth="10"/><circle cx="100" cy="100" r="7" fill="currentColor"/></svg>;
 }
 function ReformMark(){
-  return <svg className="as-black-star" viewBox="0 0 200 200" fill="none" aria-hidden="true">{[0,45,90,135].map(angle=><rect key={angle} x="84" y="8" width="32" height="184" rx="2" fill="currentColor" transform={`rotate(${angle} 100 100)`}/>)}<circle cx="100" cy="100" r="22" fill="#ff5a1f"/><circle cx="100" cy="100" r="10" fill="currentColor"/></svg>;
+  return <svg className="as-black-star" viewBox="0 0 200 200" aria-hidden="true" />;
 }
 function DissectMark(){
   return <svg className="as-grid-mark" viewBox="0 0 200 200" fill="currentColor" aria-hidden="true"><path d="M92 8A84 84 0 0 0 8 92h84Z"/><path d="M108 8a84 84 0 0 1 84 84h-84Z"/><path d="M8 108a84 84 0 0 0 84 84v-84Z"/><path d="M108 108h84a84 84 0 0 1-84 84Z"/></svg>;

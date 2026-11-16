@@ -31,7 +31,7 @@ export function ChapterPlayer({navigation='tabs',src,poster,chapters=defaults,au
  const vars={'--cp-accent':accent,'--cp-line':accentLine,'--cp-tab':tab,'--cp-tab-text':tabText,'--cp-active':tabActive,'--cp-active-text':tabActiveText,'--cp-tick':tick,'--cp-edge': 'conic-gradient(from 0deg,'+edgeColors.join(',')+','+edgeColors[0]+')'} as React.CSSProperties;
  return <div ref={root} className={'lscp-root '+className} role="region" aria-label={ariaLabel} onKeyDown={key} style={{...vars,background:'linear-gradient(160deg,'+background.join(',')+')',fontFamily:font,...style}} data-reduced={reduced||undefined}>
  <div className="lscp-tint" aria-hidden style={{background:'radial-gradient(ellipse at right center,'+backgroundRight+',transparent 70%)'}}/>
- {brand&&<div className="lscp-brand" style={{color:brandColor}}><span aria-hidden>✳</span>{brand}</div>}
+ {brand&&<div className="lscp-brand" style={{color:brandColor}}><span aria-hidden />{brand}</div>}
  <div className="lscp-frame"><div className="lscp-edge" aria-hidden/><div className="lscp-film">
  {src?<video ref={video} src={src} poster={poster} muted={muted} loop={loop} playsInline preload="metadata" onLoadedMetadata={e=>{setLength(Number.isFinite(e.currentTarget.duration)?e.currentTarget.duration:duration);e.currentTarget.currentTime=Math.min(startAt,e.currentTarget.duration||0);setFailed(false);}} onTimeUpdate={e=>setTime(e.currentTarget.currentTime)} onEnded={()=>!loop&&setPlaying(false)} onError={()=>{setFailed(true);setPlaying(false);}}/>:children??<div className="lscp-default"><span>{brand}</span><strong>{available[active].label}</strong></div>}
  {watermark&&<span className="lscp-watermark">{brand}</span>}{failed&&<p className="lscp-unavailable" role="status">영상을 재생할 수 없어요.</p>}
