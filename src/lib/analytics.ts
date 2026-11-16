@@ -1,6 +1,7 @@
 import { UNKNOWN_ATTRIBUTION, type Attribution } from './analytics-attribution';
+import {createSurveyFunnel, ANALYTICS_STEPS} from './analytics-survey-funnel';
+export {ANALYTICS_STEPS} from './analytics-survey-funnel';
 /** Memory-only pseudonymous metadata snapshots. Form values are never accepted here. */
-export const ANALYTICS_STEPS = ['brandVision', 'audience', 'category', 'stage', 'budget', 'support', 'brandGoal', 'contact'] as const;
 export const ANALYTICS_FIELDS = ['brandVision', 'audience', 'categoryOther', 'brandGoal', 'store', 'company', 'nameRole', 'phone'] as const;
 type Step = typeof ANALYTICS_STEPS[number];
 type Field = typeof ANALYTICS_FIELDS[number];
@@ -64,22 +65,24 @@ export function sendAnalyticsSnapshot(endpoint: string, snapshot: Snapshot, tran
 export function startVisitorAnalytics(page: string, endpoint: string, win: Window, doc: Document, allowed: () => boolean = () => true, attribution: Attribution = UNKNOWN_ATTRIBUTION) {
   const view = createAnalyticsView(page, win.crypto.randomUUID(), () => win.performance.now(), doc.visibilityState === 'visible', attribution);
   let disposed = false, completed = false, privacyStopped = false;
+  let storage:Storage|null=null; try {storage=win.sessionStorage;} catch { /* unavailable */ }
+  const funnel=page==='/tools/survey/' ? createSurveyFunnel({storage,createId:()=>win.crypto.randomUUID(),allowed,send:event=>{const url=new URL(endpoint);url.searchParams.set('resource','survey-funnel');try {void win.fetch(url.toString(),{method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(event),keepalive:true,credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',cache:'no-store'}).catch(()=>{});} catch { /* best effort */ }}}) : null;
   const card = () => page === '/tools/survey/' ? doc.querySelector('[data-analytics-survey]') : null;
-  const syncSurvey = () => { const node = card(); if (!node) return; const done = node.getAttribute('data-analytics-completed') === 'true'; view.setSurvey(node.getAttribute('data-analytics-step'), done); if (done && !completed) { completed = true; emit('complete'); } };
+  const syncSurvey = () => { const node = card(); if (!node) return; const done = node.getAttribute('data-analytics-completed') === 'true'; const step=node.getAttribute('data-analytics-step'); if(step&&(doc.visibilityState==='visible'||done)) funnel?.step(step,done); view.setSurvey(step, done); if (done && !completed) { completed = true; emit('complete'); } };
   function emit(reason: Reason) { if (disposed || privacyStopped) return; if (!allowed()) { privacyStopped = true; return; } const snapshot = view.snapshot(reason); if (snapshot) sendAnalyticsSnapshot(endpoint, snapshot, { fetch: win.fetch.bind(win) }); }
-  const activity = () => view.interaction();
-  const input = (event: Event) => { const target = event.target; if (!(target instanceof Element) || !card()?.contains(target)) return; view.input(target.getAttribute('data-analytics-field')); };
+  const activity = () => { view.interaction(); funnel?.activity(); };
+  const input = (event: Event) => { funnel?.activity(); const target = event.target; if (!(target instanceof Element) || !card()?.contains(target)) return; view.input(target.getAttribute('data-analytics-field')); };
   const visibility = () => { view.setVisible(doc.visibilityState === 'visible'); syncSurvey(); if (doc.visibilityState !== 'visible') emit('hidden'); };
-  const pagehide = () => { view.setVisible(false); syncSurvey(); emit('pagehide'); };
-  const pageshow = () => { view.setVisible(doc.visibilityState === 'visible'); syncSurvey(); };
+  const pagehide = () => { view.setVisible(false); syncSurvey(); emit('pagehide'); funnel?.leave(); };
+  const pageshow = () => { view.setVisible(doc.visibilityState === 'visible'); syncSurvey(); funnel?.resume(); };
   const observer = new MutationObserver(syncSurvey);
   // The card can mount after this effect. Observe its stable ancestor from the
   // start so delayed hydration and later card replacement cannot miss completion.
   const surveyRoot = page === '/tools/survey/' ? doc.body : null;
   if (surveyRoot) observer.observe(surveyRoot, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-analytics-step', 'data-analytics-completed'] });
   syncSurvey();
-  const interval = win.setInterval(() => { if (doc.visibilityState === 'visible') { syncSurvey(); emit('heartbeat'); } }, 15_000);
+  const interval = win.setInterval(() => { if (doc.visibilityState === 'visible') { syncSurvey(); funnel?.flush(); emit('heartbeat'); } }, 15_000);
   for (const event of ['pointerdown', 'keydown', 'scroll', 'touchstart']) doc.addEventListener(event, activity, { passive: true });
   doc.addEventListener('input', input); doc.addEventListener('visibilitychange', visibility); win.addEventListener('pagehide', pagehide); win.addEventListener('pageshow', pageshow);
-  return (navigation = false) => { if (disposed) return; if (navigation) emit('navigation'); disposed = true; observer.disconnect(); win.clearInterval(interval); for (const event of ['pointerdown', 'keydown', 'scroll', 'touchstart']) doc.removeEventListener(event, activity); doc.removeEventListener('input', input); doc.removeEventListener('visibilitychange', visibility); win.removeEventListener('pagehide', pagehide); win.removeEventListener('pageshow', pageshow); };
+  return (navigation = false) => { if (disposed) return; if (navigation) { emit('navigation'); funnel?.leave(); } disposed = true; observer.disconnect(); win.clearInterval(interval); for (const event of ['pointerdown', 'keydown', 'scroll', 'touchstart']) doc.removeEventListener(event, activity); doc.removeEventListener('input', input); doc.removeEventListener('visibilitychange', visibility); win.removeEventListener('pagehide', pagehide); win.removeEventListener('pageshow', pageshow); };
 }

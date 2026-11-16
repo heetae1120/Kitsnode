@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createAnalyticsHandler, parseAnalyticsOrigins, validateAnalyticsEvent } from '../supabase/functions/kitsnode-analytics/handler.mjs';
+import { createAnalyticsHandler, parseAnalyticsOrigins, validateAnalyticsEvent, validateSurveyFunnel } from '../supabase/functions/kitsnode-analytics/handler.mjs';
 const front = 'https://visitor.example'; const admin = 'https://admin.example';
 const token = 'synthetic_github_token_123456789';
 const event = () => ({version:1,viewId:'491b857a-7641-4cef-8a22-28d383a498c2',sequence:1,page:'/tools/survey/',visibleMs:15000,engagedMs:14000,reason:'heartbeat',survey:{step:'brandVision',lastField:'brandVision',lastInputAgoMs:2000,completed:false}});
@@ -115,6 +115,7 @@ test('intranet receives extended reports while older dashboards keep the legacy 
  const h=harness({adminOrigins:[admin,intranet],fetchImpl:async(url:unknown,init?:RequestInit)=>{
   const target=String(url);if(target.startsWith('https://api.github.com/'))return Response.json({permissions:{push:true}});
   if(target.endsWith('kitsnode_intranet_page_timeline'))return Response.json([]);
+  if(target.endsWith('kitsnode_survey_funnel_report'))return Response.json({version:1,started:0,completed:0,abandoned:0,active:0,steps:[]});
   if(target.endsWith('kitsnode_intranet_session_report'))return Response.json({landing:'site',rows:[],hourly:[],dateHours:[]});
   if(target.endsWith('kitsnode_main_session_report'))return Response.json({landing:'site',rows:[]});
   if(target.endsWith('kitsnode_basic_load_report'))return Response.json({timezone:'Asia/Seoul',days:7,rows:[]});
@@ -124,4 +125,13 @@ test('intranet receives extended reports while older dashboards keep the legacy 
  }});
  const old=await h.handler(getReport());assert.equal(old.status,200);assert.equal((await old.json()).kind,'legacy');
  const current=await h.handler(getReport(intranet));assert.equal(current.status,200);const body=await current.json();assert.equal(body.kind,'extended');assert.deepEqual(body.pageTimeline,[]);
+});
+
+test('survey funnel accepts only fixed stage identifiers and rejects response content',async()=>{
+ const h=harness(), payload={version:1,attemptId:'491b857a-7641-4cef-8a22-28d383a498c2',sequence:1,reached:['brandVision'],step:'brandVision',status:'active'};
+ const req=(data:unknown,origin=front)=>new Request('https://endpoint.example/analytics?resource=survey-funnel',{method:'POST',headers:{origin,'content-type':'text/plain'},body:JSON.stringify(data)});
+ assert.equal(validateSurveyFunnel(payload),true);assert.equal((await h.handler(req(payload))).status,202);
+ for(const patch of [{answer:'private'}, {step:'private answer'}, {reached:['brandVision','brandVision']},{status:'completed'}, {attemptId:'person'}])assert.equal((await h.handler(req({...payload,...patch}))).status,400);
+ assert.equal((await h.handler(req(payload,'https://bad.example'))).status,403);
+ assert.equal(h.calls.length,1);assert.match(h.calls[0].url,/kitsnode_record_survey_funnel$/);
 });

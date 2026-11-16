@@ -112,7 +112,7 @@ test('survey runtime reads only marker attributes and sends completion once afte
     let time = 0, tick = () => {};
     const sent: Snapshot[] = [];
     const doc = Object.assign(new EventTarget(), { visibilityState: 'visible', querySelector: () => card });
-    const win = Object.assign(new EventTarget(), { crypto: { randomUUID: () => id }, performance: { now: () => time }, navigator: { sendBeacon: () => { throw new Error('Beacon must never be called'); } }, fetch: async (_url: string, init: RequestInit) => { assert.equal(init.credentials, 'omit'); assert.equal(init.redirect, 'error'); assert.equal(init.referrerPolicy, 'no-referrer'); sent.push(JSON.parse(init.body as string)); }, setInterval: (fn: () => void) => { tick = fn; return 1; }, clearInterval: () => {} });
+    const win = Object.assign(new EventTarget(), { crypto: { randomUUID: () => id }, performance: { now: () => time }, navigator: { sendBeacon: () => { throw new Error('Beacon must never be called'); } }, fetch: async (_url: string, init: RequestInit) => { assert.equal(init.credentials, 'omit'); assert.equal(init.redirect, 'error'); assert.equal(init.referrerPolicy, 'no-referrer'); if(!String(_url).includes('resource=survey-funnel'))sent.push(JSON.parse(init.body as string)); }, setInterval: (fn: () => void) => { tick = fn; return 1; }, clearInterval: () => {} });
     const stop = startVisitorAnalytics('/tools/survey/', allowed.endpoint, win as unknown as Window, doc as unknown as Document);
     for (let i = 0; i < 50; i++) { time++; const event = new Event('input'); Object.defineProperty(event, 'target', { value: field }); doc.dispatchEvent(event); }
     assert.equal(sent.length, 0); time = 15_000; tick(); assert.equal(sent[0].survey?.lastField, 'brandVision');
@@ -184,7 +184,7 @@ test('late-mounted survey card is observed immediately and completion never wait
     let time=0, card:null|{getAttribute:(key:string)=>string|null}=null, done=false, tick=()=>{};
     const sent:Snapshot[]=[];
     const doc=Object.assign(new EventTarget(),{body:root,visibilityState:'visible',querySelector:()=>card});
-    const win=Object.assign(new EventTarget(),{crypto:{randomUUID:()=>id},performance:{now:()=>time},fetch:async(_url:string,init:RequestInit)=>{sent.push(JSON.parse(init.body as string));},setInterval:(fn:()=>void)=>{tick=fn;return 1;},clearInterval:()=>{}});
+    const win=Object.assign(new EventTarget(),{crypto:{randomUUID:()=>id},performance:{now:()=>time},fetch:async(_url:string,init:RequestInit)=>{if(!String(_url).includes('resource=survey-funnel'))sent.push(JSON.parse(init.body as string));},setInterval:(fn:()=>void)=>{tick=fn;return 1;},clearInterval:()=>{}});
     const stop=startVisitorAnalytics('/tools/survey/',allowed.endpoint,win as unknown as Window,doc as unknown as Document);
     assert.equal(observed,root);
     time=5_000;card={getAttribute:key=>key==='data-analytics-step'?(done?'contact':'brandVision'):key==='data-analytics-completed'?String(done):null};changed();
