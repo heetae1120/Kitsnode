@@ -406,7 +406,13 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-ch
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-chapters :is(.mp-tablet-budget,.mp-unit-summary,.mp-reorder,.mp-goal-invitation){width:100%;max-width:none;margin-inline:0}
 }
 /* Keep edits stable: filled fields advance only after leaving the control. */
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]{background:#1c2429!important;background-image:none!important;outline:0!important;box-shadow:inset 4px 0 #ff8c61!important;border-radius:0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]{position:relative;isolation:isolate;background:transparent!important;background-image:none!important;color:#0b0b0b!important;outline:0!important;box-shadow:none!important;border-radius:0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]::before{content:'';position:absolute;inset:-16px -14px;background:#ff5a1f;border-radius:10px;box-shadow:0 12px 32px #0005;z-index:-1;pointer-events:none}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] :is(.ds-group-index,.mp-field-label,.mp-field-label>label,.mp-field-label>span,.mp-quantity-capacity,.mp-quantity-capacity small,.mp-market-applied,.mp-return-handling>p){color:#0b0b0b!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] .mp-hint-button{color:#0b0b0b!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] .mp-quick-costs button{background:#0b0b0b;color:#f5f2eb;border-color:#0b0b0b}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] .mp-quick-costs::after{color:#0b0b0b!important}
+@media(max-width:700px){body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]::before{inset:-12px -9px;border-radius:8px}}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] :is(input,.mp-input-wrap){background:#0b0b0b!important;color:#f5f2eb!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow input:is(:focus,:focus-visible,:active){background:#0b0b0b!important;color:#f5f2eb!important;outline:1px solid #555!important;outline-offset:0!important;box-shadow:none!important;caret-color:#f5f2eb}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow input::selection{background:#374047;color:#fff}
