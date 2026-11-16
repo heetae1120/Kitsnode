@@ -333,7 +333,7 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder-legend{font-siz
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-details{margin:20px 0;border-top:1px solid #353535;padding-top:18px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-details summary{font-size:14px;cursor:pointer;color:#f5f2eb}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder-note{font-size:12px;line-height:1.8}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact{position:relative;isolation:isolate;min-height:100%;display:grid;place-content:center;text-align:center;padding:64px 24px;margin:0;background:#0b0b0b!important;overflow:hidden}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact{position:relative;isolation:isolate;min-height:560px;display:grid;place-content:center;text-align:center;padding:64px 24px;margin:0;background:#0b0b0b!important;overflow:hidden}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-orbit{position:absolute;width:min(420px,85%);height:auto;top:50%;left:50%;margin:0;translate:-50% -50%;color:#ff5a1f;opacity:.18!important;pointer-events:none;z-index:-1}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact-copy>p:first-child{font-size:clamp(20px,3vw,32px);color:#f5f2eb;margin:0 0 18px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact h2{margin:0;font-size:inherit;line-height:1.2}
@@ -346,6 +346,6 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact-copy>p:last
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-profit-after{border-left:0!important;border-top:1px solid #454545!important;padding-top:24px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder-heading{flex-direction:column;align-items:stretch;gap:20px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder-metric-grid{grid-template-columns:1fr}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact{padding:48px 12px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact{min-height:460px;padding:48px 12px}
 }
 @media print{.ds-goal-orbit{display:none}.ds-reorder-details{display:block}}
