@@ -32,13 +32,6 @@ export function VisitorAnalytics() {
   const [saved, setSaved] = useState(true);
   const consentRef = useRef<AnalyticsConsent>('unset');
   const stopRef = useRef<null | ((navigation?: boolean) => void)>(null);
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const showDialog = available && (consent === 'unset' || settings);
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (showDialog && dialog && !dialog.open) dialog.showModal();
-    return () => { if (dialog?.open) dialog.close(); };
-  }, [showDialog]);
   useEffect(() => {
     if (initialLoadChecked.current) return;
     initialLoadChecked.current = true;
@@ -106,24 +99,15 @@ export function VisitorAnalytics() {
     {!saved && <p role="status">선택을 저장하지 못했습니다. 이번 탭에만 적용되며, 다시 열면 분석 설정을 확인해 주세요.</p>}
     <button type="button" className={styles.settings} onClick={() => setSettings(true)}>방문 분석 설정</button>
   </div>;
-  return <dialog ref={dialogRef} className={styles.panel} aria-labelledby="analytics-title" onCancel={(event) => event.preventDefault()}>
+  return <aside className={styles.banner} aria-labelledby="analytics-title">
     <div className={styles.content}>
-      <header className={styles.header}>
-        <span className={styles.badge}>선택 동의</span>
-        <h2 id="analytics-title">서비스 개선을 위한<br />방문 분석</h2>
-        <p>더 편리한 키츠노드를 만들기 위해 사이트 이용 현황을 분석합니다.</p>
-      </header>
-      <dl className={styles.details}>
-        <div><dt>이용 목적</dt><dd>방문과 이용 흐름을 살펴보고 서비스를 개선합니다.</dd></div>
-        <div><dt>수집 항목</dt><dd>방문 페이지, 표시·활동 시간, 유입 출처와 매체, 캠페인 태그 유무, 설문 진행·이탈 단계와 작성 시간, 마지막 입력 항목 이름을 수집합니다. 답변 내용과 이름·연락처는 방문 분석에 포함하지 않습니다. 이용 흐름을 집계하기 위해 현재 탭에 임시 세션·설문 식별자를 사용하며, 30분 동안 활동이 없으면 새 세션으로 계산합니다.</dd></div>
-        <div><dt>보관 및 관리</dt><dd>상세 분석 기록은 90일이 지나면 매일 삭제합니다. 수집한 정보는 안전하게 관리하며, 보관 및 처리에 관한 자세한 내용은 개인정보 처리방침에서 확인할 수 있습니다. <Link href="/privacy/" target="_blank" rel="noopener noreferrer">개인정보 처리방침 보기 <span aria-hidden="true">↗</span></Link></dd></div>
-        <div><dt>동의와 선택</dt><dd>동의하지 않아도 서비스를 이용할 수 있으며, 언제든 ‘방문 분석 설정’에서 변경할 수 있습니다. 선택은 이 브라우저에 저장됩니다.</dd></div>
-      </dl>
+      <h2 id="analytics-title">더 나은 키츠노드를 위해 방문 분석에 동의해 주세요.</h2>
+      <p>이용 현황을 분석해 서비스를 개선합니다. 자세한 내용은 개인정보 처리방침에서 확인할 수 있습니다. <Link href="/privacy/" target="_blank" rel="noopener noreferrer">개인정보 처리방침</Link></p>
       {!saved && <p role="status" className={styles.warning}>브라우저 저장이 차단되어 선택은 이번 탭에만 적용됩니다. 다시 열면 분석 설정을 확인해 주세요.</p>}
     </div>
     <div className={styles.actions}>
       <button type="button" className={styles.reject} onClick={() => choose('deny')}>동의하지 않음</button>
       <button type="button" className={styles.accept} onClick={() => choose('allow')}>동의하기</button>
     </div>
-  </dialog>;
+  </aside>;
 }
