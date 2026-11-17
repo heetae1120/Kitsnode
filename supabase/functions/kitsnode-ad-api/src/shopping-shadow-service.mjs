@@ -1,4 +1,5 @@
 import {shoppingScopeFingerprint} from './shopping-shadow-run.mjs';
+import {assessIndividualBidSafety} from './individual-bid-safety.mjs';
 const uuid=v=>typeof v==='string'&&/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(v);
 const id=(v,p)=>typeof v==='string'&&new RegExp(`^${p}-[A-Za-z0-9-]{1,100}$`).test(v);
 const fail=reason=>({ok:false,reason});
@@ -31,14 +32,16 @@ export function createShoppingShadowService({verifySession,memberAllowed,getBind
    if(input.action==='history'){const entries=await store.history(user,r.id);return Array.isArray(entries)?{ok:true,entries}:fail('unavailable')}
    const common={connectionId:input.connectionId,campaignId:r.campaign_id,adgroupId:r.adgroup_id};
    if(r.target_type&&r.target_type!=='group'){
-    const groups=await catalog(token,{action:r.target_type==='keyword'?'keywordGroups':'groups',connectionId:input.connectionId,campaignId:r.campaign_id});
-    const targets=await catalog(token,{action:r.target_type==='keyword'?'keywords':'products',connectionId:input.connectionId,campaignId:r.campaign_id,groupId:r.adgroup_id});
-    const selected=targets?.items?.filter(x=>x.id===r.target_id),group=groups?.items?.filter(x=>x.id===r.adgroup_id);
-    if(!groups?.ok||!targets?.ok||selected?.length!==1||group?.length!==1)return fail('target_unavailable');
-    const target=selected[0],current=target.useGroupBid===true?group[0].bid:target.useGroupBid===false?target.bid:null;
+    const startedAt=Date.now();
+    const read=async()=>{const groups=await catalog(token,{action:r.target_type==='keyword'?'keywordGroups':'groups',connectionId:input.connectionId,campaignId:r.campaign_id});const targets=await catalog(token,{action:r.target_type==='keyword'?'keywords':'products',connectionId:input.connectionId,campaignId:r.campaign_id,groupId:r.adgroup_id});const selected=targets?.items?.filter(x=>x.id===r.target_id),group=groups?.items?.filter(x=>x.id===r.adgroup_id);return groups?.ok&&targets?.ok&&selected?.length===1&&group?.length===1?{group:group[0],target:selected[0]}:null;};
+    const first=await read(),second=await read(),finishedAt=Date.now();
+    if(!first||!second)return fail('target_unavailable');
+    const target=second.target,group=second.group,current=target.useGroupBid===true?group.bid:target.useGroupBid===false?target.bid:null;
     const usable=Number.isSafeInteger(current)&&current>=r.min_bid&&current<=r.max_bid&&current%10===0;
     const bounded=Math.max(r.min_bid,Math.min(r.max_bid,Math.ceil(r.reference_bid/10)*10)),limit=Math.floor(r.max_change/10)*10;
-    const result={status:'shadow_only',execution:'disabled',comparison:'not_applicable',currentBid:usable?current:null,proposedBid:usable?current+Math.max(-limit,Math.min(limit,bounded-current)):null,referenceBid:r.reference_bid,minBid:r.min_bid,maxBid:r.max_bid,maxChange:r.max_change,blockers:['atomic_update_unavailable','campaign_status_unverified',...(group[0].status!=='ELIGIBLE'?['adgroup_inactive']:[]),...(target.status!=='ELIGIBLE'?['target_inactive']:[]),...(target.useGroupBid===true?['individual_bid_conversion_required']:target.useGroupBid===null?['bid_mode_unverified']:[]),...(!usable?['current_outside_bounds']:[])]};
+    const proposed=usable?current+Math.max(-limit,Math.min(limit,bounded-current)):null;
+    const safety=assessIndividualBidSafety({kind:r.target_type,targetId:r.target_id,groupId:r.adgroup_id,first,second,startedAt,finishedAt,desiredBid:proposed});
+    const result={status:'shadow_only',execution:'disabled',comparison:'not_applicable',currentBid:usable?current:null,proposedBid:proposed,referenceBid:r.reference_bid,minBid:r.min_bid,maxBid:r.max_bid,maxChange:r.max_change,blockers:[...new Set([...safety.blockers,...(!usable?['current_outside_bounds']:[])])]};
     if(await actor(token)!==user)return fail('unauthorized');
     const entryId=await store.append(user,r.id,r.version,binding.revision,result);return uuid(entryId)?{ok:true,entryId,result}:fail('state_changed');
    }

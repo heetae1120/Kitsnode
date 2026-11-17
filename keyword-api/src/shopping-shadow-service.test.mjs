@@ -12,7 +12,7 @@ test('scope changes or missing scope after comparison fail closed',async()=>{con
 test('individual targets must belong to the selected account and group; simulation stays disabled',async()=>{
  let saved,records=[];
  const make=(targetType,targetId)=>({id:ruleId,connection_id:connection,campaign_id:'cmp-1',adgroup_id:'grp-1',target_type:targetType,target_id:targetId,reference_bid:100,min_bid:50,max_bid:1000,max_change:20,version:0});
- const service=createShoppingShadowService({verifySession:async()=>({id:user}),memberAllowed:async()=>true,getBinding:async()=>({userId:user,status:'read_connected',revision:2}),catalog:async(_t,input)=>({ok:true,items:input.action==='groups'||input.action==='keywordGroups'?[{id:'grp-1',bid:50}]:input.action==='products'?[{id:'nad-1',bid:null,useGroupBid:true}]:[{id:'nkw-1',bid:80,useGroupBid:false}]}),compare:async()=>{throw Error('unexpected comparison')},preview:async()=>{throw Error('unexpected preview')},store:{save:async(_u,r)=>saved=make(r.targetType,r.targetId),list:async()=>saved?[saved]:[],history:async()=>[],append:async(_u,_r,_v,_c,result)=>{records.push(result);return entryId}}});
+ const service=createShoppingShadowService({verifySession:async()=>({id:user}),memberAllowed:async()=>true,getBinding:async()=>({userId:user,status:'read_connected',revision:2}),catalog:async(_t,input)=>({ok:true,items:input.action==='groups'||input.action==='keywordGroups'?[{id:'grp-1',bid:50,status:'PAUSED'}]:input.action==='products'?[{id:'nad-1',bid:null,useGroupBid:true,status:'ELIGIBLE'}]:[{id:'nkw-1',bid:80,useGroupBid:false,status:'PAUSED'}]}),compare:async()=>{throw Error('unexpected comparison')},preview:async()=>{throw Error('unexpected preview')},store:{save:async(_u,r)=>saved=make(r.targetType,r.targetId),list:async()=>saved?[saved]:[],history:async()=>[],append:async(_u,_r,_v,_c,result)=>{records.push(result);return entryId}}});
  for(const [targetType,targetId,current] of [['product','nad-1',50],['keyword','nkw-1',80]]){
   const input={action:'saveTarget',connectionId:connection,campaignId:'cmp-1',adgroupId:'grp-1',targetType,targetId,referenceBid:100,minBid:50,maxBid:1000,maxChange:20,expectedVersion:null};
   assert.equal((await service('token',input)).ok,true);
@@ -21,4 +21,11 @@ test('individual targets must belong to the selected account and group; simulati
  }
  assert.equal((await service('token',{action:'saveTarget',connectionId:connection,campaignId:'cmp-1',adgroupId:'grp-1',targetType:'product',targetId:'nad-foreign',referenceBid:100,minBid:50,maxBid:1000,maxChange:20,expectedVersion:null})).reason,'target_unavailable');
  assert.equal(records.length,2);
+});
+
+test('simulation records a blocker when bid mode changes between server reads',async()=>{
+ let reads=0,stored;const individual={...rule,target_type:'product',target_id:'nad-1'};
+ const service=createShoppingShadowService({verifySession:async()=>({id:user}),memberAllowed:async()=>true,getBinding:async()=>({userId:user,status:'read_connected',revision:2}),catalog:async(_t,x)=>({ok:true,items:x.action==='groups'?[{id:'grp-1',bid:50,status:'ELIGIBLE'}]:[{id:'nad-1',bid:70,useGroupBid:++reads===1,status:'ELIGIBLE'}]}),compare:async()=>null,preview:async()=>null,store:{save:async()=>null,list:async()=>[individual],history:async()=>[],append:async(_u,_r,_v,_rev,result)=>{stored=result;return entryId}}});
+ const result=await service('token',{action:'simulate',connectionId:connection,ruleId});
+ assert.equal(result.ok,true);assert.equal(result.result.execution,'disabled');assert.ok(result.result.blockers.includes('target_changed_during_read'));assert.deepEqual(stored,result.result);
 });
