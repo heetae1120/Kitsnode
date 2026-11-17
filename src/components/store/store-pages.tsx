@@ -6,6 +6,10 @@ import { ArrowRight, BarChart3, CircleUserRound, LockKeyhole, Package, PlugZap }
 import { StoreBadge, StoreButton, StoreCard, StoreHeading } from "./store-ui";
 import { MEMBER_INTAKE_REVIEWED } from '@/lib/member-auth-config.mjs';
 import { MemberAccountEntry } from './member-account-entry';
+import { AdConnectionPanel } from './ad-connection-panel';
+import { createAdConnectionTransport } from '@/lib/ad-connection-transport.mjs';
+
+const adConnectionTransport = createAdConnectionTransport({enabled: process.env.NEXT_PUBLIC_AD_CONNECTION_ENABLED === 'true'});
 
 export function MemberPreparation() {
   if (MEMBER_INTAKE_REVIEWED && process.env.NEXT_PUBLIC_MEMBER_AUTH_ENABLED === 'true' && process.env.NEXT_PUBLIC_MEMBER_AUTH_SIGNUP_ENABLED === 'true') return <StoreCard className="store-access" aria-labelledby="member-access-title"><div className="store-icon"><LockKeyhole aria-hidden="true" size={22}/></div><div><StoreBadge tone="primary">회원 계정</StoreBadge><h2 id="member-access-title">회원 계정으로 시작하세요</h2><p>이메일 회원가입과 로그인을 이용할 수 있습니다. 광고 계정 연결과 개인 성과 조회는 준비 중입니다.</p><div className="store-actions"><Link className="store-button" href="/store/login/" onClick={saveMemberReturn}>로그인</Link><Link className="store-button store-button--secondary" href="/store/signup/" onClick={saveMemberReturn}>회원가입</Link></div></div></StoreCard>;
@@ -21,7 +25,7 @@ export function StoreAds() {
   return <><StoreHeading title="광고 성과 분석" description="광고비, 구매전환, 시간대별 흐름을 같은 기준으로 비교해요." /><MemberPreparation /><StoreCard aria-labelledby="private-report-title"><div className="store-section-heading"><h2 id="private-report-title">내 광고 성과</h2><StoreBadge>조회 전</StoreBadge></div><dl className="store-metrics">{["광고비", "구매전환수", "구매전환 매출", "구매 ROAS"].map(label => <div key={label}><dt>{label}</dt><dd>—<span>로그인·광고 연결 필요</span></dd></div>)}</dl><p className="store-caption">0원이 아니라, 아직 조회한 데이터가 없는 상태예요.</p><Link className="store-text-link" href="/store/ads/connect/">광고 계정 연결 안내 <ArrowRight size={16} aria-hidden="true" /></Link></StoreCard><StoreCard className="store-example-entry" aria-labelledby="example-title"><div><StoreBadge tone="primary">합성 예시</StoreBadge><h2 id="example-title">연결 전에 분석 화면을 살펴보세요</h2><p>기간과 집계 단위를 바꿔볼 수 있어요. 실제 고객·스토어·광고 계정의 데이터가 아닙니다.</p></div><Link className="store-button" href="/store/ads/example/">예시 분석 보기 <ArrowRight size={17} aria-hidden="true" /></Link></StoreCard></>;
 }
 export function StoreConnection() {
-  return <><StoreHeading title="광고 계정 연결" description="KITSNODE 회원 인증과 광고 계정 연결은 별개의 단계예요." /><StoreCard aria-labelledby="connection-title"><StoreBadge tone="warning">연결 기능 준비 중</StoreBadge><h2 id="connection-title">네이버 검색광고</h2><p>서버에서 계정 권한을 확인하고 필요한 성과 집계만 읽는 연결 방식이 필요합니다. 현재 연결 서버가 없어 광고 계정을 등록하거나 확인할 수 없습니다.</p><div className="store-requirements"><h3>연결 전에 준비할 내용</h3><ul><li>회원 로그인과 회원별 데이터 접근 권한</li><li>서버의 인증 정보 보관·폐기와 계정 소유권 확인</li><li>조회 범위, 전환 종류, 집계 시간대와 연결 해제 정책</li></ul></div><StoreButton disabled aria-describedby="connection-unavailable">광고 계정 연결 · 준비 중</StoreButton><p id="connection-unavailable" className="store-caption">인증키·비밀키·비밀번호를 이 화면에 입력하지 마세요. 광고 입찰이나 예산을 변경하는 기능은 포함하지 않습니다.</p></StoreCard><StoreCard aria-labelledby="connection-scope"><h2 id="connection-scope">광고 연결과 주문 연결을 구분해요</h2><p>검색광고 성과 연결만으로 스마트스토어의 전체 주문·상품이 연결되지는 않습니다. 전체 주문 분석은 별도 상품·판매 영역에서 준비할 예정이에요.</p></StoreCard><Link className="store-text-link" href="/store/ads/">광고 성과 분석으로 돌아가기</Link></>;
+  return <><StoreHeading title="광고 계정 연결" description="KITSNODE 회원 인증과 광고 계정 연결은 별개의 단계예요." /><AdConnectionPanel transport={adConnectionTransport} /><StoreCard aria-labelledby="connection-scope"><h2 id="connection-scope">광고 연결과 주문 연결을 구분해요</h2><p>검색광고 성과 연결만으로 스마트스토어의 전체 주문·상품이 연결되지는 않습니다. 전체 주문 분석은 별도 상품·판매 영역에서 준비할 예정이에요.</p></StoreCard><Link className="store-text-link" href="/store/ads/">광고 성과 분석으로 돌아가기</Link></>;
 }
 export function StoreAccount({ mode }: { mode: "login" | "signup" }) {
   const signup = mode === "signup";
