@@ -354,7 +354,7 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact{min-height:
 /* Sequential guidance: the first unanswered area remains the visual anchor. */
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]{outline:2px solid #ff5a1f!important;outline-offset:5px;box-shadow:0 0 0 7px #ff5a1f0d!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-input-guide{min-height:24px;margin:0 0 18px;color:#ff5a1f!important;font-size:13px;line-height:1.8}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){border-color:#ff5a1f!important;animation:ds-example-blink 2.4s ease-in-out infinite}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){background:#ff5a1f!important;color:#0b0b0b!important;border-color:#ff5a1f!important;animation:ds-example-blink 2.4s ease-in-out infinite}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] .mp-quick-costs::after{content:'모르면 주황색 참고값 버튼을 눌러 입력하세요.';display:block;flex-basis:100%;color:#ff5a1f;font-size:12px;line-height:1.8;margin-top:8px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-quick-costs{flex-wrap:wrap}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-section-heading h1{font-size:clamp(22px,3.4vw,46px)!important;line-height:1.4!important;letter-spacing:-.055em;white-space:nowrap}
@@ -465,10 +465,10 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-calendar-start input[ty
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-budget-input[data-guide-active=true]{border-left-color:transparent!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-budget-input[data-guide-active=true]::before{inset:-16px -14px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] input:is(:focus,:focus-visible){outline:0!important}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){border-color:#ff5a1f!important;animation:ds-example-blink 2.4s ease-in-out infinite}
-@keyframes ds-example-blink{0%,100%{background:#0b0b0b;color:#f5f2eb;box-shadow:0 0 0 0 #ff5a1f00}45%,65%{background:#ff5a1f;color:#0b0b0b;box-shadow:0 0 0 4px #ff5a1f25}}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){background:#ff5a1f!important;color:#0b0b0b!important;border-color:#ff5a1f!important;animation:ds-example-blink 2.4s ease-in-out infinite}
+@keyframes ds-example-blink{0%,100%{filter:grayscale(1) brightness(.55);opacity:.6}45%,65%{filter:grayscale(0) brightness(1);opacity:1}}
 /* Pulse the example button without interrupting input focus. */
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){border-color:#ff5a1f!important;animation:ds-example-blink 2.4s ease-in-out infinite}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){background:#ff5a1f!important;color:#0b0b0b!important;border-color:#ff5a1f!important;animation:ds-example-blink 2.4s ease-in-out infinite}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow dialog.mp-goal-dialog.ds-goal-overlay{background:transparent!important;border:0!important;box-shadow:none!important;padding:64px 24px!important;width:min(760px,100vw);max-width:100vw;max-height:100svh;overflow-y:auto}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay::backdrop{background:#0b0b0bf2;backdrop-filter:blur(14px)}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay form{width:100%;max-width:600px;margin:auto;text-align:center}
@@ -483,3 +483,6 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story :is(h1,h2,h3,h4,d
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story :is(em,.mp-keyword-main strong,.mp-rank-reference strong,.mp-conversion-stat strong,.mp-candidates-concise h4,.mp-candidates-concise strong,.mp-profit-after strong,.mp-goal-invitation strong,.mp-negative,.mp-positive,.mp-compact-risk,.mp-compact-good,.ds-goal-question strong){color:#ff5a1f!important}
 @media(max-width:700px){.ds-player-opening{min-height:calc(100svh - 72px);padding:60px 0 40px}.ds-player-opening h1{font-size:clamp(35px,8.2vw,58px)}.ds-player-opening-bottom{display:block;margin-top:48px}.ds-player-opening-bottom a{margin-top:28px}.ds-player-manifesto{padding:64px 0}.ds-player-principles{grid-template-columns:1fr;gap:24px}.ds-player-principles h3{margin:14px 0 8px}.ds-player-position{margin:32px 0 48px}.ds-player-start{font-size:17px;padding:22px}.ds-player-signal{width:60%;top:15%;right:-10%}body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-budget-input[data-guide-active=true]::before{inset:-12px -9px}}
 @media(prefers-reduced-motion:reduce){.ds-player-signal i{animation:none}body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){animation:none;background:#ff5a1f!important;color:#0b0b0b!important}}
+
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story :is(.mp-conversion-input span,.mp-ad-podium header>div>span,.mp-report-page-actions>span){color:#aaa7a0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-player-opening h1 .ds-player-mask:first-child>span{color:#f5f2eb!important}
