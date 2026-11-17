@@ -12,9 +12,9 @@ body:has(.diagnosis-studio)>.kn-colophon{display:none}
 .ds-header-note{font-size:11px;line-height:1.7;color:#aaa7a0}
 .ds-header nav{display:flex;gap:22px;align-items:center;margin-left:auto;font-size:12px}
 .ds-header nav :is(button,a){display:inline-flex;align-items:center;gap:7px;background:none;color:#f5f2eb;padding:10px 0;border:0;font:inherit;cursor:pointer}
-.ds-header nav button{color:#ff8c61}.ds-mode-label{color:#aaa7a0;border-right:1px solid #ffffff26;padding-right:22px}
+.ds-header nav button{color:#ff5a1f}.ds-mode-label{color:#aaa7a0;border-right:1px solid #ffffff26;padding-right:22px}
 .profit-tool .ds-choice{display:block;width:100%;max-width:1400px;margin:auto;padding:70px 6vw 40px;position:relative}
-.profit-tool .mp-shell.diagnosis-studio .ds-eyebrow{font-size:12px;letter-spacing:.025em;font-weight:650;color:#ff8c61;margin:0 0 20px}
+.profit-tool .mp-shell.diagnosis-studio .ds-eyebrow{font-size:12px;letter-spacing:.025em;font-weight:650;color:#ff5a1f;margin:0 0 20px}
 .profit-tool .mp-shell.diagnosis-studio .ds-choice h1{font-size:clamp(42px,6vw,90px);line-height:1.18;letter-spacing:-.055em;font-weight:800;margin:0;color:#f5f2eb}
 .profit-tool .mp-shell.diagnosis-studio .ds-choice h1 em{color:#ff5a1f;font-style:normal}
 .ds-choice-description{font-size:15px;line-height:1.9;color:#aaa7a0;margin:24px 0 40px}
@@ -33,26 +33,27 @@ body:has(.diagnosis-studio)>.kn-colophon{display:none}
 .ds-art-target>i{width:58%;height:58%;border:6px solid #0b0b0b;border-radius:50%;border-right-color:transparent;transform:rotate(-25deg)}
 .ds-art-target>b{position:absolute;width:22%;height:22%;border:4px solid #0b0b0b;border-radius:50%}
 .ds-art-star>i{position:absolute;inset:0 42%;background:#0b0b0b}
+.ds-art-star>i{transform-origin:center}
 .ds-choice-note{font-size:11px;line-height:1.8;color:#aaa7a0;margin:26px 0 0}
 .profit-tool .mp-shell.diagnosis-studio .mp-main{max-width:1200px;padding:64px 6vw 80px;background:none;color:#f5f2eb}
 .profit-tool .mp-shell.diagnosis-studio .mp-intro h1{font-size:clamp(34px,4.6vw,66px);font-weight:800;line-height:1.25;letter-spacing:-.055em;margin:0 0 22px;color:#f5f2eb}
 .profit-tool .mp-shell.diagnosis-studio .mp-intro h1 em{color:#ff5a1f;font-style:normal}
 .profit-tool .mp-shell.diagnosis-studio .mp-intro p{color:#aaa7a0;max-width:54ch}
-.profit-tool .mp-shell.diagnosis-studio .mp-intro .ds-eyebrow{color:#ff8c61;margin-bottom:20px}
+.profit-tool .mp-shell.diagnosis-studio .mp-intro .ds-eyebrow{color:#ff5a1f;margin-bottom:20px}
 .profit-tool .mp-shell.diagnosis-studio .mp-live-bar{position:static;background:#171717;border:0;border-bottom:1px solid #ffffff26;color:#f5f2eb;padding:22px 6vw;box-shadow:none;border-radius:0}
 .profit-tool .mp-shell.diagnosis-studio .mp-live-values{max-width:1200px;margin:auto;gap:24px}
 .profit-tool .mp-shell.diagnosis-studio .mp-live-values span{color:#aaa7a0;font-size:11px}
 .profit-tool .mp-shell.diagnosis-studio .mp-live-values b{color:#f5f2eb;font-size:20px;margin-top:7px}
-.profit-tool .mp-shell.diagnosis-studio .mp-live-values .mp-positive{color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio .mp-live-values .mp-positive{color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio .mp-steps{gap:0;margin:12px 0 28px;border-top:1px solid #ffffff26;border-bottom:1px solid #ffffff26;padding:24px 0;justify-content:space-between}
 .profit-tool .mp-shell.diagnosis-studio .mp-steps li{color:#8d8b86;flex:1;gap:12px}
 .profit-tool .mp-shell.diagnosis-studio .mp-steps li>span{background:none;border-color:#ffffff40;color:#aaa7a0;border-radius:0;box-shadow:none}
-.profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]{color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]{color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]>span{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f;box-shadow:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-workspace.mp-ipad{padding:36px;background:#171717;border:1px solid #ffffff26;border-radius:0;box-shadow:none;transform:none}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-ipad-camera,.mp-ipad-home,.mp-report-camera,.mp-report-home){display:none}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-section-heading h2,.mp-report h2){color:#f5f2eb;font-size:26px;line-height:1.4}
-.profit-tool .mp-shell.diagnosis-studio :is(.mp-section-heading>span,.mp-market-applied strong){color:#ff8c61;letter-spacing:.01em}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-section-heading>span,.mp-market-applied strong){color:#ff5a1f;letter-spacing:.01em}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-field-label,.mp-name,.mp-field>label){color:#f5f2eb;font-size:14px}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-name input,.mp-input-wrap input,.mp-keywords input,.mp-keywords select,.mp-target-input input,.mp-reorder input[type=number]){background:#0b0b0b;color:#f5f2eb;border:1px solid #ffffff40;border-radius:0;box-shadow:none;font-size:16px}
 .profit-tool .mp-shell.diagnosis-studio input::placeholder{color:#817e77}
@@ -65,13 +66,13 @@ body:has(.diagnosis-studio)>.kn-colophon{display:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-primary:hover{background:#ff7a48;border-color:#ff7a48;transform:translateY(-2px)}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-secondary,.mp-quick-costs button){background:transparent;color:#f5f2eb;border:1px solid #ffffff40;border-radius:0;box-shadow:none;min-height:44px}
 .profit-tool .mp-shell.diagnosis-studio .mp-market-options button{background:#0b0b0b;color:#f5f2eb;border:1px solid #ffffff30;border-radius:0;box-shadow:none}
-.profit-tool .mp-shell.diagnosis-studio .mp-market-options button[aria-pressed=true]{background:#2e1a13;color:#ff8c61;border-color:#ff5a1f;box-shadow:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-market-options button[aria-pressed=true]{background:#2e1a13;color:#ff5a1f;border-color:#ff5a1f;box-shadow:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-market-options small{color:#aaa7a0}
 .profit-tool .mp-shell.diagnosis-studio .mp-market-icon{border-radius:0}
 .profit-tool .mp-shell.diagnosis-studio .mp-hint-button{color:#aaa7a0;background:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-help-content{background:#282828;color:#f5f2eb;border:1px solid #ffffff40;border-radius:0;box-shadow:0 16px 48px #0008}
-.profit-tool .mp-shell.diagnosis-studio .mp-help-content :is(b,a){color:#ff8c61}
-.profit-tool .mp-shell.diagnosis-studio :is(.mp-negative,.mp-error,.mp-story-alert,.mp-reorder-warning,.mp-keyword-over){color:#ff9b88}
+.profit-tool .mp-shell.diagnosis-studio .mp-help-content :is(b,a){color:#ff5a1f}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-negative,.mp-error,.mp-story-alert,.mp-reorder-warning,.mp-keyword-over){color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio .mp-error{background:#3b1c18;border:1px solid #ff9b8850;border-radius:0}
 .profit-tool .mp-shell.diagnosis-studio .mp-goal-dialog{background:#171717;color:#f5f2eb;border:1px solid #ffffff40;border-radius:0;box-shadow:0 30px 100px #000a;padding:36px;max-width:calc(100% - 32px)}
 .profit-tool .mp-shell.diagnosis-studio .mp-goal-dialog::backdrop{background:#000b;backdrop-filter:blur(8px)}
@@ -79,16 +80,16 @@ body:has(.diagnosis-studio)>.kn-colophon{display:none}
 /* Result pages and their nested cards retain the same dark canvas. */
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-story,.mp-preparation,.mp-report-pages,.mp-report-page,.mp-report-keyword-screen){color:#f5f2eb;background:transparent}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-story h1,.mp-story h2,.mp-story h3,.mp-preparation h1,.mp-preparation h2,.mp-story-sale b,.mp-plan-recap dd,.mp-reorder h2,.mp-keywords h4){color:#f5f2eb}
-.profit-tool .mp-shell.diagnosis-studio :is(.mp-story h1 em,.mp-story-heading em,.mp-preparation em,.mp-goal-invitation em,.mp-goal-invitation strong,.mp-profit-after strong,.mp-story-sale .is-positive,.mp-positive,.mp-breakdown>div:last-child,.mp-bep strong,.mp-keyword-main strong,.mp-keyword-candidates strong){color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-story h1 em,.mp-story-heading em,.mp-preparation em,.mp-goal-invitation em,.mp-goal-invitation strong,.mp-profit-after strong,.mp-story-sale .is-positive,.mp-positive,.mp-breakdown>div:last-child,.mp-bep strong,.mp-keyword-main strong,.mp-keyword-candidates strong){color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-scroll-card,.mp-scroll-card>div,.kn-tablet-slide-screen,.kn-tablet-slide,.kn-tablet-slide-actions,.mp-reorder,.mp-unit-summary,.mp-story-summary,.mp-tablet-budget,.mp-plan-recap>div,.mp-profit-before,.mp-profit-after,.mp-reorder-metrics,.mp-story-budget,.mp-story-details,.mp-keyword-candidates>li){background:#171717;color:#f5f2eb;border-color:#ffffff26;border-radius:0;box-shadow:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-scroll-card{border:1px solid #ffffff30;padding:0}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-story p,.mp-story small,.mp-story-sale span,.mp-plan-recap dt,.mp-plan-recap small,.mp-breakdown dt,.mp-reorder-metrics span,.mp-keyword-main span,.mp-keyword-main p,.mp-keywords small,.mp-keyword-candidates p,.mp-keyword-live p,.mp-keyword-table th){color:#aaa7a0}
-.profit-tool .mp-shell.diagnosis-studio :is(.mp-story-summary h2 strong,.mp-story-budget strong,.mp-reorder-metrics b,.mp-keyword-table td:nth-child(2)){color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-story-summary h2 strong,.mp-story-budget strong,.mp-reorder-metrics b,.mp-keyword-table td:nth-child(2)){color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-report-page-nav button,.mp-story-nav a){background:#171717;color:#aaa7a0;border:1px solid #ffffff30;border-radius:0;box-shadow:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-report-page-nav button[aria-current]{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio .mp-page-line{background:#ffffff30}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-breakdown>div,.mp-story-details,.mp-reorder-table td,.mp-reorder-table th,.mp-keyword-table td,.mp-keyword-table th,.mp-profit-deductions){border-color:#ffffff26}
-.profit-tool .mp-shell.diagnosis-studio :is(.mp-keyword-table thead,.kn-profit-next){background:#2e1a13;color:#ff8c61;border-color:#ff5a1f}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-keyword-table thead,.kn-profit-next){background:#2e1a13;color:#ff5a1f;border-color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio .kn-stock-chart{background:#131313;border-color:#ffffff26}
 .profit-tool .mp-shell.diagnosis-studio .kn-stock-chart text{fill:#aaa7a0}
 .profit-tool .mp-shell.diagnosis-studio .kn-stock-chart stop:first-child{stop-color:#ff5a1f}.profit-tool .mp-shell.diagnosis-studio .kn-stock-chart stop:last-child{stop-color:#171717}
@@ -97,23 +98,23 @@ body:has(.diagnosis-studio)>.kn-colophon{display:none}
 .profit-tool .mp-shell.diagnosis-studio .kn-stock-chart circle[stroke]{stroke:#ff8c61;fill:#171717}
 .profit-tool .mp-shell.diagnosis-studio input[type=range]{accent-color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio .mp-steps li{background:#171717;border:1px solid #ffffff26;border-radius:0;box-shadow:none;min-height:70px;padding:16px}
-.profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]{background:#2e1a13;color:#ff8c61;border-color:#ff5a1f}
+.profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]{background:#2e1a13;color:#ff5a1f;border-color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio .mp-steps li>.mp-step-number{background:transparent;border-color:#ffffff40;color:#aaa7a0;border-radius:0;box-shadow:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-steps li[aria-current]>.mp-step-number,.profit-tool .mp-shell.diagnosis-studio .mp-steps li[data-complete]>.mp-step-number{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f;box-shadow:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-plan-row>.mp-budget-input{background:#131313;border:1px solid #ffffff26;border-radius:0}
-.profit-tool .mp-shell.diagnosis-studio .mp-live-values>span b{color:#f5f2eb}.profit-tool .mp-shell.diagnosis-studio .mp-live-values>span:last-child b{color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio .mp-live-values>span b{color:#f5f2eb}.profit-tool .mp-shell.diagnosis-studio .mp-live-values>span:last-child b{color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio .mp-actions button{border-radius:0}
 body .profit-tool .finance-dashboard.mp-shell.diagnosis-studio .mp-primary{background:#ff5a1f!important;color:#0b0b0b!important;border-color:#ff5a1f!important;border-radius:0!important}
-.profit-tool .mp-shell.diagnosis-studio .mp-positive{color:#ff8c61!important}.profit-tool .mp-shell.diagnosis-studio .mp-negative{color:#ff9b88!important}.profit-tool .mp-shell.diagnosis-studio .mp-neutral{color:#aaa7a0!important}
-.profit-tool .mp-shell.diagnosis-studio .mp-profit-after strong{color:#ff8c61!important}
+.profit-tool .mp-shell.diagnosis-studio .mp-positive{color:#ff5a1f!important}.profit-tool .mp-shell.diagnosis-studio .mp-negative{color:#ff5a1f!important}.profit-tool .mp-shell.diagnosis-studio .mp-neutral{color:#aaa7a0!important}
+.profit-tool .mp-shell.diagnosis-studio .mp-profit-after strong{color:#ff5a1f!important}
 .profit-tool .mp-shell.diagnosis-studio #report-funds .mp-scroll-card,.profit-tool .mp-shell.diagnosis-studio .mp-scroll-card>div{border-radius:0;background:#171717;border-color:#ffffff30;box-shadow:none}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-story-details summary,.mp-story-details p,.mp-reorder-legend span){color:#aaa7a0}
-.profit-tool .mp-shell.diagnosis-studio .mp-reorder-legend span:first-child{color:#ff8c61}
-.profit-tool .mp-shell.diagnosis-studio :is(.mp-reorder-heading>div>span,.mp-story-heading>span,.mp-brand-partner>span,.mp-prep-card>span){color:#ff8c61}
+.profit-tool .mp-shell.diagnosis-studio .mp-reorder-legend span:first-child{color:#ff5a1f}
+.profit-tool .mp-shell.diagnosis-studio :is(.mp-reorder-heading>div>span,.mp-story-heading>span,.mp-brand-partner>span,.mp-prep-card>span){color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio .kn-tablet-slide-screen{scrollbar-color:#ff5a1f #171717}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-signup-dialog,.mp-goal-check,.mp-return-handling,.mp-keyword-candidates .mp-goal-check){background:#202020;color:#f5f2eb;border:1px solid #ffffff30;border-radius:0;box-shadow:none}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-signup-dialog h2,.mp-signup-dialog p,.mp-signup-later,.mp-signup-close,.mp-goal-check p,.mp-goal-check small,.mp-goal-check .mp-goal-solution){color:#f5f2eb}
-.profit-tool .mp-shell.diagnosis-studio .mp-signup-icon{background:#2e1a13;color:#ff8c61;border-radius:0}
+.profit-tool .mp-shell.diagnosis-studio .mp-signup-icon{background:#2e1a13;color:#ff5a1f;border-radius:0}
 .profit-tool .mp-shell.diagnosis-studio :is(input:not([type=checkbox]):not([type=range]):not([type=color]),select,textarea){background-image:none;box-shadow:none;border-radius:0}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-field,.mp-name,.mp-target-input):hover{background-image:none}
 @media(max-width:760px){
@@ -183,7 +184,7 @@ body .mp-shell.diagnosis-studio.ds-flow :is(.mp-market-applied,.mp-quick-costs s
 body .mp-shell.diagnosis-studio.ds-flow .mp-actual-cost{background:#171717;border:1px solid #353535;border-radius:4px;padding:28px}
 body .mp-shell.diagnosis-studio.ds-flow .mp-cost-change :is(small,b){color:#a6a6a6}
 body .mp-shell.diagnosis-studio.ds-flow .mp-cost-change strong{color:#ff5a1f}
-body .mp-shell.diagnosis-studio.ds-flow .mp-error{background:#321a13;color:#ffb89f;border-left:3px solid #ff5a1f;font-size:15px}
+body .mp-shell.diagnosis-studio.ds-flow .mp-error{background:#321a13;color:#ff5a1f;border-left:3px solid #ff5a1f;font-size:15px}
 body .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog{background:#171717;color:#f5f2eb;border:1px solid #454545;border-radius:8px}
 body .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog::backdrop{background:#000b;backdrop-filter:blur(8px)}
 body .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog h2{color:#f5f2eb}
@@ -191,7 +192,7 @@ body .mp-shell.diagnosis-studio.ds-flow .mp-story{background:transparent;color:#
 body .mp-shell.diagnosis-studio.ds-flow .mp-story :is(p,small,dt,summary){color:#a6a6a6}
 body .mp-shell.diagnosis-studio.ds-flow .mp-story :is(h1,h2,h3,b,dd){color:#f5f2eb}
 body .mp-shell.diagnosis-studio.ds-flow .mp-story :is(em,.mp-positive,.mp-neutral){color:#ff5a1f}
-body .mp-shell.diagnosis-studio.ds-flow .mp-negative{color:#ffb89f!important}
+body .mp-shell.diagnosis-studio.ds-flow .mp-negative{color:#ff5a1f!important}
 body .mp-shell.diagnosis-studio.ds-flow :is(.mp-scroll-card,.mp-report-keyword-screen){background:#171717;border:1px solid #454545;border-radius:8px;box-shadow:none}
 body .mp-shell.diagnosis-studio.ds-flow :is(.mp-scroll-card>.bg-white,.kn-tablet-slide-screen,.kn-tablet-slide,.mp-tablet-budget,.mp-unit-summary,.mp-goal-invitation,.mp-reorder,.mp-keywords){background:#171717!important;color:#f5f2eb;border-color:#353535;box-shadow:none}
 body .mp-shell.diagnosis-studio.ds-flow :is(.kn-tablet-slide-screen){scrollbar-color:#666 #171717}
@@ -214,7 +215,7 @@ body .mp-shell.diagnosis-studio.ds-flow :is(.mp-signup-dialog,.mp-help-popover,.
 body .mp-shell.diagnosis-studio.ds-flow .mp-signup-dialog :is(h2,p){color:#f5f2eb}
 body .mp-shell.diagnosis-studio.ds-flow :is(.mp-signup-icon,.mp-signup-close){background:#2f1c15;color:#ff5a1f}
 body .mp-shell.diagnosis-studio.ds-flow :is(.mp-signup-later,.mp-prep h2){color:#f5f2eb}
-body .mp-shell.diagnosis-studio.ds-flow :is(.mp-compact-risk,.mp-keyword-over,.mp-story-alert){color:#ffb89f!important}
+body .mp-shell.diagnosis-studio.ds-flow :is(.mp-compact-risk,.mp-keyword-over,.mp-story-alert){color:#ff5a1f!important}
 body .mp-shell.diagnosis-studio.ds-flow :is(.mp-compact-good,.mp-compact-unknown){color:#f5f2eb!important}
 body .mp-shell.diagnosis-studio.ds-flow .mp-goal-check.is-critical{border-left:3px solid #ff5a1f!important}
 body .mp-shell.diagnosis-studio.ds-flow .mp-keyword-candidates>li:has(.mp-compact-risk){background:#2c1b16!important}
@@ -309,8 +310,8 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-candidates-
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-candidates-concise>li:has(.mp-goal-compact>.mp-compact-good),
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-candidates-concise>li:has(.mp-goal-compact>.mp-compact-risk){background:#0b0b0b!important;color:#f5f2eb!important;border:1px solid #373737!important;box-shadow:none!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-candidates-concise :is(h3,h4,b,strong,span,small,p,dt,dd,summary){color:#f5f2eb!important}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-candidates-concise .mp-compact-risk{color:#ff9b88!important}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-candidates-concise .mp-compact-good{color:#ff8c61!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-candidates-concise .mp-compact-risk{color:#ff5a1f!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-candidates-concise .mp-compact-good{color:#ff5a1f!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-candidates-concise :is(.mp-compact-good,.mp-compact-risk,.mp-compact-unknown){background:transparent!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.kn-tablet-slide-screen,.kn-tablet-slide,.mp-tablet-budget,.mp-reorder,.mp-profit-before,.mp-profit-after,.mp-plan-recap>div,.mp-story-sale,.mp-unit-summary,.mp-story-details,.kn-profit-next){background:#0b0b0b!important;background-image:none!important;box-shadow:none!important;border-radius:0!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.mp-scroll-card,.mp-scroll-card>div,.kn-tablet-slide-actions){background:#0b0b0b!important}
@@ -352,9 +353,9 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-impact{min-height:
 
 /* Sequential guidance: the first unanswered area remains the visual anchor. */
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]{outline:2px solid #ff5a1f!important;outline-offset:5px;box-shadow:0 0 0 7px #ff5a1f0d!important}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-input-guide{min-height:24px;margin:0 0 18px;color:#ff8c61!important;font-size:13px;line-height:1.8}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){background:#ff5a1f!important;color:#0b0b0b!important;border-color:#ff5a1f!important;box-shadow:0 0 0 4px #ff5a1f25!important}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] .mp-quick-costs::after{content:'모르면 주황색 참고값 버튼을 눌러 입력하세요.';display:block;flex-basis:100%;color:#ff8c61;font-size:12px;line-height:1.8;margin-top:8px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-input-guide{min-height:24px;margin:0 0 18px;color:#ff5a1f!important;font-size:13px;line-height:1.8}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){border-color:#ff5a1f!important;animation:ds-example-blink 2.4s ease-in-out infinite}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] .mp-quick-costs::after{content:'모르면 주황색 참고값 버튼을 눌러 입력하세요.';display:block;flex-basis:100%;color:#ff5a1f;font-size:12px;line-height:1.8;margin-top:8px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-quick-costs{flex-wrap:wrap}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-section-heading h1{font-size:clamp(22px,3.4vw,46px)!important;line-height:1.4!important;letter-spacing:-.055em;white-space:nowrap}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-sales-summary{background:#0b0b0b!important;background-image:none!important}
@@ -428,7 +429,7 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog [data-guide
 .ds-key-date-list{list-style:none!important;margin:0!important;padding:0!important;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .ds-key-date{padding:24px 20px;border:1px solid #414141;border-top:3px solid #888;background:#131313;min-width:0}
 .ds-key-date.is-recommended{border-color:#ff5a1f;background:#301e15}.ds-key-date.is-deadline{border-top-color:#ff6868}.ds-key-date.is-depletion{border-top-color:#aaa7a0}
-.ds-key-date-label{font-size:14px;font-weight:700;color:#f5f2eb}.ds-key-date time{display:block;margin:24px 0 18px}.ds-key-date time small{display:block;font-size:12px;color:#aaa7a0;margin-bottom:8px}.ds-key-date time strong{display:block;font-size:clamp(24px,3vw,38px);line-height:1.2;color:#f5f2eb;letter-spacing:-.04em;white-space:nowrap}.ds-key-date.is-recommended time strong{color:#ff8c61}
+.ds-key-date-label{font-size:14px;font-weight:700;color:#f5f2eb}.ds-key-date time{display:block;margin:24px 0 18px}.ds-key-date time small{display:block;font-size:12px;color:#aaa7a0;margin-bottom:8px}.ds-key-date time strong{display:block;font-size:clamp(24px,3vw,38px);line-height:1.2;color:#f5f2eb;letter-spacing:-.04em;white-space:nowrap}.ds-key-date.is-recommended time strong{color:#ff5a1f}
 .ds-key-date>b{font-size:12px;color:#bdbab3}.ds-key-date>p{font-size:12px;color:#aaa7a0;line-height:1.8;margin:10px 0 0}
 .ds-key-date-gaps{display:flex;flex-wrap:wrap;gap:12px 32px;margin-top:24px;padding-top:20px;border-top:1px solid #353535;font-size:12px;color:#aaa7a0;line-height:1.8}.ds-key-date-gaps b{color:#f5f2eb;margin-left:8px}
 @media(max-width:700px){.ds-key-date-list{grid-template-columns:1fr;gap:10px}.ds-key-date{display:grid;grid-template-columns:1fr 1.3fr;gap:8px 16px;padding:18px 16px}.ds-key-date time{grid-column:2;grid-row:1/4;margin:0;align-self:center}.ds-key-date time strong{font-size:28px}.ds-key-date>p{margin:0;font-size:11px}.ds-key-date-gaps{display:grid;gap:8px}.ds-key-dates>h3{font-size:21px}}
@@ -441,3 +442,44 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-calendar-start input[ty
 .ds-calendar-grid>li{min-height:88px;padding:10px 8px;background:#161616;border:1px solid transparent;color:#8c8c8c}.ds-calendar-grid time{font-size:14px;display:block}.ds-calendar-grid>li.is-safe{background:#123126;color:#c9f4de}.ds-calendar-grid>li.is-risk{background:#3d1b20;color:#ffd0d0}.ds-calendar-grid>li.is-recommended{border:2px solid #ff8c61;background:#3a2518;color:#ffd3b7}.ds-calendar-grid>li.is-deadline{border-color:#ff6868}.ds-calendar-grid>li.is-empty{background:transparent}
 .ds-calendar-grid li>span{display:block;font-size:11px;font-weight:650;line-height:1.5;margin-top:6px;overflow-wrap:anywhere}.ds-calendar-legend{display:flex;flex-wrap:wrap;gap:12px 20px;margin-top:20px;font-size:12px;color:#bdbab3}.ds-calendar-legend span{display:flex;align-items:center;gap:7px}.ds-calendar-legend i{width:10px;height:10px;background:#23835c}.ds-calendar-legend span:nth-child(2) i{background:#b64a54}.ds-calendar-legend span:nth-child(3) i{background:#ff8c61}
 @media(max-width:700px){.ds-reorder-calendar{padding:12px}.ds-calendar-grid,.ds-calendar-week{gap:2px}.ds-calendar-grid>li{min-height:70px;padding:7px 3px}.ds-calendar-grid time{font-size:12px}.ds-calendar-grid li>span{font-size:9px;line-height:1.4}.ds-reorder-calendar>header h3{font-size:20px}.ds-calendar-dates{gap:12px;font-size:11px}.ds-calendar-start{flex-wrap:wrap}}
+
+/* Player manifesto and quiet, consistent input guidance. */
+.ds-player-intro{max-width:1400px;margin:0 auto;padding:0 6vw;color:#f5f2eb}
+.ds-player-opening{position:relative;isolation:isolate;min-height:calc(100svh - 88px);padding:90px 0 64px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid #353535;overflow:hidden}
+.ds-player-kicker{font-size:12px;font-weight:700;color:#ff5a1f;margin:0 0 40px;letter-spacing:.06em}
+.ds-player-opening h1{font-size:clamp(42px,6.6vw,100px);font-weight:850;letter-spacing:-.065em;line-height:1.2;margin:0;position:relative;z-index:1;outline:none}
+.ds-player-mask{display:block;overflow:hidden;padding-bottom:.06em}.ds-player-mask>span{display:block}.ds-player-mask:last-child{color:#ff5a1f}
+.ds-player-opening-bottom{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin-top:64px;position:relative;z-index:1}
+.ds-player-opening-bottom p{font-size:clamp(16px,1.7vw,23px);line-height:1.8;color:#aaa7a0;margin:0}
+.ds-player-opening-bottom a{display:inline-flex;gap:20px;align-items:center;color:#f5f2eb;text-decoration:none;font-size:14px;border-bottom:1px solid #555;padding-bottom:14px}
+.ds-player-signal{position:absolute;right:2%;top:18%;width:30%;aspect-ratio:1;z-index:-1;opacity:.15}
+.ds-player-signal i{position:absolute;inset:0;border:2px solid #ff5a1f;border-radius:50%;animation:ds-player-signal 5s ease-out infinite}.ds-player-signal i:nth-child(2){animation-delay:1.6s}.ds-player-signal i:nth-child(3){animation-delay:3.2s}
+@keyframes ds-player-signal{0%{transform:scale(.25);opacity:0}25%{opacity:1}100%{transform:scale(1.25);opacity:0}}
+.ds-player-manifesto{padding:100px 0;scroll-margin-top:110px}
+.ds-player-manifesto>div>p:first-child{font-size:clamp(20px,3vw,36px);color:#aaa7a0;margin:0 0 22px}
+.ds-player-manifesto h2{font-size:clamp(46px,7vw,108px);line-height:1.14;font-weight:850;letter-spacing:-.065em;margin:0}.ds-player-manifesto h2 em{font-style:normal;color:#ff5a1f}
+.ds-player-position{font-size:clamp(20px,2.5vw,32px);line-height:1.65;margin:48px 0 72px;color:#f5f2eb}
+.ds-player-principles{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px;padding:0;margin:0 0 56px}.ds-player-principles li{border-top:1px solid #555;padding-top:24px}.ds-player-principles span{font-size:12px;color:#ff5a1f}.ds-player-principles h3{font-size:23px;margin:24px 0 14px}.ds-player-principles p{font-size:14px;color:#aaa7a0;line-height:1.8}
+.ds-player-start{display:flex;align-items:center;justify-content:space-between;gap:48px;width:min(100%,520px);padding:25px 28px;background:#ff5a1f;color:#0b0b0b;border:0;font-size:19px;font-weight:750;cursor:pointer}
+.ds-sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-budget-input[data-guide-active=true]{border-left-color:transparent!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-budget-input[data-guide-active=true]::before{inset:-16px -14px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] input:is(:focus,:focus-visible){outline:0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){border-color:#ff5a1f!important;animation:ds-example-blink 2.4s ease-in-out infinite}
+@keyframes ds-example-blink{0%,100%{background:#0b0b0b;color:#f5f2eb;box-shadow:0 0 0 0 #ff5a1f00}45%,65%{background:#ff5a1f;color:#0b0b0b;box-shadow:0 0 0 4px #ff5a1f25}}
+/* Pulse the example button without interrupting input focus. */
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){border-color:#ff5a1f!important;animation:ds-example-blink 2.4s ease-in-out infinite}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow dialog.mp-goal-dialog.ds-goal-overlay{background:transparent!important;border:0!important;box-shadow:none!important;padding:64px 24px!important;width:min(760px,100vw);max-width:100vw;max-height:100svh;overflow-y:auto}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay::backdrop{background:#0b0b0bf2;backdrop-filter:blur(14px)}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay form{width:100%;max-width:600px;margin:auto;text-align:center}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay h2{font-size:clamp(26px,3.3vw,44px);line-height:1.45;margin:0 0 48px;letter-spacing:-.045em;color:#f5f2eb}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay .mp-input-wrap{margin:0 0 28px!important;border:0!important;border-bottom:1px solid #777!important;background:transparent!important;border-radius:0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay .mp-input-wrap input{background:transparent!important;font-size:clamp(30px,4vw,52px)!important;text-align:center;padding:20px 70px!important;border:0!important;outline:0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay .mp-input-wrap>span{font-size:18px;color:#aaa7a0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay .mp-primary{width:100%;min-height:68px;font-size:18px;background:#ff5a1f;color:#0b0b0b;border:0}
+/* Reports share one neutral reading palette and one orange accent. */
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story :is(p,small,dt,th,label,summary,.mp-rank-reference span,.mp-conversion-stat>span,.mp-ad-observed,.mp-ad-caution,.mp-estimate-badge,.mp-keyword-main span,.mp-keyword-main p,.mp-candidates-concise span,.mp-calendar-legend){color:#aaa7a0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story :is(h1,h2,h3,h4,dd,.mp-conversion-input label,.mp-conversion-input input,.mp-conversion-input small,.ds-calendar-grid>li,.ds-key-date time strong){color:#f5f2eb!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story :is(em,.mp-keyword-main strong,.mp-rank-reference strong,.mp-conversion-stat strong,.mp-candidates-concise h4,.mp-candidates-concise strong,.mp-profit-after strong,.mp-goal-invitation strong,.mp-negative,.mp-positive,.mp-compact-risk,.mp-compact-good,.ds-goal-question strong){color:#ff5a1f!important}
+@media(max-width:700px){.ds-player-opening{min-height:calc(100svh - 72px);padding:60px 0 40px}.ds-player-opening h1{font-size:clamp(35px,8.2vw,58px)}.ds-player-opening-bottom{display:block;margin-top:48px}.ds-player-opening-bottom a{margin-top:28px}.ds-player-manifesto{padding:64px 0}.ds-player-principles{grid-template-columns:1fr;gap:24px}.ds-player-principles h3{margin:14px 0 8px}.ds-player-position{margin:32px 0 48px}.ds-player-start{font-size:17px;padding:22px}.ds-player-signal{width:60%;top:15%;right:-10%}body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-budget-input[data-guide-active=true]::before{inset:-12px -9px}}
+@media(prefers-reduced-motion:reduce){.ds-player-signal i{animation:none}body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] :is([data-guide-example],.mp-quick-costs button:first-child){animation:none;background:#ff5a1f!important;color:#0b0b0b!important}}

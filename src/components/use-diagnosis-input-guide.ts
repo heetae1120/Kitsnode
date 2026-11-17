@@ -26,7 +26,7 @@ export function useDiagnosisInputGuide(root:RefObject<HTMLDivElement|null>,enabl
   }
   function update(reset=false){
    const field=find();
-   const wrapper=field?.closest<HTMLElement>('[data-guide-field],.mp-return-handling,.mp-field,.mp-name,.mp-target-input,.mp-conversion-input')??field?.closest<HTMLElement>('.mp-input-wrap,label')??field;
+   const wrapper=field?.closest<HTMLElement>('.mp-budget-input')??field?.closest<HTMLElement>('[data-guide-field],.mp-return-handling,.mp-field,.mp-name,.mp-target-input,.mp-conversion-input')??field?.closest<HTMLElement>('.mp-input-wrap,label')??field;
    if(wrapper===active&&!reset)return;
    clear();active=wrapper;
    if(!field||!active){setMessage('');return;}
@@ -41,7 +41,7 @@ export function useDiagnosisInputGuide(root:RefObject<HTMLDivElement|null>,enabl
     active.dataset.guideIdle='true';
     const hasExample=!!active.querySelector('[data-guide-example],.mp-quick-costs button:first-child');
     setMessage(hasExample?`${label}을 모르겠다면, 주황색 ‘참고값 넣기’를 눌러 입력하세요. 참고값은 실제 비용과 다를 수 있어요.`:`${label}을 입력해 주세요. 입력하면 다음 빈칸을 안내합니다.`);
-   },10000);
+   },5000);
   }
   const queue=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>update());};
   const activity=()=>update(true);

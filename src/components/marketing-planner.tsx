@@ -13,6 +13,7 @@ import {plannerExamples} from '@/lib/planner-examples';
 import {plannerMarketFees} from '@/lib/planner-market-fees';
 import {plannerLiveCosts} from '@/lib/planner-live-costs';
 import {useDiagnosisInputGuide} from './use-diagnosis-input-guide';
+import {PlayerIntroduction} from './player-introduction';
 import '@/app/tools/marketing-planner.css';
 import '@/app/tools/diagnosis-studio.css';
 
@@ -34,6 +35,8 @@ const previewReport={name:'미리보기 예시',months:3,input:sampleInput,resul
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
 export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const [selectedMode,setSelectedMode]=useState<'starter'|'player'|null>(initialMode??null);
+ const [showPlayerIntro,setShowPlayerIntro]=useState(initialMode==='player');
+ const [goalOpen,setGoalOpen]=useState(false);
  const mode=selectedMode??'starter';
  const [draft,setDraft]=useState<Draft>(empty);
  const [step,setStep]=useState(1);
@@ -46,8 +49,9 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const focus=useRef<HTMLElement>(null);
  const choiceHeading=useRef<HTMLHeadingElement>(null);
  const goalDialog=useRef<HTMLDialogElement>(null);
+ useEffect(()=>{if(goalOpen)goalDialog.current?.querySelector<HTMLInputElement>('#mp-months')?.focus();},[goalOpen]);
  const guideRoot=useRef<HTMLDivElement>(null);
- const guideMessage=useDiagnosisInputGuide(guideRoot,selectedMode!==null,JSON.stringify([draft,step,market]));
+ const guideMessage=useDiagnosisInputGuide(guideRoot,selectedMode!==null&&!showPlayerIntro,JSON.stringify([draft,step,market]));
  const previewStage = useDraftPreviewStage(initialMode === 'player' ? '/tools/player/' : '/tools/');
  useEffect(()=>{if(previewStage&&previewStage!=='choice'){const n=previewStage==='3-keywords'?3:Number(previewStage);if(n>=3)setReport(previewReport);setStep(n);}},[previewStage]);
  const update=(key:keyof Draft,value:string)=>{setDraft(previous=>({...previous,[key]:value}));setExampleFields(keys=>keys.filter(field=>field!==key));setError('');};
@@ -74,17 +78,17 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
   if(missing){setError('비용을 입력하세요. 모르면 참고값을 넣을 수 있어요.');return;}
   if(returnCostMissing){setError('반품 한 건을 처리하는 비용도 입력하세요.');return;}
   if(!live){setError('입력값을 확인해 주세요. 수수료와 반품률은 0~100%여야 합니다.');return;}
-  if(!goalConfirmed){goalDialog.current?.showModal();return;}
+  if(!goalConfirmed){setGoalOpen(true);goalDialog.current?.showModal();return;}
   if(!Number.isSafeInteger(Number(draft.months))||Number(draft.months)<1||Number(draft.months)>120){setError('목표 개월은 1~120개월의 정수로 입력하세요.');return;}
   try{
-   goalDialog.current?.close();
+   goalDialog.current?.close();setGoalOpen(false);
    const input:MarketingPlanInput={price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returns:live.returns,returnRate:Number(draft.returnRate),returnHandling:Number(draft.returnHandling),certification:0,fixed:0};
    setReport({name:draft.name.trim(),months:Number(draft.months),input,result:marketingPlan(input),examples:[...exampleFields]});move(3);
   }catch(e){setError(e instanceof Error?e.message:'입력값을 확인해 주세요.');}
  }
 
  function chooseMode(next:'starter'|'player'){
-  setSelectedMode(next);setDraft(empty);setStep(1);setMarket('');setReport(null);setExampleFields([]);setError('');
+  setSelectedMode(next);setShowPlayerIntro(next==='player');setDraft(empty);setStep(1);setMarket('');setReport(null);setExampleFields([]);setError('');
   requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});
  }
  if(selectedMode===null&&(!previewStage||previewStage==='choice'))return <div className="finance-dashboard mp-shell diagnosis-studio" data-preview-stage="choice" data-diagnosis-stage="choose">
@@ -93,10 +97,11 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
    <h1 id="ds-choice-title" ref={choiceHeading} tabIndex={-1}>지금, 어느 단계에<br/><em>서 있나요?</em></h1>
    <div className="ds-choice-grid">
     <button type="button" className="ds-choice-card ds-starter" onClick={()=>chooseMode('starter')}><span className="ds-card-number">01 / 첫 판매 준비</span><span className="ds-choice-art ds-art-target" aria-hidden="true"><i/><b/></span><span className="ds-card-title">스타터</span><strong>판매가 처음이에요.</strong><span className="ds-card-description">판매 전에 필요한 금액과<br/>실제로 남는 이익을 확인하세요.</span><span className="ds-card-action">내 상품 진단하기 <ArrowUpRight size={25}/></span></button>
-    <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-card-number">02 / 다음 성장 준비</span><span className="ds-choice-art ds-art-star" aria-hidden="true"></span><span className="ds-card-title">플레이어</span><strong>판매 경험이 있어요.</strong><span className="ds-card-description">상품의 수익 구조를 점검하고<br/>검색어와 광고 방향을 확인하세요.</span><span className="ds-card-action">다음 광고 준비하기 <ArrowUpRight size={25}/></span></button>
+    <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-card-number">02 / 다음 성장 준비</span><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><strong>판매 경험이 있어요.</strong><span className="ds-card-description">상품의 수익 구조를 점검하고<br/>검색어와 광고 방향을 확인하세요.</span><span className="ds-card-action">다음 광고 준비하기 <ArrowUpRight size={25}/></span></button>
    </div>
   </main>
  </div>;
+ if(selectedMode==='player'&&showPlayerIntro&&!previewStage)return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow"><DiagnosisHeader mode="player" onChoose={()=>{setSelectedMode(null);setShowPlayerIntro(false);window.scrollTo({top:0,behavior:'instant'});}}/><PlayerIntroduction onStart={()=>{setShowPlayerIntro(false);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/></div>;
  return <div ref={guideRoot} className="finance-dashboard mp-shell diagnosis-studio ds-flow" data-preview-stage={step===3&&report&&previewStage==='3-keywords'?'3-keywords':String(step)} data-diagnosis-stage={step}>
   <DiagnosisHeader mode={mode} onChoose={()=>{setSelectedMode(null);requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>
   {step<3&&<aside className={`mp-live-bar ${live&&live.profit<0?'is-loss':''}`} aria-label="실시간 상품 손익" aria-live="polite">
@@ -147,7 +152,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
     {step<3&&<span className="mp-ipad-home" aria-hidden="true"/>}
    </section>
   </main>
-  <dialog ref={goalDialog} className="mp-goal-dialog" aria-labelledby="mp-goal-title"><button type="button" className="mp-secondary" onClick={()=>goalDialog.current?.close()} aria-label="목표 개월 입력 닫기">닫기</button><form onSubmit={event=>submit(event,true)} noValidate><h2 id="mp-goal-title">목표 판매 개월을 넣어주시면<br/>진단해드리겠습니다</h2><label htmlFor="mp-months">목표 판매 개월</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월</span></div>{error&&<p className="mp-error" role="alert">{error}</p>}<button type="submit" className="mp-primary">진단 결과 확인하기 <ArrowRight size={17}/></button></form></dialog>
+  <dialog ref={goalDialog} className="mp-goal-dialog ds-goal-overlay" aria-labelledby="mp-goal-title" onClose={()=>setGoalOpen(false)} onClick={event=>{if(event.target===event.currentTarget)goalDialog.current?.close();}}><AnimatePresence>{goalOpen&&<motion.form key="goal" initial={reducedMotion?false:{opacity:0,y:36,scale:.97}} animate={{opacity:1,y:0,scale:1}} transition={{duration:reducedMotion?0:.45,ease:[.22,1,.36,1]}} onSubmit={event=>submit(event,true)} noValidate><h2 id="mp-goal-title">목표 판매 개월을 넣어주시면<br/>진단해드리겠습니다</h2><label htmlFor="mp-months" className="ds-sr-only">목표 판매 개월</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월</span></div>{error&&<p className="mp-error" role="alert">{error}</p>}<button type="submit" className="mp-primary">진단 결과 확인하기 <ArrowRight size={20}/></button></motion.form>}</AnimatePresence></dialog>
  </div>;
 }
 
