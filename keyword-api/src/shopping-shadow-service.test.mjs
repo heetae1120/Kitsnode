@@ -29,3 +29,9 @@ test('simulation records a blocker when bid mode changes between server reads',a
  const result=await service('token',{action:'simulate',connectionId:connection,ruleId});
  assert.equal(result.ok,true);assert.equal(result.result.execution,'disabled');assert.ok(result.result.blockers.includes('target_changed_during_read'));assert.deepEqual(stored,result.result);
 });
+test('rank quotes are bound to saved goals and invalid quote never falls back to manual reference',async()=>{
+ const individual={...rule,target_type:'keyword',target_id:'nkw-1',pc_position:2,mobile_position:3};let stored;
+ const catalog=async(_t,input)=>({ok:true,items:input.action==='keywordGroups'?[{id:'grp-1',bid:100,status:'ELIGIBLE'}]:[{id:'nkw-1',bid:100,useGroupBid:false,status:'ELIGIBLE'}]});
+ const service=createShoppingShadowService({verifySession:async()=>({id:user}),memberAllowed:async()=>true,getBinding:async()=>({userId:user,status:'read_connected',revision:2}),catalog,compare:async()=>null,preview:async()=>null,rankEstimate:async()=>({status:'comparison_available',execution:'disabled',rankGuaranteed:false,simultaneousRank:'unverified',pc:{position:1,bid:150},mobile:{position:3,bid:200}}),store:{save:async()=>null,list:async()=>[individual],history:async()=>[],append:async(_u,_r,_v,_rev,result)=>{stored=result;return entryId}}});
+ const response=await service('token',{action:'simulate',connectionId:individual.connection_id,ruleId:individual.id});assert.equal(response.ok,true);assert.equal(stored.proposedBid,null);assert.equal(stored.rankEstimate.status,'unavailable');assert.ok(stored.blockers.includes('rank_estimate_unavailable'));
+});
