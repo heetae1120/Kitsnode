@@ -38,7 +38,7 @@ Deno.serve(async req=>{
   const active=getApps();
   if(route==='/connections'||/^\/connections\/[0-9a-f-]{36}$/i.test(route)){path='/api/ad-connections'+route.slice('/connections'.length);handler=active.connection.handler;}
   else if(route==='/reviews'){path='/api/ad-connection-reviews';handler=active.review.handler;}
-  else if((route==='/shopping-catalog'||route==='/shopping-bid-preview')&&Deno.env.get('KITS_SHOPPING_PREVIEW_ENABLED')==='true'){path='/api'+route;handler=getShopping().handler;}
+  else if((route==='/shopping-catalog'||route==='/shopping-bid-preview'||route==='/shopping-master-compare')&&Deno.env.get('KITS_SHOPPING_PREVIEW_ENABLED')==='true'){path='/api'+route;handler=getShopping().handler;}
   else return fallback(404);
   return await handler(new Request(`https://internal.invalid${path}${u.search}`,req));
  } catch {return fallback(503);}

@@ -17,14 +17,15 @@ export function illustrateShoppingGroupBid({connection,actorId,campaign,group,pr
  const currentBid=group.bidAmt;
  if(![currentBid,referenceBid,minBid,maxBid,maxChange].every(integer)||minBid<50||maxBid>100000||minBid>maxBid||maxChange<10||referenceBid<1||referenceBid>100000||[currentBid,minBid,maxBid].some(v=>v%10!==0))return unavailable('invalid_input');
  if(currentBid<minBid||currentBid>maxBid)return skipped('current_outside_bounds');
- if(!Array.isArray(products)||products.length>10000||products.some(p=>!id(p?.nccAdId,'nad')||p.nccAdgroupId!==group.nccAdgroupId||customer(p.customerId)!==customer(connection.customerId)||p.type!=='SHOPPING_PRODUCT_AD'||typeof p.adAttr?.useGroupBidAmt!=='boolean')||new Set(products.map(p=>p.nccAdId)).size!==products.length)return unavailable('product_scope_unverified');
+ if(!Array.isArray(products)||products.length>1000||products.some(p=>!id(p?.nccAdId,'nad')||p.nccAdgroupId!==group.nccAdgroupId||customer(p.customerId)!==customer(connection.customerId)||p.type!=='SHOPPING_PRODUCT_AD')||new Set(products.map(p=>p.nccAdId)).size!==products.length)return unavailable('product_scope_unverified');
  const blockers=[];
  if(campaign.status!=='ELIGIBLE'||campaign.userLock!==false)blockers.push('campaign_inactive');
  if(group.status!=='ELIGIBLE'||group.userLock!==false)blockers.push('adgroup_inactive');
  if(group.autobidStrategy?.isAutobidActive!==false)blockers.push(group.autobidStrategy?.isAutobidActive===true?'naver_autobid_active':'naver_autobid_unverified');
- if(productsComplete!==true)blockers.push('product_scope_unverified');
+ if(productsComplete!==true||products.some(p=>typeof p.adAttr?.useGroupBidAmt!=='boolean'))blockers.push('product_scope_unverified');
  const target=Math.max(minBid,Math.min(maxBid,Math.ceil(referenceBid/10)*10)),limit=Math.floor(maxChange/10)*10;
- return {status:'illustrative',scope:'adgroup',currentBid,referenceBid,proposedBid:currentBid+Math.max(-limit,Math.min(limit,target-currentBid)),affectedProductCount:productsComplete===true?products.filter(p=>p.adAttr.useGroupBidAmt===true).length:null,blockers,referenceSource:'manual_scenario',execution:'disabled'};
+ const observedProducts=products.map(p=>({id:p.nccAdId,name:typeof (p.referenceData?.productName||p.referenceData?.productTitle)==='string'?(p.referenceData.productName||p.referenceData.productTitle).slice(0,160):'상품명 확인 불가',status:typeof p.status==='string'&&/^[A-Z_]{1,50}$/.test(p.status)?p.status:'UNKNOWN',useGroupBid:typeof p.adAttr?.useGroupBidAmt==='boolean'?p.adAttr.useGroupBidAmt:null}));
+ return {status:'illustrative',scope:'adgroup',currentBid,referenceBid,proposedBid:currentBid+Math.max(-limit,Math.min(limit,target-currentBid)),affectedProductCount:productsComplete===true&&!blockers.includes('product_scope_unverified')?observedProducts.filter(p=>p.useGroupBid===true).length:null,observedProducts,observedAt:new Date(nowMs).toISOString(),blockers,referenceSource:'manual_scenario',execution:'disabled'};
 }
 
 /**
