@@ -91,7 +91,7 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
     <h2 id="ad-connection-panel-title">네이버 광고 계정 연결</h2>
     <p>키츠노드는 광고 정보 조회와 사용자가 신청한 입찰 관리를 위해 접근을 요청합니다. 네이버 비밀번호나 API 키를 입력하지 마세요.</p>
     <p>네이버애즈의 광고 계정 ID를 입력해 주세요. 검색광고 API의 고객 ID는 별도로 확인합니다.</p>
-    <p>네이버 관리계정 연결 또는 개별 회원 권한 부여를 완료한 뒤에도, 담당자가 신청자와 계정의 관계를 확인해야 연결됩니다.</p>
+    <p>네이버애즈에서 키츠노드 담당자를 광고 계정의 회원으로 초대한 뒤, 담당자가 신청자와 계정의 관계를 확인해야 연결됩니다. 관리계정만으로 연결된 광고 계정은 현재 자동으로 확인할 수 없습니다.</p>
     <p>부여한 권한의 범위는 네이버에서 확인해 주세요. 자동 입찰은 현재 안전 검증을 위해 중단되어 있습니다.</p>
     {checking ? <p role="status">로그인 상태를 확인하고 있어요.</p> : !signedIn ? <p><Link className="store-text-link" href="/store/login/">로그인 후 연결하기</Link></p> : <form onSubmit={submit}>
       <label htmlFor="naver-ad-account-id">광고 계정 ID</label>{' '}
