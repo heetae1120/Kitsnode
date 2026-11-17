@@ -61,6 +61,7 @@ jobs:
           NEXT_PUBLIC_ANALYTICS_ENABLED: 'true'
           NEXT_PUBLIC_AD_CONNECTION_ENABLED: 'true'
           NEXT_PUBLIC_AD_REVIEW_ENABLED: 'true'
+          NEXT_PUBLIC_SHOPPING_PREVIEW_ENABLED: 'true'
           NEXT_PUBLIC_ANALYTICS_ENDPOINT: https://bjpguxwqxlsteektkhwf.supabase.co/functions/v1/kitsnode-analytics
           # These values are public browser configuration, never service-role keys.
           # Missing variables keep the member-auth interface disabled by default.
