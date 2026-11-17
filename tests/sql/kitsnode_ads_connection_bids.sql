@@ -8,7 +8,7 @@ end $$;
 create schema auth;
 create table auth.users(id uuid primary key);
 insert into auth.users values ('11111111-1111-4111-8111-111111111111'),('22222222-2222-4222-8222-222222222222');
-\ir ../../supabase/migrations/20261117022844_kitsnode_ads_connection_bids.sql
+\ir ../../supabase/migrations/20261117035300_kitsnode_ads_connection_approval_20261117.sql
 insert into kitsnode_ads_private.connections(id,user_id,ad_account_id) values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','11111111-1111-4111-8111-111111111111','2647636');
 set role authenticated;
 do $$ begin
