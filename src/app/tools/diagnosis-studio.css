@@ -486,3 +486,9 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story :is(em,.mp-keywor
 
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story :is(.mp-conversion-input span,.mp-ad-podium header>div>span,.mp-report-page-actions>span){color:#aaa7a0!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-player-opening h1 .ds-player-mask:first-child>span{color:#f5f2eb!important}
+
+/* Keep purchase capacity and budget warnings readable in both focus states. */
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow #mp-quantity-capacity,
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow #mp-quantity-capacity small{color:#aaa7a0!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow #mp-quantity-capacity b,
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-sales-summary>p[role=alert]{color:#fff!important}
