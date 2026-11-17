@@ -8,3 +8,12 @@ test('matching sources are corroboration only; a shadow run remains blocked',()=
 test('differences in IDs and inheritance are reported and block the shadow run',()=>{const comparison=compareShoppingSources({...input,master:[{...row,useGroupBid:false},{...row,id:'nad-2'}]});assert.equal(comparison.status,'mismatch');assert.deepEqual(comparison.onlyMaster,['nad-2']);assert.deepEqual(comparison.differentBidMode,['nad-1']);assert.ok(planShoppingShadowRun({illustration,comparison}).blockers.includes('source_mismatch'))});
 test('duplicate, unknown, wrong-account and stale sources are refused',()=>{for(const changes of [{live:[row,row]},{master:[{...row,useGroupBid:null}]},{live:[{...row,customerId:'456'}]},{masterAt:-400000}])assert.equal(compareShoppingSources({...input,...changes}).status,'unavailable')});
 test('shadow planner rejects actionable or malformed inputs',()=>{const comparison=compareShoppingSources(input);for(const value of [{...illustration,execution:'enabled'},{...illustration,scope:'product'},{...illustration,blockers:[null]}])assert.equal(planShoppingShadowRun({illustration:value,comparison}).status,'unavailable');assert.equal(planShoppingShadowRun({illustration,comparison:{status:'observed_consistent'}}).status,'unavailable')});
+
+test('scope fingerprint is order independent and refuses ambiguous scopes',async()=>{
+ const {shoppingScopeFingerprint}=await import('./shopping-shadow-run.mjs');
+ const a={id:'nad-1',useGroupBid:true},b={id:'nad-2',useGroupBid:false};
+ assert.equal(shoppingScopeFingerprint([a,b]),shoppingScopeFingerprint([b,a]));
+ assert.notEqual(shoppingScopeFingerprint([a,b]),shoppingScopeFingerprint([a,{...b,useGroupBid:true}]));
+ assert.equal(shoppingScopeFingerprint([a,a]),null);
+ assert.equal(shoppingScopeFingerprint([{...a,useGroupBid:null}]),null);
+});

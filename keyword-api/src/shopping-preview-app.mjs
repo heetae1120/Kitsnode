@@ -8,6 +8,7 @@ import {createShoppingPreviewService} from './shopping-preview-service.mjs';
 import {createShoppingPreviewHttp} from './shopping-preview-http.mjs';
 import {createShoppingMasterComparison} from './shopping-master-compare.mjs';
 import {createShoppingMasterClient} from './shopping-master-report.mjs';
+import {createShoppingShadowService,createShoppingShadowStore} from './shopping-shadow-service.mjs';
 
 export function createShoppingPreviewApp({authClient,serviceClient,allowedOrigins,apiKey,secretKey,fetcher=fetch}) {
  const verifySession=createSupabaseSessionVerifier(authClient),memberAllowed=createMemberEligibility(serviceClient,{termsVersion:'2026-11-14',privacyVersion:'2026-11-14-naver'});
@@ -17,5 +18,6 @@ export function createShoppingPreviewApp({authClient,serviceClient,allowedOrigin
  const catalog=createShoppingCatalogService({verifySession,memberAllowed,listOwned,getBinding,readerForCustomer});
  const reserveReport=async(userId,connectionId,revision)=>{const {data,error}=await serviceClient.rpc('kits_ads_reserve_master_report',{p_user_id:userId,p_connection_id:connectionId,p_revision:revision});return !error&&data===true};
  const compare=createShoppingMasterComparison({verifySession,memberAllowed,getBinding,reserveReport,readerForCustomer,masterForCustomer:customerId=>createShoppingMasterClient({apiKey,secretKey,customerId,fetcher})});
- return {handler:createShoppingPreviewHttp({allowedOrigins,verifySession,allowRequest,preview,catalog,compare})};
+ const shadow=createShoppingShadowService({verifySession,memberAllowed,getBinding,catalog,compare,preview,store:createShoppingShadowStore(serviceClient)});
+ return {handler:createShoppingPreviewHttp({allowedOrigins,verifySession,allowRequest,preview,catalog,compare,shadow})};
 }

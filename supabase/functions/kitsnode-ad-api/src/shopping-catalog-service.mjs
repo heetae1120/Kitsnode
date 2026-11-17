@@ -17,28 +17,29 @@ export function createShoppingCatalogService({verifySession,memberAllowed,listOw
     const data=rows.filter(x=>x.userId===user.id&&x.status==='read_connected'&&uuid(x.requestId)&&account(x.adAccountId)).map(x=>({id:x.requestId,accountId:x.adAccountId}));
     if(!unique(data,'id'))return fail('unavailable');return {ok:true,items:data};
    }
-   if(!['campaigns','groups','products'].includes(input?.action)||!uuid(input.connectionId))return fail('invalid_input');
-   if(['groups','products'].includes(input.action)&&!validId(input.campaignId,'cmp'))return fail('invalid_input');
-   if(input.action==='products'&&!validId(input.groupId,'grp'))return fail('invalid_input');
+   if(!['campaigns','groups','products','keywordCampaigns','keywordGroups','keywords'].includes(input?.action)||!uuid(input.connectionId))return fail('invalid_input');
+   if(['groups','products','keywordGroups','keywords'].includes(input.action)&&!validId(input.campaignId,'cmp'))return fail('invalid_input');
+   if(['products','keywords'].includes(input.action)&&!validId(input.groupId,'grp'))return fail('invalid_input');
    const binding=await getBinding(user.id,input.connectionId);
    if(!binding||binding.userId!==user.id||binding.status!=='read_connected'||!account(binding.customerId)||!Number.isSafeInteger(binding.revision))return fail('connection_required');
    const reader=readerForCustomer(binding.customerId);let items;
-   if(input.action==='campaigns'){
+   if(['campaigns','keywordCampaigns'].includes(input.action)){
     const r=await reader.campaigns();if(!r.ok||!Array.isArray(r.data)||r.data.length>10000)return fail('upstream_unavailable');
-    const rows=r.data.filter(x=>x.campaignTp==='SHOPPING');
+    const rows=r.data.filter(x=>x.campaignTp===(input.action==='campaigns'?'SHOPPING':'WEB_SITE'));
     if(rows.some(x=>!validId(x.nccCampaignId,'cmp')||account(x.customerId)!==binding.customerId)||!unique(rows,'nccCampaignId'))return fail('invalid_response');
     items=rows.map(x=>({id:x.nccCampaignId,name:label(x.name),status:status(x.status)}));
    }else{
     const r=await reader.adgroups(input.campaignId);if(!r.ok||!Array.isArray(r.data)||r.data.length>10000)return fail('upstream_unavailable');
-    const rows=r.data.filter(x=>x.adgroupType==='SHOPPING');
+    const rows=r.data.filter(x=>x.adgroupType=== (['keywordGroups','keywords'].includes(input.action)?'WEB_SITE':'SHOPPING'));
     if(rows.some(x=>!validId(x.nccAdgroupId,'grp')||account(x.customerId)!==binding.customerId||x.nccCampaignId!==input.campaignId)||!unique(rows,'nccAdgroupId'))return fail('invalid_response');
-    if(input.action==='groups')items=rows.map(x=>({id:x.nccAdgroupId,name:label(x.name),status:status(x.status),bid:Number.isSafeInteger(x.bidAmt)?x.bidAmt:null}));
+    if(['groups','keywordGroups'].includes(input.action))items=rows.map(x=>({id:x.nccAdgroupId,name:label(x.name),status:status(x.status),bid:Number.isSafeInteger(x.bidAmt)?x.bidAmt:null}));
     else{
      if(!rows.some(x=>x.nccAdgroupId===input.groupId))return fail('not_found');
-     const a=await reader.shoppingAds(input.groupId);if(!a.ok||!Array.isArray(a.data)||a.data.length>10000)return fail('upstream_unavailable');
-     const products=a.data.filter(x=>x.type==='SHOPPING_PRODUCT_AD');
+     const a=await (input.action==='keywords'?reader.keywords(input.groupId):reader.shoppingAds(input.groupId));if(!a.ok||!Array.isArray(a.data)||a.data.length>10000)return fail('upstream_unavailable');
+     const products=input.action==='keywords'?a.data:a.data.filter(x=>x.type==='SHOPPING_PRODUCT_AD');
+     if(input.action==='keywords'){if(products.some(x=>!validId(x.nccKeywordId,'nkw')||account(x.customerId)!==binding.customerId||x.nccAdgroupId!==input.groupId)||!unique(products,'nccKeywordId'))return fail('invalid_response');items=products.map(x=>({id:x.nccKeywordId,name:label(x.keyword)||'키워드 이름 확인 불가',status:status(x.status),useGroupBid:typeof x.useGroupBidAmt==='boolean'?x.useGroupBidAmt:null,bid:Number.isSafeInteger(x.bidAmt)?x.bidAmt:null}));}else{
      if(products.some(x=>!validId(x.nccAdId,'nad')||account(x.customerId)!==binding.customerId||x.nccAdgroupId!==input.groupId)||!unique(products,'nccAdId'))return fail('invalid_response');
-     items=products.map(x=>({id:x.nccAdId,name:label(x.referenceData?.productName||x.referenceData?.productTitle)||'상품명 확인 불가',status:status(x.status),useGroupBid:typeof x.adAttr?.useGroupBidAmt==='boolean'?x.adAttr.useGroupBidAmt:null,bid:Number.isSafeInteger(x.adAttr?.bidAmt)?x.adAttr.bidAmt:null}));
+     items=products.map(x=>({id:x.nccAdId,name:label(x.referenceData?.productName||x.referenceData?.productTitle)||'상품명 확인 불가',status:status(x.status),useGroupBid:typeof x.adAttr?.useGroupBidAmt==='boolean'?x.adAttr.useGroupBidAmt:null,bid:Number.isSafeInteger(x.adAttr?.bidAmt)?x.adAttr.bidAmt:null}));}
     }
    }
    const current=await getBinding(user.id,input.connectionId);

@@ -2,10 +2,23 @@
 // credential, persistence, scheduler, HTTP route or bid-changing dependency.
 // Normalized master rows must come from a separately authenticated source;
 // a match is corroboration, not proof of an atomic or exhaustive snapshot.
+import {createHash} from 'node:crypto';
 const adId=v=>typeof v==='string'&&/^nad-[A-Za-z0-9-]{1,100}$/.test(v);
 const groupId=v=>typeof v==='string'&&/^grp-[A-Za-z0-9-]{1,100}$/.test(v);
 const customer=v=>(typeof v==='string'||Number.isSafeInteger(v))&&/^[1-9][0-9]{0,15}$/.test(String(v))?String(v):null;
 const fail=reason=>({status:'unavailable',reason,execution:'disabled'});
+
+// Detect changes in the observed group between the comparison and the later
+// preview. This is not proof that either list is complete or still current.
+export function shoppingScopeFingerprint(rows){
+ if(!Array.isArray(rows)||rows.length>1000)return null;
+ const entries=new Map();
+ for(const r of rows){
+  if(!r||!adId(r.id)||typeof r.useGroupBid!=='boolean'||entries.has(r.id))return null;
+  entries.set(r.id,r.useGroupBid);
+ }
+ return createHash('sha256').update(JSON.stringify([...entries].sort(([a],[b])=>a<b?-1:a>b?1:0))).digest('hex');
+}
 
 export function compareShoppingSources({customerId,adgroupId,live,master,liveAt,masterAt,now=Date.now()}={}) {
  const c=customer(customerId);
@@ -24,7 +37,7 @@ export function compareShoppingSources({customerId,adgroupId,live,master,liveAt,
  for(const [id,mode] of a){if(!b.has(id))onlyLive.push(id);else if(b.get(id)!==mode)differentBidMode.push(id);}
  for(const id of b.keys())if(!a.has(id))onlyMaster.push(id);
  const mismatch=onlyLive.length+onlyMaster.length+differentBidMode.length>0;
- return {status:mismatch?'mismatch':'observed_consistent',liveCount:a.size,masterCount:b.size,onlyLive,onlyMaster,differentBidMode,complete:false,execution:'disabled'};
+ return {status:mismatch?'mismatch':'observed_consistent',liveCount:a.size,masterCount:b.size,onlyLive,onlyMaster,differentBidMode,liveFingerprint:shoppingScopeFingerprint(live),complete:false,execution:'disabled'};
 }
 
 // A shadow run records what would be considered, never an instruction to send.
