@@ -492,3 +492,8 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow #mp-quantity-capacity,
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow #mp-quantity-capacity small{color:#aaa7a0!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow #mp-quantity-capacity b,
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-sales-summary>p[role=alert]{color:#fff!important}
+
+/* Status cards use a continuous outline; keyword ranks are plain orange type. */
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-key-date.is-recommended{border:2px solid #23835c!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-key-date.is-deadline{border:2px solid #ff6868!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story .mp-keyword-candidates>li>.mp-keyword-order{display:block;width:auto;height:auto;min-width:0;padding:0;margin:0 0 20px;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;color:#ff5a1f!important;font-size:clamp(36px,3.5vw,48px);font-weight:800;line-height:1;letter-spacing:-.045em}
