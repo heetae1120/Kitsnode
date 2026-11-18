@@ -31,7 +31,7 @@ export function useAgencyMotion(){
             const index=time<1.65?0:time<3.65?1:time<6?2:3;
             setScene(index);
             const trigger=timeline?.scrollTrigger;
-            if(trigger?.isActive||trigger?.progress===0)setTone(index===1?'orange':index===2?'light':'dark');
+            if(trigger?.isActive||trigger?.progress===0)setTone(index===1?'orange':'dark');
             if(progress)progress.style.transform=`scaleX(${time/8})`;
           },scrollTrigger:{
           trigger:hero,pin,start:'top top',end:()=>`+=${window.innerHeight*(window.innerWidth<760?3.2:4)}`,

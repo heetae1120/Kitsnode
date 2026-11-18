@@ -3,7 +3,7 @@ import {Children,useRef,useState,type ReactNode} from "react";
 import {AnimatePresence,motion,useReducedMotion} from "framer-motion";
 import {ArrowLeft,ArrowRight} from "lucide-react";
 import '@/app/tools/report-motion.css';
-export function ReportTabletSlides({children}:{children:ReactNode}){
+export function ReportTabletSlides({children,beforeNext}:{children:ReactNode;beforeNext?:(proceed:()=>void)=>void}){
  const slides=Children.toArray(children),[page,setPage]=useState(0),[direction,setDirection]=useState(1);
  const root=useRef<HTMLDivElement>(null),screen=useRef<HTMLDivElement>(null),touch=useRef<number|null>(null);
  const reduced=useReducedMotion(),last=page===slides.length-1;
@@ -15,6 +15,7 @@ export function ReportTabletSlides({children}:{children:ReactNode}){
   root.current?.scrollIntoView({behavior:'instant',block:'start'});
  }
  function atBottom(){return !!screen.current&&screen.current.getBoundingClientRect().bottom<=window.innerHeight+3;}
+ function next(){if(page===0&&beforeNext){beforeNext(()=>move(1));return;}if(last)finish();else move(page+1);}
  return <div className="kn-tablet-slides ds-report-chapters" ref={root}>
   <div ref={screen} className="kn-tablet-slide-screen" role="region" aria-label={"수익 보고서 "+(page+1)+" / "+slides.length} tabIndex={0}
    onWheel={e=>{if(last&&e.deltaY>30&&atBottom())finish();}}
@@ -28,7 +29,7 @@ export function ReportTabletSlides({children}:{children:ReactNode}){
    </AnimatePresence>
   </div>
   <nav className="kn-tablet-slide-actions" aria-label="진단 결과 넘기기">
-   <button type="button" className="mp-primary" onClick={()=>last?finish():move(page+1)}>{last?'이 목표에 맞는 검색어를 찾아볼까요?':page===0?'그럼 재고는 어떨까요?':'이제 판매 목표를 확인해볼까요?'}<ArrowRight size={16}/></button>
+   <button type="button" className="mp-primary" onClick={next}>{last?'이 목표에 맞는 검색어를 찾아볼까요?':page===0?'그럼 재고는 어떨까요?':'이제 판매 목표를 확인해볼까요?'}<ArrowRight size={16}/></button>
    <span aria-live="polite">{page+1} / {slides.length}</span>
    <button type="button" className="mp-secondary ds-report-previous" disabled={page===0} onClick={()=>move(page-1)}><ArrowLeft size={16}/>이전</button>
   </nav>

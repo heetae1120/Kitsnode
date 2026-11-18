@@ -16,7 +16,8 @@ const hints:Record<string,{text:string;links?:[string,string][]}>={
 export function PlannerCostHelp({field,label}:{field:string;label:string}){
  const [open,setOpen]=useState(false);const id=useId();const hint=hints[field];if(!hint)return null;
  return <span className="mp-field-help" onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)} onFocus={()=>setOpen(true)} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node|null))setOpen(false);}} onKeyDown={e=>{if(e.key==='Escape')setOpen(false);}}>
-   <button type="button" className="mp-hint-button" aria-label={`${label} 비용 안내`} aria-expanded={open} aria-controls={id} onClick={()=>setOpen(true)}><CircleAlert size={16}/></button>
+   <span id={`mp-help-${field}`} className="ds-sr-only">{hint.text}</span>
+   <button type="button" tabIndex={-1} className="mp-hint-button" aria-label={`${label} 비용 안내`} aria-expanded={open} aria-controls={id} onClick={()=>setOpen(true)}><CircleAlert size={16}/></button>
    {open&&<span id={id} role="note" className="mp-help-content"><b>{label} · 입력 참고</b><span>{hint.text}</span>{hint.links&&<span className="mp-help-links">{hint.links.map(([text,href])=><a key={href} href={href} target="_blank" rel="noreferrer">{text} ↗</a>)}</span>}</span>}
  </span>;
 }

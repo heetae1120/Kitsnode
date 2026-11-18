@@ -64,7 +64,6 @@ body .profit-tool .mp-live-bar {background:#fff;border-bottom:1px solid var(--kn
 body .profit-tool .finance-dashboard :is(.mp-keyword-main,.mp-stock-cost,.mp-actual-cost) {background:var(--kn-wash);border-color:var(--kn-rule);border-radius:10px}
 body .profit-tool :is(.mp-keyword-candidates>li,.hc-stage-card) {border-color:var(--kn-rule);box-shadow:0 5px 20px #102e2010}
 body .profit-tool :is(input:not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea):focus-visible {outline:2px solid var(--brand-accent);outline-offset:2px}
-body .store-theme {--store-canvas:#fff;--store-rail:#f6f9f7;--store-selected:#ddf5e9;--store-primary:#086952;--store-primary-hover:#06513f;--store-primary-soft:#e8f8ef;--store-text:#172c25;--store-divider:#d8e2dc;--store-border:#cad8d2}
 body .store-main h1 {letter-spacing:-.055em}
 .kn-colophon {background:#fff;color:var(--kn-ink);border-top:1px solid var(--kn-rule);display:flex;align-items:center;justify-content:space-between;gap:24px;padding:clamp(30px,5vw,76px) max(6vw,calc((100% - 1200px)/2));font-family:var(--font-pretendard),sans-serif}
 .kn-colophon strong {font-size:clamp(28px,4vw,52px);letter-spacing:-.075em;line-height:1}

@@ -4,39 +4,39 @@
 
 .profit-tool .keyword-page {
   /* Wayfind, platform colourway: cool grey paper, blue-black ink, cobalt for data. */
-  --kw-paper: oklch(95.5% 0.006 250);
-  --kw-sheet: oklch(99.5% 0.004 250);
-  --kw-sheet-2: oklch(97.2% 0.006 250);
-  --kw-active: oklch(91% 0.009 250);
-  --kw-ink: oklch(16% 0.014 262);
-  --kw-ink-2: oklch(29% 0.014 262);
-  --kw-muted: oklch(45% 0.016 260);
-  --kw-rule: oklch(88.5% 0.01 250);
-  --kw-rule-soft: oklch(93% 0.007 250);
-  --kw-rule-strong: oklch(80% 0.011 250);
-  --kw-control: oklch(76% 0.012 250);
-  --kw-grid: oklch(91% 0.008 250);
-  --kw-accent: oklch(51% 0.22 264);
-  --kw-accent-hover: oklch(45% 0.22 264);
-  --kw-accent-soft: oklch(80% 0.09 264);
-  --kw-accent-wash: oklch(95% 0.03 264);
-  --kw-on-accent: oklch(99.5% 0.003 250);
-  --kw-focus: oklch(51% 0.22 264);
+  --kw-paper: #0b0b0b;
+  --kw-sheet: #111111;
+  --kw-sheet-2: #1b1b1b;
+  --kw-active: #292929;
+  --kw-ink: #f5f2eb;
+  --kw-ink-2: #ded9d0;
+  --kw-muted: #aaa7a0;
+  --kw-rule: #454545;
+  --kw-rule-soft: #353535;
+  --kw-rule-strong: #666666;
+  --kw-control: #666666;
+  --kw-grid: #353535;
+  --kw-accent: #ff5a1f;
+  --kw-accent-hover: #ff8052;
+  --kw-accent-soft: #ffb18f;
+  --kw-accent-wash: #321b12;
+  --kw-on-accent: #0b0b0b;
+  --kw-focus: #ff5a1f;
   /* the ink plate that carries the search */
-  --kw-plate: oklch(18% 0.016 262);
-  --kw-plate-2: oklch(25% 0.016 262);
-  --kw-plate-rule: oklch(36% 0.016 262);
-  --kw-plate-ink: oklch(97% 0.004 250);
-  --kw-plate-muted: oklch(79% 0.012 250);
-  --kw-plate-focus: oklch(81% 0.16 82);
+  --kw-plate: #111111;
+  --kw-plate-2: #1b1b1b;
+  --kw-plate-rule: #555555;
+  --kw-plate-ink: #f5f2eb;
+  --kw-plate-muted: #aaa7a0;
+  --kw-plate-focus: #ff8c61;
   /* status pairs */
-  --kw-pos-bg: oklch(94.5% 0.045 150);
-  --kw-pos-ink: oklch(33% 0.08 150);
-  --kw-neg-bg: oklch(94% 0.035 25);
-  --kw-neg-ink: oklch(40% 0.14 25);
-  --kw-note-bg: oklch(97.5% 0.03 90);
-  --kw-note-rule: oklch(88% 0.09 90);
-  --kw-note-ink: oklch(42% 0.1 60);
+  --kw-pos-bg: #14271d;
+  --kw-pos-ink: #a8dab7;
+  --kw-neg-bg: #341a18;
+  --kw-neg-ink: #ff9a83;
+  --kw-note-bg: #321e14;
+  --kw-note-rule: #77513b;
+  --kw-note-ink: #ffb78f;
 
   --kw-font: var(--font-pretendard), "Pretendard", system-ui, sans-serif;
   --kw-fs-title: 28px;

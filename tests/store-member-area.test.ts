@@ -75,13 +75,14 @@ test("member pages cannot accept credentials or fabricate authentication", () =>
   assert.match(pages, /href="\/store\/ads\/example\/"/);
   assert.match(pages, /<dd>—<span>/);
 });
-test("new styles are scoped and reuse admin token values without applying admin globals", () => {
+test("store styles stay scoped and use the public black and orange palette", () => {
   const css = readFileSync("src/components/store/store.css", "utf8");
   const tokens = readFileSync("src/components/store/store-tokens.css", "utf8");
   assert.doesNotMatch(css, /(^|\n)(body|html|:root|\*)\s*[{,]/);
   assert.match(tokens, /\.store-theme/);
   assert.doesNotMatch(tokens, /\.admin-theme|:root/);
-  assert.match(tokens, /--store-primary: #216ee4/);
+  assert.match(tokens, /--store-canvas: #0b0b0b/);
+  assert.match(tokens, /--store-primary: #ff5a1f/);
   assert.match(css, /min-height:44px/);
   assert.match(css, /prefers-reduced-motion/);
 });

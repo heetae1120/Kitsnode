@@ -1,0 +1,21 @@
+/* One fixed stage keeps every phase and the existing next action in place. */
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow section.ds-goal-cinema{display:block;min-height:0;padding:0;margin:0;background:inherit!important;overflow:hidden;container-type:inline-size}
+.ds-goal-cinema .ds-goal-viewport,.ds-goal-cinema .ds-goal-static{position:relative;width:100%;height:clamp(440px,65svh,700px);text-align:center}
+.ds-goal-cinema .ds-goal-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:36px 10px;pointer-events:none}
+.ds-goal-cinema .ds-goal-label{font-size:clamp(16px,2.3vw,28px);line-height:1.6;color:#aaa7a0;font-weight:500}
+.ds-goal-cinema .ds-goal-period-type{display:flex;align-items:baseline;justify-content:center;gap:.08em;line-height:1;font-size:clamp(90px,22cqw,240px);letter-spacing:-.065em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ds-goal-cinema .ds-goal-period-type strong{display:inline-block;font-size:1em;font-weight:850;color:#ff5a1f}
+.ds-goal-cinema .ds-goal-period-type>span{font-size:.38em;font-weight:700;color:#f5f2eb}
+.ds-goal-cinema .ds-goal-amount{position:relative;display:inline-grid;align-items:baseline;font-size:clamp(24px,calc(140cqw / var(--goal-digits)),168px);font-weight:850;line-height:1.15;letter-spacing:-.06em;font-variant-numeric:tabular-nums;white-space:nowrap;color:#f5f2eb}
+.ds-goal-cinema .ds-goal-amount-reserve{visibility:hidden;grid-area:1/1;pointer-events:none}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow section.ds-goal-cinema strong.ds-goal-counter{position:absolute;inset:0;display:flex;align-items:baseline;justify-content:center;font:inherit;color:#f5f2eb!important;white-space:nowrap}
+.ds-goal-cinema .ds-goal-amount small{font-size:.32em;margin-left:.12em;letter-spacing:-.025em;font-weight:700}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow section.ds-goal-cinema[data-count-done=true] .ds-goal-counter{color:#ff5a1f!important}
+.ds-goal-cinema .ds-goal-question-type{font-size:clamp(30px,7cqw,84px);line-height:1.35;letter-spacing:-.055em;color:#f5f2eb;white-space:nowrap}
+.ds-goal-cinema .ds-goal-question-type>span,.ds-goal-cinema .ds-goal-question-type>strong{display:inline-block}
+.ds-goal-cinema .ds-goal-question-type strong{font-weight:850;color:#ff5a1f}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow section.ds-goal-cinema p.ds-goal-final{font-size:clamp(26px,6.6cqw,80px);font-weight:800;letter-spacing:-.06em;line-height:1.4;color:#f5f2eb!important;margin:0;white-space:nowrap}
+.ds-goal-cinema .ds-goal-static{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:24px;padding:32px 10px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-static>.ds-goal-amount{color:#ff5a1f!important}
+@media(max-width:700px){.ds-goal-cinema .ds-goal-stage{gap:24px}.ds-goal-cinema .ds-goal-viewport,.ds-goal-cinema .ds-goal-static{height:clamp(400px,62svh,560px)}}
+@media print{.ds-goal-cinema .ds-goal-viewport{height:auto;min-height:240px}.ds-goal-cinema .ds-goal-stage{display:none}.ds-goal-cinema .ds-goal-invitation-stage{display:flex;position:relative;opacity:1!important;transform:none!important}}

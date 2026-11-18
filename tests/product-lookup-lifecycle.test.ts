@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
-const source=readFileSync(new URL('../src/components/keyword-research.tsx',import.meta.url),'utf8');
+const source=readFileSync(new URL('../src/components/keyword-research.tsx',import.meta.url),'utf8').replace(/\r\n/g,'\n');
 function mount(){
  const body=source.slice(source.indexOf('  async function fetchProduct()'),source.indexOf('  function download('));
  const cleanupSource=source.match(/useEffect\(\(\) => (\(\) =>[\s\S]*?), \[\]\);\n  useEffect\(\(\) => \{\n    setProductDraft/)?.[1];assert.ok(cleanupSource);

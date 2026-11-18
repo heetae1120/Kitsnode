@@ -35,7 +35,7 @@
 .store-theme .store-badge { display:inline-flex; align-items:center; min-height:26px; padding:3px 8px; border-radius:8px; font-size:12px; font-weight:600; line-height:20px; background:var(--store-surface-subtle); color:var(--store-text-secondary); }
 .store-theme .store-badge--primary { background:var(--store-primary-soft); color:var(--store-primary-hover); }
 .store-theme .store-badge--warning { background:var(--store-warning-soft); color:var(--store-warning); }
-.store-theme .store-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 16px; border:1px solid transparent; border-radius:var(--store-radius-md); font-size:14px; font-weight:600; line-height:22px; background:var(--store-primary); color:white; text-align:center; }
+.store-theme .store-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 16px; border:1px solid transparent; border-radius:var(--store-radius-md); font-size:14px; font-weight:600; line-height:22px; background:var(--store-primary); color:#0b0b0b; text-align:center; }
 .store-theme .store-button:hover:not(:disabled):not(.store-button--secondary) { background:var(--store-primary-hover); }
 .store-theme .store-button--secondary { color:var(--store-text); background:var(--store-surface-subtle); border-color:var(--store-border); }
 .store-theme .store-button--secondary:hover { background:var(--store-selected); }
