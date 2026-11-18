@@ -21,7 +21,6 @@ export function useAgencyMotion(){
       hero.dataset.motion='on';
       const scenes=gsap.utils.toArray<HTMLElement>('.as-scene',el);
       const progress=el.querySelector<HTMLElement>('.as-progress-fill');
-      const current=el.querySelector<HTMLElement>('.as-progress-current');
       let timeline:gsap.core.Timeline|undefined;
       try{
         gsap.set(scenes.slice(1),{autoAlpha:0});
@@ -34,7 +33,6 @@ export function useAgencyMotion(){
             const trigger=timeline?.scrollTrigger;
             if(trigger?.isActive||trigger?.progress===0)setTone(index===1?'orange':index===2?'light':'dark');
             if(progress)progress.style.transform=`scaleX(${time/8})`;
-            if(current)current.textContent=`0${index+1}`;
           },scrollTrigger:{
           trigger:hero,pin,start:'top top',end:()=>`+=${window.innerHeight*(window.innerWidth<760?3.2:4)}`,
           scrub:.65,anticipatePin:1,invalidateOnRefresh:true,

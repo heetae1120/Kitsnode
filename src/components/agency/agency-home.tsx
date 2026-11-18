@@ -36,7 +36,7 @@ export function AgencyHome(){
       <section className="as-hero" aria-label="kitsnode의 네 가지 관점">
         <div className="as-pin">
           {content.scenes.map((item,i)=><section key={item.label} className={`as-scene as-scene-0${i+1}`} aria-label={item.label} aria-hidden={enhanced?scene!==i:undefined} inert={enhanced&&scene!==i}>
-            <div className="as-scene-label"><span>0{i+1}</span> / {item.label}</div>
+            <div className="as-scene-label">{item.label}</div>
             {i===0&&<><span className="as-background-k" aria-hidden="true">K</span><div className="as-portal" aria-hidden="true"><TargetMark/></div></>}
             {i===1&&<><ReformMark/><span className="as-outline-word" aria-hidden="true">다시, 성장</span></>}
             {i===2&&<><div className="as-editorial-grid" aria-hidden="true"/><DissectMark/><div className="as-strategy-disc" aria-hidden="true"/></>}
@@ -44,9 +44,8 @@ export function AgencyHome(){
             <div className="as-scene-type"><SceneWords lines={item.lines} first={i===0}/></div>
             {i===2&&<div className="as-strategy-keywords">{content.diagnosisKeywords.map(keyword=><span key={keyword}>{keyword}</span>)}</div>}
             <div className="as-scene-copy as-refined-copy"><h3 className="as-korean-headline">{item.korean.map(line=><span key={line}>{line}</span>)}</h3><p className="as-service-description">{item.description}</p></div>
-            <span className="as-scene-index" aria-hidden="true">0{i+1}</span>
           </section>)}
-          <div className="as-hero-bottom" aria-hidden="true"><span>내려서 살펴보기 <ArrowDown size={13}/></span><div className="as-progress"><span className="as-progress-current">01</span><i><b className="as-progress-fill"/></i><span>04</span></div><span className="as-hero-location">다르게 생각하고, 앞으로 나아갑니다.</span></div>
+          <div className="as-hero-bottom" aria-hidden="true"><span>내려서 살펴보기 <ArrowDown size={13}/></span><div className="as-progress"><i><b className="as-progress-fill"/></i></div></div>
         </div>
       </section>
       <section id="diagnosis" className="as-conversion as-section" aria-labelledby="as-conversion-title" data-header-tone="dark">
