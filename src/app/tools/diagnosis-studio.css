@@ -455,6 +455,9 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-calendar-start input[ty
 .ds-player-signal i{position:absolute;inset:0;border:2px solid #ff5a1f;border-radius:50%;animation:ds-player-signal 5s ease-out infinite}.ds-player-signal i:nth-child(2){animation-delay:1.6s}.ds-player-signal i:nth-child(3){animation-delay:3.2s}
 @keyframes ds-player-signal{0%{transform:scale(.25);opacity:0}25%{opacity:1}100%{transform:scale(1.25);opacity:0}}
 .ds-player-manifesto{padding:100px 0;scroll-margin-top:110px}
+.ds-player-manifesto>.ds-player-statement{display:flex;flex-direction:column;gap:48px;padding-bottom:80px}
+.ds-player-statement>.ds-player-position{margin:0;line-height:1.9}
+@media(max-width:700px){.ds-player-manifesto>.ds-player-statement{gap:32px;padding-bottom:56px}}
 .ds-player-manifesto h2{font-size:clamp(46px,7vw,108px);line-height:1.14;font-weight:850;letter-spacing:-.065em;margin:0}.ds-player-manifesto h2 em{font-style:normal;color:#ff5a1f}
 .ds-player-position{font-size:clamp(20px,2.5vw,32px);line-height:1.65;margin:48px 0 72px;color:#f5f2eb;word-break:keep-all;overflow-wrap:anywhere}
 .ds-player-principles{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px;padding:0;margin:0 0 56px}.ds-player-principles li{border-top:1px solid #555;padding-top:24px}.ds-player-principles span{font-size:12px;color:#ff5a1f}.ds-player-principles h3{font-size:23px;margin:24px 0 14px}.ds-player-principles p{font-size:14px;color:#aaa7a0;line-height:1.8;white-space:pre-line;word-break:keep-all;overflow-wrap:anywhere}
