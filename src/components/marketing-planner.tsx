@@ -3,6 +3,7 @@ import {useEffect,useRef,useState,type FormEvent} from 'react';
 import {AnimatePresence,motion,useReducedMotion} from 'framer-motion';
 import { useDraftPreviewStage } from '@/lib/draft-preview-stage';
 import Link from 'next/link';
+import {saveMemberReturn} from '@/lib/member-return';
 import {ArrowRight,ArrowUpRight,Check,TriangleAlert} from 'lucide-react';
 import {FormattedNumberInput} from './formatted-number-input';
 import {SellingPreparation} from './selling-preparation';
@@ -157,5 +158,5 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
 }
 
 function DiagnosisHeader({mode,onChoose}:{mode?:'starter'|'player';onChoose?:()=>void}){
- return <header className="ds-header"><Link href="/tools/start/" className="ds-wordmark" aria-label="키츠노드 홈">kitsnode<span>®</span></Link><span className="ds-header-note">감이 아닌 숫자로,<br/>다음 판매를 준비합니다.</span><nav aria-label="진단 메뉴">{mode&&<><span className="ds-mode-label">{mode==='starter'?'스타터':'플레이어'}</span><button type="button" onClick={onChoose}>유형 바꾸기 <ArrowUpRight size={16}/></button></>}<Link href="/tools/start/">홈으로 <ArrowUpRight size={16}/></Link></nav></header>;
+ return <header className="ds-header"><Link href="/tools/start/" className="ds-wordmark" aria-label="키츠노드 홈">kitsnode<span>®</span></Link><span className="ds-header-note">감이 아닌 숫자로,<br/>다음 판매를 준비합니다.</span><nav aria-label="진단 메뉴">{mode&&<><span className="ds-mode-label">{mode==='starter'?'스타터':'플레이어'}</span><button type="button" onClick={onChoose}>유형 바꾸기 <ArrowUpRight size={16}/></button></>}<Link href="/tools/start/">홈으로 <ArrowUpRight size={16}/></Link><Link href="/store/login/" className="ds-header-login" onClick={saveMemberReturn}>로그인하기</Link></nav></header>;
 }

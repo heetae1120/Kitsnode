@@ -13,6 +13,9 @@ body:has(.diagnosis-studio)>.kn-colophon{display:none}
 .ds-header nav{display:flex;gap:22px;align-items:center;margin-left:auto;font-size:12px}
 .ds-header nav :is(button,a){display:inline-flex;align-items:center;gap:7px;background:none;color:#f5f2eb;padding:10px 0;border:0;font:inherit;cursor:pointer}
 .ds-header nav button{color:#ff5a1f}.ds-mode-label{color:#aaa7a0;border-right:1px solid #ffffff26;padding-right:22px}
+.ds-header nav .ds-header-login{border:1px solid #555;padding:9px 12px;white-space:nowrap}
+@media(max-width:1000px){.diagnosis-studio .ds-header-note{display:none}}
+@media(max-width:540px){.diagnosis-studio .ds-header{height:auto;flex-wrap:wrap;gap:8px 12px;padding:14px 22px}.diagnosis-studio .ds-header nav{flex-basis:100%;justify-content:flex-end;gap:16px}}
 .profit-tool .ds-choice{display:block;width:100%;max-width:1400px;margin:auto;padding:70px 6vw 40px;position:relative}
 .profit-tool .mp-shell.diagnosis-studio .ds-eyebrow{font-size:12px;letter-spacing:.025em;font-weight:650;color:#ff5a1f;margin:0 0 20px}
 .profit-tool .mp-shell.diagnosis-studio .ds-choice h1{font-size:clamp(42px,6vw,90px);line-height:1.18;letter-spacing:-.055em;font-weight:800;margin:0;color:#f5f2eb}
