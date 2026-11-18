@@ -1,6 +1,6 @@
 export const GOAL_MOTION_DURATION = 7000;
 export const GOAL_COUNT_START = 1650;
-export const GOAL_COUNT_END = 2950;
+export const GOAL_COUNT_END = 2800;
 
 /** Shared visual timing; never changes the calculated profit. */
 export function goalMotionFrame(elapsed:number,profit:number){

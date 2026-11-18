@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useId,useRef,type CSSProperties} from 'react';
 import {motion,useInView,useReducedMotion} from 'framer-motion';
-import {goalMotionFrame} from '@/lib/goal-motion';
+import {goalMotionFrame,GOAL_COUNT_END} from '@/lib/goal-motion';
 import './goal-invitation.css';
 
 const ease=[.22,1,.36,1] as const;
@@ -34,9 +34,9 @@ export function GoalInvitation({months,profit}:{months:number;profit:number}){
     <div className="ds-goal-period-type"><motion.strong initial={{y:90,scale:1.12,filter:'blur(12px)'}} animate={entered?{y:0,scale:1,filter:'blur(0px)'}:undefined} transition={{delay:.16,duration:.65,ease}}>{months}</motion.strong><span>개월</span></div>
     <motion.span className="ds-goal-label" initial={{opacity:0}} animate={entered?{opacity:1}:undefined} transition={{delay:.6,duration:.35}}>동안</motion.span>
    </motion.div>
-   <motion.div className="ds-goal-stage ds-goal-money" {...stage(1.5,2,.98)} animate={entered?{opacity:[0,1,1,0],y:[28,0,0,-24],scale:[1,1,1,.94]}:{opacity:0,y:28,scale:1}}>
+   <motion.div className="ds-goal-stage ds-goal-money" {...stage(1.5,2,.9)} animate={entered?{opacity:[0,1,1,0],y:[28,0,0,-24],scale:[1,1,1,.94]}:{opacity:0,y:28,scale:1}}>
     <span className="ds-goal-label">목표 수익</span>
-    <motion.div className="ds-goal-amount" style={{'--goal-digits':Math.max(format(target).length+1,8)} as CSSProperties} initial={{scale:1}} animate={entered?{scale:[1,1.06,1]}:undefined} transition={{delay:2.95,duration:.24,times:[0,.25,1],ease}}>
+    <motion.div className="ds-goal-amount" style={{'--goal-digits':Math.max(format(target).length+1,8)} as CSSProperties} initial={{scale:1}} animate={entered?{scale:[1,1.06,1]}:undefined} transition={{delay:GOAL_COUNT_END/1000,duration:.24,times:[0,.25,1],ease}}>
      <span className="ds-goal-amount-reserve">{format(target)}<small>원</small></span>
      <strong className="ds-goal-counter"><span ref={counter}>0</span><small>원</small></strong>
     </motion.div>
