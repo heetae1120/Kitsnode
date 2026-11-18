@@ -3,6 +3,7 @@
 import {useEffect, useRef, useState, type FormEvent} from 'react';
 import Link from 'next/link';
 import {memberBrowserClient} from '@/lib/member-browser-client';
+import {startAdvertiserLoginForMember} from '@/lib/naver-invite-extension.mjs';
 import {StoreBadge, StoreButton, StoreCard} from './store-ui';
 import type {AdConnectionTransport} from '@/lib/ad-connection-transport.mjs';
 
@@ -12,6 +13,7 @@ const statusLabels: Record<string,string> = {
   read_connected:'광고 정보 조회 가능',
   disconnected:'연결 해제',
 };
+const inviteExtensionId = process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID || '';
 
 /** When no server transport is configured, no member data is submitted. */
 export function AdConnectionPanel({transport}: {transport?: AdConnectionTransport}) {
@@ -22,10 +24,14 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
   const [connections,setConnections] = useState<Connection[]>([]);
   const [message,setMessage] = useState('');
   const [busy,setBusy] = useState(false);
+  const [extensionMessage,setExtensionMessage] = useState('');
+  const [openingExtension,setOpeningExtension] = useState(false);
+  const [inviteConsent,setInviteConsent] = useState(false);
   const lock = useRef(false);
   const userRef = useRef<string|null>(null);
   const activeRef = useRef<AbortController|null>(null);
   const authRef = useRef<ReturnType<typeof memberBrowserClient>>(null);
+  const extensionLock = useRef(false);
 
   useEffect(()=>{
     let active=true;
@@ -37,7 +43,7 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
       authVersion++;
       if(userRef.current!==userId){
         activeRef.current?.abort(); activeRef.current=null;
-        lock.current=false;setBusy(false);setConnections([]);setMessage('');setAccountId('');
+        lock.current=false;setBusy(false);setConnections([]);setMessage('');setAccountId('');setInviteConsent(false);setExtensionMessage('');
         userRef.current=userId;
       }
       setCurrentUser(userId);setChecking(false);
@@ -86,12 +92,45 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
     finally {if(activeRef.current===controller){activeRef.current=null;lock.current=false;setBusy(false);}}
   }
 
+  async function openAdvertiserLogin() {
+    if (extensionLock.current || !signedIn || !inviteConsent) return;
+    const owner=userRef.current;
+    const client=authRef.current;
+    if(!owner || !client)return;
+    extensionLock.current=true;
+    setOpeningExtension(true);setExtensionMessage('');
+    try {
+      const browser = window as unknown as {chrome?: {runtime?: {sendMessage(extensionId: string, message: {type: string; nonce: string}): Promise<unknown>}}};
+      const result = await startAdvertiserLoginForMember({getSession:()=>client.auth.getSession(), currentUserId:owner, isCurrent:id=>userRef.current===id, extensionId:inviteExtensionId, runtime:browser.chrome?.runtime, crypto:window.crypto, consent:inviteConsent});
+      if(userRef.current!==owner)return;
+      setExtensionMessage(result.status==='opened'
+        ? '네이버애즈 탭을 열었습니다. 광고주 계정으로 직접 로그인해 주세요. 초대는 아직 발송되지 않았습니다.'
+        : '확장 프로그램을 확인하지 못했습니다. 아래 네이버애즈 링크를 이용해 주세요.');
+    } catch {if(userRef.current===owner)setExtensionMessage('확장 프로그램을 확인하지 못했습니다. 아래 네이버애즈 링크를 이용해 주세요.');}
+    finally {extensionLock.current=false;setOpeningExtension(false);}
+  }
+
   return <StoreCard aria-labelledby="ad-connection-panel-title">
     <StoreBadge tone="warning">{transport ? '권한 확인 후 연결' : '연결 기능 준비 중'}</StoreBadge>
     <h2 id="ad-connection-panel-title">네이버 광고 계정 연결</h2>
-    <p>키츠노드는 광고 정보 조회와 사용자가 신청한 입찰 관리를 위해 접근을 요청합니다. 네이버 비밀번호나 API 키를 입력하지 마세요.</p>
+    <p>키츠노드는 광고 정보 조회와 사용자가 신청한 입찰 관리를 위해 접근을 요청합니다. 네이버 비밀번호나 API 키를 키츠노드에 입력하지 마세요.</p>
+    <p>네이버애즈 광고주 로그인은 키츠노드 회원 로그인과 별개입니다. 광고주가 직접 로그인해 초대해 주세요.</p>
+    {/^[a-p]{32}$/.test(inviteExtensionId) && signedIn && <div>
+      <p>네이버애즈에 로그인한 뒤 선택한 광고계정에서 <strong>kitsnode</strong>를 운영 관리 권한으로 초대하도록 요청합니다. 이 권한에는 광고 운영과 회원 관리 등이 포함됩니다.</p>
+      <label><input type="checkbox" checked={inviteConsent} disabled={openingExtension} onChange={e=>setInviteConsent(e.target.checked)} /> 위 내용을 확인했으며 키츠노드 계정 초대에 동의합니다.</label>
+      <StoreButton type="button" onClick={openAdvertiserLogin} disabled={openingExtension || !inviteConsent}>{openingExtension ? '여는 중…' : '확장 프로그램으로 네이버애즈 열기'}</StoreButton>
+      <p className="store-caption">시험 단계입니다. 현재 확장 프로그램은 네이버애즈 탭만 엽니다. 네이버 로그인과 추가 인증은 직접 진행하며, 자동 초대와 수락은 아직 연결되지 않았습니다.</p>
+      {extensionMessage && <p role="status" aria-live="polite">{extensionMessage}</p>}
+    </div>}
+    <ol className="list-decimal space-y-2 pl-5">
+      <li><a className="store-text-link" href="https://ads.naver.com/settings/ad-account" target="_blank" rel="noopener noreferrer">네이버애즈 열기 (새 창)</a>를 눌러 광고주 계정으로 로그인합니다.</li>
+      <li>연결할 광고 계정의 권한 관리에서 회원 초대를 선택합니다.</li>
+      <li>회원 ID <strong>kitsnode</strong>를 운영 관리 권한으로 초대한 뒤 이 화면으로 돌아옵니다.</li>
+      <li>아래에서 광고 계정 ID로 연결 확인을 요청합니다.</li>
+    </ol>
+    <p className="store-caption">현재 초대와 수락은 자동으로 진행되지 않습니다.</p>
     <p>네이버애즈의 광고 계정 ID를 입력해 주세요. 검색광고 API의 고객 ID는 별도로 확인합니다.</p>
-    <p>네이버애즈에서 키츠노드 담당자를 광고 계정의 회원으로 초대한 뒤, 담당자가 신청자와 계정의 관계를 확인해야 연결됩니다. 관리계정만으로 연결된 광고 계정은 현재 자동으로 확인할 수 없습니다.</p>
+    <p>담당자가 신청자와 계정의 관계를 확인해야 연결됩니다. 관리계정만으로 연결된 광고 계정은 현재 자동으로 확인할 수 없습니다.</p>
     <p>부여한 권한의 범위는 네이버에서 확인해 주세요. 자동 입찰은 현재 안전 검증을 위해 중단되어 있습니다.</p>
     {checking ? <p role="status">로그인 상태를 확인하고 있어요.</p> : !signedIn ? <p><Link className="store-text-link" href="/store/login/">로그인 후 연결하기</Link></p> : <form onSubmit={submit}>
       <label htmlFor="naver-ad-account-id">광고 계정 ID</label>{' '}

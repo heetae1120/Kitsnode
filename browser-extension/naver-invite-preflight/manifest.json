@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "키츠노드 광고계정 연결 시험",
+  "version": "0.1.0",
+  "description": "광고주가 로그인한 네이버 애즈에서 회원 초대 화면을 직접 준비합니다.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["https://ads.naver.com/*"],
+  "externally_connectable": {"matches": ["https://heetae1120.github.io/*"]},
+  "background": {"service_worker": "web-start-worker.mjs", "type": "module"},
+  "action": {"default_popup": "popup.html"}
+}

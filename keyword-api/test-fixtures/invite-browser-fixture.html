@@ -1,0 +1,9 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>초대 검증용 가상 화면</title></head><body>
+<h1>로컬 가상 광고계정 초대 화면</h1>
+<dl><dt>세션 역할</dt><dd data-testid="session-mode">advertiser</dd><dt>광고계정</dt><dd data-testid="account-id">123</dd><dt>초대 ID</dt><dd data-testid="recipient-id">fixture-recipient</dd><dt>권한</dt><dd data-testid="role">운영 관리</dd><dt>추가 인증 상태</dt><dd data-testid="challenge">none</dd></dl>
+<button data-testid="send-invite">초대</button><button data-testid="accept-invite">승인</button>
+<output data-testid="result">ready</output>
+<script>
+document.querySelector('[data-testid="send-invite"]').addEventListener('click',()=>{document.querySelector('[data-testid="result"]').textContent='invited'});
+document.querySelector('[data-testid="accept-invite"]').addEventListener('click',()=>{document.querySelector('[data-testid="result"]').textContent='accepted'});
+</script></body></html>

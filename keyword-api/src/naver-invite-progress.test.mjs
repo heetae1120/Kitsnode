@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {inspectNaverInviteProgress} from './naver-invite-progress.mjs';
+let puppeteer;try{puppeteer=process.env.INVITATION_PUPPETEER_ROOT?createRequire(process.env.INVITATION_PUPPETEER_ROOT+'/package.json')('puppeteer-core'):await import('puppeteer-core');}catch{}
+const executablePath=process.env.INVITATION_CHROMIUM_PATH,skip=!puppeteer||!executablePath;
+async function fixture(body,fn){const browser=await puppeteer.launch({executablePath,headless:true,args:['--no-sandbox']});try{const page=await browser.newPage();await page.setRequestInterception(true);page.on('request',r=>{void r.respond({status:200,contentType:'text/html; charset=utf-8',body:`<a href="https://ads.naver.com/settings/profile-info">operator</a>${body}`})});await page.goto('https://ads.naver.com/manage/ad-accounts/123/settings/authorities/members/invited');await fn({page,accountId:'123',viewerId:'operator',recipientId:'recipient'});}finally{await browser.close()}}
+test('detects looked-up matching recipient without clicking controls',{skip},async()=>fixture('<input value="recipient"><p>초대 가능한 회원 ID입니다.</p><button>가입 여부 조회</button><button>다음</button>',async x=>assert.deepEqual(await inspectNaverInviteProgress(x),{status:'recipient_lookup',requiresUserAction:true})));
+test('detects role choice without asserting or changing selected role',{skip},async()=>fixture('<p>ID recipient 의 권한 레벨을 선택해 주세요.</p><label>운영 관리</label><label>운영 조회</label><button>초대</button>',async x=>{assert.deepEqual(await inspectNaverInviteProgress(x),{status:'role_choice',requiresUserAction:true});assert.deepEqual(await inspectNaverInviteProgress({...x,recipientId:'other'}),{status:'unverified'});}));
+test('rejects unmatched viewer and account before reporting a state',{skip},async()=>fixture('<p>ID recipient 의 권한 레벨을 선택해 주세요.</p><p>운영 관리 운영 조회</p><button>초대</button>',async x=>{assert.deepEqual(await inspectNaverInviteProgress({...x,viewerId:'other'}),{status:'unverified'});assert.deepEqual(await inspectNaverInviteProgress({...x,accountId:'124'}),{status:'unverified'});}));
