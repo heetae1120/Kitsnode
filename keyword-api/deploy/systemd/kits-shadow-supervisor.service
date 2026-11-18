@@ -1,0 +1,27 @@
+# Template only. Install only after the independent worker and secrets are provisioned.
+[Unit]
+Description=Kitsnode shadow scheduler supervisor (no bid writes)
+OnFailure=kits-shadow-failure.service
+
+[Service]
+Type=notify
+NotifyAccess=all
+WatchdogSec=120s
+TimeoutStartSec=30s
+User=kits-shadow
+WorkingDirectory=/opt/kits-shadow
+EnvironmentFile=/etc/kits-shadow/worker.env
+Environment=KITS_SHADOW_HEALTH_FILE=/run/kits-shadow/healthy
+RuntimeDirectory=kits-shadow
+RuntimeDirectoryMode=0755
+ReadWritePaths=/run/kits-shadow
+ExecStart=/usr/bin/node /opt/kits-shadow/keyword-api/src/scheduled-shadow-supervisor.mjs
+Restart=no
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

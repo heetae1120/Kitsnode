@@ -1,0 +1,6 @@
+[Unit]
+Description=Record Kitsnode shadow supervisor failure for external alert collection
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/logger --priority user.err --tag kits-shadow-monitor event=supervisor_failure

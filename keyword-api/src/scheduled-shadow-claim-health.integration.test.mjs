@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {EventEmitter} from 'node:events';
+import {startSupervisor} from './scheduled-shadow-supervisor.mjs';
+import {bootScheduledShadowWorker} from './scheduled-shadow-worker.mjs';
+import {createClaimPoller} from './scheduled-shadow-claim-poller.mjs';
+const flush=()=>new Promise(resolve=>setImmediate(resolve));
+const env={NODE_ENV:'production',KITS_SHADOW_SCHEDULER_ENABLED:'true',KITS_SHADOW_HEALTH_FILE:'/run/kits-shadow/healthy',SUPABASE_URL:'https://abcdefghijklmnopqrst.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'secret',NAVER_SEARCHAD_API_KEY:'key',NAVER_SEARCHAD_SECRET_KEY:'secret'};
+const result=counts=>({status:'completed',execution:'disabled',counts:{invalid:0,unauthorized:0,skipped:0,uncertain:0,recordUnknown:0,dataUnavailable:0,unresolved:0,...counts}});
+test('worker poll independently controls supervisor marker without masking a scheduled failure',async()=>{
+ const child=new EventEmitter();child.stdout=new EventEmitter();child.kill=()=>{};
+ const timers=[],markers=[],logs=[];let value={staleClaimed:0,uncertain:0},scheduled;
+ const supervisor=startSupervisor({env,spawnWorker:()=>child,write:x=>logs.push(x),markerFactory:()=>({sync:x=>{markers.push(x);return true}}),setIntervalFn:()=>({}),clearIntervalFn:()=>{},adapterFactory:()=>({status:'disabled'})});
+ const worker=bootScheduledShadowWorker({env,signals:new EventEmitter(),clientFactory:()=>({}),appFactory:()=>({run:async()=>result({}),inspectUnresolved:async()=>value}),timerFactory:options=>({start(){scheduled=options.onResult;scheduled(result({}));return true},stop(){return true}}),pollerFactory:options=>createClaimPoller({...options,intervalMs:1000,timeoutMs:1000,setTimer:(fn,ms)=>{const t={fn,ms,cleared:false};timers.push(t);return t},clearTimer:t=>{t.cleared=true}}),writeLog:line=>child.stdout.emit('data',line+'\n')});
+ await flush();assert.equal(worker.status,'started');assert.equal(markers.at(-1),true);
+ value={staleClaimed:1,uncertain:0};timers.at(-1).fn();await flush();assert.equal(markers.at(-1),false);assert.ok(logs.some(x=>x.code==='unresolved_claims'));
+ value={staleClaimed:0,uncertain:0};timers.at(-1).fn();await flush();assert.equal(markers.at(-1),true);
+ scheduled(result({dataUnavailable:1}));assert.equal(markers.at(-1),false);timers.at(-1).fn();await flush();assert.equal(markers.at(-1),false);
+ scheduled(result({}));assert.equal(markers.at(-1),true);worker.stop();supervisor.stop();
+ assert.equal(JSON.stringify(logs).includes('secret'),false);
+});
