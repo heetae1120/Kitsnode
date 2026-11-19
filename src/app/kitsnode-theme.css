@@ -1,4 +1,5 @@
 /* Shared public-site palette. Component geometry and semantic status colours stay local. */
+:root{--brand-secondary:#91c9ff;--brand-secondary-wash:#122131;--brand-secondary-line:#3c607f}
 :root{--brand-mint:#ff5a1f;--brand-accent:#ff5a1f;--paper:#0b0b0b;--ink:#f5f2eb;--muted:#aaa7a0;--line:#353535;--kn-ink:#f5f2eb;--kn-rule:#353535;--kits-field-radius:13px;color-scheme:dark}
 html body{--kn-ink:#f5f2eb;--kn-rule:#353535;--kn-wash:#171717;background:#0b0b0b;color:#f5f2eb}
 body .profit-tool,body .profit-tool .finance-dashboard{--ink:#f5f2eb;--muted:#aaa7a0;--line:#353535;--green:#ff5a1f;--blue:#ff5a1f;--soft:#1b1b1b;--background:#0b0b0b;--foreground:#f5f2eb;background:#0b0b0b;color:#f5f2eb;color-scheme:dark}
@@ -52,3 +53,22 @@ html body .profit-tool .mp-auto-ad-captures li>b{grid-column:auto;grid-row:auto;
 html body .profit-tool .mp-auto-ad-captures h5{font-size:18px;line-height:1.5;margin:0 0 14px}
 @media(max-width:650px){html body .profit-tool .mp-auto-ad-captures li{grid-template-columns:80px minmax(0,1fr);gap:12px}html body .profit-tool .mp-auto-ad-captures li>img{width:80px;height:90px}html body .profit-tool .mp-auto-ad-captures li>b{grid-column:1/-1}html body .profit-tool .mp-auto-ad-captures h5{font-size:15px}}
 @media(max-width:850px){.agency-site.as-diagnosis-landing .as-header:has(.public-categories){height:120px;padding:12px 22px;gap:12px 18px;align-content:center}.agency-site.as-diagnosis-landing .as-header-note{display:none}}
+
+/* Ice blue identifies supporting information; orange remains the primary action. */
+html body .agency-site :is(.as-scene-01,.as-scene-04) .as-scene-label,
+html body .profit-tool :is(.ag-eyebrow,.ag-secondary,.ag-secondary span),
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.ds-group-index,.mp-plan-recap dt,.mp-keyword-table th,.mp-ad-heading>div>span,.mp-ad-observed,.mp-story-details summary),
+html body .ds-choice .ds-starter .ds-card-number{color:var(--brand-secondary)!important}
+html body .public-categories a:is(:hover,:focus-visible),
+html body .agency-site .as-header-login:is(:hover,:focus-visible),
+html body .kn-colophon a:is(:hover,:focus-visible),
+html body :is(.member-page,.store-theme) :is(.member-back,.auth-links button),
+html body .ds-diagnosis-download :is(a,li button),
+html body #tools-navigation .nimbus-item:is([aria-current=page],:hover,:focus-visible),
+html body #tools-navigation .nimbus-item:is([aria-current=page],:hover,:focus-visible) span{color:var(--brand-secondary)!important}
+html body #tools-navigation .nimbus-item[aria-current=page]{background-color:var(--brand-secondary-wash)!important}
+html body .ds-diagnosis-download li button{border-color:var(--brand-secondary-line)}
+html body :is(.public-categories a,.as-header-login,.kn-colophon a,.ds-diagnosis-download button,.ds-diagnosis-download a):focus-visible,
+html body :is(.profit-tool,.member-page,.store-theme) :is(input,select,textarea):focus-visible{outline:2px solid var(--brand-secondary)!important;outline-offset:4px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(input,select,textarea):focus-visible{outline:2px solid var(--brand-secondary)!important;outline-offset:2px!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is([data-guide-active=true],.ds-goal-overlay .mp-input-wrap,.mp-goal-dialog .mp-input-wrap) :is(input,select,textarea):focus-visible{outline:2px solid var(--brand-secondary)!important;outline-offset:2px!important}
