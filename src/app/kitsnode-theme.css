@@ -85,8 +85,6 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-check>p.mp-co
 @media(max-width:650px){html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-values{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px;overflow:visible}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-values>span{min-width:0}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-bar{padding:10px 22px}}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary{position:sticky;top:0;z-index:100;background:#0b0b0b}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary :is(.ds-header,.mp-live-bar){position:static!important}
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry:focus-within{background:#ff5a1f!important;isolation:isolate}
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry:focus-within>span{color:#0b0b0b!important}
 
 /* Follow-up browser review: transparent menus, input treatment and report actions. */
 html body .public-categories{background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
@@ -114,3 +112,26 @@ html body .public-categories{color:inherit}
 html body .profit-tool .mp-auto-ad-captures h5{color:#f5f2eb}
 html body .agency-site .as-header:is([data-tone=orange],[data-tone=light]) .public-categories a:is(:hover,:focus-visible){color:#0b0b0b!important;text-decoration:underline}
 @media(max-width:650px){html body .ds-report-download-slot .ds-diagnosis-download .mp-actions{flex-direction:column;align-items:stretch}html body .ds-report-download-slot .ds-diagnosis-download .mp-actions>.mp-primary{width:100%;min-width:0}html body .ds-report-download-slot .ds-diagnosis-download .mp-actions>a{align-self:flex-start}}
+
+/* Review follow-up: editorial product evidence and compact report completion. */
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-tablet{padding:0!important;background:#0b0b0b!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-screen{padding:0!important;background:#0b0b0b!important;border:0!important;border-radius:0!important;min-height:0}
+html body .profit-tool .mp-ad-observed{padding:0 0 18px;border-bottom:1px solid #353535;color:#aaa7a0!important}
+html body .profit-tool .mp-auto-ad-captures{padding:0!important;margin:0!important;gap:0!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-auto-ad-captures li{grid-template-columns:64px 160px minmax(0,1fr);gap:26px;padding:30px 0!important;background:#0b0b0b!important;border:0!important;border-bottom:1px solid #353535!important;border-radius:0!important;box-shadow:none!important}
+html body .profit-tool .mp-auto-ad-captures li>img{width:160px;height:160px;background:#171717;border-radius:4px}
+html body .profit-tool .mp-auto-ad-captures li>b{align-self:start;font-size:13px;letter-spacing:.06em}
+html body .profit-tool .mp-auto-ad-captures h5{font-size:clamp(17px,1.5vw,22px);font-weight:750;line-height:1.5;margin-bottom:18px;max-width:680px}
+html body .profit-tool .mp-ad-stats{gap:16px 22px;align-items:flex-start;margin:0 0 12px}
+html body .profit-tool .mp-ad-stats>span{border:0!important;padding:0!important;font-size:13px;gap:6px;background:none!important;color:#f5f2eb!important}
+html body .profit-tool .mp-ad-stats :is(.mp-ad-rating,.mp-ad-purchase,.mp-ad-wish){color:#f5f2eb!important}
+html body .profit-tool .mp-ad-stats svg{color:#ff5a1f;flex-shrink:0}
+html body .profit-tool .mp-ad-stats .mp-ad-rating>span{padding-left:10px;border-left:1px solid #353535}
+html body .profit-tool .mp-ad-stats b{font-variant-numeric:tabular-nums}
+html body .profit-tool .mp-ad-visit{margin-top:8px;padding:12px 0 8px;border:0;border-bottom:1px solid #ff5a1f;color:#f5f2eb!important;font-weight:750;gap:30px}
+html body .profit-tool .mp-ad-visit svg{color:#ff5a1f}
+html body .profit-tool .mp-ad-capture-placeholder{background:#111!important;border-color:#353535!important}
+html body .ds-report-download-stack{display:flex;flex-direction:column;gap:22px;max-width:680px;margin-left:auto}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry{background:transparent!important;box-shadow:none!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry::before{display:none!important}
+@media(max-width:650px){html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-auto-ad-captures li{grid-template-columns:85px minmax(0,1fr);gap:16px;padding:24px 0!important}html body .profit-tool .mp-auto-ad-captures li>b{grid-column:1/-1}html body .profit-tool .mp-auto-ad-captures li>img{width:85px;height:105px;align-self:start}html body .profit-tool .mp-ad-stats{gap:12px;flex-direction:column}html body .profit-tool .mp-ad-stats>span{font-size:12px}html body .profit-tool .mp-auto-ad-captures h5{font-size:16px}html body .ds-report-download-stack{max-width:none;width:100%}}html body .profit-tool .mp-ad-stats .mp-ad-rating>span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}

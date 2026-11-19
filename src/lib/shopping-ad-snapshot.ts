@@ -3,6 +3,11 @@ export type ShoppingAd = Partial<ShoppingAdDetails> & {rank:number;ad:true;title
 export type ShoppingAdSnapshot = {keyword:string;device:'PC';placement?:'shopping'|'integrated';sourceUrl:string;observedAt:string;context:string;complete:boolean;items:ShoppingAd[]};
 const normalize=(value:string)=>value.replace(/\s+/g,'').toLowerCase();
 export const shoppingSearchUrl=(keyword:string)=>`https://search.shopping.naver.com/search/all?query=${encodeURIComponent(keyword)}&frm=NVSCPRO`;
+/** Avoid session-bound paid redirects; public title search remains available without signing in. */
+export function shoppingAdVisitUrl(item:Pick<ShoppingAd,'title'|'url'>){
+ try{const url=new URL(item.url||'');if(url.protocol==='https:'&&!url.username&&!url.password&&!url.port&&/^(?:smartstore|brand)\.naver\.com$/.test(url.hostname)&&/^\/[a-zA-Z0-9_-]+\/products\/\d+\/?$/.test(url.pathname))return url.origin+url.pathname;}catch{}
+ return 'https://search.naver.com/search.naver?query='+encodeURIComponent(item.title);
+}
 
 /** Only explicit ad positions on the matching search page qualify. Never infer ranks from organic results. */
 export function validateShoppingAdSnapshot(raw:unknown,keyword:string,now=Date.now()):ShoppingAdSnapshot{

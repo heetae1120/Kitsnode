@@ -31,7 +31,6 @@ export function GoalInvitation({months,profit}:{months:number;profit:number}){
   <h2 id={id} className="ds-sr-only">{targetMonths}개월 동안 {format(target)}원{outcome} {question}</h2>
   <svg className="ds-goal-growth" viewBox="0 0 1000 560" preserveAspectRatio="none" aria-hidden="true">
    <defs><linearGradient id={id+'-growth'} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="currentColor" stopOpacity=".16"/><stop offset="100%" stopColor="currentColor" stopOpacity="0"/></linearGradient></defs>
-   <path className="ds-growth-grid" d="M40 120H960M40 240H960M40 360H960M40 480H960"/>
    <path d="M40 510L125 480L210 425L295 450L380 360L465 395L550 300L635 330L720 225L805 245L880 155L960 40V560H40Z" fill={'url(#'+id+'-growth)'} stroke="none"/>
    <motion.path className="ds-growth-line" d="M40 510L125 480L210 425L295 450L380 360L465 395L550 300L635 330L720 225L805 245L880 155L960 40" initial={reduced?false:{pathLength:0}} animate={{pathLength:entered?1:0}} transition={{duration:reduced?0:2.4,ease:[.22,1,.36,1]}}/>
   </svg>

@@ -12,9 +12,11 @@ export function useDiagnosisInputGuide(root:RefObject<HTMLDivElement|null>,enabl
   function find(){
    // Keep the current edit highlighted until blur/Tab, including after its first digit.
    const editing=document.activeElement;
+   if(editing instanceof HTMLElement&&editing.closest('.mp-conversion-entry'))return null;
    if(editing instanceof HTMLElement&&el!.contains(editing)&&editing.matches('input:not([type=hidden]):not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea')&&!editing.closest('[inert],[aria-hidden=true],dialog:not([open])'))return editing.closest<HTMLElement>('[data-guide-field]')??editing;
    const candidates=el!.querySelectorAll<HTMLElement>('[data-guide-field],input:not([type=hidden]):not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea');
    for(const field of candidates){
+    if(field.closest('.mp-conversion-entry'))continue;
     if(!field.getClientRects().length||field.closest('[inert],[aria-hidden=true],dialog:not([open])'))continue;
     if(field.parentElement?.closest('[data-guide-field]'))continue;
     if(field.hasAttribute('data-guide-field')){if(field.dataset.guideComplete!=='true')return field;continue;}

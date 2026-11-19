@@ -1,4 +1,4 @@
-import {readIntegratedAdCards,readPeriodSales,readAdCounters} from './integrated-ad-details.mjs';
+import {readIntegratedAdCards,readPeriodSales,readAdCounters,matchingPublicProduct,publicProductUrl} from './integrated-ad-details.mjs';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {join} from 'node:path';
@@ -9,7 +9,8 @@ export function normalizeObservedAds(rows){
  const items=rows.slice(0,3).map((row,index)=>{
   if(row.ad!==true||typeof row.title!=='string'||!row.title.trim())throw Error('AD_RESULTS_NOT_CONFIRMED');
   const periods=readPeriodSales(typeof row.periodText==='string'?row.periodText:'');
-  row={...periods,...readAdCounters(typeof row.periodText==='string'?row.periodText:''),...row};
+  const counters=readAdCounters(typeof row.periodText==='string'?row.periodText:'');
+  row={...periods,...row,wishCount:row.wishCount||counters.wishCount,purchaseCount:row.purchaseCount||counters.purchaseCount};
   let landing;try{const u=new URL(row.url);if(u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&(u.hostname==='naver.com'||u.hostname.endsWith('.naver.com'))&&u.href.length<4096)landing=u.href;}catch{}
   const text=(key,max=200)=>typeof row[key]==='string'?row[key].trim().slice(0,max):'';
   const amount=key=>Number.isSafeInteger(row[key])&&row[key]>0?row[key]:null;
@@ -112,9 +113,34 @@ export async function collectIntegratedShoppingAds(keyword){
   await new Promise(resolve=>setTimeout(resolve,350));
   stage='AD_READ';
   const rows=await page.evaluate(readIntegratedAdCards);
+  for(const row of rows){const search=new URL('https://search.naver.com/search.naver');search.searchParams.set('query',row.title);row.url=search.href;}
+  // Search public product titles, keeping the original ad ordering and never following paid links.
+  for(const row of rows){
+   const search=new URL(row.url);
+   try{
+    const detail=await browser.newPage();
+    try{
+     const response=await detail.goto(search.href,{waitUntil:'domcontentloaded',timeout:7000});
+     if(response&&[403,418,429].includes(response.status()))break;
+     if(!response?.ok())continue;
+     await detail.waitForSelector('[id^="view_type_guide_"], [id^="view_type_list_finder_"]',{timeout:2000});
+     await new Promise(resolve=>setTimeout(resolve,350));
+     const candidate=matchingPublicProduct(row,await detail.evaluate(readIntegratedAdCards,true));
+     if(!candidate)continue;
+     row.rating??=candidate.rating;row.reviewCount||=candidate.reviewCount;row.wishCount||=candidate.wishCount;row.purchaseCount||=candidate.purchaseCount;
+     let landing=publicProductUrl(candidate.url);
+     // Only non-ad search bridges may be resolved. Do not request a merchant page or bypass a block.
+     const bridge=new URL(candidate.url);
+     if(!landing&&/^cr\d*\.shopping\.naver\.com$/.test(bridge.hostname)&&bridge.pathname==='/v2/bridge/searchGate'){
+      try{const result=await fetch(bridge,{redirect:'manual',signal:AbortSignal.timeout(2500)});landing=publicProductUrl(result.headers.get('location'));}catch{}
+     }
+     if(landing)row.url=landing;
+    }finally{await detail.close();}
+   }catch{ /* The original public ad data and login-free title search remain usable. */ }
+  }
   const result=normalizeObservedAds(rows);
   const finalUrl=new URL(page.url());if(finalUrl.origin!==source.origin||finalUrl.pathname!==source.pathname||finalUrl.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
-  return {keyword,device:'PC',placement:'integrated',sourceUrl:source.href,observedAt:new Date().toISOString(),context:'네이버 통합검색 · 가격비교 쇼핑광고 · PC · 서버 비로그인 · 확인된 광고 순서',...result};
+  return {keyword,device:'PC',placement:'integrated',sourceUrl:source.href,observedAt:new Date().toISOString(),context:'네이버 통합검색 · PC · 비로그인 · 광고 노출 순서 유지 · 동일 상품명과 판매처의 공개 검색 정보 보완',...result};
  }catch(error){if(['SHOPPING_PAGE_BLOCKED','SHOPPING_PAGE_UNAVAILABLE','SHOPPING_PAGE_CHANGED','AD_RESULTS_NOT_CONFIRMED','AD_CAPTURE_UNAVAILABLE','SEARCH_LOAD_FAILED'].includes(error.message))throw error;throw Error('CAPTURE_'+stage+'_'+(error.name==='TimeoutError'?'TIMEOUT':'FAILED'));}finally{await closeShoppingBrowser(browser);}
 }
 
