@@ -1,2 +1,3 @@
-import { StoreExampleReport } from "@/components/store/store-example-report";
-export default StoreExampleReport;
+import {RetiredTool} from '@/components/retired-tool';
+export const metadata={title:'KITSNODE',robots:{index:false,follow:false}};
+export default RetiredTool;

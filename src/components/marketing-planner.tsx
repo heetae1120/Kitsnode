@@ -8,6 +8,7 @@ import {ArrowRight,ArrowUpRight,Check,TriangleAlert} from 'lucide-react';
 import {FormattedNumberInput} from './formatted-number-input';
 import {SellingPreparation} from './selling-preparation';
 import {BeginnerProfitReport} from './beginner-profit-report';
+import {DiagnosisDownload} from './diagnosis-download';
 import {PlannerCostHelp} from './planner-cost-help';
 import {marketingPlan,budgetPurchaseCapacity,type MarketingPlanInput} from '@/lib/marketing-plan';
 import {plannerExamples} from '@/lib/planner-examples';
@@ -112,6 +113,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
     <button type="button" className="ds-choice-card ds-starter" onClick={()=>chooseMode('starter')}><span className="ds-card-number">01 / 첫 판매 준비</span><span className="ds-choice-art ds-art-target" aria-hidden="true"><i/><b/></span><span className="ds-card-title">스타터</span><strong>판매가 처음이에요.</strong><span className="ds-card-description">판매 전에 필요한 금액과<br/>실제로 남는 이익을 확인하세요.</span><span className="ds-card-action">내 상품 진단하기 <ArrowUpRight size={25}/></span></button>
     <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-card-number">02 / 다음 성장 준비</span><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><strong>판매 경험이 있어요.</strong><span className="ds-card-description">상품의 수익 구조를 점검하고<br/>앞으로의 판매 방향을 함께 정리하세요.</span><span className="ds-card-action">현 상태 진단하기 <ArrowUpRight size={25}/></span></button>
    </div>
+   <DiagnosisDownload/>
   </main>
  </div>;
  if(selectedMode==='player'&&showPlayerIntro&&!previewStage){

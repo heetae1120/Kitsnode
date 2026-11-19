@@ -9,7 +9,7 @@ export function normalizeObservedAds(rows){
   if(row.ad!==true||typeof row.title!=='string'||!row.title.trim())throw Error('AD_RESULTS_NOT_CONFIRMED');
   const text=(key,max=200)=>typeof row[key]==='string'?row[key].trim().slice(0,max):'';
   const amount=key=>Number.isSafeInteger(row[key])&&row[key]>0?row[key]:null;
-  return {rating:Number.isFinite(row.rating)&&row.rating>=0&&row.rating<=5?row.rating:null,reviewCount:text('reviewCount',30),wishCount:text('wishCount',30),originalPrice:amount('originalPrice'),couponPrice:amount('couponPrice'),promotion:text('promotion'),shipping:text('shipping'),category:text('category',400),specifications:text('specifications',2000),registeredAt:text('registeredAt',30),rank:index+1,ad:true,title:row.title.trim().slice(0,300),mall:typeof row.mall==='string'?row.mall.trim().slice(0,100):'',price:Number.isSafeInteger(row.price)&&row.price>0?row.price:null,image:typeof row.image==='string'?row.image:null};
+  return {...(Number.isSafeInteger(row.dailySales)&&row.dailySales>=0?{dailySales:row.dailySales}:{}),...(Number.isSafeInteger(row.weeklySales)&&row.weeklySales>=0?{weeklySales:row.weeklySales}:{}),rating:Number.isFinite(row.rating)&&row.rating>=0&&row.rating<=5?row.rating:null,reviewCount:text('reviewCount',30),wishCount:text('wishCount',30),originalPrice:amount('originalPrice'),couponPrice:amount('couponPrice'),promotion:text('promotion'),shipping:text('shipping'),category:text('category',400),specifications:text('specifications',2000),registeredAt:text('registeredAt',30),rank:index+1,ad:true,title:row.title.trim().slice(0,300),mall:typeof row.mall==='string'?row.mall.trim().slice(0,100):'',price:Number.isSafeInteger(row.price)&&row.price>0?row.price:null,image:typeof row.image==='string'?row.image:null};
  });
  return {items,complete:items.length===3};
 }
@@ -106,20 +106,13 @@ export async function collectIntegratedShoppingAds(keyword){
   stage='AD_SELECTOR';
   await page.waitForSelector('[id^="view_type_guide_"], [id^="view_type_list_finder_"]');
   stage='AD_READ';
-  const rows=await page.evaluate(()=>Array.from(document.querySelectorAll('[id^="view_type_guide_"], [id^="view_type_list_finder_"]')).filter(info=>/^view_type_(guide|list_finder)_\d+$/.test(info.id)&&Array.from(info.querySelectorAll('button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0)).slice(0,3).map(info=>({id:info.id,ad:true,title:info.closest('li')?.querySelector('img[alt]')?.getAttribute('alt')?.replace(/<[^>]*>/g,'').trim()||info.querySelector('a[data-nlog-area$=".tit"]')?.textContent.trim()||Array.from(info.querySelectorAll('a')).map(a=>a.textContent.trim()).sort((a,b)=>b.length-a.length)[0]||''})));
+  const rows=await page.evaluate(()=>Array.from(document.querySelectorAll('[id^="view_type_guide_"], [id^="view_type_list_finder_"]')).filter(info=>/^view_type_(guide|list_finder)_\d+$/.test(info.id)&&Array.from(info.querySelectorAll('button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0)).slice(0,3).map(info=>{
+   const card=info.closest('li')||info,text=card.innerText||'',image=card.querySelector('img[alt]');
+   const count=pattern=>{const m=text.match(pattern);return m?Number(m[1].replaceAll(',','')):null;};
+   const title=image?.getAttribute('alt')?.replace(/<[^>]*>/g,'').trim()||info.querySelector('a[data-nlog-area$=".tit"]')?.textContent.trim()||'';
+   return {ad:true,title,image:image?.src||null,mall:'',price:null,rating:count(/(?:평점|별점)\s*([0-5](?:\.\d+)?)/),reviewCount:text.match(/리뷰\s*([\d,]+)/)?.[1]||'',dailySales:count(/(?:최근\s*)?(?:1일|하루|일간|오늘)\s*(?:동안|판매|구매|판매량|구매수)?\s*([\d,]+)\s*(?:개|건|명)/),weeklySales:count(/(?:최근\s*)?(?:7일|1주일|1주|주간)\s*(?:동안|판매|구매|판매량|구매수)?\s*([\d,]+)\s*(?:개|건|명)/)};
+  }));
   const result=normalizeObservedAds(rows);
-  stage='IMAGE';
-  for(let index=0;index<rows.length;index++){
-   const current=new URL(page.url());if(current.origin!==source.origin||current.pathname!==source.pathname||current.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
-   const handle=await page.$('#'+rows[index].id);if(!handle)throw Error('AD_RESULTS_NOT_CONFIRMED');
-   const card=await handle.evaluateHandle(info=>info.closest('li'));
-   if(!await card.evaluate((element,id)=>element?.querySelectorAll('[id^="view_type_guide_"], [id^="view_type_list_finder_"]').length===1&&Array.from(element.querySelectorAll('#'+id+' button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0),rows[index].id))throw Error('AD_RESULTS_NOT_CONFIRMED');
-   await card.evaluate(element=>element.scrollIntoView({block:'center'}));
-   await card.evaluate(async element=>{await Promise.all(Array.from(element.querySelectorAll('img')).map(img=>img.complete?Promise.resolve():new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});setTimeout(resolve,2500);})));});
-   if(!await card.evaluate(element=>Array.from(element.querySelectorAll('img')).some(img=>img.complete&&img.naturalWidth>20)))throw Error('AD_CAPTURE_UNAVAILABLE');
-   const capture=await card.asElement().screenshot({type:'jpeg',quality:80,encoding:'base64'});
-   if(capture.length>350000)throw Error('AD_CAPTURE_UNAVAILABLE');result.items[index].capture='data:image/jpeg;base64,'+capture;
-  }
   const finalUrl=new URL(page.url());if(finalUrl.origin!==source.origin||finalUrl.pathname!==source.pathname||finalUrl.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
   return {keyword,device:'PC',placement:'integrated',sourceUrl:source.href,observedAt:new Date().toISOString(),context:'네이버 통합검색 · 가격비교 쇼핑광고 · PC · 서버 비로그인 · 확인된 광고 순서',...result};
  }catch(error){if(['SHOPPING_PAGE_BLOCKED','SHOPPING_PAGE_UNAVAILABLE','SHOPPING_PAGE_CHANGED','AD_RESULTS_NOT_CONFIRMED','AD_CAPTURE_UNAVAILABLE','SEARCH_LOAD_FAILED'].includes(error.message))throw error;throw Error('CAPTURE_'+stage+'_'+(error.name==='TimeoutError'?'TIMEOUT':'FAILED'));}finally{await closeShoppingBrowser(browser);}

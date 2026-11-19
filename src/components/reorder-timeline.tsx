@@ -3,13 +3,13 @@ import {useEffect,useId,useState} from 'react';
 import {ReorderCalendar} from './reorder-calendar';
 import {reorderTimeline} from '@/lib/reorder-timeline';
 export function ReorderTimeline({quantity,months}:{quantity:number;months:number}){
- const [lead,setLead]=useState('14');const id=useId();
+ const lead='14';const id=useId();
  const plan=lead.trim()!==''?reorderTimeline(quantity,months,Number(lead)):null;
  const [start,setStart]=useState('');
  useEffect(()=>{const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());setStart(['year','month','day'].map(key=>parts.find(p=>p.type===key)?.value).join('-'));},[]);
  const n=(value:number)=>value.toLocaleString('ko-KR',{maximumFractionDigits:2});
  return <section className="mp-reorder" aria-labelledby={`${id}-title`}>
-  <div className="mp-reorder-heading"><div><span>다음 물건 준비하기</span><h2 id={`${id}-title`}>재고가 끊기기 전, 미리 주문하세요.</h2></div><label htmlFor={`${id}-lead`}>주문한 물건이 도착하는 데 <span><input id={`${id}-lead`} type="number" min="0" max="3650" step="1" value={lead} onChange={event=>setLead(event.target.value)}/>일</span></label></div>
+  <div className="mp-reorder-heading"><div><span>다음 물건 준비하기</span><h2 id={`${id}-title`}>재고가 끊기기 전, 미리 주문하세요.</h2><p className="ds-reorder-lead">최소 2주 전에는 발주를 넣으셔야 해요.</p></div></div>
   {plan?<>
    <div className="ds-reorder-answer"><p>{quantity.toLocaleString('ko-KR')}개를 {months}개월에 걸쳐 같은 속도로 판다는 가정이에요.</p><h3>{plan.recommendedDay===0?'지금 바로':<>판매 시작 <strong>{n(plan.recommendedDay)}일째</strong>에</>} 재발주를 권장해요.</h3><p>늦어도 <b>{plan.reorderDay===0?'지금':`${n(plan.reorderDay)}일째`}</b>까지 주문해야, 계산상 재고가 소진되기 전에 도착해요.</p></div>
    <label className="ds-calendar-start">판매 시작일<input type="date" value={start} onChange={event=>setStart(event.target.value)}/></label>

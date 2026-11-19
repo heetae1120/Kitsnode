@@ -3,4 +3,8 @@
 .ds-goal-countup .ds-goal-number{display:inline-grid;vertical-align:baseline;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ds-goal-countup .ds-goal-number>span{grid-area:1/1;text-align:center}
 .ds-goal-countup .ds-goal-number-space{visibility:hidden;pointer-events:none}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-countup h2 strong{font-size:clamp(20px,min(max(34px,5.5vw),calc(130cqw / var(--goal-digits))),76px);white-space:nowrap}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-countup .ds-goal-impact-copy h2 strong{font-size:clamp(20px,min(max(34px,5.5vw),calc(130cqw / var(--goal-digits))),76px);white-space:nowrap}
+
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-countup .ds-goal-impact-copy>p:first-child em{font-size:clamp(20px,min(max(34px,5.5vw),calc(130cqw / var(--goal-digits))),76px);font-weight:800;line-height:1.15;display:block;margin:14px 0;font-style:normal;white-space:nowrap}
+
+

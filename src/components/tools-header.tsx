@@ -7,15 +7,12 @@ import { MenuMotion } from "@/components/menu-motion";
 import { LiquidNavbar, type LiquidNavItem } from "@/components/ui/liquid-glass-navbar";
 import { storeLinks } from "@/lib/store-navigation";
 
-const groups = [
-  { id: "store", label: "스토어 점검", ids: ["rankings", "seo", "traffic"] },
-  { id: "ads", label: "광고 도구", ids: ["bidding", "negative-search"] },
-] as const;
+const groups: {id:"store"|"ads";label:string;ids:string[]}[] = [];
 
 const liquidItems: LiquidNavItem[] = [
   {label:"상품 진단",fx:"glow"}, {label:"검색어 찾기",fx:"spin"},
   {label:"설문",fx:"pop"}, {label:"소개",fx:"wave"},
-  {label:"스토어 점검",fx:"drop"}, {label:"광고 도구",fx:"spin"},
+
 ];
 
 export const ToolsHeader = memo(function ToolsHeader({ active }: { active: ToolId }) {
@@ -58,7 +55,7 @@ export const ToolsHeader = memo(function ToolsHeader({ active }: { active: ToolI
       <Link className="tool-brand" href="/tools/start/" aria-label="KITSNODE 도구 메인으로" aria-current={active === "start" ? "page" : undefined} onClick={close}>
         KITSNODE
       </Link>
-      <LiquidNavbar id="tools-navigation" motionKey="tools" ariaLabel="도구 메뉴" items={liquidItems} active={liquidActive} compact={false} sound={false} className={open ? "tool-nav open" : "tool-nav"}>
+      <LiquidNavbar renderMode="css" id="tools-navigation" motionKey="tools" ariaLabel="도구 메뉴" items={liquidItems} active={liquidActive} compact={false} sound={false} className={open ? "tool-nav open" : "tool-nav"}>
         {["profit", "keywords"].map((id) => {
           const tool = toolLinks.find((item) => item.id === id)!;
           return (

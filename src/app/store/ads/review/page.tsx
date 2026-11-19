@@ -1,2 +1,3 @@
-import { AdReviewPanel } from '@/components/store/ad-review-panel';
-export default function Page() { return <AdReviewPanel />; }
+import {RetiredTool} from '@/components/retired-tool';
+export const metadata={title:'KITSNODE',robots:{index:false,follow:false}};
+export default RetiredTool;

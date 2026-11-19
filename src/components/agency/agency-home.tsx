@@ -5,6 +5,7 @@ import {agencyContent as content} from '@/data/agency-content';
 import {useAgencyMotion} from './use-agency-motion';
 import './agency.css';
 import {MemberMenu} from './member-menu';
+import {PublicCategories} from '../public-categories';
 
 function TargetMark(){
   return <svg viewBox="0 0 200 200" fill="none" aria-hidden="true"><circle cx="100" cy="100" r="72" stroke="currentColor" strokeWidth="10" strokeDasharray="405 48" transform="rotate(-20 100 100)"/><circle cx="100" cy="100" r="35" stroke="currentColor" strokeWidth="10"/><circle cx="100" cy="100" r="7" fill="currentColor"/></svg>;
@@ -29,7 +30,7 @@ export function AgencyHome(){
     <header className="as-header" data-tone={tone}>
       <Link href="/" className="as-wordmark" aria-label="kitsnode 홈">kitsnode<span>®</span></Link>
       <span className="as-header-note">브랜드의 다음을<br/>함께 만듭니다.</span>
-      <Link href={content.heroCta.href} className="as-header-diagnosis" data-layout-target="start-diagnosis-link">상품 진단 <ArrowUpRight size={17}/></Link>
+      <PublicCategories/>
       <MemberMenu/>
     </header>
     <main className="as-main">

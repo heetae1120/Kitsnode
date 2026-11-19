@@ -1,5 +1,6 @@
 "use client";
 import {useState} from 'react';
+import {DiagnosisDownload} from './diagnosis-download';
 import {ReportPriorityContext,type ReportDiagnostic} from './report-priority-context';
 import {reportPriority} from '@/lib/report-priority';
 import {ArrowDown,ArrowRight,Printer,Pencil,Search,Check} from 'lucide-react';
@@ -23,7 +24,7 @@ export function BeginnerProfitReport({initialPage=0,name,months,input,onEdit,onM
  const extraCosts=r.reserved-stockCost;
  const problem=r.margin<=0?'판매가보다 비용이 커요. 가격과 비용을 먼저 바꿔보세요.':r.profitRoom<0?'모두 팔아도 비용을 다 돌려받기 어려워요.':'지금은 마케팅비용으로 남는 금액이 없어요.';
  return <ReportPriorityContext.Provider value={setDiagnostic}><article className="mp-story">
-  <ProfitReportPages initialPage={initialPage} beforeKeywords={beforeMonths} footer={<footer className="mp-story-footer">{exampleFields.length>0&&<p>참고값이 포함된 계산이에요. 실제 비용을 알면 다시 계산하세요.</p>}<p>계획 수량을 모두 팔고, 주문 한 건에 상품 한 개가 팔린다고 계산했어요. 빠진 비용이 있으면 이익이 줄어요. 매출을 예측하는 결과는 아니에요.</p><div className="mp-actions"><button type="button" className="mp-secondary" onClick={onEdit}><Pencil size={16}/> 입력 바꾸기</button><button type="button" className="mp-primary" onClick={()=>window.print()}><Printer size={16}/> 인쇄 / PDF 저장</button><button type="button" className="mp-primary" onClick={onMoreCosts}>다음 · 더 필요한 비용<ArrowRight size={16}/></button></div></footer>} overview={<>
+  <ProfitReportPages initialPage={initialPage} beforeKeywords={beforeMonths} footer={<footer className="mp-story-footer">{exampleFields.length>0&&<p>참고값이 포함된 계산이에요. 실제 비용을 알면 다시 계산하세요.</p>}<p>계획 수량을 모두 팔고, 주문 한 건에 상품 한 개가 팔린다고 계산했어요. 빠진 비용이 있으면 이익이 줄어요. 매출을 예측하는 결과는 아니에요.</p><div className="mp-actions"><button type="button" className="mp-secondary" onClick={onEdit}><Pencil size={16}/> 입력 바꾸기</button><DiagnosisDownload report={{name,months,quantity:input.quantity,sales:r.sales,costs:r.reserved,profit:r.profitRoom,margin:r.margin,marketing:r.marketing,breakEven:r.breakEvenUnits,priority:priority.title,action:priority.action,examples:exampleFields.length>0}}/><button type="button" className="mp-primary" onClick={onMoreCosts}>다음 · 더 필요한 비용<ArrowRight size={16}/></button></div></footer>} overview={<>
   <section id="report-funds" aria-label="총매출과 비용">
    <div className="ds-open-report"><div className="ds-result-heading"><span>03 / BUSINESS DIAGNOSIS</span><h1>그래서,<br/>얼마나 남을까요?</h1><p>입력한 판매 조건과 비용을 바탕으로 계산한 결과를 확인해보세요.</p></div>
     <ReportTabletSlides beforeNext={beforeMonths}><div className="mp-tablet-budget"><dl className="mp-plan-recap" aria-label="판매 계획 합계"><div><dt>총 판매금액</dt><dd>{money(r.sales)}</dd><small>판매가 {money(input.price)} × {input.quantity.toLocaleString('ko-KR')}개</small></div><div><dt>총 상품 원가</dt><dd>{money(stockCost)}</dd><small>원가 {money(input.cost)} × {input.quantity.toLocaleString('ko-KR')}개</small></div><div><dt>판매 목표</dt><dd>{input.quantity.toLocaleString('ko-KR')}개</dd><small>{months>0?`${months}개월 안에 전부 판매`:'계획 수량 전량 판매 기준'}</small></div></dl>

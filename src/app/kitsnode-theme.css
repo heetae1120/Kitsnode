@@ -30,3 +30,25 @@ body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.mp-primary,.hc-
 body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) .ag-stage{background:#0b0b0b!important}
 body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.sv-card,.kp-contrast){background:#111111!important;color:#f5f2eb;border-color:#353535!important}
 @media print{html body,body .profit-tool,body .store-theme{background:white;color:black}}
+
+html body .profit-tool .mp-prep-note{background:#0b0b0b!important;color:#f5f2eb!important;border-color:#353535!important}
+html body .profit-tool .mp-prep-card :is(svg,strong,a){color:#ff5a1f!important}
+html body #tools-navigation{background:#0b0b0b!important;background-image:none!important;backdrop-filter:none!important;box-shadow:none!important;border:1px solid #353535}
+html body #tools-navigation :is(.nimbus-item,.nv-bg,.nv-glass){background-color:#0b0b0b!important;background-image:none!important;color:#f5f2eb!important}
+.ds-reorder-lead{margin:18px 0 0;color:#f5f2eb;font-size:16px;text-align:left}
+.public-categories{margin-left:auto;display:flex;gap:24px;align-items:center;background:#0b0b0b;color:#f5f2eb}
+.public-categories a{font-size:13px;white-space:nowrap;text-decoration:none;padding:12px 0}
+.public-categories a:hover,.public-categories a:focus-visible{color:#ff5a1f}
+@media(max-width:850px){.as-header:has(.public-categories){height:120px;gap:18px;flex-wrap:wrap;align-content:center;padding-top:10px;padding-bottom:10px}.as-header:has(.public-categories) .as-header-login{margin-left:auto}.public-categories{order:3;flex-basis:100%;justify-content:space-between;gap:12px}.public-categories a{font-size:12px;padding:5px 0}}
+html body .ds-diagnosis-download{flex-basis:100%;width:100%;padding:24px 0;border-top:1px solid #353535}
+html body .ds-diagnosis-download .mp-actions{justify-content:flex-start;gap:12px}
+html body .ds-diagnosis-download p{font-size:13px;line-height:1.8}
+html body .ds-diagnosis-download ul{padding:0;list-style:none}
+html body .ds-diagnosis-download li{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-top:1px solid #353535;padding:16px 0}
+html body .ds-diagnosis-download li button{padding:10px;background:#171717;border:1px solid #353535;color:#f5f2eb}
+html body .profit-tool .mp-auto-ad-captures li{display:grid;grid-template-columns:90px 150px minmax(0,1fr);gap:20px;align-items:center}
+html body .profit-tool .mp-auto-ad-captures li>img{width:150px;height:150px;object-fit:contain;grid-column:auto;grid-row:auto;background:#171717}
+html body .profit-tool .mp-auto-ad-captures li>b{grid-column:auto;grid-row:auto;color:#ff5a1f}
+html body .profit-tool .mp-auto-ad-captures h5{font-size:18px;line-height:1.5;margin:0 0 14px}
+@media(max-width:650px){html body .profit-tool .mp-auto-ad-captures li{grid-template-columns:80px minmax(0,1fr);gap:12px}html body .profit-tool .mp-auto-ad-captures li>img{width:80px;height:90px}html body .profit-tool .mp-auto-ad-captures li>b{grid-column:1/-1}html body .profit-tool .mp-auto-ad-captures h5{font-size:15px}}
+@media(max-width:850px){.agency-site.as-diagnosis-landing .as-header:has(.public-categories){height:120px;padding:12px 22px;gap:12px 18px;align-content:center}.agency-site.as-diagnosis-landing .as-header-note{display:none}}
