@@ -278,6 +278,7 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-budget-input{padding:0 
 .ds-flow .ds-group-heading p{font-size:13px;color:#a6a6a6}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fields-basic{grid-template-columns:repeat(3,minmax(0,1fr))}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fields:not(.mp-fields-basic)>.mp-field{border-top:1px solid #353535;padding-top:24px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-return-handling{border-top:1px solid #353535;padding:24px 0 0;margin-top:24px;border-radius:var(--kits-field-radius)}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-actions>.mp-primary{min-width:270px;padding:20px 32px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-steps{border:0;padding:0}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-profit-comparison{grid-template-columns:.8fr 1.2fr}

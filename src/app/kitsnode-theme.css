@@ -1,5 +1,5 @@
 /* Shared public-site palette. Component geometry and semantic status colours stay local. */
-:root{--brand-mint:#ff5a1f;--brand-accent:#ff5a1f;--paper:#0b0b0b;--ink:#f5f2eb;--muted:#aaa7a0;--line:#353535;--kn-ink:#f5f2eb;--kn-rule:#353535;color-scheme:dark}
+:root{--brand-mint:#ff5a1f;--brand-accent:#ff5a1f;--paper:#0b0b0b;--ink:#f5f2eb;--muted:#aaa7a0;--line:#353535;--kn-ink:#f5f2eb;--kn-rule:#353535;--kits-field-radius:13px;color-scheme:dark}
 html body{--kn-ink:#f5f2eb;--kn-rule:#353535;--kn-wash:#171717;background:#0b0b0b;color:#f5f2eb}
 body .profit-tool,body .profit-tool .finance-dashboard{--ink:#f5f2eb;--muted:#aaa7a0;--line:#353535;--green:#ff5a1f;--blue:#ff5a1f;--soft:#1b1b1b;--background:#0b0b0b;--foreground:#f5f2eb;background:#0b0b0b;color:#f5f2eb;color-scheme:dark}
 body .kn-colophon{background:#0b0b0b;color:#f5f2eb;border-color:#353535}
@@ -8,6 +8,11 @@ body .store-theme .store-topbar{background:var(--store-canvas);border-color:var(
 body .store-theme .nimbus-item span{color:#f5f2eb!important}
 body .store-theme .nimbus-item[aria-current] span{color:#ff8c61!important}
 body :is(.member-page,.store-theme) input:autofill{box-shadow:0 0 0 1000px #171717 inset;-webkit-text-fill-color:#f5f2eb;caret-color:#f5f2eb}
+/* The return-rate field supplies one shared shape for public input surfaces. */
+html body :is(.profit-tool,.member-page,.store-theme) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=hidden]),select,textarea,.mp-field,.mp-input-wrap,.mp-return-handling,.mp-target-input,.hc-field,.kw-search-field,.mp-conversion-input){border-radius:var(--kits-field-radius)!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.mp-field,.mp-input-wrap,.mp-input-wrap input,.mp-name input,.mp-return-handling,.mp-target-input,.mp-conversion-input){border-radius:var(--kits-field-radius)!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.mp-goal-dialog,.ds-goal-overlay) :is(.mp-input-wrap,.mp-input-wrap input){border-radius:var(--kits-field-radius)!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]::before{border-radius:var(--kits-field-radius)!important}
 
 /* Legacy tool surfaces share the hero palette; the diagnosis and four brand scenes keep their own styles. */
 body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(main,section,article,aside,fieldset,dialog,.tool-workspace,.tool-topbar,.tool-card,.tool-panel,.tool-inputs,.tool-results,.pr-workspace,.pr-input-panel,.bid-rank-lookup,.kn-tablet-slides,.kn-tablet-slide-screen,.kn-tablet-slide-actions){background-color:#0b0b0b!important;color:#f5f2eb;border-color:#353535!important;box-shadow:none}
