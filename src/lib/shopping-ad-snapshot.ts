@@ -1,5 +1,5 @@
-export type ShoppingAdDetails = {dailySales:number|null;weeklySales:number|null;rating:number|null;reviewCount:string;wishCount:string;originalPrice:number|null;couponPrice:number|null;promotion:string;shipping:string;category:string;specifications:string;registeredAt:string};
-export type ShoppingAd = Partial<ShoppingAdDetails> & {rank:number;ad:true;title:string;mall:string;price:number|null;image:string|null;capture?:string|null};
+export type ShoppingAdDetails = {purchaseCount:string;dailySales:number|null;weeklySales:number|null;rating:number|null;reviewCount:string;wishCount:string;originalPrice:number|null;couponPrice:number|null;promotion:string;shipping:string;category:string;specifications:string;registeredAt:string};
+export type ShoppingAd = Partial<ShoppingAdDetails> & {rank:number;ad:true;title:string;mall:string;price:number|null;image:string|null;url?:string|null;capture?:string|null};
 export type ShoppingAdSnapshot = {keyword:string;device:'PC';placement?:'shopping'|'integrated';sourceUrl:string;observedAt:string;context:string;complete:boolean;items:ShoppingAd[]};
 const normalize=(value:string)=>value.replace(/\s+/g,'').toLowerCase();
 export const shoppingSearchUrl=(keyword:string)=>`https://search.shopping.naver.com/search/all?query=${encodeURIComponent(keyword)}&frm=NVSCPRO`;
@@ -28,6 +28,8 @@ export function validateShoppingAdSnapshot(raw:unknown,keyword:string,now=Date.n
    const url=new URL(row.image);
    if(url.protocol==='https:'&&!url.username&&!url.password&&url.hostname.endsWith('.pstatic.net'))image=url.href;
   }
+  let url:string|null=null;
+  if(typeof row.url==='string'&&row.url.length<4096){try{const candidate=new URL(row.url);if(candidate.protocol==='https:'&&!candidate.username&&!candidate.password&&!candidate.port&&(candidate.hostname==='naver.com'||candidate.hostname.endsWith('.naver.com')))url=candidate.href;}catch{}}
   let capture:string|null=null;
   if(row.capture!==undefined&&row.capture!==null){
    if(typeof row.capture!=='string'||row.capture.length>350023||!/^data:image\/jpeg;base64,\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(row.capture))throw Error('광고 캡처 자료가 올바르지 않아요.');
@@ -38,7 +40,7 @@ export function validateShoppingAdSnapshot(raw:unknown,keyword:string,now=Date.n
   const text=(key:string,max=200)=>typeof row[key]==='string'?(row[key] as string).trim().slice(0,max):'';
   const amount=(key:string)=>typeof row[key]==='number'&&Number.isSafeInteger(row[key])&&(row[key] as number)>0?row[key] as number:null;
   const rating=typeof row.rating==='number'&&Number.isFinite(row.rating)&&row.rating>=0&&row.rating<=5?row.rating:null;
-  return {dailySales:typeof row.dailySales==='number'&&Number.isSafeInteger(row.dailySales)&&row.dailySales>=0?row.dailySales:null,weeklySales:typeof row.weeklySales==='number'&&Number.isSafeInteger(row.weeklySales)&&row.weeklySales>=0?row.weeklySales:null,rating,reviewCount:text('reviewCount',30),wishCount:text('wishCount',30),originalPrice:amount('originalPrice'),couponPrice:amount('couponPrice'),promotion:text('promotion'),shipping:text('shipping'),category:text('category',400),specifications:text('specifications',2000),registeredAt:text('registeredAt',30),rank:row.rank,ad:true,title:row.title.trim(),mall:row.mall.trim(),price:row.price as number|null,image,capture};
+  return {url,purchaseCount:text('purchaseCount',30),dailySales:typeof row.dailySales==='number'&&Number.isSafeInteger(row.dailySales)&&row.dailySales>=0?row.dailySales:null,weeklySales:typeof row.weeklySales==='number'&&Number.isSafeInteger(row.weeklySales)&&row.weeklySales>=0?row.weeklySales:null,rating,reviewCount:text('reviewCount',30),wishCount:text('wishCount',30),originalPrice:amount('originalPrice'),couponPrice:amount('couponPrice'),promotion:text('promotion'),shipping:text('shipping'),category:text('category',400),specifications:text('specifications',2000),registeredAt:text('registeredAt',30),rank:row.rank,ad:true,title:row.title.trim(),mall:row.mall.trim(),price:row.price as number|null,image,capture};
  });
  return {keyword:data.keyword,device:'PC',placement,sourceUrl:source.href,observedAt:data.observedAt,context:data.context,complete:data.complete,items:items.sort((a,b)=>a.rank-b.rank)};
 }

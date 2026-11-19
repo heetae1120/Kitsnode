@@ -1,7 +1,8 @@
 import {readSavedDiagnoses,type DiagnosisDocument} from './diagnosis-document';
 /** Keep the three expanded analyses small in the existing private account metadata. */
 export async function encodeDiagnoses(reports:DiagnosisDocument[]){
- const json=JSON.stringify(readSavedDiagnoses(reports));
+ const compact=readSavedDiagnoses(reports).map(report=>{const snapshot=report.analysis?.ads?.snapshot;if(!snapshot)return report;return {...report,analysis:{...report.analysis,ads:{...report.analysis!.ads!,snapshot:{...snapshot,items:snapshot.items.map(({url,capture,...item})=>({...item,image:null}))}}}};});
+ const json=JSON.stringify(compact);
  if(new TextEncoder().encode(json).length>64000)throw Error('진단서 자료가 너무 큽니다.');
  const bytes=new Uint8Array(await new Response(new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer());
  return 'gz1:'+btoa(Array.from(bytes,b=>String.fromCharCode(b)).join(''));

@@ -128,7 +128,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
     <span>판매가<b>{basicReady?money(Number(draft.price)):'—'}</b></span>
     <span>원가<b>{live?money(live.unitCost):'—'}</b></span>
     <span>판매수량<b>{draft.quantity?Number(draft.quantity).toLocaleString('ko-KR')+'개':'—'}</b></span>
-    <span>한 개당 이익 · 홍보 전<b>{live?money(live.profit):'—'}</b></span>
+    <span>개당 이익<b>{live?money(live.profit):'—'}</b></span>
    </div>
    {live&&live.profit<0&&<p role="alert"><TriangleAlert size={16}/>한 개 팔 때 {money(-live.profit)} 손해입니다.</p>}
   </aside>}
@@ -144,7 +144,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
      {step===1&&<>
       <div className="ds-product-capital"><label className="mp-name"><span className="ds-group-index">01 / 상품 기본 정보</span>품목<input value={draft.name} onChange={event=>update('name',event.target.value)} placeholder="예: 가습기, 시계, 손난로" maxLength={100}/></label>
       <div className="mp-plan-row mp-plan-budget-only">
-       <section className="mp-budget-input" aria-label="사용할 예산"><span className="ds-group-index">02 / 준비 자금</span><div className="mp-field"><div className="mp-field-label"><label htmlFor="mp-available">쓸 수 있는 전체 금액</label><PlannerCostHelp field="available" label="쓸 수 있는 전체 금액"/></div><div className="mp-input-wrap"><FormattedNumberInput aria-describedby="mp-help-available" id="mp-available" value={draft.available} onValueChange={value=>update('available',value)} placeholder="금액 입력"/><span>원</span></div></div></section>
+       <section className="mp-budget-input" aria-label="사용할 예산"><span className="ds-group-index">02 / 준비 자금</span><div className="mp-field"><div className="mp-field-label"><label htmlFor="mp-available">이번에 사용할 금액</label><PlannerCostHelp field="available" label="이번에 사용할 금액"/></div><div className="mp-input-wrap"><FormattedNumberInput aria-describedby="mp-help-available" id="mp-available" value={draft.available} onValueChange={value=>update('available',value)} placeholder="금액 입력"/><span>원</span></div></div></section>
       </div></div>
      </>}
      <div className="ds-input-group"><div className="ds-group-heading"><span className="ds-group-index">{step===1?'03 / 판매 조건':'COST CHECKLIST'}</span><p>{step===1?'가격과 수량을 함께 확인하세요.':'실제 비용을 알면 입력하고, 모르면 참고값으로 시작하세요.'}</p></div><div className={`mp-fields ${step===1?'mp-fields-basic':''}`}>

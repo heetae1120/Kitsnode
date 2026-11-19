@@ -87,3 +87,30 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary{pos
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary :is(.ds-header,.mp-live-bar){position:static!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry:focus-within{background:#ff5a1f!important;isolation:isolate}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry:focus-within>span{color:#0b0b0b!important}
+
+/* Follow-up browser review: transparent menus, input treatment and report actions. */
+html body .public-categories{background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay .mp-input-wrap input:is(:focus,:focus-visible){outline:0!important;box-shadow:none!important;border:0!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story .mp-reorder .ds-reorder-lead{color:#ff5a1f!important;font-weight:800!important;font-size:clamp(17px,1.6vw,22px)}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-keyword-candidates.mp-candidates-concise>li{border:4px solid #454545!important;padding:20px!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-keyword-candidates.mp-candidates-concise>li:has(>.mp-goal-compact[data-feasibility=possible]){border:4px solid #38c77f!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-keyword-candidates.mp-candidates-concise>li:has(>.mp-goal-compact[data-feasibility=unavailable]){border:4px solid #ff5a63!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row{align-items:flex-start;gap:20px;flex-wrap:wrap}
+html body .ds-report-download-slot{margin-left:auto;flex:1;min-width:300px}
+html body .ds-report-download-slot .ds-diagnosis-download{padding:0;border:0;flex-basis:auto;text-align:right}
+html body .ds-report-download-slot .ds-diagnosis-download .mp-actions{justify-content:flex-end}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-more-considerations{width:100%;flex-basis:100%;max-width:none;justify-content:space-between;padding:24px 28px}
+@media(max-width:650px){html body .ds-report-download-slot{min-width:0;flex-basis:100%}html body .ds-report-download-slot .ds-diagnosis-download{text-align:left}html body .ds-report-download-slot .ds-diagnosis-download .mp-actions{justify-content:flex-start}}
+html body .profit-tool .mp-ad-stats{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+html body .profit-tool .mp-ad-stats>span{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px;padding:5px 8px;border:1px solid currentColor;font-size:12px;line-height:1.5}
+html body .profit-tool .mp-ad-stats .mp-ad-rating{color:#ff737b!important}
+html body .profit-tool .mp-ad-stats .mp-ad-purchase{color:#48d394!important}
+html body .profit-tool .mp-ad-stats .mp-ad-wish{color:#91aaff!important}
+html body .profit-tool .mp-ad-stats small{color:#bdbab3!important;font-size:10px}
+html body .profit-tool .mp-ad-visit{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #666;color:#f5f2eb!important;text-decoration:none;font-size:13px}
+html body .profit-tool .mp-ad-visit:hover{border-color:#ff5a1f;color:#ff5a1f!important}
+html body .public-categories{color:inherit}
+@media(max-width:650px){html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-more-considerations{padding:20px 16px;white-space:normal;line-height:1.6;font-size:13px;gap:12px}html body .mp-more-considerations svg{flex-shrink:0}}
+html body .profit-tool .mp-auto-ad-captures h5{color:#f5f2eb}
+html body .agency-site .as-header:is([data-tone=orange],[data-tone=light]) .public-categories a:is(:hover,:focus-visible){color:#0b0b0b!important;text-decoration:underline}
+@media(max-width:650px){html body .ds-report-download-slot .ds-diagnosis-download .mp-actions{flex-direction:column;align-items:stretch}html body .ds-report-download-slot .ds-diagnosis-download .mp-actions>.mp-primary{width:100%;min-width:0}html body .ds-report-download-slot .ds-diagnosis-download .mp-actions>a{align-self:flex-start}}

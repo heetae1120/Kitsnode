@@ -29,10 +29,12 @@ export function GoalInvitation({months,profit}:{months:number;profit:number}){
  },[entered,reduced,months,amount]);
  return <section ref={root} id="report-budget" className="mp-story-chapter mp-goal-invitation ds-goal-impact ds-goal-countup" aria-labelledby={id} data-phase={reduced?'complete':'ready'} style={{'--goal-digits':Math.max(format(target).length+1,8)} as CSSProperties}>
   <h2 id={id} className="ds-sr-only">{targetMonths}개월 동안 {format(target)}원{outcome} {question}</h2>
-  <motion.svg className="ds-goal-orbit" viewBox="0 0 240 240" aria-hidden="true" initial={reduced?false:{rotate:-65,scale:.8,opacity:0}} animate={{rotate:0,scale:1,opacity:1}} transition={{duration:reduced?0:1.1,ease:[.22,1,.36,1]}}>
-   <circle cx="120" cy="120" r="106" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="100 26"/>
-   <circle cx="120" cy="120" r="86" fill="none" stroke="currentColor" strokeWidth="14" strokeDasharray="20 114"/>
-  </motion.svg>
+  <svg className="ds-goal-growth" viewBox="0 0 1000 560" preserveAspectRatio="none" aria-hidden="true">
+   <defs><linearGradient id={id+'-growth'} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="currentColor" stopOpacity=".16"/><stop offset="100%" stopColor="currentColor" stopOpacity="0"/></linearGradient></defs>
+   <path className="ds-growth-grid" d="M40 120H960M40 240H960M40 360H960M40 480H960"/>
+   <path d="M40 510L125 480L210 425L295 450L380 360L465 395L550 300L635 330L720 225L805 245L880 155L960 40V560H40Z" fill={'url(#'+id+'-growth)'} stroke="none"/>
+   <motion.path className="ds-growth-line" d="M40 510L125 480L210 425L295 450L380 360L465 395L550 300L635 330L720 225L805 245L880 155L960 40" initial={reduced?false:{pathLength:0}} animate={{pathLength:entered?1:0}} transition={{duration:reduced?0:2.4,ease:[.22,1,.36,1]}}/>
+  </svg>
   <div className="ds-goal-impact-copy" aria-hidden="true">
    <p>당신은 <em><span className="ds-goal-number"><span className="ds-goal-number-space">{format(targetMonths)}</span><span ref={monthNumber} data-goal-months>{reduced?format(targetMonths):'0'}</span></span>개월</em> 동안</p>
    <h2><strong><span className="ds-goal-number"><span className="ds-goal-number-space">{format(target)}</span><span ref={amountNumber} data-goal-amount>{reduced?format(target):'0'}</span></span><small>원</small></strong><span>{outcome}</span></h2>

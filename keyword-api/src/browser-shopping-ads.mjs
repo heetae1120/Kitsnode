@@ -1,4 +1,4 @@
-import {readIntegratedAdCards,readPeriodSales} from './integrated-ad-details.mjs';
+import {readIntegratedAdCards,readPeriodSales,readAdCounters} from './integrated-ad-details.mjs';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {join} from 'node:path';
@@ -9,10 +9,11 @@ export function normalizeObservedAds(rows){
  const items=rows.slice(0,3).map((row,index)=>{
   if(row.ad!==true||typeof row.title!=='string'||!row.title.trim())throw Error('AD_RESULTS_NOT_CONFIRMED');
   const periods=readPeriodSales(typeof row.periodText==='string'?row.periodText:'');
-  row={...periods,...row};
+  row={...periods,...readAdCounters(typeof row.periodText==='string'?row.periodText:''),...row};
+  let landing;try{const u=new URL(row.url);if(u.protocol==='https:'&&!u.username&&!u.password&&!u.port&&(u.hostname==='naver.com'||u.hostname.endsWith('.naver.com'))&&u.href.length<4096)landing=u.href;}catch{}
   const text=(key,max=200)=>typeof row[key]==='string'?row[key].trim().slice(0,max):'';
   const amount=key=>Number.isSafeInteger(row[key])&&row[key]>0?row[key]:null;
-  return {...(Number.isSafeInteger(row.dailySales)&&row.dailySales>=0?{dailySales:row.dailySales}:{}),...(Number.isSafeInteger(row.weeklySales)&&row.weeklySales>=0?{weeklySales:row.weeklySales}:{}),rating:Number.isFinite(row.rating)&&row.rating>=0&&row.rating<=5?row.rating:null,reviewCount:text('reviewCount',30),wishCount:text('wishCount',30),originalPrice:amount('originalPrice'),couponPrice:amount('couponPrice'),promotion:text('promotion'),shipping:text('shipping'),category:text('category',400),specifications:text('specifications',2000),registeredAt:text('registeredAt',30),rank:index+1,ad:true,title:row.title.trim().slice(0,300),mall:typeof row.mall==='string'?row.mall.trim().slice(0,100):'',price:Number.isSafeInteger(row.price)&&row.price>0?row.price:null,image:typeof row.image==='string'?row.image:null};
+  return {...(landing?{url:landing}:{}),...(typeof row.purchaseCount==='string'&&row.purchaseCount?{purchaseCount:row.purchaseCount.slice(0,30)}:{}),...(Number.isSafeInteger(row.dailySales)&&row.dailySales>=0?{dailySales:row.dailySales}:{}),...(Number.isSafeInteger(row.weeklySales)&&row.weeklySales>=0?{weeklySales:row.weeklySales}:{}),rating:Number.isFinite(row.rating)&&row.rating>=0&&row.rating<=5?row.rating:null,reviewCount:text('reviewCount',30),wishCount:text('wishCount',30),originalPrice:amount('originalPrice'),couponPrice:amount('couponPrice'),promotion:text('promotion'),shipping:text('shipping'),category:text('category',400),specifications:text('specifications',2000),registeredAt:text('registeredAt',30),rank:index+1,ad:true,title:row.title.trim().slice(0,300),mall:typeof row.mall==='string'?row.mall.trim().slice(0,100):'',price:Number.isSafeInteger(row.price)&&row.price>0?row.price:null,image:typeof row.image==='string'?row.image:null};
  });
  return {items,complete:items.length===3};
 }
@@ -108,6 +109,7 @@ export async function collectIntegratedShoppingAds(keyword){
   if(!response?.ok())throw Error('SHOPPING_PAGE_UNAVAILABLE');
   stage='AD_SELECTOR';
   await page.waitForSelector('[id^="view_type_guide_"], [id^="view_type_list_finder_"]');
+  await new Promise(resolve=>setTimeout(resolve,350));
   stage='AD_READ';
   const rows=await page.evaluate(readIntegratedAdCards);
   const result=normalizeObservedAds(rows);

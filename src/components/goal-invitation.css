@@ -8,3 +8,7 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-countup .ds-goal-i
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-countup .ds-goal-impact-copy>p:first-child em{font-size:clamp(20px,min(max(34px,5.5vw),calc(130cqw / var(--goal-digits))),76px);font-weight:800;line-height:1.15;display:block;margin:14px 0;font-style:normal;white-space:nowrap}
 
 
+
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-growth{position:absolute;inset:0;width:100%;height:100%;z-index:-1;margin:0;color:#ff5a1f;pointer-events:none}
+.ds-goal-growth .ds-growth-grid{fill:none;stroke:#f5f2eb;stroke-width:1;opacity:.055}
+.ds-goal-growth .ds-growth-line{fill:none;stroke:currentColor;stroke-width:5;stroke-linejoin:round;stroke-linecap:round;opacity:.24}
