@@ -1,13 +1,17 @@
 "use client";
 import {useContext,useEffect,type ReactNode} from 'react';
 import {ReportPriorityContext} from './report-priority-context';
+import {ReportEvidenceContext} from './report-evidence-context';
 import {keywordGoalDiagnostics,type GoalBudgetContext} from '@/lib/keyword-goal';
 import {formatRange,type CountRange} from '@/lib/naver-keywords';
 const n=(v:number)=>v.toLocaleString('ko-KR',{maximumFractionDigits:2});
 const requiredPercent=(v:number)=>n(Math.ceil(v*100)/100);
 const money=(v:number)=>`${Math.ceil(v).toLocaleString('ko-KR')}원`;
-export function KeywordGoalCheck({cpc,perOrder,budget,quantity,months,cvr,volume,device,budgetContext,compact=false,primary=false,conversion}:{cpc:number;perOrder:number;budget:number;quantity:number;months:number;cvr:number;volume:CountRange|null;device:string;budgetContext?:GoalBudgetContext;compact?:boolean;primary?:boolean;conversion?:ReactNode}){
+export function KeywordGoalCheck({cpc,perOrder,budget,quantity,months,cvr,volume,device,budgetContext,compact=false,primary=false,conversion,keyword,source}:{keyword?:string;source?:string;cpc:number;perOrder:number;budget:number;quantity:number;months:number;cvr:number;volume:CountRange|null;device:string;budgetContext?:GoalBudgetContext;compact?:boolean;primary?:boolean;conversion?:ReactNode}){
  const diagnostic=keywordGoalDiagnostics({cpc,perOrder,budget,quantity,months,cvr,monthlySearches:volume?.max??null},budgetContext);
+ const updateEvidence=useContext(ReportEvidenceContext);
+ const evidenceKey=JSON.stringify({name:keyword??'대표 검색어',source:source??'화면 표시 기준',cpc,cvr,volume,device,diagnostic});
+ useEffect(()=>{if(primary)updateEvidence?.({keyword:JSON.parse(evidenceKey)});},[primary,updateEvidence,evidenceKey]);
  const updatePriority=useContext(ReportPriorityContext);const diagnosticKey=JSON.stringify(diagnostic);
  useEffect(()=>{if(primary)updatePriority?.(JSON.parse(diagnosticKey));},[primary,updatePriority,diagnosticKey]);
  if(!diagnostic)return <section className="mp-goal-check mp-unified-goal" aria-label="판매 목표 점검">{conversion}<p className="mp-keyword-over">구매 비율을 0% 초과~100%로 입력하면 목표를 계산해요.</p></section>;

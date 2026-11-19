@@ -1,5 +1,6 @@
 import {validateShoppingAdSnapshot,type ShoppingAdSnapshot} from './shopping-ad-snapshot';
 export async function fetchShoppingAdSnapshot(keyword:string,signal:AbortSignal,onWaiting:()=>void,{fetcher=fetch,wait=abortableWait}={}) : Promise<ShoppingAdSnapshot>{
+ let transientRetries=0;
  for(let attempt=0;attempt<10;attempt++){
   const response=await fetcher('https://kitsnode.vercel.app/api/shopping-ads?placement=integrated&keyword='+encodeURIComponent(keyword),{signal,cache:'no-store'});
   const raw=await response.json().catch((error:unknown)=>{if(signal.aborted||error instanceof Error&&(error.name==='AbortError'||error.name==='TimeoutError'))throw error;return null;});
@@ -10,7 +11,8 @@ export async function fetchShoppingAdSnapshot(keyword:string,signal:AbortSignal,
    if(seconds>60)throw Error('서버가 더 긴 대기를 요청했어요. 자동 조회를 멈췄습니다. 잠시 후 다시 확인해 주세요.');
    onWaiting();await wait(Math.max(2,Number.isFinite(seconds)?seconds:5)*1000,signal);continue;
   }
-  if(!response.ok)throw Error(response.status===429?'조회 대기가 길어지고 있어요. 잠시 후 다시 확인해 주세요.':raw?.reason==='SHOPPING_PAGE_BLOCKED'?'네이버가 서버 접근을 제한했어요.':raw?.reason==='BROWSER_START_FAILED'?'캡처 서버를 시작하지 못했어요. 잠시 후 다시 조회해 주세요.':'네이버 광고 화면을 가져오지 못했어요. 잠시 후 다시 조회해 주세요.');
+  if(response.status>=500&&raw?.reason!=='SHOPPING_PAGE_BLOCKED'&&transientRetries++<1){onWaiting();await wait(2000,signal);continue;}
+  if(!response.ok)throw Error(response.status===429?'조회 대기가 길어지고 있어요. 잠시 후 다시 확인해 주세요.':raw?.reason==='SHOPPING_PAGE_BLOCKED'?'네이버가 서버 접근을 제한했어요.':raw?.reason==='BROWSER_START_FAILED'?'캡처 서버를 시작하지 못했어요. 잠시 후 다시 조회해 주세요.':'네이버 광고 상품 정보를 확인하지 못했어요. 잠시 후 다시 조회해 주세요.');
   const snapshot=validateShoppingAdSnapshot(raw,keyword);
   if(snapshot.placement!=='integrated'||!snapshot.items.length)throw Error('광고 표시가 있는 실제 화면을 확인하지 못했어요.');
   return snapshot;

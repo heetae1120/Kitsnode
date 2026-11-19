@@ -26,7 +26,7 @@ export function useDiagnosisInputGuide(root:RefObject<HTMLDivElement|null>,enabl
   }
   function update(reset=false){
    const field=find();
-   const wrapper=field?.closest<HTMLElement>('.mp-budget-input')??field?.closest<HTMLElement>('[data-guide-field],.mp-return-handling,.mp-field,.mp-name,.mp-target-input,.mp-conversion-input')??field?.closest<HTMLElement>('.mp-input-wrap,label')??field;
+   const wrapper=field?.closest<HTMLElement>('.mp-conversion-entry')??field?.closest<HTMLElement>('.mp-budget-input')??field?.closest<HTMLElement>('[data-guide-field],.mp-return-handling,.mp-field,.mp-name,.mp-target-input,.mp-conversion-input')??field?.closest<HTMLElement>('.mp-input-wrap,label')??field;
    if(wrapper===active&&!reset)return;
    clear();active=wrapper;
    if(!field||!active){setMessage('');return;}
@@ -44,7 +44,7 @@ export function useDiagnosisInputGuide(root:RefObject<HTMLDivElement|null>,enabl
    },5000);
   }
   const queue=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>update());};
-  const activity=()=>update(true);
+  const activity=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>update(true));};
   const observer=new MutationObserver(queue);
   observer.observe(el,{childList:true,subtree:true,attributes:true,attributeFilter:['data-guide-complete','aria-hidden','inert','open']});
   el.addEventListener('input',activity);el.addEventListener('change',activity);el.addEventListener('click',queue);el.addEventListener('focusin',queue);el.addEventListener('focusout',queue);

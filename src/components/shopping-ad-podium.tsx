@@ -1,5 +1,6 @@
 "use client";
-import {useEffect,useState} from 'react';
+import {useContext,useEffect,useState} from 'react';
+import {ReportEvidenceContext} from './report-evidence-context';
 import {ImageOff} from 'lucide-react';
 import {type ShoppingAdSnapshot} from '@/lib/shopping-ad-snapshot';
 import {fetchShoppingAdSnapshot} from '@/lib/fetch-shopping-ad-snapshot';
@@ -21,6 +22,9 @@ export function ShoppingAdPodium({keyword}:{keyword:string}){
   void load();return()=>{clearTimeout(timer);controller.abort();};
  },[keyword,attempt]);
  const current=result?.keyword===keyword?result:null;
+ const updateEvidence=useContext(ReportEvidenceContext);
+ const evidenceKey=JSON.stringify(current?.snapshot?{status:'ready',keyword,snapshot:{...current.snapshot,items:current.snapshot.items.map(({capture,...item})=>item)}}:current?.error?{status:'unavailable',keyword,error:current.error}:{status:'loading',keyword});
+ useEffect(()=>{updateEvidence?.({ads:JSON.parse(evidenceKey)});},[updateEvidence,evidenceKey]);
  return <section className="mp-ad-podium" aria-label="네이버 통합검색 광고 상품 분석">
   <div className="mp-ad-heading"><div><span>네이버 통합검색 · PC 광고 상품</span><h4>‘{keyword}’ 상위 광고 상품</h4></div><button type="button" className="mp-secondary" disabled={!current} onClick={()=>{setWaiting(false);setResult(null);setAttempt(value=>value+1);}}>다시 조회</button></div>
   <div className="mp-ad-tablet"><div className="mp-ad-screen" aria-busy={!current}>

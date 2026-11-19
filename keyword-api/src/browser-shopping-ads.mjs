@@ -1,3 +1,4 @@
+import {readIntegratedAdCards,readPeriodSales} from './integrated-ad-details.mjs';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {join} from 'node:path';
@@ -7,6 +8,8 @@ export function normalizeObservedAds(rows){
  if(!Array.isArray(rows)||rows.length===0)throw Error('AD_RESULTS_NOT_CONFIRMED');
  const items=rows.slice(0,3).map((row,index)=>{
   if(row.ad!==true||typeof row.title!=='string'||!row.title.trim())throw Error('AD_RESULTS_NOT_CONFIRMED');
+  const periods=readPeriodSales(typeof row.periodText==='string'?row.periodText:'');
+  row={...periods,...row};
   const text=(key,max=200)=>typeof row[key]==='string'?row[key].trim().slice(0,max):'';
   const amount=key=>Number.isSafeInteger(row[key])&&row[key]>0?row[key]:null;
   return {...(Number.isSafeInteger(row.dailySales)&&row.dailySales>=0?{dailySales:row.dailySales}:{}),...(Number.isSafeInteger(row.weeklySales)&&row.weeklySales>=0?{weeklySales:row.weeklySales}:{}),rating:Number.isFinite(row.rating)&&row.rating>=0&&row.rating<=5?row.rating:null,reviewCount:text('reviewCount',30),wishCount:text('wishCount',30),originalPrice:amount('originalPrice'),couponPrice:amount('couponPrice'),promotion:text('promotion'),shipping:text('shipping'),category:text('category',400),specifications:text('specifications',2000),registeredAt:text('registeredAt',30),rank:index+1,ad:true,title:row.title.trim().slice(0,300),mall:typeof row.mall==='string'?row.mall.trim().slice(0,100):'',price:Number.isSafeInteger(row.price)&&row.price>0?row.price:null,image:typeof row.image==='string'?row.image:null};
@@ -25,9 +28,9 @@ async function prepareCaptureFont(){
  })().catch(()=>{captureFontReady=undefined;throw Error('CAPTURE_FONT_UNAVAILABLE');});
  await captureFontReady;
 }
-async function launchShoppingBrowser(chromium,puppeteer){
+async function launchShoppingBrowser(chromium,puppeteer,withFont=true){
  const executablePath=await chromium.executablePath();
- await prepareCaptureFont();
+ if(withFont)await prepareCaptureFont();
  try{return await puppeteer.launch({args:chromium.args,executablePath,headless:'shell',defaultViewport:{width:1440,height:1000},timeout:15000});}
  catch{throw Error('BROWSER_START_FAILED');}
 }
@@ -92,7 +95,7 @@ export async function captureObservedAds(page,result,sourceUrl){
 /** A different, explicitly labelled placement: shopping ads in Naver integrated search. */
 export async function collectIntegratedShoppingAds(keyword){
  const [{default:chromium},{default:puppeteer}]=await Promise.all([import('@sparticuz/chromium'),import('puppeteer-core')]);
- const browser=await launchShoppingBrowser(chromium,puppeteer);
+ const browser=await launchShoppingBrowser(chromium,puppeteer,false);
  let stage='NEW_PAGE';
  try{
   const page=await browser.newPage();page.setDefaultTimeout(10000);page.setDefaultNavigationTimeout(30000);
@@ -106,12 +109,7 @@ export async function collectIntegratedShoppingAds(keyword){
   stage='AD_SELECTOR';
   await page.waitForSelector('[id^="view_type_guide_"], [id^="view_type_list_finder_"]');
   stage='AD_READ';
-  const rows=await page.evaluate(()=>Array.from(document.querySelectorAll('[id^="view_type_guide_"], [id^="view_type_list_finder_"]')).filter(info=>/^view_type_(guide|list_finder)_\d+$/.test(info.id)&&Array.from(info.querySelectorAll('button')).some(button=>button.textContent.trim()==='광고'&&button.getBoundingClientRect().width>0)).slice(0,3).map(info=>{
-   const card=info.closest('li')||info,text=card.innerText||'',image=card.querySelector('img[alt]');
-   const count=pattern=>{const m=text.match(pattern);return m?Number(m[1].replaceAll(',','')):null;};
-   const title=image?.getAttribute('alt')?.replace(/<[^>]*>/g,'').trim()||info.querySelector('a[data-nlog-area$=".tit"]')?.textContent.trim()||'';
-   return {ad:true,title,image:image?.src||null,mall:'',price:null,rating:count(/(?:평점|별점)\s*([0-5](?:\.\d+)?)/),reviewCount:text.match(/리뷰\s*([\d,]+)/)?.[1]||'',dailySales:count(/(?:최근\s*)?(?:1일|하루|일간|오늘)\s*(?:동안|판매|구매|판매량|구매수)?\s*([\d,]+)\s*개/),weeklySales:count(/(?:최근\s*)?(?:7일|1주일|1주|주간)\s*(?:동안|판매|구매|판매량|구매수)?\s*([\d,]+)\s*개/)};
-  }));
+  const rows=await page.evaluate(readIntegratedAdCards);
   const result=normalizeObservedAds(rows);
   const finalUrl=new URL(page.url());if(finalUrl.origin!==source.origin||finalUrl.pathname!==source.pathname||finalUrl.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
   return {keyword,device:'PC',placement:'integrated',sourceUrl:source.href,observedAt:new Date().toISOString(),context:'네이버 통합검색 · 가격비교 쇼핑광고 · PC · 서버 비로그인 · 확인된 광고 순서',...result};

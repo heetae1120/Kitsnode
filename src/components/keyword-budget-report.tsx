@@ -26,15 +26,16 @@ export function KeywordBudgetReport({productName,perOrder,budget,quantity,months
  const alternatives=category?[category.main,...category.alternatives].filter(k=>k!==main).sort((a,b)=>a.cpc-b.cpc).slice(0,3):[];
  const neededCvr=main?breakEvenConversion(main.cpc,perOrder):null;
  const scenario=cvr===''?(neededCvr!==null&&neededCvr<=100?Math.ceil(neededCvr*100)/100:0):Number(cvr);
- const conversion=<div className="mp-conversion-input"><label>구매 비율<div><FormattedNumberInput aria-label="키워드 클릭 후 구매 비율" value={cvr===''&&scenario>0?String(scenario):cvr} onValueChange={setCvr}/><span>%</span></div></label><small>본전 기준 {neededCvr===null?'계산 불가':(Math.ceil(neededCvr*100)/100).toLocaleString('ko-KR')+'% 이상'}</small></div>;
- const goal=(row:KeywordBenchmark,compact=false)=>{const volume=volumes.find(v=>v.keyword.replace(/\s/g,'')===row.keyword.replace(/\s/g,''));const device:Device=row.device==='PC'?'pc':row.device==='모바일'?'mobile':'all';return <KeywordGoalCheck conversion={!compact?conversion:undefined} primary={!compact} compact={compact} budgetContext={budgetContext} cpc={row.cpc} perOrder={perOrder} budget={budget} quantity={quantity} months={months} cvr={scenario} volume={volume?rowVolume(volume,device):null} device={device==='all'?'PC+모바일':row.device}/>;};
+ const conversion=<div className="mp-conversion-input"><label>구매 비율<div className="mp-conversion-entry"><FormattedNumberInput aria-label="키워드 클릭 후 구매 비율" value={cvr===''&&scenario>0?String(scenario):cvr} onValueChange={setCvr}/><span>%</span></div></label><small>본전 기준 {neededCvr===null?'계산 불가':(Math.ceil(neededCvr*100)/100).toLocaleString('ko-KR')+'% 이상'}</small></div>;
+ const goal=(row:KeywordBenchmark,compact=false)=>{const volume=volumes.find(v=>v.keyword.replace(/\s/g,'')===row.keyword.replace(/\s/g,''));const device:Device=row.device==='PC'?'pc':row.device==='모바일'?'mobile':'all';return <KeywordGoalCheck conversion={!compact?conversion:undefined} primary={!compact} keyword={row.keyword} source="관련 광고 기록의 평균 CPC · 2026년 10월 자료" compact={compact} budgetContext={budgetContext} cpc={row.cpc} perOrder={perOrder} budget={budget} quantity={quantity} months={months} cvr={scenario} volume={volume?rowVolume(volume,device):null} device={device==='all'?'PC+모바일':row.device}/>;};
  const economy=(row:KeywordBenchmark)=>keywordEconomics(row.cpc,scenario,perOrder,budget);
  return <section className="mp-report-section mp-keywords" aria-label="키워드별 광고비 검토"><span className="mp-eyebrow">KEYWORD COST CHECK</span><h3>검색어와 클릭 비용</h3>
+ <ShoppingAdPodium keyword={productName}/>
  {!category||!main?<AutomaticKeywordDiscovery budgetContext={budgetContext} productName={productName} perOrder={perOrder} budget={budget} quantity={quantity} months={months}/>:<>
  <p className="mp-keyword-source">품목 ‘{productName}’ → {keyword} 관련 검색어</p>
  <p className="mp-keyword-source">쇼핑검색 관련 광고 기록 · 2026.10.01–10.31 · 11월 3일 확인</p>
  <div className="mp-keyword-main"><div><span>대표 검색어</span><h4>{keyword}</h4><span>관련 광고의 평균 클릭 비용 · 세금 포함 · {main.device}</span><strong>{money(main.cpc)}<small> / 클릭</small></strong></div></div>
- <ShoppingAdPodium keyword={productName}/>
+
  {economy(main)&&<p className={`mp-keyword-verdict ${economy(main)!.affordable?'':'is-over'}`}>구매 비율 {scenario.toLocaleString('ko-KR',{maximumFractionDigits:2})}% 가정 · {economy(main)!.affordable?'이 비율이면 한도 안이에요. 적은 금액으로 확인하세요.':`이 비율이면 한 건당 광고비가 한도보다 ${money(-economy(main)!.contribution)} 많아요. 다른 검색어도 보세요.`}</p>}
  {volumeError&&<p role="status">{volumeError}</p>}{goal(main)}
  <h4 className="mp-keyword-subtitle">함께 볼 검색어 3개</h4><p className="mp-keyword-source">기록된 클릭 비용이 낮은 순서예요. 내 상품에 맞는 것만 고르세요. 광고 순위는 아니에요.</p>

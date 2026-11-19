@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {fetchShoppingAdSnapshot} from '../src/lib/fetch-shopping-ad-snapshot';
 for(const body of ['<html>Gateway error</html>','null'])test(`server error body gets Korean guidance: ${body}`,async()=>{
  const fetcher:typeof fetch=async()=>new Response(body,{status:502});
- await assert.rejects(fetchShoppingAdSnapshot('fixture',new AbortController().signal,()=>{},{fetcher}),/광고 화면을 가져오지 못했어요/);
+ await assert.rejects(fetchShoppingAdSnapshot('fixture',new AbortController().signal,()=>{},{fetcher,wait:async()=>{}}),/광고 상품 정보를 확인하지 못했어요/);
 });
 test('HTML rate-limit uses Retry-After rather than JSON parser failure',async()=>{
  let calls=0;const delays:number[]=[];

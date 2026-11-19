@@ -121,17 +121,18 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
   return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow"><DiagnosisHeader mode="player" onChoose={backToChoice}/>{playerPurpose?<PlayerIntroduction onStart={()=>{setShowPlayerIntro(false);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>:<PlayerPurposeDialog onSelect={setPlayerPurpose} onBack={backToChoice}/>}</div>;
  }
  return <div ref={guideRoot} className="finance-dashboard mp-shell diagnosis-studio ds-flow" data-preview-stage={step===3&&report&&previewStage==='3-keywords'?'3-keywords':String(step)} data-diagnosis-stage={step}>
+  <div className="ds-sticky-summary">
   <DiagnosisHeader mode={mode} onChoose={()=>{setSelectedMode(null);requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>
   {step<3&&<aside className={`mp-live-bar ${live&&live.profit<0?'is-loss':''}`} aria-label="실시간 상품 손익" aria-live="polite">
    <div className="mp-live-values">
     <span>판매가<b>{basicReady?money(Number(draft.price)):'—'}</b></span>
-    <span>비용 포함 원가<b>{live?money(live.unitCost):'—'}</b></span>
+    <span>원가<b>{live?money(live.unitCost):'—'}</b></span>
     <span>판매수량<b>{draft.quantity?Number(draft.quantity).toLocaleString('ko-KR')+'개':'—'}</b></span>
     <span>한 개당 이익 · 홍보 전<b>{live?money(live.profit):'—'}</b></span>
-    <span>남는 예산<b className={live&&hasBudget?(live.remaining<0?'mp-negative':live.remaining>0?'mp-positive':'mp-neutral'):'mp-neutral'}>{live&&hasBudget?money(live.remaining):'—'}</b></span>
    </div>
    {live&&live.profit<0&&<p role="alert"><TriangleAlert size={16}/>한 개 팔 때 {money(-live.profit)} 손해입니다.</p>}
   </aside>}
+  </div>
   <main className="mp-main">
    <p className="ds-input-guide" role="status" aria-live="polite">{guideMessage}</p>
    {step<3&&<header className="mp-intro"><p className="ds-eyebrow">{mode==='player'?'플레이어 / 다음 광고 준비':'스타터 / 첫 판매 준비'}</p><p>입력한 숫자로 살펴보는 내 사업의 현재와 다음.</p></header>}
