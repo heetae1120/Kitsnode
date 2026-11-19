@@ -22,7 +22,7 @@ export function StoreShell({ children }: { children: ReactNode }) {
       const active = item.id === "overview" ? pathname === "/store" : pathname === item.href.replace(/\/$/, "") || pathname.startsWith(item.href);
       const Icon = icons[item.id];
       return <Link className="nimbus-item" key={item.id} href={item.href} aria-current={active ? "page" : undefined}><span className="nv-ico"><Icon size={19} aria-hidden="true" /></span><span>{item.label}</span></Link>;
-    })}</LiquidNavbar><div className="store-sidebar-note"><CircleHelp size={18} aria-hidden="true" /><p>광고 계정 연결 준비 중<br /><span>광고 성과 연결과 개인 실적 조회는 아직 준비 중이에요.</span></p></div><Link className="store-connect-link" href="/store/ads/connect/"><PlugZap size={17} aria-hidden="true" />광고 계정 연결 안내</Link></aside>
-    <main id="store-main" className="store-main" tabIndex={-1}>{children}<footer className="store-footer">광고 계정 연결과 개인 실적 조회는 준비 중입니다. 현재 개인 실적을 조회하거나 저장하지 않습니다.</footer></main></div>
+    })}</LiquidNavbar><div className="store-sidebar-note"><CircleHelp size={18} aria-hidden="true" /><p>{process.env.NEXT_PUBLIC_AD_PERFORMANCE_ENABLED==='true'?'광고 성과 조회':'광고 계정 연결 준비 중'}<br /><span>{process.env.NEXT_PUBLIC_AD_PERFORMANCE_ENABLED==='true'?'연결한 계정의 광고 성과를 확인할 수 있어요.':'광고 성과 연결과 개인 실적 조회는 아직 준비 중이에요.'}</span></p></div><Link className="store-connect-link" href="/store/ads/connect/"><PlugZap size={17} aria-hidden="true" />광고 계정 연결 안내</Link></aside>
+    <main id="store-main" className="store-main" tabIndex={-1}>{children}<footer className="store-footer">{process.env.NEXT_PUBLIC_AD_PERFORMANCE_ENABLED==='true'?'광고 성과는 연결한 광고계정의 조회 기간을 기준으로 표시합니다.':'광고 계정 연결과 개인 실적 조회는 준비 중입니다. 현재 개인 실적을 조회하거나 저장하지 않습니다.'}</footer></main></div>
   </div>;
 }

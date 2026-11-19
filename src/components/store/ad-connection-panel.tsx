@@ -89,7 +89,7 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
   return <StoreCard aria-labelledby="ad-connection-panel-title">
     <StoreBadge tone="warning">{transport ? '권한 확인 후 연결' : '연결 기능 준비 중'}</StoreBadge>
     <h2 id="ad-connection-panel-title">네이버 광고 계정 연결</h2>
-    <p>키츠노드는 광고 정보 조회와 사용자가 신청한 입찰 관리를 위해 접근을 요청합니다. 네이버 비밀번호나 API 키를 입력하지 마세요.</p>
+    <p>키츠노드는 광고와 성과 정보 조회를 위해 운영 조회 권한을 요청합니다. 네이버 비밀번호나 API 키를 키츠노드에 입력하지 마세요.</p>
     <p>네이버애즈의 광고 계정 ID를 입력해 주세요. 검색광고 API의 고객 ID는 별도로 확인합니다.</p>
     <p>네이버애즈에서 키츠노드 담당자를 광고 계정의 회원으로 초대한 뒤, 담당자가 신청자와 계정의 관계를 확인해야 연결됩니다. 관리계정만으로 연결된 광고 계정은 현재 자동으로 확인할 수 없습니다.</p>
     <p>부여한 권한의 범위는 네이버에서 확인해 주세요. 자동 입찰은 현재 안전 검증을 위해 중단되어 있습니다.</p>
