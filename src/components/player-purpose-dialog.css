@@ -1,0 +1,16 @@
+.ds-purpose-dialog{position:fixed;inset:0;margin:auto;width:min(760px,calc(100vw - 40px));max-width:100%;max-height:calc(100svh - 40px);padding:52px;background:#0b0b0b;color:#f5f2eb;border:1px solid #454545;border-radius:0;overflow-y:auto;font-family:var(--font-pretendard),Arial,sans-serif;word-break:keep-all;overscroll-behavior:contain}
+.ds-purpose-dialog::backdrop{background:#0b0b0be8;backdrop-filter:blur(8px)}
+.ds-purpose-dialog .ds-purpose-close{position:absolute;top:18px;right:18px;display:grid;place-items:center;width:36px;height:36px;padding:0;border:0;background:transparent;color:#aaa7a0;cursor:pointer}
+.ds-purpose-dialog #ds-purpose-title{font-size:clamp(32px,4vw,48px);line-height:1.2;letter-spacing:-.055em;font-weight:800;margin:0 0 20px}
+.ds-purpose-dialog h2 em{font-style:normal;color:#ff5a1f}
+.ds-purpose-dialog #ds-purpose-description{font-size:14px;line-height:1.8;color:#aaa7a0;margin:0 0 32px}
+.ds-purpose-options{display:grid;gap:14px}
+.ds-purpose-dialog .ds-purpose-option{display:grid;grid-template-columns:24px minmax(0,1fr) 19px;gap:18px;align-items:center;width:100%;padding:24px 22px;text-align:left;background:#111;color:#f5f2eb;border:1px solid #454545;border-radius:0;font:inherit;cursor:pointer;transition:border-color .18s,background .18s}
+.ds-purpose-dialog .ds-purpose-option:hover{border-color:#ff5a1f;background:#1b1410}
+.ds-purpose-index{color:#ff5a1f;font-size:12px}
+.ds-purpose-copy{display:grid;gap:10px;min-width:0}
+.ds-purpose-copy strong{font-size:20px;line-height:1.45;font-weight:700;letter-spacing:-.035em}
+.ds-purpose-copy>span{color:#aaa7a0;font-size:13px;line-height:1.7}
+.ds-purpose-dialog :is(a,button):focus-visible{outline:2px solid #ff8c61;outline-offset:4px}
+@media(max-width:700px){.ds-purpose-dialog{width:calc(100vw - 28px);max-height:calc(100svh - 28px);padding:48px 22px 26px}.ds-purpose-dialog #ds-purpose-description{font-size:13px;margin-bottom:24px}.ds-purpose-dialog .ds-purpose-option{padding:20px 16px;gap:10px;grid-template-columns:20px minmax(0,1fr) 18px}.ds-purpose-copy strong{font-size:17px}.ds-purpose-copy>span{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.ds-purpose-option{transition:none!important}}

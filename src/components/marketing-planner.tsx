@@ -15,6 +15,7 @@ import {plannerMarketFees} from '@/lib/planner-market-fees';
 import {plannerLiveCosts} from '@/lib/planner-live-costs';
 import {useDiagnosisInputGuide} from './use-diagnosis-input-guide';
 import {PlayerIntroduction} from './player-introduction';
+import {PlayerPurposeDialog,type PlayerPurpose} from './player-purpose-dialog';
 import '@/app/tools/marketing-planner.css';
 import '@/app/tools/diagnosis-studio.css';
 
@@ -37,6 +38,7 @@ const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
 export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const [selectedMode,setSelectedMode]=useState<'starter'|'player'|null>(initialMode??null);
  const [showPlayerIntro,setShowPlayerIntro]=useState(initialMode==='player');
+ const [playerPurpose,setPlayerPurpose]=useState<PlayerPurpose|null>(null);
  const [goalOpen,setGoalOpen]=useState(false);
  const mode=selectedMode??'starter';
  const [draft,setDraft]=useState<Draft>(empty);
@@ -98,6 +100,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
   goalDialog.current?.close();setGoalOpen(false);proceed?.();
  }
  function chooseMode(next:'starter'|'player'){
+  setPlayerPurpose(null);
   setSelectedMode(next);setShowPlayerIntro(next==='player');setDraft(empty);setStep(1);setMarket('');setReport(null);setExampleFields([]);setError('');
   requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});
  }
@@ -111,7 +114,10 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
    </div>
   </main>
  </div>;
- if(selectedMode==='player'&&showPlayerIntro&&!previewStage)return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow"><DiagnosisHeader mode="player" onChoose={()=>{setSelectedMode(null);setShowPlayerIntro(false);window.scrollTo({top:0,behavior:'instant'});}}/><PlayerIntroduction onStart={()=>{setShowPlayerIntro(false);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/></div>;
+ if(selectedMode==='player'&&showPlayerIntro&&!previewStage){
+  const backToChoice=()=>{setSelectedMode(null);setShowPlayerIntro(false);setPlayerPurpose(null);requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});};
+  return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow"><DiagnosisHeader mode="player" onChoose={backToChoice}/>{playerPurpose?<PlayerIntroduction onStart={()=>{setShowPlayerIntro(false);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>:<PlayerPurposeDialog onSelect={setPlayerPurpose} onBack={backToChoice}/>}</div>;
+ }
  return <div ref={guideRoot} className="finance-dashboard mp-shell diagnosis-studio ds-flow" data-preview-stage={step===3&&report&&previewStage==='3-keywords'?'3-keywords':String(step)} data-diagnosis-stage={step}>
   <DiagnosisHeader mode={mode} onChoose={()=>{setSelectedMode(null);requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>
   {step<3&&<aside className={`mp-live-bar ${live&&live.profit<0?'is-loss':''}`} aria-label="실시간 상품 손익" aria-live="polite">

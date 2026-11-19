@@ -23,7 +23,7 @@ export function PlayerIntroduction({onStart}:{onStart:()=>void}){
     <motion.h2 variants={reveal} transition={{duration:reduced?0:.65}}>그래서,<br/><em>얼마가 남았나요?</em></motion.h2>
     <motion.p className="ds-player-position" variants={reveal} transition={{duration:reduced?0:.55}}>상품과 자금 상황을 살펴<br/>지금 광고가 필요한지부터 판단합니다.</motion.p>
    </motion.div>
-   <ol className="ds-player-principles">{[['01','상품 하나의 이익','원가와 수수료, 광고비를 반영해\n한 개 팔 때 실제로 남는 이익을 확인합니다.'],['02','원가 절감의 기회','3PL(제3자 물류), 패키지, 인건비 등\n비용 구조를 점검하고 절감 가능성을 찾습니다.'],['03','광고의 방향성','지금 광고를 집행해도 되는 상태인지 판단하고,\n적합한 광고 유형과 운영 방향을 점검합니다.']].map(([n,title,description])=><motion.li key={n} initial={reduced?false:{opacity:0,y:24}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.4}} transition={{duration:.45}}><span>{n}</span><h3>{title}</h3><p>{description}</p></motion.li>)}</ol>
+   <ol className="ds-player-principles">{[['01','광고의 방향성','지금 광고를 집행해도 되는 상태인지 판단하고,\n적합한 광고 유형과 운영 방향을 점검합니다.'],['02','원가 절감의 기회','3PL(제3자 물류), 패키지, 인건비 등\n비용 구조를 점검하고 절감 가능성을 찾습니다.'],['03','리브랜딩의 방향','브랜드의 강점과 고객 인식을 살펴\n상품·메시지·디자인의 새로운 방향을 찾습니다.']].map(([n,title,description])=><motion.li key={n} initial={reduced?false:{opacity:0,y:24}} whileInView={{opacity:1,y:0}} viewport={{once:true,amount:.4}} transition={{duration:.45}}><span>{n}</span><h3>{title}</h3><p>{description}</p></motion.li>)}</ol>
    <button type="button" className="mp-primary ds-player-start" onClick={onStart}>상담하러 가기 <ArrowRight size={22}/></button>
   </section>
  </main>;
