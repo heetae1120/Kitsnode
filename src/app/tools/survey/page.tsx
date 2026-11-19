@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ToolsHeader } from "@/components/tools-header";
 import { StoreSurvey } from "@/components/store-survey";
+import { BrandWordmark } from "@/components/brand-wordmark";
 import "../finance-bento.css";
 import "../kits-pages.css";
 
@@ -36,7 +37,7 @@ export default function SurveyPage() {
         </div>
         <div className="kp-wrap">
           <footer className="kp-footer light">
-            <strong>KITSNODE</strong>
+            <strong className="kn-wordmark"><BrandWordmark/></strong>
             <span>고객이 다시 찾는 브랜드를 만듭니다</span>
           </footer>
         </div>

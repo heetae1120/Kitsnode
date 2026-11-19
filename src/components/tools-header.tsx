@@ -6,6 +6,7 @@ import { ChevronDown, ClipboardList, CircleHelp } from "lucide-react";
 import { MenuMotion } from "@/components/menu-motion";
 import { LiquidNavbar, type LiquidNavItem } from "@/components/ui/liquid-glass-navbar";
 import { storeLinks } from "@/lib/store-navigation";
+import { BrandWordmark } from "./brand-wordmark";
 
 const groups: {id:"store"|"ads";label:string;ids:string[]}[] = [];
 
@@ -53,7 +54,7 @@ export const ToolsHeader = memo(function ToolsHeader({ active }: { active: ToolI
   return (
     <header ref={header} className="tool-topbar expanded-tools">
       <Link className="tool-brand" href="/tools/start/" aria-label="KITSNODE 도구 메인으로" aria-current={active === "start" ? "page" : undefined} onClick={close}>
-        KITSNODE
+        <BrandWordmark/>
       </Link>
       <LiquidNavbar renderMode="css" id="tools-navigation" motionKey="tools" ariaLabel="도구 메뉴" items={liquidItems} active={liquidActive} compact={false} sound={false} className={open ? "tool-nav open" : "tool-nav"}>
         {["profit", "keywords"].map((id) => {

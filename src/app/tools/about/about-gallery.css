@@ -39,17 +39,26 @@
 @media(prefers-reduced-motion:reduce){.profit-tool .about-gallery-page .ag-scroll{height:auto;}.profit-tool .about-gallery-page .ag-stage{position:relative;top:0;}.profit-tool .about-gallery-page .ag-tile,.profit-tool .about-gallery-page .ag-copy{will-change:auto;}}
 @media print{.profit-tool .about-gallery-page .ag-scroll{height:auto;}.profit-tool .about-gallery-page .ag-stage{position:relative;top:0;min-height:500px;height:500px;}.profit-tool .about-gallery-page .ag-copy{opacity:1!important;transform:none!important;}.profit-tool .about-gallery-page .ag-scroll-cue{display:none;}}
 
-/* Cards travel through perspective space; central live text never inherits a scale transform. */
+/* Perspective cards and native-size text zoom retain sharp live typography. */
 html body .profit-tool .about-gallery-page .ag-scroll{height:330svh}
 html body .profit-tool .about-gallery-page .ag-gallery{perspective:900px;perspective-origin:50% 50%;transform-style:preserve-3d;z-index:1}
-html body .profit-tool .about-gallery-page .ag-tile{width:clamp(230px,25vw,380px);height:clamp(165px,22svh,255px);right:auto;bottom:auto;padding:28px 12px 0;transform-style:preserve-3d;backface-visibility:hidden;border-radius:12px}
-html body .profit-tool .about-gallery-page .ag-brand{width:clamp(180px,19vw,280px);height:clamp(225px,29svh,330px);padding:0}
+html body .profit-tool .about-gallery-page .ag-tile{width:clamp(210px,var(--tile-width),620px);height:clamp(190px,var(--tile-height),420px);right:auto;bottom:auto;padding:28px 12px 0;transform-style:preserve-3d;backface-visibility:hidden;border-radius:12px}
+html body .profit-tool .about-gallery-page .ag-brand{padding:0}
 html body .profit-tool .about-gallery-page .ag-foundation{padding:0}
 html body .profit-tool .about-gallery-page .ag-copy{will-change:auto;transform:none;z-index:2;pointer-events:none}
 html body .profit-tool .about-gallery-page .ag-actions{pointer-events:auto}
 html body .profit-tool .about-gallery-page .ag-copy h1{transform:none;text-rendering:optimizeLegibility}
 html body .profit-tool .about-gallery-page .ag-scroll-cue{z-index:3}
-@media(max-width:700px){html body .profit-tool .about-gallery-page .ag-scroll{height:300svh}html body .profit-tool .about-gallery-page .ag-gallery{perspective:650px}html body .profit-tool .about-gallery-page .ag-tile{width:clamp(150px,46vw,230px);height:160px;padding:22px 7px 0}html body .profit-tool .about-gallery-page .ag-brand{width:135px;height:185px;padding:0}html body .profit-tool .about-gallery-page .ag-foundation{padding:0}}
+@media(max-width:700px){html body .profit-tool .about-gallery-page .ag-scroll{height:300svh}html body .profit-tool .about-gallery-page .ag-gallery{perspective:650px}html body .profit-tool .about-gallery-page .ag-tile{width:calc(var(--tile-width) * 1.8 + 30px);height:calc(var(--tile-height) * .65 + 40px);padding:22px 7px 0}html body .profit-tool .about-gallery-page .ag-brand{padding:0}html body .profit-tool .about-gallery-page .ag-foundation{padding:0}}
 @media(prefers-reduced-motion:reduce){html body .profit-tool .about-gallery-page .ag-scroll{height:auto}html body .profit-tool .about-gallery-page .ag-tile{will-change:auto}}
 @media print{html body .profit-tool .about-gallery-page .ag-scroll{height:auto}html body .profit-tool .about-gallery-page .ag-gallery{display:none}}html body .profit-tool .about-gallery-page .ag-copy::before{content:"";position:absolute;width:min(860px,86vw);height:58%;left:50%;top:50%;transform:translate(-50%,-50%);background:radial-gradient(ellipse,#0b0b0bf5 0%,#0b0b0bd9 38%,#0b0b0b00 72%);z-index:-1;pointer-events:none}
 @media(max-width:700px){html body .profit-tool .about-gallery-page .ag-copy::before{width:115%;height:48%}}
+/* Repaint type at its actual size instead of stretching a cached text layer. */
+html body .profit-tool .about-gallery-page .ag-copy{contain:layout;--ag-title-base:clamp(38px,5vw,76px);--ag-eyebrow-base:10px;--ag-description-base:14px;--ag-link-base:12px}
+html body .profit-tool .about-gallery-page .ag-copy>*{flex-shrink:0}
+html body .profit-tool .about-gallery-page .ag-copy h1{font-size:calc(var(--ag-title-base) * var(--ag-copy-zoom,1));white-space:nowrap}
+html body .profit-tool .about-gallery-page .ag-copy .ag-eyebrow{font-size:calc(var(--ag-eyebrow-base) * var(--ag-copy-zoom,1))}
+html body .profit-tool .about-gallery-page .ag-copy>p{font-size:calc(var(--ag-description-base) * var(--ag-copy-zoom,1));max-width:none;white-space:nowrap}
+html body .profit-tool .about-gallery-page .ag-copy .ag-actions a{font-size:calc(var(--ag-link-base) * var(--ag-copy-zoom,1))}
+@media(max-width:700px){html body .profit-tool .about-gallery-page .ag-copy{--ag-title-base:clamp(29px,7.9vw,48px);--ag-eyebrow-base:7px;--ag-description-base:11px;--ag-link-base:10px}}
+@media print{html body .profit-tool .about-gallery-page .ag-copy{--ag-copy-zoom:1!important}}
