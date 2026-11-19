@@ -84,6 +84,10 @@ export function StoreSurvey() {
       setError("하나를 골라 주세요.");
       return;
     }
+    if (step.id === "category" && answers.category === OTHER && !answers.categoryOther.trim()) {
+      setError("어떤 상품인지 적어 주세요.");
+      return;
+    }
     if (step.kind === "multi" && !answers.support.length) {
       setError("하나 이상 골라 주세요.");
       return;

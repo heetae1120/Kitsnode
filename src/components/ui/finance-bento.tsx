@@ -24,6 +24,7 @@ export function FinanceBento({
   inputHref?: string;
 }) {
   const r = useMemo(() => calculate(input), [input]);
+  const canEstimate = input.cpc > 0;
   const chart = useMemo(
     () =>
       [0, 20, 40, 60, 80, 100].map((percent) => {
@@ -66,23 +67,23 @@ export function FinanceBento({
             <span>예상 총순이익</span>
             <span>예산 {won(input.budget)}</span>
           </div>
-          <strong className={r.totalProfit < 0 ? "pb-loss" : "pb-gain"}>
-            {won(r.totalProfit)}
+          <strong className={canEstimate ? (r.totalProfit < 0 ? "pb-loss" : "pb-gain") : undefined}>
+            {canEstimate ? won(r.totalProfit) : "계산 불가"}
           </strong>
           <p>
-            광고비·입력한 상품 비용 차감 후 ·{" "}
+            {canEstimate ? <>광고비·입력한 상품 비용 차감 후 ·{" "}
             {r.totalProfit < 0
               ? "예상 손실"
               : r.totalProfit > 0
                 ? "예상 이익"
-                : "손익 균형"}
+                : "손익 균형"}</> : "0원보다 큰 CPC를 입력해 주세요."}
           </p>
           <div
             className="pb-chart"
             role="img"
-            aria-label="입력한 광고 예산의 0~100% 단계별 예상 매출과 총비용 비교. 실제 매출 이력이 아닌 시뮬레이션입니다."
+            aria-label={canEstimate ? "입력한 광고 예산의 0~100% 단계별 예상 매출과 총비용 비교. 실제 매출 이력이 아닌 시뮬레이션입니다." : "CPC가 0원이어서 예상 매출과 총비용 그래프를 계산할 수 없습니다."}
           >
-            <ResponsiveContainer width="100%" height="100%">
+            {canEstimate ? <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={chart}
                 margin={{ top: 15, right: 10, bottom: 0, left: 0 }}
@@ -133,13 +134,13 @@ export function FinanceBento({
                   isAnimationActive={false}
                 />
               </AreaChart>
-            </ResponsiveContainer>
+            </ResponsiveContainer> : <p>유효한 CPC를 입력하면 그래프를 볼 수 있어요.</p>}
           </div>
-          <div className="pb-legend">
+          {canEstimate && <div className="pb-legend">
             <span>● 예상 매출</span>
             <span>● 예상 총비용</span>
             <small>예산 단계별 시뮬레이션 · 실제 매출 이력 아님</small>
-          </div>
+          </div>}
         </article>
         <article className="pb-card pb-costs">
           <span>주문 1건의 비용 구성</span>
@@ -187,7 +188,7 @@ export function FinanceBento({
           ],
           [
             "손익분기 최소 판매",
-            r.requiredOrders === null
+            !canEstimate ? "계산 불가" : r.requiredOrders === null
               ? "달성 불가"
               : `${num(r.requiredOrders, 0)}개`,
             "이번 예산의 실제 예상 광고비 기준",

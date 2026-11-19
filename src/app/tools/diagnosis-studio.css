@@ -389,7 +389,7 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog .mp-input-w
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-open-report{width:100%;max-width:none}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-open-report .ds-result-heading{padding-block:32px 48px;max-width:none}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters{display:block;height:auto!important;min-height:0!important;width:100%;border:0!important;box-shadow:none;background:#0b0b0b!important;padding:0;scroll-margin-top:105px}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters .kn-tablet-slide-screen{height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden;border:0!important;padding:0;border-radius:0!important;outline-offset:4px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters .kn-tablet-slide-screen{height:auto!important;min-height:0!important;max-height:none!important;overflow:clip;overscroll-behavior:auto;border:0!important;padding:0;border-radius:0!important;outline-offset:4px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters .kn-tablet-slide{width:100%;min-height:0!important;max-width:none;padding:0!important;border:0!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-chapters .kn-tablet-slide-actions{margin-top:32px;padding:24px 0;border:0;border-top:1px solid #353535}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-tablet-budget .mp-plan-recap dd{font-size:clamp(24px,3vw,36px)}

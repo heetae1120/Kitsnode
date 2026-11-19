@@ -28,7 +28,7 @@ export function AutomaticKeywordDiscovery({productName,perOrder,budget,quantity,
    const data=validateKeywordResponse(raw);const found=selectProductKeywords(seed,data.keywords);
    if(!found.length)throw Error('이 품목의 관련 키워드를 찾지 못했습니다. 상품 종류가 포함되도록 품목명을 수정해 주세요.');
    if(active&&!controller.signal.aborted){setRows(found);setSourceRows(data.keywords);}
-  }catch(e){if(active&&!controller.signal.aborted)setError(e instanceof Error?e.message:'키워드 분석 실패');}
+  }catch(e){if(active&&!controller.signal.aborted)setError(e instanceof TypeError?'검색어 조회 서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요.':e instanceof Error?e.message:'키워드 분석에 실패했어요. 다시 시도해 주세요.');}
   finally{clearTimeout(timeout);if(active)setBusy(false);}})();
   return()=>{active=false;controller.abort();clearTimeout(timeout);};
  },[productName,retry]);
