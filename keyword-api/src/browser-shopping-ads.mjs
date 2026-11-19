@@ -110,7 +110,7 @@ export async function collectIntegratedShoppingAds(keyword){
    const card=info.closest('li')||info,text=card.innerText||'',image=card.querySelector('img[alt]');
    const count=pattern=>{const m=text.match(pattern);return m?Number(m[1].replaceAll(',','')):null;};
    const title=image?.getAttribute('alt')?.replace(/<[^>]*>/g,'').trim()||info.querySelector('a[data-nlog-area$=".tit"]')?.textContent.trim()||'';
-   return {ad:true,title,image:image?.src||null,mall:'',price:null,rating:count(/(?:평점|별점)\s*([0-5](?:\.\d+)?)/),reviewCount:text.match(/리뷰\s*([\d,]+)/)?.[1]||'',dailySales:count(/(?:최근\s*)?(?:1일|하루|일간|오늘)\s*(?:동안|판매|구매|판매량|구매수)?\s*([\d,]+)\s*(?:개|건|명)/),weeklySales:count(/(?:최근\s*)?(?:7일|1주일|1주|주간)\s*(?:동안|판매|구매|판매량|구매수)?\s*([\d,]+)\s*(?:개|건|명)/)};
+   return {ad:true,title,image:image?.src||null,mall:'',price:null,rating:count(/(?:평점|별점)\s*([0-5](?:\.\d+)?)/),reviewCount:text.match(/리뷰\s*([\d,]+)/)?.[1]||'',dailySales:count(/(?:최근\s*)?(?:1일|하루|일간|오늘)\s*(?:동안|판매|구매|판매량|구매수)?\s*([\d,]+)\s*개/),weeklySales:count(/(?:최근\s*)?(?:7일|1주일|1주|주간)\s*(?:동안|판매|구매|판매량|구매수)?\s*([\d,]+)\s*개/)};
   }));
   const result=normalizeObservedAds(rows);
   const finalUrl=new URL(page.url());if(finalUrl.origin!==source.origin||finalUrl.pathname!==source.pathname||finalUrl.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
