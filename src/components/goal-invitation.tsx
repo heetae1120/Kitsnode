@@ -13,7 +13,7 @@ export function GoalInvitation({months,profit}:{months:number;profit:number}){
  const amount=Math.abs(profit);
  const {target,targetMonths}=goalMotionFrame(0,months,amount);
  const outcome=profit<0?'의 손실이 예상돼요.':'의 이익이 예상돼요.';
- const question=profit<=0?'가격과 비용을 다시 살펴볼까요?':'이 계획을 더 자세히 살펴볼까요?';
+ const question='이렇게 판매할 수 있을지 이제 알아볼까요?';
  useEffect(()=>{
   if(!entered||reduced)return;
   const start=performance.now();let frame=0;

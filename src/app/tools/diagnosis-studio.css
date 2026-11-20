@@ -497,6 +497,19 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow #mp-quantity-capacity,
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow #mp-quantity-capacity small{color:#aaa7a0!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow #mp-quantity-capacity b,
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-sales-summary>p[role=alert]{color:#fff!important}
+/* Product-specific budget, one-time creative costs and aligned ad statistics. */
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-sales-summary{border:0!important;outline:0!important;box-shadow:none!important;background:none!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.mp-live-values,.mp-sales-summary) b.ds-profit-positive{color:#48d394!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.mp-live-values,.mp-sales-summary) b.mp-negative{color:#ff737b!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.mp-live-values,.mp-sales-summary) b.mp-neutral{color:#f5f2eb!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-market-options{grid-template-columns:repeat(3,minmax(0,1fr))}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-market-icon.mp-market-coupang{position:relative;overflow:hidden;width:72px;height:32px;background:#fff!important;border-radius:5px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-market-icon.mp-market-coupang img{position:absolute;left:50%;top:50%;width:72px;height:72px;max-width:none;transform:translate(-50%,-50%)}
+.mp-creative-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:12px}.mp-creative-actions small{font-size:11px;line-height:1.6}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats{align-items:center!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats>span{display:inline-flex;align-items:center!important;flex-wrap:nowrap!important;gap:6px;min-height:24px;line-height:24px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats>span :is(span,b){display:inline-block;margin:0;line-height:24px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats svg{display:block;flex-shrink:0}
 
 /* Status cards use a continuous outline; keyword ranks are plain orange type. */
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-key-date.is-recommended{border:2px solid #23835c!important}

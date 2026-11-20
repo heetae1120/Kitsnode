@@ -17,3 +17,17 @@ test('losses and negative remaining budgets are preserved rather than clamped',(
 test('invalid rates, quantities and overflowing amounts cannot create plausible estimates',()=>{
  for(const patch of [{returnRate:101},{feePercent:101},{quantity:0},{quantity:1.2},{cost:-1},{returnHandling:Infinity},{price:Number.MAX_VALUE,quantity:100}])assert.throws(()=>plannerLiveCosts({...input,...patch}));
 });
+
+test('one-time creative costs are charged once and match the report at every quantity',()=>{
+ for(const quantity of [1,3,100]){
+  const fixed=300001;
+  const live=plannerLiveCosts({...input,quantity,fixed});
+  const report=marketingPlan({...input,quantity,returns:live.returns,certification:0,fixed});
+  assert.equal(live.marginTotal,report.profitRoom);
+  assert.equal(live.remaining,report.cashRoom);
+  assert.equal(live.unitCost,report.variable+fixed/quantity);
+  assert(Math.abs(live.profit-(report.margin-fixed/quantity))<1e-8);
+ }
+ assert.throws(()=>plannerLiveCosts({...input,fixed:-1}));
+ assert.throws(()=>plannerLiveCosts({...input,fixed:Infinity}));
+});

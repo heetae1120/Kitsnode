@@ -31,9 +31,10 @@ const extras=[
  ['logistics','배송·물류비','원 / 개'],
  ['feePercent','판매 수수료','%'],
  ['returnRate','예상 반품률','%'],
+ ['creativeCost','상세페이지 및 썸네일 비용','원 / 전체'],
 ] as const;
-type Draft={months:string;name:string;available:string;price:string;cost:string;quantity:string;feePercent:string;logistics:string;packaging:string;returnRate:string;returnHandling:string};
-const empty:Draft={months:'',name:'',available:'',price:'',cost:'',quantity:'',feePercent:'',logistics:'',packaging:'',returnRate:'',returnHandling:''};
+type Draft={months:string;name:string;available:string;price:string;cost:string;quantity:string;feePercent:string;logistics:string;packaging:string;returnRate:string;returnHandling:string;creativeCost:string};
+const empty:Draft={months:'',name:'',available:'',price:'',cost:'',quantity:'',feePercent:'',logistics:'',packaging:'',returnRate:'',returnHandling:'',creativeCost:''};
 const sampleInput:MarketingPlanInput={price:30000,cost:12000,quantity:100,available:3000000,feePercent:5,logistics:3000,packaging:1000,returns:0,certification:0,fixed:0};
 const previewReport={name:'미리보기 예시',months:3,input:sampleInput,result:marketingPlan(sampleInput),examples:[]};
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
@@ -67,7 +68,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const costReady=draft.cost!==''&&draft.quantity!==''&&Number.isSafeInteger(Number(draft.quantity))&&Number(draft.quantity)>0;
  const stockCost=costReady?Number(draft.cost)*Number(draft.quantity):null;
  let live:ReturnType<typeof plannerLiveCosts>|null=null;
- if(basicReady){try{live=plannerLiveCosts({price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returnRate:Number(draft.returnRate),returnHandling:Number(draft.returnHandling)});}catch{}}
+ if(basicReady){try{live=plannerLiveCosts({price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returnRate:Number(draft.returnRate),returnHandling:Number(draft.returnHandling),fixed:Number(draft.creativeCost)});}catch{}}
  const [exampleFields,setExampleFields]=useState<string[]>([]);
  const useExample=(key:keyof typeof plannerExamples)=>{setDraft(d=>({...d,[key]:plannerExamples[key],...(key==='returnRate'&&d.returnHandling===''?{returnHandling:plannerExamples.returnHandling}:{})}));setExampleFields(keys=>[...new Set([...keys,key,...(key==='returnRate'?['returnHandling']:[])])]);setError('');};
  const missing=extras.filter(([key])=>draft[key]==='').length;
@@ -86,7 +87,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
   if(!live){setError('입력값을 확인해 주세요. 수수료와 반품률은 0~100%여야 합니다.');return;}
   try{
    goalDialog.current?.close();setGoalOpen(false);
-   const input:MarketingPlanInput={price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returns:live.returns,returnRate:Number(draft.returnRate),returnHandling:Number(draft.returnHandling),certification:0,fixed:0};
+   const input:MarketingPlanInput={price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returns:live.returns,returnRate:Number(draft.returnRate),returnHandling:Number(draft.returnHandling),certification:0,fixed:Number(draft.creativeCost)};
    setReport({name:draft.name.trim(),months:0,input,result:marketingPlan(input),examples:[...exampleFields]});move(3);
   }catch(e){setError(e instanceof Error?e.message:'입력값을 확인해 주세요.');}
  }
@@ -129,7 +130,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
     <span>판매가<b>{basicReady?money(Number(draft.price)):'—'}</b></span>
     <span>원가<b>{live?money(live.unitCost):'—'}</b></span>
     <span>판매수량<b>{draft.quantity?Number(draft.quantity).toLocaleString('ko-KR')+'개':'—'}</b></span>
-    <span>개당 이익<b>{live?money(live.profit):'—'}</b></span>
+    <span>개당 이익<b className={live?(live.profit>0?'ds-profit-positive':live.profit<0?'mp-negative':'mp-neutral'):undefined}>{live?money(live.profit):'—'}</b></span>
    </div>
    {live&&live.profit<0&&<p role="alert"><TriangleAlert size={16}/>한 개 팔 때 {money(-live.profit)} 손해입니다.</p>}
   </aside>}
@@ -145,24 +146,25 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
      {step===1&&<>
       <div className="ds-product-capital"><label className="mp-name"><span className="ds-group-index">01 / 상품 기본 정보</span>품목<input value={draft.name} onChange={event=>update('name',event.target.value)} placeholder="예: 가습기, 시계, 손난로" maxLength={100}/></label>
       <div className="mp-plan-row mp-plan-budget-only">
-       <section className="mp-budget-input" aria-label="사용할 예산"><span className="ds-group-index">02 / 준비 자금</span><div className="mp-field"><div className="mp-field-label"><label htmlFor="mp-available">이번에 사용할 금액</label><PlannerCostHelp field="available" label="이번에 사용할 금액"/></div><div className="mp-input-wrap"><FormattedNumberInput aria-describedby="mp-help-available" id="mp-available" value={draft.available} onValueChange={value=>update('available',value)} placeholder="금액 입력"/><span>원</span></div></div></section>
+       <section className="mp-budget-input" aria-label="사용할 예산"><span className="ds-group-index">02 / 준비 자금</span><div className="mp-field"><div className="mp-field-label"><label htmlFor="mp-available">이번 상품에 사용할 금액</label><PlannerCostHelp field="available" label="이번 상품에 사용할 금액"/></div><div className="mp-input-wrap"><FormattedNumberInput aria-describedby="mp-help-available" id="mp-available" value={draft.available} onValueChange={value=>update('available',value)} placeholder="금액 입력"/><span>원</span></div></div></section>
       </div></div>
      </>}
      <div className="ds-input-group"><div className="ds-group-heading"><span className="ds-group-index">{step===1?'03 / 판매 조건':'COST CHECKLIST'}</span><p>{step===1?'가격과 수량을 함께 확인하세요.':'실제 비용을 알면 입력하고, 모르면 참고값으로 시작하세요.'}</p></div><div className={`mp-fields ${step===1?'mp-fields-basic':''}`}>
       {(step===1?basics:extras).map(([key,label,unit])=><div className="mp-field" key={key} data-guide-field={key==='feePercent'?'판매 수수료':undefined} data-guide-complete={key==='feePercent'?Boolean(market&&draft.feePercent!==''):undefined}>
        <div className="mp-field-label">{key==='feePercent'&&market!=='other'?<span>{label}</span>:<label htmlFor={`mp-${key}`}>{label}</label>}<PlannerCostHelp field={key} label={label}/></div>
-       {key==='feePercent'&&<div className="mp-market-options" role="group" aria-label="판매 플랫폼">{plannerMarketFees.map(item=><button type="button" key={item.id} aria-pressed={market===item.id} onClick={()=>{setMarket(item.id);update('feePercent',item.rate);setExampleFields(keys=>[...new Set([...keys,'feePercent'])]);}}><span className={`mp-market-icon mp-market-${item.id}`} aria-hidden="true">{item.mark}</span><b>{item.name}</b><small>참고 {item.rate}%</small></button>)}<button type="button" aria-pressed={market==='other'} onClick={()=>{setMarket('other');update('feePercent','');}}><span className="mp-market-icon" aria-hidden="true">+</span><b>그 외</b><small>직접 입력</small></button></div>}
+       {key==='feePercent'&&<div className="mp-market-options" role="group" aria-label="판매 플랫폼">{plannerMarketFees.map(item=><button type="button" key={item.id} aria-pressed={market===item.id} onClick={()=>{setMarket(item.id);update('feePercent',item.rate);setExampleFields(keys=>[...new Set([...keys,'feePercent'])]);}}><span className={`mp-market-icon mp-market-${item.id}`} aria-hidden="true">{item.id==='coupang'?<img src={(process.env.NEXT_PUBLIC_BASE_PATH||'')+'/brand/coupang-official.jpg'} width={72} height={72} alt=""/>:item.mark}</span><b>{item.name}</b><small>참고 {item.rate}%</small></button>)}<button type="button" aria-pressed={market==='other'} onClick={()=>{setMarket('other');update('feePercent','');}}><span className="mp-market-icon" aria-hidden="true">+</span><b>그 외</b><small>직접 입력</small></button></div>}
        {(key!=='feePercent'||market==='other')&&<div className="mp-input-wrap"><FormattedNumberInput id={`mp-${key}`} aria-describedby={`mp-help-${key}${key==='quantity'?' mp-quantity-capacity':''}`} value={draft[key]} onValueChange={value=>update(key,value)} placeholder={key==='quantity'?'수량 입력':unit==='%'?'비율 입력':'금액 입력'}/><span>{unit}</span></div>}
        {key==='quantity'&&<p id="mp-quantity-capacity" className="mp-quantity-capacity" aria-live="polite">{purchaseCapacity!==null?<>현재 예산으로 최대 <b>{purchaseCapacity.toLocaleString('ko-KR')}개</b> 구매 가능<small>상품 원가 기준 · 배송 등 추가 비용 제외</small></>:draft.cost!==''&&Number(draft.cost)===0?'원가가 0원이면 최대 구매수량을 계산할 수 없어요.':'예산과 상품 원가를 입력하면 구매 가능 수량을 확인할 수 있어요.'}</p>}
        {key==='feePercent'&&selectedMarket&&<p className="mp-market-applied">{selectedMarket.name} 참고율 <strong>{draft.feePercent}%</strong> 적용</p>}
        {step===2&&key==='feePercent'&&<div className="mp-quick-costs"><button type="button" data-guide-example onClick={()=>{setMarket('other');useExample('feePercent');}}>참고값 넣기</button><small>간편 계산용 7% · 실제 수수료와 다를 수 있어요.</small></div>}
-       {step===2&&key!=='feePercent'&&<div className="mp-quick-costs"><button type="button" onClick={()=>useExample(key as keyof typeof plannerExamples)}>참고값 넣기</button><button type="button" onClick={()=>update(key,'0')}>{key==='returnRate'?'예상수량 없음':'비용 없음 · 0원'}</button>{exampleFields.includes(key)&&<small>참고값 적용</small>}</div>}
+       {step===2&&key!=='feePercent'&&key!=='creativeCost'&&<div className="mp-quick-costs"><button type="button" onClick={()=>useExample(key as keyof typeof plannerExamples)}>참고값 넣기</button><button type="button" onClick={()=>update(key,'0')}>{key==='returnRate'?'예상수량 없음':'비용 없음 · 0원'}</button>{exampleFields.includes(key)&&<small>참고값 적용</small>}</div>}
+       {step===2&&key==='creativeCost'&&<div className="mp-creative-actions"><button type="button" className="mp-secondary" onClick={()=>update('creativeCost','0')}>제작비 없음 · 0원</button><small>총 제작비를 판매수량으로 나눠 반영해요.</small></div>}
        {key==='returnRate'&&Number(draft.returnRate)>0&&<div className="mp-return-handling"><div className="mp-field-label"><label htmlFor="mp-returnHandling">반품 한 건 처리비</label><PlannerCostHelp field="returnHandling" label="반품 한 건 처리비"/></div><div className="mp-input-wrap"><FormattedNumberInput aria-describedby="mp-help-returnHandling" id="mp-returnHandling" value={draft.returnHandling} onValueChange={value=>update('returnHandling',value)} placeholder="처리비 입력"/><span>원 / 건</span></div><div className="mp-quick-costs"><button type="button" data-guide-example onClick={()=>useExample('returnHandling')}>참고값 넣기</button><button type="button" onClick={()=>update('returnHandling','0')}>비용 없음 · 0원</button></div><p>개당 반품 비용: {returnCostMissing?'처리비 입력 필요':live?money(live.returns):'—'}</p></div>}
       </div>)}
      </div>
      </div>
      {step===1&&<aside className="mp-sales-summary" aria-live="polite">
-      <div><span>총 매출</span><b>{basicReady?money(Number(draft.price)*Number(draft.quantity)):'—'}</b></div><div><span>나에게 남을 이익</span><b className={live&&live.marginTotal<0?'mp-negative':''}>{live?money(live.marginTotal):'—'}</b></div>
+      <div><span>총 매출</span><b>{basicReady?money(Number(draft.price)*Number(draft.quantity)):'—'}</b></div><div><span>나에게 남을 이익</span><b className={live?(live.marginTotal>0?'ds-profit-positive':live.marginTotal<0?'mp-negative':'mp-neutral'):undefined}>{live?money(live.marginTotal):'—'}</b></div>
       {overBudget&&<p role="alert">상품 구매비가 예산보다 많아요.</p>}
      </aside>}
      {step===2&&<aside className={`mp-actual-cost ${live&&live.profit<0?'is-loss':''}`} aria-live="polite"><div className="mp-cost-change"><span><small>처음 원가</small><b>{money(Number(draft.cost))}</b></span><ArrowRight size={22} aria-label="비용 추가 후"/><span><small>비용 포함 원가</small><strong>{live?money(live.unitCost):'—'}</strong></span><span className="mp-cost-delta"><small>추가되는 비용</small><strong>{live?`${live.unitCost-Number(draft.cost)>0?'+':''}${money(live.unitCost-Number(draft.cost))}`:'—'}</strong></span></div></aside>}
