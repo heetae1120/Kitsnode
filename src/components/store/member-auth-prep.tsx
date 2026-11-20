@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import {memberBrowserClient} from '@/lib/member-browser-client';
+import {deleteCurrentMember} from '@/lib/member-self-deletion';
 import {takeMemberReturn} from '@/lib/member-return';
 import { MEMBER_INTAKE_REVIEWED, canUseMemberNaver, readMemberAuthConfig, memberRedirect } from '@/lib/member-auth-config.mjs';
 import { createEmailAuthClient } from '@/lib/member-email-auth.mjs';
@@ -10,6 +11,7 @@ import { EmailAuthForm, type EmailAuth } from './member-email-auth-form';
 import { MemberConsentGate } from './member-consent-gate';
 import { MemberConsentWithdraw } from './member-consent-withdraw';
 import { MemberNaverSignIn } from './member-naver-sign-in';
+import { MEMBER_SELF_DELETION_ENABLED, MemberSelfDeletion } from './member-self-deletion';
 import naverStyles from './naver-login.module.css';
 
 const naverErrorText: Record<string,string> = {
@@ -27,6 +29,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const consentUserRef = useRef<string|null>(null);
   const [consentStatus,setConsentStatus] = useState<'checking'|'needed'|'accepted'|'error'>('checking');
   const [signedIn,setSignedIn] = useState(false);
+  const [deletionComplete,setDeletionComplete] = useState(false);
   const [naverIdentity,setNaverIdentity] = useState({linked:false,canLinkEmail:false});
   const [recovery,setRecovery] = useState(false);
   const [error,setError] = useState('');
@@ -112,6 +115,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   } : undefined;
   const go = async (action:'signIn'|'link') => { if(busyRef.current)return;busyRef.current=true;setBusy(true);setError('');try {const result=await social[action]();if(!result.ok)setError(naverErrorText[result.code] || naverErrorText.unavailable);} finally {busyRef.current=false;setBusy(false);} };
   return <section>
+    {deletionComplete && <p role="status">회원 탈퇴가 완료되었습니다.</p>}
     <EmailAuthForm key={recovery?'recovery':'normal'} auth={api} signedIn={signedIn} recovery={recovery} initialMode={mode==='signup'?'signup':'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent}/>
     {intakeEnabled && signedIn && !recovery && consent && memberUserId && consentStatus==='accepted' && <MemberConsentWithdraw key={memberUserId} withdraw={async()=>{
       const id=memberUserId;
@@ -119,6 +123,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
       const result=await consent.withdraw(id);
       return memberUserIdRef.current===id ? result : {ok:false};
     }} onWithdrawn={()=>{if(memberUserIdRef.current===memberUserId)setConsentStatus('needed');}}/>}
+    {MEMBER_SELF_DELETION_ENABLED && signedIn && !recovery && memberUserId && <MemberSelfDeletion key={memberUserId} remove={async()=>{const client=memberBrowserClient();if(!client || memberUserIdRef.current!==memberUserId)return 'blocked';return deleteCurrentMember({url:config.url,key:config.key,userId:memberUserId,getSession:()=>client.auth.getSession()});}} onDeleted={async()=>{setDeletionComplete(true);await api.signOut();}}/>}
     {canUseMemberNaver(config) && !signedIn && <MemberNaverSignIn basePath={basePath} busy={busy} signIn={()=>void go('signIn')}/>}
     {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.canLinkEmail && !naverIdentity.linked && <div><button type="button" className={naverStyles.linkButton} disabled={busy} onClick={()=>void go('link')}><img src={`${basePath}/naver-login/icon.png`} alt="" width="48" height="48" /><span>네이버 계정 연결</span></button><p>현재 이메일 계정에 네이버 계정을 연결합니다. 네이버 앱 검수 전에는 등록된 시험 계정만 사용할 수 있습니다.</p></div>}
     {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.linked && <p>네이버 계정이 연결되어 있습니다.</p>}
