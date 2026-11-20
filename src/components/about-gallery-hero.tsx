@@ -17,10 +17,16 @@ const tiles=[
 ] as const;
 function GalleryTile({index,progress,reduced}:{index:number;progress:MotionValue<number>;reduced:boolean}){
  const item=tiles[index];
- const z=useTransform(progress,[0,1],[item.z,item.z+2900]);
+ const side=item.x<0?-1:1,spin=index%2?-1:1,speed=.94+(index%3)*.09;
+ const z=useTransform(progress,value=>item.z+3200*speed*(.65*value+.35*value*value));
  const opacity=useTransform(z,[-2600,-1000,360,600],[.65,.85,1,0]);
  const travel=useTransform(z,[item.z,0,400,600],[1,1.04,1.6,2.5]);
- return <motion.div className={`ag-tile ag-tile-${index+1} ag-${item.kind}${'tone' in item?' ag-growth-'+item.tone:''}`} style={{'--tile-width':`${item.width}vw`,'--tile-height':`${item.height}svh`,'--tile-ray-x':`${item.x}vw`,'--tile-ray-y':`${item.y}svh`,'--tile-depth':reduced?item.z:z,'--tile-travel':reduced?1:travel,x:'-50%',y:'-50%',z:reduced?item.z:z,opacity:reduced ? .8 : opacity} as MotionStyle}>
+ const rayX=useTransform(z,[item.z,0,600],[`${item.x*.72}vw`,`${item.x*.72+spin*2}vw`,`${item.x*.72+spin*5}vw`]);
+ const rayY=useTransform(z,[item.z,0,600],[`${item.y*.72}svh`,`${item.y*.72-side*1.5}svh`,`${item.y*.72-side*4}svh`]);
+ const rotateX=useTransform(z,[item.z,0,600],[item.y<0?5:-5,item.y<0?-7:7,item.y<0?-16:16]);
+ const rotateY=useTransform(z,[item.z,0,600],[-side*7,side*8,side*20]);
+ const rotateZ=useTransform(z,[item.z,0,600],[spin*4,-spin*3,-spin*10]);
+ return <motion.div className={`ag-tile ag-tile-${index+1} ag-${item.kind}${'tone' in item?' ag-growth-'+item.tone:''}`} style={{'--tile-width':`${item.width*1.18}vw`,'--tile-height':`${item.height*1.16}svh`,'--tile-ray-x':reduced?`${item.x*.72}vw`:rayX,'--tile-ray-y':reduced?`${item.y*.72}svh`:rayY,'--tile-depth':reduced?item.z:z,'--tile-travel':reduced?1:travel,x:'-50%',y:'-50%',z:reduced?item.z:z,rotateX:reduced?0:rotateX,rotateY:reduced?0:rotateY,rotateZ:reduced?0:rotateZ,opacity:reduced ? .8 : opacity} as MotionStyle}>
   {'image' in item?<img src={root+item.image} alt="" width={2000} height={1250} loading="eager" decoding="async"/>:<GrowthIllustration kind={item.art}/>}
  </motion.div>;
 }

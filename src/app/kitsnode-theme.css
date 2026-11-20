@@ -144,3 +144,5 @@ html body :is(.as-wordmark,.ds-wordmark,.member-brand,.tool-brand,.kn-wordmark)>
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(input,select,textarea):not([type=checkbox]):not([type=radio]):is(:focus,:focus-visible,:active){outline:0!important;box-shadow:none!important;border-color:#353535!important}
 html body .profit-tool .keyword-page .kw-main :is(input,select,textarea):not([type=checkbox]):not([type=radio]){border:0!important;outline:0!important;box-shadow:none!important}
 html body .profit-tool .keyword-page .kw-main :is(.kw-search-field,.kw-filter-field){border:1px solid #353535!important;box-shadow:none!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-player-opening h1 .ds-player-mask:last-child,
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-player-opening h1 .ds-player-mask:last-child>span{color:#ff5a1f!important}
