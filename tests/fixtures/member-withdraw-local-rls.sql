@@ -1,0 +1,14 @@
+CREATE SCHEMA withdraw_test_private;
+CREATE TABLE withdraw_test_private.blocks(subject_id uuid PRIMARY KEY);
+CREATE FUNCTION withdraw_test_private.allowed() RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path='' AS $$ SELECT (SELECT auth.uid()) IS NOT NULL AND NOT EXISTS (SELECT 1 FROM withdraw_test_private.blocks WHERE subject_id=(SELECT auth.uid())) $$;
+REVOKE ALL ON FUNCTION withdraw_test_private.allowed() FROM PUBLIC;
+GRANT USAGE ON SCHEMA withdraw_test_private TO authenticated;
+GRANT EXECUTE ON FUNCTION withdraw_test_private.allowed() TO authenticated;
+CREATE TABLE public.withdraw_test_records(user_id uuid NOT NULL DEFAULT auth.uid(), value text NOT NULL);
+GRANT SELECT,INSERT ON public.withdraw_test_records TO authenticated;
+ALTER TABLE public.withdraw_test_records ENABLE ROW LEVEL SECURITY;
+CREATE POLICY owner_access ON public.withdraw_test_records TO authenticated USING(user_id=auth.uid()) WITH CHECK(user_id=auth.uid());
+CREATE POLICY deletion_gate ON public.withdraw_test_records AS RESTRICTIVE TO authenticated USING((SELECT withdraw_test_private.allowed())) WITH CHECK((SELECT withdraw_test_private.allowed()));
+CREATE FUNCTION public.withdraw_test_block(p_user uuid) RETURNS void LANGUAGE sql SECURITY DEFINER SET search_path='' AS $$ INSERT INTO withdraw_test_private.blocks(subject_id) VALUES(p_user) ON CONFLICT DO NOTHING $$;
+REVOKE ALL ON FUNCTION public.withdraw_test_block(uuid) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.withdraw_test_block(uuid) TO service_role;

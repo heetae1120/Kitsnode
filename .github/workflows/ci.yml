@@ -19,5 +19,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: node --import tsx --test tests/member-naver-intent.test.mjs tests/member-self-withdraw*.test.mjs tests/member-self-withdraw-ui.test.tsx
       - run: npm run build
       - run: npm run typecheck

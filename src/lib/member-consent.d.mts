@@ -4,6 +4,7 @@ export type ConsentEvidence = {termsVersion:string; privacyVersion:string; terms
 export function bindConsentToUser(consent:{accept:(evidence:ConsentEvidence)=>Promise<{ok:boolean;code:string}>},userId:string,currentUserId:()=>string|null): (evidence:ConsentEvidence)=>Promise<{ok:boolean;code:string}>;
 export function createMemberConsent(client: {from:(table:string)=>any}): {
   hasCurrent():Promise<{ok:boolean;accepted?:boolean;code?:string}>;
+  hasAny():Promise<{ok:boolean;accepted?:boolean;code?:string}>;
   accept(evidence:ConsentEvidence):Promise<{ok:boolean;code:string}>;
   withdraw(userId:string):Promise<{ok:boolean;code:string}>;
 };

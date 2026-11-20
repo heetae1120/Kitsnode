@@ -31,6 +31,16 @@ test('an older privacy acknowledgement does not satisfy the updated notice',asyn
   assert.deepEqual(await createMemberConsent(client).hasCurrent(),{ok:true,accepted:false});
   assert.deepEqual(filters,{terms_version:'2026-11-14',privacy_version:'2026-11-14-naver'});
 });
+test('recognizes prior consent while keeping read failures distinct from a new member',async()=>{
+  for (const [data,error,expected] of [
+    [[{accepted_at:'2026-01-01'}],null,{ok:true,accepted:true}],
+    [[],null,{ok:true,accepted:false}],
+    [null,{code:'denied'},{ok:false,code:'unavailable'}],
+  ]) {
+    const client={from:()=>({select(){return this},async limit(){return {data,error}}})};
+    assert.deepEqual(await createMemberConsent(client).hasAny(),expected);
+  }
+});
 test('duplicate insert succeeds only when the current record is confirmed',async()=>{
   let f=fixture({row:{accepted_at:'2026-01-01'},insertError:{code:'23505'}}); assert.equal((await createMemberConsent(f.client).accept(evidence)).ok,true);
   f=fixture({insertError:{code:'23505'}}); assert.equal((await createMemberConsent(f.client).accept(evidence)).ok,false);

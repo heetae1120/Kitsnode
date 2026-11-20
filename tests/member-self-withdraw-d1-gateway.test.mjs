@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {handleD1Identity} from '../lib/member-withdraw/d1-gateway.mjs';
+const token='x'.repeat(64),subject='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',requestId='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const req=(body,auth=token)=>new Request('https://intranet.test/api',{method:'POST',headers:{authorization:'Bearer '+auth,'content-type':'application/json'},body:JSON.stringify(body)});
+test('server gateway rejects wrong credentials before accessing the database',async()=>{let touched=false;const db={prepare(){touched=true;throw Error('unexpected')}};const response=await handleD1Identity(req({operation:'block',subject,requestId},'wrong'),{db,secret:token});assert.equal(response.status,403);assert.equal(touched,false)});
+test('server gateway rejects arbitrary fields and operations',async()=>{const db={prepare(){throw Error('unexpected')}};for(const body of [{operation:'delete_all',subject,requestId},{operation:'block',subject,requestId,extra:true}])assert.equal((await handleD1Identity(req(body),{db,secret:token})).status,400)});

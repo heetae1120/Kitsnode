@@ -24,6 +24,13 @@ export function createMemberConsent(client) {
       return {ok:true,accepted:Boolean(data && data.accepted_at)};
     } catch { return {ok:false,code:'unavailable'}; }
   }
+  async function hasAny() {
+    try {
+      const {data,error} = await client.from('kitsnode_member_consents').select('accepted_at').limit(1);
+      if (error || !Array.isArray(data)) return {ok:false,code:'unavailable'};
+      return {ok:true,accepted:data.some(row => Boolean(row.accepted_at))};
+    } catch { return {ok:false,code:'unavailable'}; }
+  }
   async function accept(evidence) {
     if (evidence?.termsAccepted !== true || evidence?.privacyAcknowledged !== true ||
         evidence?.termsVersion !== MEMBER_TERMS_VERSION || evidence?.privacyVersion !== MEMBER_PRIVACY_VERSION)
@@ -50,5 +57,5 @@ export function createMemberConsent(client) {
         ? {ok:true,code:'consent_withdrawn'} : {ok:false,code:'unavailable'};
     } catch { return {ok:false,code:'unavailable'}; }
   }
-  return {hasCurrent,accept,withdraw};
+  return {hasCurrent,hasAny,accept,withdraw};
 }

@@ -1,0 +1,6 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {writeNaverIntent,readNaverIntent,clearNaverIntent,naverBoundaryEnabled} from '../src/lib/member-naver-intent.mjs';
+function storage(){const map=new Map();return {setItem:(k,v)=>map.set(k,v),getItem:k=>map.get(k)??null,removeItem:k=>map.delete(k)}}
+test('separates login from explicit signup without retaining personal identifiers',()=>{const s=storage();assert.equal(writeNaverIntent(s,'signin',1000),true);assert.equal(readNaverIntent(s,1001),'signin');assert.equal(writeNaverIntent(s,'signup',2000),true);assert.equal(readNaverIntent(s,2001),'signup');clearNaverIntent(s);assert.equal(readNaverIntent(s,2001),null)});
+test('expired, future and unavailable intent fail closed',()=>{const s=storage();writeNaverIntent(s,'signup',1000);assert.equal(readNaverIntent(s,601001),null);assert.equal(readNaverIntent(s,999),null);assert.equal(readNaverIntent(null),null);assert.equal(writeNaverIntent(null,'signup'),false)});
+
+test('registration boundary is disabled for ordinary visitors during test rollout',()=>{const s=storage();assert.equal(naverBoundaryEnabled(s,'false',''),false);assert.equal(naverBoundaryEnabled(s,'false','?withdraw_test=1'),true);assert.equal(naverBoundaryEnabled(s,'false',''),true);assert.equal(naverBoundaryEnabled(storage(),'true',''),true)});

@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {withdrawalEnabledFor} from '../supabase/functions/kitsnode-member-withdraw/release-gate.mjs';
+const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',other='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+test('only designated test account is admitted before release',()=>{assert.equal(withdrawalEnabledFor(user,{}),false);assert.equal(withdrawalEnabledFor(user,{testSubject:user}),true);assert.equal(withdrawalEnabledFor(other,{testSubject:user}),false);assert.equal(withdrawalEnabledFor(other,{release:'true'}),true);assert.equal(withdrawalEnabledFor('invalid',{release:'true'}),false)});
