@@ -25,7 +25,7 @@ test('the lifted wheel grows with its radius and fits the actual short or narrow
   for(const [width,height] of [[320,420],[390,540],[1024,460],[1474,748]]){
     for(const lift of [0,.3,.7,1]){
       const g=wheelGeometry(width,height,lift);
-      const top=g.originY+(g.pivot-g.radius-CARD_HEIGHT*g.grow/2)*g.scale*Math.cos(12*lift*Math.PI/180)+(60-10*lift);
+      const top=g.originY+(g.pivot-g.radius-CARD_HEIGHT*g.grow/2)*g.scale+(60-10*lift);
       assert(top>=20);assert(Number.isFinite(g.scale));
     }
   }

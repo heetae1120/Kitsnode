@@ -6,20 +6,19 @@ import {DEAL_MS,LIFT_MS,WHEEL_COUNT,clamp01,wheelCardPose,wheelGeometry,followAn
 export type WheelNodes = {
   root:HTMLElement|null;viewport:HTMLDivElement|null;stage:HTMLDivElement|null;
   copy:HTMLDivElement|null;loader:HTMLDivElement|null;counter:HTMLSpanElement|null;
-  pause:HTMLButtonElement|null;cards:(HTMLAnchorElement|null)[];videos:(HTMLVideoElement|null)[];
+  cards:(HTMLAnchorElement|null)[];videos:(HTMLVideoElement|null)[];
 };
 const liftEase=cubicBezier(.5,0,.15,1);
-type Actions={skip:(focus?:boolean)=>void;turn:(direction:number)=>void;pause:()=>void};
+type Actions={skip:(focus?:boolean)=>void};
 
 export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
   const deal=useMotionValue(0),lift=useMotionValue(0);
-  const actions=useRef<Actions>({skip:()=>{},turn:()=>{},pause:()=>{}});
+  const actions=useRef<Actions>({skip:()=>{}});
   useEffect(()=>{
     const n=nodes.current,root=n.root,viewport=n.viewport,stage=n.stage;
     if(!root||!viewport||!stage)return;
     const page=root.closest<HTMLElement>('.about-gallery-page');
     const videoElements=n.videos.filter((video):video is HTMLVideoElement=>!!video);
-    if(n.pause)n.pause.hidden=reduced;
     const cache=new WeakMap<HTMLElement,Map<string,string>>();
     let alive=true,frame=0,ticking=false,last=performance.now(),phase:'loading'|'deal'|'lift'|'ready'='loading';
     let phaseStart=last,width=viewport.clientWidth,height=viewport.clientHeight;
@@ -51,8 +50,6 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
       const geometry=wheelGeometry(width,height,expansion);
       const focusAngle=Math.min(40,Math.atan2(width*.5,geometry.radius*geometry.scale)*180/Math.PI);
       write(stage,'top',geometry.originY.toFixed(3)+'px');write(stage,'transform',geometry.transform);
-      write(viewport,'--wheel-world',expansion.toFixed(4));
-      write(viewport,'--wheel-cloud-y',((1-expansion)*(height*.52+40)).toFixed(3)+'px');
       for(let index=0;index<n.cards.length;index++){
         const card=n.cards[index];if(!card)continue;
         const pose=wheelCardPose(index,formation,expansion,spin,geometry);
@@ -99,10 +96,9 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
     const turn=(direction:number)=>{if(phase!=='ready')finish();target+=direction*360/WHEEL_COUNT;velocity=0;lastInput=performance.now();wake();};
     const togglePause=()=>{
       paused=!paused;
-      if(n.pause){n.pause.textContent=paused?'자동 회전 재생':'자동 회전 멈춤';n.pause.setAttribute('aria-pressed',String(paused));}
       attribute(root,'data-wheel-paused',String(paused));wake();
     };
-    actions.current={skip:finish,turn,pause:togglePause};
+    actions.current={skip:finish};
     attribute(page,'data-wheel-state','loading');attribute(root,'data-wheel-phase','loading');
     if(n.copy){n.copy.inert=true;n.copy.setAttribute('aria-hidden','true');}
     if(n.loader)n.loader.hidden=false;
@@ -124,10 +120,12 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
     const key=(event:KeyboardEvent)=>{
       if(phase!=='ready'&&(event.key==='Escape'||event.key==='Tab'))finish();
       if(event.target===viewport&&['ArrowLeft','ArrowRight'].includes(event.key)){event.preventDefault();turn(event.key==='ArrowRight'?1:-1);}
+      if(event.target===viewport&&event.key===' '){event.preventDefault();togglePause();}
     };
     window.addEventListener('keydown',key,true);
     const down=(event:PointerEvent)=>{
       if(event.button!==0)return;
+      if(event.target instanceof Element&&event.target.closest('button'))return;
       if(phase!=='ready')finish();
       suppressClick=false;drag.active=true;drag.moved=false;drag.id=event.pointerId;
       drag.x=drag.startX=event.clientX;drag.y=drag.startY=event.clientY;
@@ -181,5 +179,5 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
       if(page)page.dataset.wheelState='ready';
     };
   },[nodes,reduced,deal,lift]);
-  return {skip:()=>actions.current.skip(true),previous:()=>actions.current.turn(-1),next:()=>actions.current.turn(1),pause:()=>actions.current.pause()};
+  return {skip:()=>actions.current.skip(true)};
 }

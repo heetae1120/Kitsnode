@@ -20,9 +20,9 @@ export function wheelGeometry(width: number, height: number, lift: number) {
   const scale = Math.max(.6, Math.min(width / 1220, height / 760)) * (1 + .14 * value);
   const grow = 1 + .35 * value;
   const originY = Math.max(20, height * .045) +
-    (radius - pivot + CARD_HEIGHT * grow / 2) * scale * Math.cos(12 * value * Math.PI / 180);
+    (radius - pivot + CARD_HEIGHT * grow / 2) * scale;
   return {radius, pivot, grow, scale, originY,
-    transform: `translateY(${60 - 10 * value}px) rotateX(${12 * value}deg) scale(${scale})`};
+    transform: `translateY(${60 - 10 * value}px) scale(${scale})`};
 }
 
 export function wheelCardPose(index: number, deal: number, lift: number, spin: number,
