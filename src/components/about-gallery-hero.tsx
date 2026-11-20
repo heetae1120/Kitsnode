@@ -2,25 +2,26 @@
 import {useRef,useState} from 'react';
 import {motion,useMotionValueEvent,useReducedMotion,useScroll,useTransform,type MotionValue,type MotionStyle} from 'framer-motion';
 import {ArrowDown} from 'lucide-react';
+import {GrowthIllustration} from './growth-illustration';
 const root=process.env.NEXT_PUBLIC_BASE_PATH||'';
 const tiles=[
- {kind:'diagnosis',label:'상품 진단 · 예시 화면',image:'/about-gallery/product-diagnosis.jpg',x:-34,y:-29,z:-120,width:34,height:31},
- {kind:'brand',label:'BRAND FIRST',x:35,y:-26,z:-360,width:23,height:38},
- {kind:'keywords',label:'검색어 비교 · 예시 화면',image:'/about-gallery/keyword-comparison.jpg',x:-37,y:29,z:-620,width:31,height:25},
- {kind:'foundation',label:'우리가 만드는 기반',x:35,y:30,z:-880,width:29,height:24},
- {kind:'workspace',label:'직접 판단하는 도구',image:'/about-gallery/tablet-workspace.jpg',x:-32,y:-31,z:-1140,width:26,height:34},
- {kind:'keywords',label:'검색어 비교 · 예시 화면',image:'/about-gallery/keyword-comparison.jpg',x:37,y:-28,z:-1400,width:37,height:27},
- {kind:'brand',label:'BRAND FIRST',x:-37,y:30,z:-1660,width:21,height:35},
- {kind:'diagnosis',label:'상품 진단 · 예시 화면',image:'/about-gallery/product-diagnosis.jpg',x:34,y:31,z:-1920,width:33,height:29},
- {kind:'foundation',label:'우리가 만드는 기반',x:-34,y:-31,z:-2180,width:28,height:28},
+ {kind:'photo',image:'/about-gallery/brand-making.webp',x:-34,y:-26,z:-120,width:36,height:30},
+ {kind:'photo',image:'/about-gallery/brand-people.webp',x:29,y:29,z:-420,width:34,height:28},
+ {kind:'growth',art:'trend',tone:'paper',x:-14,y:-37,z:-700,width:24,height:24},
+ {kind:'growth',art:'bars',tone:'dark',x:17,y:-37,z:-980,width:33,height:32},
+ {kind:'growth',art:'steps',tone:'paper',x:40,y:-19,z:-1260,width:40,height:33},
+ {kind:'growth',art:'arrow',tone:'orange',x:43,y:12,z:-1540,width:36,height:37},
+ {kind:'growth',art:'compound',tone:'paper',x:0,y:40,z:-1820,width:42,height:34},
+ {kind:'growth',art:'milestones',tone:'dark',x:-30,y:29,z:-2100,width:54,height:38},
+ {kind:'growth',art:'columns',tone:'orange',x:-43,y:7,z:-2300,width:50,height:36},
 ] as const;
 function GalleryTile({index,progress,reduced}:{index:number;progress:MotionValue<number>;reduced:boolean}){
  const item=tiles[index];
  const z=useTransform(progress,[0,1],[item.z,item.z+2900]);
- const opacity=useTransform(z,[-2400,-1000,360,760],[.28,.72,1,0]);
- return <motion.div className={`ag-tile ag-tile-${index+1} ag-${item.kind}`} style={{'--tile-width':`${item.width}vw`,'--tile-height':`${item.height}svh`,left:`calc(50% + ${item.x}vw)`,top:`calc(50% + ${item.y}svh)`,x:'-50%',y:'-50%',z:reduced?item.z:z,opacity:reduced ? .65 : opacity} as MotionStyle}>
-  <span className="ag-tile-label">{item.label}</span>
-  {'image' in item?<img src={root+item.image} alt="" width={1265} height={item.kind==='diagnosis'?1266:712} loading={index<3?'eager':'lazy'} decoding="async"/>:item.kind==='brand'?<div className="ag-brand-art"><i/><i/><b>K<span>.</span></b><small>브랜드가 남는 성장</small></div>:<div className="ag-foundation-art"><svg viewBox="0 0 340 150" fill="none"><path d="M0 130H340M0 90H340M0 50H340" stroke="currentColor" opacity=".12"/><path d="M12 126C55 127 67 80 115 89S173 114 207 65S260 82 328 18" stroke="currentColor" strokeWidth="6" strokeLinecap="round"/><circle cx="328" cy="18" r="8" fill="currentColor"/></svg><div><span>상품</span><span>이익</span><span>고객</span></div></div>}
+ const opacity=useTransform(z,[-2600,-1000,360,600],[.65,.85,1,0]);
+ const travel=useTransform(z,[item.z,0,400,600],[1,1.04,1.6,2.5]);
+ return <motion.div className={`ag-tile ag-tile-${index+1} ag-${item.kind}${'tone' in item?' ag-growth-'+item.tone:''}`} style={{'--tile-width':`${item.width}vw`,'--tile-height':`${item.height}svh`,'--tile-ray-x':`${item.x}vw`,'--tile-ray-y':`${item.y}svh`,'--tile-depth':reduced?item.z:z,'--tile-travel':reduced?1:travel,x:'-50%',y:'-50%',z:reduced?item.z:z,opacity:reduced ? .8 : opacity} as MotionStyle}>
+  {'image' in item?<img src={root+item.image} alt="" width={2000} height={1250} loading="eager" decoding="async"/>:<GrowthIllustration kind={item.art}/>}
  </motion.div>;
 }
 export function AboutGalleryHero(){

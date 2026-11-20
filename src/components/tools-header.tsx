@@ -74,7 +74,6 @@ export const ToolsHeader = memo(function ToolsHeader({ active }: { active: ToolI
         })}
         <Link className="nimbus-item" href="/tools/survey/" aria-current={active === "survey" ? "page" : undefined} onClick={close}><span className="nv-ico"><ClipboardList size={18} aria-hidden="true"/></span><span>설문</span></Link>
         <Link className="nimbus-item" href="/tools/about/" aria-current={active === "about" ? "page" : undefined} onClick={close}><span className="nv-ico"><CircleHelp size={18} aria-hidden="true"/></span><span>소개</span></Link>
-        <span className="tool-nav-separator" aria-hidden="true" />
         {groups.map((item) => (
           <div key={item.id} className="tool-nav-group">
             <button

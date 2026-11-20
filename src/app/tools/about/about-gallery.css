@@ -62,3 +62,15 @@ html body .profit-tool .about-gallery-page .ag-copy>p{font-size:calc(var(--ag-de
 html body .profit-tool .about-gallery-page .ag-copy .ag-actions a{font-size:calc(var(--ag-link-base) * var(--ag-copy-zoom,1))}
 @media(max-width:700px){html body .profit-tool .about-gallery-page .ag-copy{--ag-title-base:clamp(29px,7.9vw,48px);--ag-eyebrow-base:7px;--ag-description-base:11px;--ag-link-base:10px}}
 @media print{html body .profit-tool .about-gallery-page .ag-copy{--ag-copy-zoom:1!important}}
+/* Two supplied field photographs and seven complementary growth illustrations. */
+html body .profit-tool .about-gallery-page .ag-tile.ag-photo{padding:0;border:0;background:#171717;border-radius:12px}
+html body .profit-tool .about-gallery-page .ag-photo>img{width:100%;height:100%;object-fit:cover;object-position:center;border-radius:inherit}
+html body .profit-tool .about-gallery-page .ag-tile.ag-growth{padding:0;border:1px solid #ffffff14;background:#171717;border-radius:12px}
+html body .profit-tool .about-gallery-page .ag-tile.ag-growth-paper{background:#eee8dc;border-color:#eee8dc;color:#ff5a1f}
+html body .profit-tool .about-gallery-page .ag-tile.ag-growth-dark{background:#191919;border-color:#393939;color:#ff5a1f}
+html body .profit-tool .about-gallery-page .ag-tile.ag-growth-orange{background:#ff5a1f;border-color:#ff5a1f;color:#0b0b0b}
+html body .profit-tool .about-gallery-page .ag-growth-art{display:block;width:100%;height:100%;padding:clamp(10px,2vw,26px);color:inherit}
+/* Spread the starting rays around the copy, then carry them past the edges with depth. */
+html body .profit-tool .about-gallery-page .ag-gallery{--ag-perspective:900;perspective:calc(var(--ag-perspective) * 1px)}
+html body .profit-tool .about-gallery-page .ag-tile{left:calc(50% + var(--tile-ray-x) * (1 - var(--tile-depth) / var(--ag-perspective)) * var(--tile-travel));top:calc(50% + var(--tile-ray-y) * (1 - var(--tile-depth) / var(--ag-perspective)) * var(--tile-travel))}
+@media(max-width:700px){html body .profit-tool .about-gallery-page .ag-gallery{--ag-perspective:650}}
