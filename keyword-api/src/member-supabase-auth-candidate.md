@@ -1,0 +1,28 @@
+# Supabase Auth adapter candidate — review only
+
+This module is not mounted by a route or used by the existing application. Do not enable, deploy or treat it as an end-to-end authentication implementation. The test that calls the real `@supabase/supabase-js` package uses only a synthetic fetch transport: it is **not** a Supabase server, actual email delivery or a production test.
+
+## What the candidate does
+
+- Rejects secret/service-role keys, uses only a publishable key or legacy anon key, requires a trusted fixed project URL and a trusted redirect origin, and constructs a fresh nonpersistent SDK client on each operation. It does not share user sessions or keep service credentials in a user client.
+- Signup submits existing consent metadata and a fixed redirect. An unexpected provider session is returned to the caller solely so it can be revoked, never passed directly to the user. A provider `user_already_exists` error is converted to a synthetic UUID; a returned obfuscated UUID is never assumed to prove user identity.
+- `getUser(jwt)` uses Supabase Auth to verify the user and requires confirmed email, the `app_metadata.provider` primary provider to be `email`, and an email identity. This intentionally matches the profile DB candidate's primary-provider requirement while keeping the stricter identity check. An email-primary user with a linked Naver identity can pass; a Naver-primary user with a linked email identity is denied. This is a candidate compatibility rule, not a complete Naver or existing-member migration policy. An independently supplied `activeSession` authority **must** validate that the specific session behind that access token is active and bound to the verified user ID. No such authority is implemented in this module.
+- Password sign-in is performed on a separate nonpersistent public client; the resulting access token is validated again through Auth and the active-session authority. Denied/invalid sessions require an independently supplied `revokeExactSession` function. Failure, missing token or uncertain revocation throws and never returns the issued tokens. No scoped revocation authority is implemented in this module.
+
+## Required before actual integration
+
+1. Implement and audit the real active-session authority and exact-session revoker. `getUser` alone does not prove every session revocation/withdrawal guarantee; access JWTs can remain valid. Validate logout/withdrawal races and any revoked session behavior against the deployed Auth version. The caller must handle and monitor a revocation failure; suppressing it is not evidence the provider session was revoked.
+2. Implement and audit a durable distributed per-account **and** per-network limiter and a private, server-only username-to-user/email repository with consistent transactional access and onboarding-completion authorization. These are not provided by this adapter or its tests.
+3. Test actual Supabase configuration for new and duplicate emails, including obfuscated identities, error codes, timing and response-size side channels. Synthetic error normalization does not establish non-enumerability; provider rate limits and email side channels remain. Auth metadata must not be used as authority for identity or authorization.
+4. This candidate explicitly selects the SDK `implicit` signup flow to avoid assuming a server-only PKCE verifier can be recovered by a browser or a different device. The email callback is **not implemented or validated** here. Verify the project’s allowed redirect, delivered link, session handling, token exposure and different-device recovery. If PKCE is selected instead, design a real verifier transport and confirm same-device/different-device behavior; do not treat a server-generated verifier as automatically available to the browser.
+5. Supabase documents automatic OAuth identity linking by matching email in some configurations. The product requires no automatic merging merely because emails match; verify the actual custom Naver provider, email verification status, identities and project behavior before enabling. `verifySession` requiring an email identity does not disable or prevent provider-side automatic linking.
+6. Enforce profile-completion and current consent checks in **all** member APIs, RLS policies and Storage paths, protect existing verified email and Naver members during migration, and test the entire delete/re-register flow. This module cannot prevent direct signup through a publicly reachable Auth API.
+7. Public-key isolation does not by itself establish security. Any injected factories, exact-session revoker and authority must be trusted server configuration; validate rate limits, logging redaction, network origins and bypass conditions in the deployment topology. Never return internal email mappings or credential material in error bodies.
+
+## Local checks
+
+`node --test keyword-api/src/member-supabase-auth-candidate.test.mjs`
+
+The suite covers public-key filtering, request-scoped clients, signup metadata, duplicate normalization, explicit `getUser` verification, active-session failures, exact-revocation failure, a synthetic transport through the installed Supabase SDK, and composition with the review-only onboarding service using mocked dependencies. Real provider/redirect behavior, actual active-session database checks, provider rate limiting and real session revocation remain unverified.
+
+Primary references: https://supabase.com/docs/reference/javascript/auth-getuser ; https://supabase.com/docs/guides/auth/auth-identity-linking ; https://supabase.com/docs/guides/auth/server-side/advanced-guide

@@ -1,0 +1,31 @@
+// Local synthetic test. All external network access is blocked.
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
+import {build} from 'esbuild';
+const require=createRequire(import.meta.url);
+const playwrightPath=process.env.KITS_PLAYWRIGHT_PATH;
+test('manual signup completion rejects stale username checks and completes with fresh consent', {skip:!playwrightPath,timeout:30000},async t=>{
+ const {chromium}=require(playwrightPath);
+ const built=await build({entryPoints:[fileURLToPath(new URL('./fixtures/member-complete-manual-browser.tsx',import.meta.url))],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent'});
+ const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});res.end(built.outputFiles[0].text);}else{res.writeHead(200,{'content-type':'text/html'});res.end('<!doctype html><html lang="ko"><meta charset="utf-8"><div id="root"></div><script src="/app.js"></script></html>');}});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));
+ const origin=`http://127.0.0.1:${server.address().port}`;const browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
+ const page=await browser.newPage();await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());await page.goto(origin);
+ assert.equal(await page.getByLabel('인증 이메일',{exact:true}).inputValue(),'verified@example.test');
+ const username=page.getByLabel('아이디',{exact:true}),check=page.getByRole('button',{name:'아이디 중복 확인'}),submit=page.getByRole('button',{name:'가입 완료'});
+ await username.fill('first_id');await check.click();await username.fill('other_id');await page.evaluate(()=>window.manualFixture.resolve(0,{ok:true,code:'available'}));assert.equal(await submit.isDisabled(),true);
+ await check.click();await page.evaluate(()=>window.manualFixture.resolve(1,{ok:false,code:'unavailable'}));await page.getByText('아이디 형식을 확인하거나 잠시 후 다시 시도해 주세요.').waitFor();
+ await check.click();await page.evaluate(()=>window.manualFixture.resolve(2,{ok:true,code:'available'}));await page.getByText('사용 가능한 아이디입니다.').waitFor();
+ await page.getByLabel('이름',{exact:true}).fill('홍길동');await page.getByLabel('휴대폰 번호',{exact:true}).fill('010-1234-5678');for(const checkbox of await page.getByRole('checkbox').all())await checkbox.check();
+ assert.equal(await submit.isEnabled(),true);await submit.click();
+ await page.getByText('이미 등록된 회원정보가 있습니다. 기존 회원정보를 확인하거나 문의해 주세요.').waitFor();
+ assert.equal(await page.getByText('회원 정보가 등록되었습니다.').count(),0);
+ assert.equal(await page.evaluate(()=>window.manualFixture.submissions.length),1);
+ await page.evaluate(()=>{window.manualFixture.completion={ok:true,code:'profile_completed'};});
+ await submit.click();await page.getByText('회원 정보가 등록되었습니다.').waitFor();
+ const result=await page.evaluate(()=>window.manualFixture.submissions.map(({username,email,termsAccepted,privacyAccepted,ageConfirmed})=>({username,email,termsAccepted,privacyAccepted,ageConfirmed})));
+ assert.deepEqual(result,Array(2).fill({username:'other_id',email:'verified@example.test',termsAccepted:true,privacyAccepted:true,ageConfirmed:true}));
+});
