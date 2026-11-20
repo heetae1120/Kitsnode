@@ -511,13 +511,37 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats>span{disp
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats>span :is(span,b){display:inline-block;margin:0;line-height:24px}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats svg{display:block;flex-shrink:0}
 
+/* A shared outline fades down the sides, without fading field contents. */
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fields:not(.mp-fields-basic)>.mp-field{position:relative;border:0!important;padding-top:24px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fields:not(.mp-fields-basic)>.mp-field::after{content:'';position:absolute;inset:0;border:1px solid #353535;border-radius:var(--kits-field-radius);mask-image:linear-gradient(#000,transparent 64px);pointer-events:none}
+/* Platform choices and their rate share the return-rate input's 64px height. */
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control{display:flex;align-items:center;gap:8px;width:100%;height:64px;margin-top:11px;padding:7px 12px;border:1px solid #454545;border-radius:var(--kits-field-radius);background:#0b0b0b;box-sizing:border-box}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-options{display:flex;align-items:center;flex:1;gap:6px;min-width:0;margin:0}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-options button{display:inline-flex;flex-direction:row;align-items:center;justify-content:center;gap:6px;flex:1;min-width:0;min-height:44px;height:44px;padding:0 8px;border:1px solid transparent;background:transparent;white-space:nowrap}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-options button[aria-pressed=true]{border-color:#ff5a1f;background:#2f1c15}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-options b{font-size:12px;margin:0}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-icon{display:inline-grid;place-items:center;width:22px;height:22px;flex:none;font-size:14px;border-radius:5px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-icon.mp-market-coupang{width:48px;height:24px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-icon.mp-market-coupang img{width:48px;height:48px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control>.mp-input-wrap{flex:0 0 86px;min-width:0;height:100%;margin:0;border:0!important;background:transparent!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control input{height:48px;min-height:0;padding:8px 22px 8px 4px;border:0!important;background:transparent!important;text-align:right;font-size:18px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-input-wrap>span{right:0}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control:focus-within{border-color:#ff5a1f}
+@media(max-width:700px){html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control{padding-inline:8px;gap:4px}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-options{gap:3px}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-options button{padding-inline:6px;gap:4px}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control .mp-market-icon{display:none}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-fee-control>.mp-input-wrap{flex-basis:76px}}
+
 /* Keep the three report actions in reading order on one scrollable row. */
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack{max-width:none;width:100%;min-width:0}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-slot{min-width:0}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-diagnosis-download{min-width:0;max-width:100%}
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack .mp-actions{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:stretch;justify-content:flex-start!important;gap:10px;max-width:100%;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack .mp-actions{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:stretch;justify-content:flex-start!important;gap:24px;max-width:100%;overflow-x:auto;padding:0!important;margin:0!important;scrollbar-width:thin}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack .mp-actions>:is(button,a){display:inline-flex;align-items:center;justify-content:center;gap:12px;flex:0 0 auto;white-space:nowrap;width:auto!important;min-width:0!important;min-height:52px;padding:16px 20px!important;margin:0!important;text-decoration:none;font-size:13px}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack .mp-actions>a{border:1px solid #555!important;color:#f5f2eb!important;background:#171717!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row{align-items:flex-start;gap:24px;flex-wrap:nowrap}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row>.mp-secondary{flex-shrink:0;min-height:52px;margin:0;display:inline-flex;align-items:center}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-slot{margin-top:0;align-self:flex-start}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack{margin:0}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row>span{align-self:center}
+@media(max-width:700px){html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row{gap:18px;overflow-x:auto}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-slot{flex:0 0 auto;min-width:max-content}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack .mp-actions{gap:18px;overflow:visible}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row>span{display:none}}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-visit[aria-disabled=true]{opacity:.6;cursor:default}
 
 /* Status cards use a continuous outline; keyword ranks are plain orange type. */
