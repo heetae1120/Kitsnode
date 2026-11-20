@@ -19,17 +19,17 @@ test('period sales retain zero and do not relabel an undated total or buyer coun
  assert.deepEqual(readPeriodSales('구매 1,633\n최근 1주간 30명 구매\n리뷰 4,153'),{dailySales:null,weeklySales:null});
 });
 test('analysis distinguishes unit ad losses, missing data, and loss before ads',()=>{
- assert.match(diagnosisAnalysis(report).verdict,/자료/);
- assert.match(diagnosisAnalysis({...report,profit:-1}).verdict,/수정/);
+ assert.match(diagnosisAnalysis(report).verdict,/보류/);
+ assert.equal(diagnosisAnalysis({...report,profit:-1}).outcome.status,'pending');
  const diagnostic=keywordGoalDiagnostics({cpc:500,perOrder:8000,budget:800000,quantity:100,months:2,cvr:1,monthlySearches:1000});
  const result=diagnosisAnalysis({...report,analysis:{keyword:{name:'가습기',cpc:500,cvr:1,device:'PC',source:'검증용 가정',volume:{min:1000,max:1000},diagnostic}}});
- assert.match(result.verdict,/손실/);assert(result.findings.some(s=>s.includes('42,000원')));assert(result.market.some(s=>s.includes('임의로 추정하지')));
+ assert.match(result.verdict,/마이너스에 가까워요/);assert(result.findings.some(s=>s.includes('42,000원')));assert(result.market.some(s=>s.includes('임의로 추정하지')));
 });
 test('whole-click rounding losses are included even when unit CPA is below the margin',()=>{
  const diagnostic=keywordGoalDiagnostics({cpc:8,perOrder:10,budget:30,quantity:3,months:1,cvr:81,monthlySearches:1000});
  assert.equal(diagnostic?.unitAdLoss,0);assert.equal(diagnostic?.goal.loss,true);
  const result=diagnosisAnalysis({...report,quantity:3,profit:30,margin:10,marketing:30,analysis:{keyword:{name:'검증용 상품',cpc:8,cvr:81,device:'PC',source:'검증용 가정',volume:{min:1000,max:1000},diagnostic}}});
- assert.match(result.verdict,/손실/);assert(result.findings.some(s=>s.includes('-2원')));
+ assert.match(result.verdict,/마이너스에 가까워요/);assert(result.findings.some(s=>s.includes('-2원')));
 });
 test('diagnosis is a paginated text PDF with embedded Korean font and no screenshot XObjects',async()=>{
  const bytes=gunzipSync(await readFile(new URL('../public/fonts/Pretendard-Regular.ttf.gz',import.meta.url)));
