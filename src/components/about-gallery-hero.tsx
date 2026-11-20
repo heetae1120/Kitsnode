@@ -1,46 +1,50 @@
-"use client";
-import {useRef,useState} from 'react';
-import {motion,useMotionValueEvent,useReducedMotion,useScroll,useTransform,type MotionValue,type MotionStyle} from 'framer-motion';
-import {ArrowDown} from 'lucide-react';
+'use client';
+import {useRef} from 'react';
+import {useReducedMotion} from 'framer-motion';
+import Link from 'next/link';
+import {ArrowDown,ArrowLeft,ArrowRight,ArrowUpRight} from 'lucide-react';
 import {GrowthIllustration} from './growth-illustration';
-const root=process.env.NEXT_PUBLIC_BASE_PATH||'';
-const tiles=[
- {kind:'photo',image:'/about-gallery/brand-making.webp',x:-34,y:-26,z:-120,width:36,height:30},
- {kind:'photo',image:'/about-gallery/brand-people.webp',x:29,y:29,z:-420,width:34,height:28},
- {kind:'growth',art:'trend',tone:'paper',x:-14,y:-37,z:-700,width:24,height:24},
- {kind:'growth',art:'bars',tone:'dark',x:17,y:-37,z:-980,width:33,height:32},
- {kind:'growth',art:'steps',tone:'paper',x:40,y:-19,z:-1260,width:40,height:33},
- {kind:'growth',art:'arrow',tone:'orange',x:43,y:12,z:-1540,width:36,height:37},
- {kind:'growth',art:'compound',tone:'paper',x:0,y:40,z:-1820,width:42,height:34},
- {kind:'growth',art:'milestones',tone:'dark',x:-30,y:29,z:-2100,width:54,height:38},
- {kind:'growth',art:'columns',tone:'orange',x:-43,y:7,z:-2300,width:50,height:36},
-] as const;
-function GalleryTile({index,progress,reduced}:{index:number;progress:MotionValue<number>;reduced:boolean}){
- const item=tiles[index];
- const side=item.x<0?-1:1,spin=index%2?-1:1,speed=.94+(index%3)*.09;
- const z=useTransform(progress,value=>item.z+3200*speed*(.65*value+.35*value*value));
- const opacity=useTransform(z,[-2600,-1000,360,600],[.65,.85,1,0]);
- const travel=useTransform(z,[item.z,0,400,600],[1,1.04,1.6,2.5]);
- const rayX=useTransform(z,[item.z,0,600],[`${item.x*.72}vw`,`${item.x*.72+spin*2}vw`,`${item.x*.72+spin*5}vw`]);
- const rayY=useTransform(z,[item.z,0,600],[`${item.y*.72}svh`,`${item.y*.72-side*1.5}svh`,`${item.y*.72-side*4}svh`]);
- const rotateX=useTransform(z,[item.z,0,600],[item.y<0?5:-5,item.y<0?-7:7,item.y<0?-16:16]);
- const rotateY=useTransform(z,[item.z,0,600],[-side*7,side*8,side*20]);
- const rotateZ=useTransform(z,[item.z,0,600],[spin*4,-spin*3,-spin*10]);
- return <motion.div className={`ag-tile ag-tile-${index+1} ag-${item.kind}${'tone' in item?' ag-growth-'+item.tone:''}`} style={{'--tile-width':`${item.width*1.18}vw`,'--tile-height':`${item.height*1.16}svh`,'--tile-ray-x':reduced?`${item.x*.72}vw`:rayX,'--tile-ray-y':reduced?`${item.y*.72}svh`:rayY,'--tile-depth':reduced?item.z:z,'--tile-travel':reduced?1:travel,x:'-50%',y:'-50%',z:reduced?item.z:z,rotateX:reduced?0:rotateX,rotateY:reduced?0:rotateY,rotateZ:reduced?0:rotateZ,opacity:reduced ? .8 : opacity} as MotionStyle}>
-  {'image' in item?<img src={root+item.image} alt="" width={2000} height={1250} loading="eager" decoding="async"/>:<GrowthIllustration kind={item.art}/>}
- </motion.div>;
-}
+import {DealWheelSky,DealWheelClouds} from './deal-wheel-world';
+import {dealWheelCards} from './deal-wheel-data';
+import {useDealWheel,type WheelNodes} from './use-deal-wheel';
+const base=process.env.NEXT_PUBLIC_BASE_PATH||'';
+
 export function AboutGalleryHero(){
- const section=useRef<HTMLElement>(null),reduced=!!useReducedMotion();
- const [hidden,setHidden]=useState(false),hiddenRef=useRef(false);
- const {scrollYProgress}=useScroll({target:section,offset:['start start','end end']});
- const zoom=useTransform(scrollYProgress,[0,.28,.5,.72,.9,1],[1,1.25,2.4,5.8,12,18]);
- const opacity=useTransform(scrollYProgress,[0,.65,.9,1],[1,1,0,0]);
- useMotionValueEvent(scrollYProgress,'change',value=>{const next=value>.92;if(next!==hiddenRef.current){hiddenRef.current=next;setHidden(next);}});
- return <section className="ag-scroll" ref={section} aria-labelledby="kp-hero-title"><div className="ag-stage">
-  <div className="ag-gallery" aria-hidden="true">{tiles.map((tile,index)=><GalleryTile key={index} index={index} progress={scrollYProgress} reduced={reduced}/>)}</div>
-  <motion.div className="ag-copy" style={{'--ag-copy-zoom':reduced?1:zoom,opacity:reduced?1:opacity} as MotionStyle} inert={!reduced&&hidden} aria-hidden={!reduced&&hidden}>
-   <span className="ag-eyebrow">KITSNODE · BRAND GROWTH PARTNER</span><h1 id="kp-hero-title">순위 말고,<br/><em>브랜드를 남깁니다.</em></h1><p>광고를 줄여도 고객이 찾는 브랜드를 만듭니다.</p><div className="ag-actions"><a href="#proof" className="ag-secondary">브랜드 사례 보기<ArrowDown size={15}/></a></div>
-  </motion.div><span className="ag-scroll-cue" aria-hidden="true">SCROLL TO EXPLORE <ArrowDown size={13}/></span>
- </div></section>;
+  const nodes=useRef<WheelNodes>({root:null,viewport:null,stage:null,copy:null,loader:null,counter:null,pause:null,cards:[],videos:[]});
+  const controls=useDealWheel(nodes,!!useReducedMotion());
+  return <section className="dw-hero" aria-labelledby="kp-hero-title" ref={el=>{nodes.current.root=el;}}>
+    <div className="dw-viewport" ref={el=>{nodes.current.viewport=el;}} role="region" aria-label="브랜드 카드 휠. 드래그하거나 좌우 방향키로 살펴보세요." tabIndex={0}>
+      <DealWheelSky/>
+      <div className="dw-stage" ref={el=>{nodes.current.stage=el;}}>
+        {dealWheelCards.map((card,index)=><Link key={index} href={card.href} prefetch={false} className={'dw-card dw-tone-'+card.tone} tabIndex={0} draggable={false}
+          aria-label={`${card.label} · ${index+1}/34`} ref={el=>{nodes.current.cards[index]=el;}}>
+          <div className="dw-front">
+            {card.image?<img src={base+card.image} alt="" width={2000} height={1250} loading="eager" decoding="async" draggable={false}/>:card.art?<GrowthIllustration kind={card.art}/>:null}
+            {card.video&&<video ref={el=>{nodes.current.videos[index]=el;}} className="dw-preview" src={base+card.video} muted loop playsInline preload="none" aria-hidden="true"
+              onPlaying={event=>{const video=event.currentTarget;if(video.dataset.wanted==='true')video.dataset.playing='true';else video.pause();}}
+              onPause={event=>{delete event.currentTarget.dataset.playing;}}/>}
+            <span className="dw-card-caption">{card.label}<ArrowUpRight size={13}/></span>
+          </div>
+          <div className="dw-back" aria-hidden="true"><span>K.</span><small>KITSNODE</small></div>
+        </Link>)}
+      </div>
+      <DealWheelClouds/>
+      <div className="dw-loader" ref={el=>{nodes.current.loader=el;}}>
+        <span role="progressbar" aria-label="카드 준비" aria-valuemin={0} aria-valuemax={100} aria-valuenow={0}>카드 준비 <span ref={el=>{nodes.current.counter=el;}}>0</span>%</span>
+        <button type="button" onClick={controls.skip}>모션 건너뛰기 <ArrowRight size={14}/></button>
+      </div>
+      <div className="dw-controls" aria-label="카드 휠 조작">
+        <button type="button" onClick={controls.previous} aria-label="이전 카드"><ArrowLeft size={17}/></button>
+        <button type="button" ref={el=>{nodes.current.pause=el;}} onClick={controls.pause} aria-pressed="false">자동 회전 멈춤</button>
+        <button type="button" onClick={controls.next} aria-label="다음 카드"><ArrowRight size={17}/></button>
+      </div>
+    </div>
+    <div className="dw-copy" ref={el=>{nodes.current.copy=el;}}>
+      <span className="dw-eyebrow">KITSNODE · BRAND GROWTH PARTNER</span>
+      <h1 id="kp-hero-title">순위 말고,<br/><em>브랜드를 남깁니다.</em></h1>
+      <p>광고를 줄여도 고객이 찾는 브랜드를 만듭니다.</p>
+      <a href="#proof" className="dw-proof-link">브랜드 사례 보기 <ArrowDown size={15}/></a>
+    </div>
+    <noscript><style>{`.about-gallery-page>.tool-topbar,.dw-copy{opacity:1!important;transform:none!important;pointer-events:auto!important}.dw-loader,.dw-controls{display:none!important}.dw-stage{display:flex;gap:12px;position:relative!important;left:0!important;top:30px!important;overflow-x:auto;transform:none!important;padding:20px}.dw-card{position:relative!important;left:0!important;top:0!important;transform:none!important;visibility:visible!important;flex-shrink:0}.dw-clouds{display:none}`}</style></noscript>
+  </section>;
 }
