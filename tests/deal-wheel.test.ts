@@ -1,25 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {CARD_HEIGHT,dealProgress,wheelGeometry,wheelCardPose,followAngle,decayVelocity,releaseVelocity,shouldPlayPreview} from '../src/lib/deal-wheel';
+import {CARD_HEIGHT,WHEEL_COUNT,WHEEL_CENTER,WHEEL_STEP,dealProgress,wheelGeometry,wheelCardPose,followAngle,decayVelocity,releaseVelocity,shouldPlayPreview} from '../src/lib/deal-wheel';
+import {dealWheelCards} from '../src/components/deal-wheel-data';
 
 test('dealing begins at the top and reaches both neighbours symmetrically before the edges',()=>{
-  assert(dealProgress(0,.15)>dealProgress(1,.15));
-  assert(Math.abs(dealProgress(1,.35)-dealProgress(33,.35))<1e-10);
-  assert.equal(dealProgress(9,.15),0);
-  for(let index=0;index<34;index++){assert.equal(dealProgress(index,0),0);assert.equal(dealProgress(index,1),1);}
+  assert(dealProgress(2,.15)>dealProgress(1,.15));
+  assert(Math.abs(dealProgress(2,.35)-dealProgress(3,.35))<1e-10);
+  assert.equal(dealProgress(0,.15),0);
+  for(let index=0;index<WHEEL_COUNT;index++){assert.equal(dealProgress(index,0),0);assert.equal(dealProgress(index,1),1);}
 });
 test('one card pose preserves pivot, angle, radius, flip and growth order',()=>{
-  const geometry=wheelGeometry(1400,760,1),pose=wheelCardPose(0,1,1,0,geometry);
+  const geometry=wheelGeometry(1400,760,1),pose=wheelCardPose(0,1,1,WHEEL_CENTER,geometry);
   assert.match(pose.transform,/^translate3d\(0, .*\) rotateZ\(.*\) translate3d\(0, -1010\.000px, 0\) rotateY\(0\.000deg\) scale\(1\.3500\)$/);
-  assert.equal(pose.angle,-28);assert(pose.visible);
+  assert.equal(pose.angle,-30);assert(pose.visible);
 });
-test('a circle wraps only where cards are hidden, never at the visible top seam',()=>{
+test('six unique non-navigating cards form an evenly spaced fan without a wrap jump',()=>{
   const geometry=wheelGeometry(1400,760,1);
-  for(let index=0;index<34;index++){
-    const before=wheelCardPose(index,1,1,179.99,geometry),after=wheelCardPose(index,1,1,180.01,geometry);
-    if(Math.abs(before.angle-after.angle)>300)assert(!before.visible&&!after.visible);
+  assert.equal(WHEEL_COUNT,6);assert.equal(dealWheelCards.length,WHEEL_COUNT);
+  assert.equal(new Set(dealWheelCards.map(card=>card.label)).size,6);
+  assert(dealWheelCards.every(card=>!('href' in card)));
+  for(let index=0;index<WHEEL_COUNT;index++){
+    const pose=wheelCardPose(index,1,1,WHEEL_CENTER,geometry);
+    assert(pose.visible);assert.equal(pose.angle,-30+WHEEL_STEP*index);
+    const before=wheelCardPose(index,1,1,WHEEL_CENTER-.01,geometry),after=wheelCardPose(index,1,1,WHEEL_CENTER+.01,geometry);
+    assert(Math.abs(before.angle-after.angle)<.021);
   }
-  assert(Math.abs(wheelCardPose(0,1,1,359.99,geometry).angle-wheelCardPose(0,1,1,360.01,geometry).angle)<.021);
 });
 test('the lifted wheel grows with its radius and fits the actual short or narrow hero frame',()=>{
   for(const [width,height] of [[320,420],[390,540],[1024,460],[1474,748]]){

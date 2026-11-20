@@ -1,4 +1,6 @@
-export const WHEEL_COUNT = 34;
+export const WHEEL_COUNT = 6;
+export const WHEEL_STEP = 12;
+export const WHEEL_CENTER = -28;
 export const DEAL_MS = 2600;
 export const LIFT_MS = 1900;
 export const CARD_WIDTH = 144;
@@ -8,7 +10,7 @@ export const wrapAngle = (value: number) => ((value + 180) % 360 + 360) % 360 - 
 const mix = (a: number, b: number, value: number) => a + (b - a) * value;
 
 export function dealProgress(index: number, deal: number, count = WHEEL_COUNT) {
-  const order = Math.min(Math.abs(wrapAngle(index * 360 / count)), 100) / 100;
+  const order = Math.min(Math.abs((index - (count - 1) / 2) * WHEEL_STEP), 100) / 100;
   const progress = clamp01((deal - order * .6) / .4);
   return 1 - (1 - progress) ** 3;
 }
@@ -28,7 +30,7 @@ export function wheelGeometry(width: number, height: number, lift: number) {
 export function wheelCardPose(index: number, deal: number, lift: number, spin: number,
   geometry: Pick<ReturnType<typeof wheelGeometry>, 'radius' | 'pivot' | 'grow'>) {
   const progress = dealProgress(index, deal);
-  const angle = wrapAngle(index * 360 / WHEEL_COUNT - spin - 28 * lift);
+  const angle = (index - (WHEEL_COUNT - 1) / 2) * WHEEL_STEP - spin - 28 * lift;
   const away = Math.abs(angle);
   const visible = progress > .0001 && away < 105;
   // Keep this order: move to pivot, rotate, push to rim, flip, grow.

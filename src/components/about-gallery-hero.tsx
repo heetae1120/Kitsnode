@@ -1,8 +1,7 @@
 'use client';
 import {useRef} from 'react';
 import {useReducedMotion} from 'framer-motion';
-import Link from 'next/link';
-import {ArrowRight,ArrowUpRight} from 'lucide-react';
+import {ArrowRight} from 'lucide-react';
 import {GrowthIllustration} from './growth-illustration';
 import {AboutHeroDisciplines} from './about-hero-disciplines';
 import {dealWheelCards} from './deal-wheel-data';
@@ -15,17 +14,17 @@ export function AboutGalleryHero(){
   return <section className="dw-hero" aria-labelledby="kp-hero-title" ref={el=>{nodes.current.root=el;}}>
     <div className="dw-viewport" ref={el=>{nodes.current.viewport=el;}} role="region" aria-label="브랜드 카드 휠. 드래그하거나 좌우 방향키로 살펴보세요. 스페이스 키로 자동 회전을 멈추거나 재생합니다." tabIndex={0}>
       <div className="dw-stage" ref={el=>{nodes.current.stage=el;}}>
-        {dealWheelCards.map((card,index)=><Link key={index} href={card.href} prefetch={false} className={'dw-card dw-tone-'+card.tone} tabIndex={0} draggable={false}
-          aria-label={`${card.label} · ${index+1}/34`} ref={el=>{nodes.current.cards[index]=el;}}>
+        {dealWheelCards.map((card,index)=><div key={index} className={'dw-card dw-tone-'+card.tone} role="img" draggable={false}
+          aria-label={card.label} ref={el=>{nodes.current.cards[index]=el;}}>
           <div className="dw-front">
             {card.image?<img src={base+card.image} alt="" width={2000} height={1250} loading="eager" decoding="async" draggable={false}/>:card.art?<GrowthIllustration kind={card.art}/>:null}
             {card.video&&<video ref={el=>{nodes.current.videos[index]=el;}} className="dw-preview" src={base+card.video} muted loop playsInline preload="none" aria-hidden="true"
               onPlaying={event=>{const video=event.currentTarget;if(video.dataset.wanted==='true')video.dataset.playing='true';else video.pause();}}
               onPause={event=>{delete event.currentTarget.dataset.playing;}}/>}
-            <span className="dw-card-caption">{card.label}<ArrowUpRight size={13}/></span>
+            <span className="dw-card-caption">{card.label}</span>
           </div>
           <div className="dw-back" aria-hidden="true"><span>K.</span><small>KITSNODE</small></div>
-        </Link>)}
+        </div>)}
       </div>
       <div className="dw-floor" aria-hidden="true"/>
       <AboutHeroDisciplines/>

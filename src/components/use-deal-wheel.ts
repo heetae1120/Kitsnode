@@ -1,12 +1,12 @@
 'use client';
 import {useEffect,useRef,type RefObject} from 'react';
 import {cubicBezier,useMotionValue} from 'framer-motion';
-import {DEAL_MS,LIFT_MS,WHEEL_COUNT,clamp01,wheelCardPose,wheelGeometry,followAngle,decayVelocity,releaseVelocity,shouldPlayPreview} from '@/lib/deal-wheel';
+import {DEAL_MS,LIFT_MS,WHEEL_COUNT,WHEEL_STEP,WHEEL_CENTER,clamp01,wheelCardPose,wheelGeometry,followAngle,decayVelocity,releaseVelocity,shouldPlayPreview} from '@/lib/deal-wheel';
 
 export type WheelNodes = {
   root:HTMLElement|null;viewport:HTMLDivElement|null;stage:HTMLDivElement|null;
   copy:HTMLDivElement|null;loader:HTMLDivElement|null;counter:HTMLSpanElement|null;
-  cards:(HTMLAnchorElement|null)[];videos:(HTMLVideoElement|null)[];
+  cards:(HTMLDivElement|null)[];videos:(HTMLVideoElement|null)[];
 };
 const liftEase=cubicBezier(.5,0,.15,1);
 type Actions={skip:(focus?:boolean)=>void};
@@ -22,7 +22,8 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
     const cache=new WeakMap<HTMLElement,Map<string,string>>();
     let alive=true,frame=0,ticking=false,last=performance.now(),phase:'loading'|'deal'|'lift'|'ready'='loading';
     let phaseStart=last,width=viewport.clientWidth,height=viewport.clientHeight;
-    let target=0,spin=0,velocity=0,paused=false,visible=true,focused=false,lastInput=-Infinity;
+    let target=WHEEL_CENTER,spin=WHEEL_CENTER,velocity=0,autoDirection=1,paused=false,visible=true,focused=false,lastInput=-Infinity;
+    const bound=(angle:number)=>Math.max(WHEEL_CENTER-40,Math.min(WHEEL_CENTER+40,angle));
     let assetsDone=WHEEL_COUNT-n.cards.filter(card=>card?.querySelector('img')).length;
     let revealed=false,suppressClick=false;
     const drag={active:false,moved:false,id:0,x:0,y:0,startX:0,startY:0,lastMove:0,velocity:0};
@@ -48,13 +49,11 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
     function render(){
       const formation=deal.get(),expansion=lift.get();
       const geometry=wheelGeometry(width,height,expansion);
-      const focusAngle=Math.min(40,Math.atan2(width*.5,geometry.radius*geometry.scale)*180/Math.PI);
       write(stage,'top',geometry.originY.toFixed(3)+'px');write(stage,'transform',geometry.transform);
       for(let index=0;index<n.cards.length;index++){
         const card=n.cards[index];if(!card)continue;
         const pose=wheelCardPose(index,formation,expansion,spin,geometry);
         write(card,'visibility',pose.visible?'visible':'hidden');
-        attribute(card,'tabindex',pose.visible&&pose.away<focusAngle?'0':'-1');
         if(pose.visible){write(card,'transform',pose.transform);write(card,'z-index',String(1000-Math.round(pose.away*3)));}
         const video=n.videos[index];if(!video)continue;
         const play=shouldPlayPreview(expansion,pose.away,pose.visible&&visible&&!document.hidden,reduced,paused);
@@ -82,8 +81,13 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
         if(elapsed>=LIFT_MS)finish();
       }
       if(!reduced&&visible&&!document.hidden){
-        if((phase==='lift'||phase==='ready')&&!paused&&!focused&&!drag.active&&now-lastInput>900)target+=7*dt*lift.get();
-        if(!drag.active){target+=velocity*dt;velocity=decayVelocity(velocity,dt);if(Math.abs(velocity)<.015)velocity=0;}
+        if((phase==='lift'||phase==='ready')&&!paused&&!focused&&!drag.active&&now-lastInput>900){
+          // Six unique cards form a finite fan; sway instead of leaving an empty full-circle gap.
+          if(target>=WHEEL_CENTER+22)autoDirection=-1;
+          if(target<=WHEEL_CENTER-22)autoDirection=1;
+          target=bound(target+autoDirection*7*dt*lift.get());
+        }
+        if(!drag.active){target=bound(target+velocity*dt);velocity=decayVelocity(velocity,dt);if(Math.abs(velocity)<.015)velocity=0;}
         spin=followAngle(spin,target,dt);if(Math.abs(target-spin)<.0001)spin=target;
       }else if(reduced){spin=target;velocity=0;}
       render();
@@ -93,7 +97,7 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
       ticking=false;
     }
     function wake(){if(alive&&!frame){if(!ticking)last=performance.now();frame=requestAnimationFrame(tick);}}
-    const turn=(direction:number)=>{if(phase!=='ready')finish();target+=direction*360/WHEEL_COUNT;velocity=0;lastInput=performance.now();wake();};
+    const turn=(direction:number)=>{if(phase!=='ready')finish();target=bound(target+direction*WHEEL_STEP);velocity=0;lastInput=performance.now();wake();};
     const togglePause=()=>{
       paused=!paused;
       attribute(root,'data-wheel-paused',String(paused));wake();
@@ -138,7 +142,7 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
       if(!drag.moved&&Math.abs(event.clientX-drag.startX)>6){drag.moved=true;suppressClick=true;viewport.setPointerCapture(event.pointerId);}
       if(drag.moved){
         const now=performance.now(),elapsed=Math.max(8,now-drag.lastMove);
-        target-=dx*.13;drag.velocity=Math.max(-240,Math.min(240,-dx*.13*1000/elapsed));
+        target=bound(target-dx*.13);drag.velocity=Math.max(-240,Math.min(240,-dx*.13*1000/elapsed));
         drag.lastMove=now;lastInput=now;wake();
       }
       drag.x=event.clientX;drag.y=event.clientY;
@@ -156,7 +160,7 @@ export function useDealWheel(nodes:RefObject<WheelNodes>,reduced:boolean){
       if(phase!=='ready')finish();
       const amount=event.deltaX||event.deltaY;
       const units=event.deltaMode===1?16:event.deltaMode===2?height:1;
-      target+=Math.max(-220,Math.min(220,amount*units))*.055;
+      target=bound(target+Math.max(-220,Math.min(220,amount*units))*.055);
       velocity=0;lastInput=performance.now();
       if(Math.abs(event.deltaX)>Math.abs(event.deltaY))event.preventDefault();
       wake();
