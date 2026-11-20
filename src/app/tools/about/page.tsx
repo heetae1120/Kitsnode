@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="kits-page finance-dashboard about-gallery-page" data-wheel-state="loading">
+    <div className="kits-page finance-dashboard about-gallery-page" data-wheel-state="ready">
       <ToolsHeader active="about" />
       <main className="kp-main">
         <AboutGalleryHero />

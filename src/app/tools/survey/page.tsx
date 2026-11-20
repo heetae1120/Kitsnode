@@ -5,6 +5,7 @@ import { StoreSurvey } from "@/components/store-survey";
 import { BrandWordmark } from "@/components/brand-wordmark";
 import "../finance-bento.css";
 import "../kits-pages.css";
+import "./survey.css";
 
 export const metadata: Metadata = {
   title: "브랜드 설문 | KITSNODE",
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function SurveyPage() {
   return (
-    <div className="kits-page finance-dashboard">
+    <div className="kits-page finance-dashboard survey-page">
       <ToolsHeader active="survey" />
       <main className="kp-main">
         <div className="kp-wrap kp-survey">

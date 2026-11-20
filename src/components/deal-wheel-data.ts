@@ -1,3 +1,5 @@
+import {WHEEL_SLOTS} from '@/lib/deal-wheel';
+
 const sources = [
   {image:'/about-gallery/brand-making.webp', label:'브랜드 준비 현장', tone:'photo'},
   {art:'trend', label:'상품 수익 진단', tone:'paper'},
@@ -8,3 +10,5 @@ const sources = [
 ] as const;
 export type DealWheelCard = {image?:string;video?:string;art?:'trend'|'bars'|'steps'|'compound'|'arrow'|'milestones'|'columns';label:string;tone:string};
 export const dealWheelCards: readonly DealWheelCard[] = sources;
+
+export const dealWheelSlots: readonly DealWheelCard[] = Array.from({length:WHEEL_SLOTS}, (_, index) => sources[index % sources.length]);
