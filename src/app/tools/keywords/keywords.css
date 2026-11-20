@@ -1,3 +1,8 @@
+/* Keyword controls use the main orange for selected menus and primary actions. */
+html body .profit-tool .keyword-page :is(button[aria-pressed="true"],.kr-shopping-button){background:var(--kw-accent)!important;background-image:none!important;color:var(--kw-on-accent)!important;border-color:var(--kw-accent)!important;box-shadow:none!important;backdrop-filter:none!important}
+html body .profit-tool .keyword-page :is(button[aria-pressed="true"],.kr-shopping-button) :is(span,b,strong,svg){color:var(--kw-on-accent)!important}
+html body .profit-tool .keyword-page .kr-shopping-button:hover:not(:disabled){background:var(--kw-accent-hover)!important;border-color:var(--kw-accent-hover)!important}
+html body .profit-tool .keyword-page .kr-shopping-button:disabled{opacity:1;cursor:not-allowed;border-style:dashed}
 /* Hallmark v2.0.0 · shape: app screen · theme: wayfind (platform), deal: manual · faces: Pretendard (Hangul), tabular figures · signature: a PC/모바일 demand bar on every keyword row · guides: hallmark, impeccable (operate), taste-skill (app-screens) */
 /* critique: one object (the keyword table) answers the screen's question; colour sits on data, the search action and selection only; no eyebrows, no tiles, no index numbers, no tracked caps. */
 /* waive 1 (literal colours): recharts takes the --kw-* tokens by var(), so no literal colour lives outside this block. */
