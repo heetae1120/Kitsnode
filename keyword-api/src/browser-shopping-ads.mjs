@@ -1,4 +1,4 @@
-import {readIntegratedAdCards,readPeriodSales,readAdCounters,matchingPublicProduct,publicProductUrl} from './integrated-ad-details.mjs';
+import {readIntegratedAdCards,readPeriodSales,readAdCounters,matchingPublicProduct,publicProductUrl,publicAdProductDetails,readMerchantProductDetails} from './integrated-ad-details.mjs';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {join} from 'node:path';
@@ -113,10 +113,11 @@ export async function collectIntegratedShoppingAds(keyword){
   await new Promise(resolve=>setTimeout(resolve,350));
   stage='AD_READ';
   const rows=await page.evaluate(readIntegratedAdCards);
-  for(const row of rows){const search=new URL('https://search.naver.com/search.naver');search.searchParams.set('query',row.title);row.url=search.href;}
+  for(const row of rows){Object.assign(row,publicAdProductDetails(row));row.url=publicProductUrl(row.url);}
   // Search public product titles, keeping the original ad ordering and never following paid links.
   for(const row of rows){
-   const search=new URL(row.url);
+   if(row.url)continue;
+   const search=new URL('https://search.naver.com/search.naver');search.searchParams.set('query',row.title);
    try{
     const detail=await browser.newPage();
     try{
@@ -127,6 +128,7 @@ export async function collectIntegratedShoppingAds(keyword){
      await new Promise(resolve=>setTimeout(resolve,350));
      const candidate=matchingPublicProduct(row,await detail.evaluate(readIntegratedAdCards,true));
      if(!candidate)continue;
+     Object.assign(candidate,publicAdProductDetails(candidate));
      row.rating??=candidate.rating;row.reviewCount||=candidate.reviewCount;row.wishCount||=candidate.wishCount;row.purchaseCount||=candidate.purchaseCount;
      let landing=publicProductUrl(candidate.url);
      // Only non-ad search bridges may be resolved. Do not request a merchant page or bypass a block.
@@ -136,11 +138,24 @@ export async function collectIntegratedShoppingAds(keyword){
      }
      if(landing)row.url=landing;
     }finally{await detail.close();}
-   }catch{ /* The original public ad data and login-free title search remain usable. */ }
+   }catch{ /* Retain observed values. Never substitute a search URL for a merchant product. */ }
+  }
+  // Read missing counters from the exact public merchant page. Stop on access restrictions.
+  for(const row of rows){
+   const url=publicProductUrl(row.url);if(!url||(row.rating!=null&&row.reviewCount&&row.purchaseCount&&row.wishCount))continue;
+   const detail=await browser.newPage();
+   try{
+    const response=await detail.goto(url,{waitUntil:'domcontentloaded',timeout:7000});
+    if(response&&[403,418,429].includes(response.status()))break;
+    if(!response?.ok()||publicProductUrl(detail.url())!==url)continue;
+    const details=await detail.evaluate(readMerchantProductDetails,new URL(url).pathname.match(/\/products\/(\d+)/)?.[1]);
+    row.rating??=details.rating;row.reviewCount||=details.reviewCount;row.purchaseCount||=details.purchaseCount;row.wishCount||=details.wishCount;
+   }catch{ /* A blocked or unavailable store never supplies fabricated counters. */ }
+   finally{await detail.close();}
   }
   const result=normalizeObservedAds(rows);
   const finalUrl=new URL(page.url());if(finalUrl.origin!==source.origin||finalUrl.pathname!==source.pathname||finalUrl.searchParams.get('query')!==keyword)throw Error('SHOPPING_PAGE_CHANGED');
-  return {keyword,device:'PC',placement:'integrated',sourceUrl:source.href,observedAt:new Date().toISOString(),context:'네이버 통합검색 · PC · 비로그인 · 광고 노출 순서 유지 · 동일 상품명과 판매처의 공개 검색 정보 보완',...result};
+  return {keyword,device:'PC',placement:'integrated',sourceUrl:source.href,observedAt:new Date().toISOString(),context:'네이버 통합검색 · PC · 비로그인 · 광고 노출 순서 유지 · 동일 상품 ID의 판매처 주소와 공개 지표',...result};
  }catch(error){if(['SHOPPING_PAGE_BLOCKED','SHOPPING_PAGE_UNAVAILABLE','SHOPPING_PAGE_CHANGED','AD_RESULTS_NOT_CONFIRMED','AD_CAPTURE_UNAVAILABLE','SEARCH_LOAD_FAILED'].includes(error.message))throw error;throw Error('CAPTURE_'+stage+'_'+(error.name==='TimeoutError'?'TIMEOUT':'FAILED'));}finally{await closeShoppingBrowser(browser);}
 }
 

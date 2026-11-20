@@ -511,6 +511,15 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats>span{disp
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats>span :is(span,b){display:inline-block;margin:0;line-height:24px}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-stats svg{display:block;flex-shrink:0}
 
+/* Keep the three report actions in reading order on one scrollable row. */
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack{max-width:none;width:100%;min-width:0}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-slot{min-width:0}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-diagnosis-download{min-width:0;max-width:100%}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack .mp-actions{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:stretch;justify-content:flex-start!important;gap:10px;max-width:100%;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack .mp-actions>:is(button,a){display:inline-flex;align-items:center;justify-content:center;gap:12px;flex:0 0 auto;white-space:nowrap;width:auto!important;min-width:0!important;min-height:52px;padding:16px 20px!important;margin:0!important;text-decoration:none;font-size:13px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack .mp-actions>a{border:1px solid #555!important;color:#f5f2eb!important;background:#171717!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-visit[aria-disabled=true]{opacity:.6;cursor:default}
+
 /* Status cards use a continuous outline; keyword ranks are plain orange type. */
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-key-date.is-recommended{border:2px solid #23835c!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-key-date.is-deadline{border:2px solid #ff6868!important}
