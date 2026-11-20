@@ -1,5 +1,5 @@
 export const WHEEL_COUNT = 6;
-export const WHEEL_SLOTS = 36;
+export const WHEEL_SLOTS = 24;
 export const WHEEL_STEP = 360 / WHEEL_SLOTS;
 export const CARD_WIDTH = 180;
 export const CARD_HEIGHT = 320;

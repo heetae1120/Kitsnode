@@ -3,11 +3,16 @@ import assert from 'node:assert/strict';
 import {CARD_WIDTH,CARD_HEIGHT,WHEEL_COUNT,WHEEL_SLOTS,WHEEL_STEP,wheelGeometry,wheelCardPose,followAngle,decayVelocity,releaseVelocity,shouldPlayPreview} from '../src/lib/deal-wheel';
 import {dealWheelCards,dealWheelSlots} from '../src/components/deal-wheel-data';
 
-test('cards start fully spread with dense spacing and no entrance flip',()=>{
+test('cards start fully spread with 50 percent wider spacing and overlap at their lower edges',()=>{
   const g=wheelGeometry(1400,760),pose=wheelCardPose(0,0,g);
   assert(pose.visible);assert.equal(pose.angle,0);
   assert(!pose.transform.includes('rotateY'));
-  assert(2*g.radius*Math.sin(WHEEL_STEP*Math.PI/360)<CARD_WIDTH*g.grow);
+  assert.equal(WHEEL_STEP,15);
+  const oldPitch=2*g.radius*Math.sin(10*Math.PI/360);
+  const newPitch=2*g.radius*Math.sin(WHEEL_STEP*Math.PI/360);
+  assert(newPitch/oldPitch>1.49&&newPitch/oldPitch<1.51);
+  const lowerRadius=g.radius-CARD_HEIGHT*g.grow/2;
+  assert(2*lowerRadius*Math.sin(WHEEL_STEP*Math.PI/360)<CARD_WIDTH*g.grow);
 });
 
 test('one card pose preserves pivot, angle and radius order',()=>{
