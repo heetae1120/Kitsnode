@@ -17,9 +17,9 @@ export function AdReadDiagnosticPanel(){
    const response=await fetch(endpoint,{method:'POST',headers:{Authorization:`Bearer ${session.access_token}`},credentials:'omit',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer',signal:abort.signal});
    if(response.status===403)throw Error('forbidden');if(response.status===429)throw Error('rate_limited');if(!response.ok)throw Error('unavailable');
    const data=await response.json();if(abort.signal.aborted||current.current!==owner)return;
-   setMessage(data?.status==='accessible'&&['OWNER','MASTER','READ_ONLY'].includes(data.role)?'미모 광고계정에 네이버 API 접근이 확인되었습니다. 회원 연결은 별도입니다.':`네이버 API 접근을 확인하지 못했습니다 (${typeof data?.reason==='string'?data.reason:'unavailable'}).`);
+   setMessage(data?.status==='accessible'&&['OWNER','MASTER','READ_ONLY'].includes(data.role)?data?.campaigns?.status==='observed'&&Number.isSafeInteger(data.campaigns.returnedCount)&&data.campaigns.returnedCount>=0&&data.campaigns.returnedCount<=10000?`미모 광고계정의 캠페인 조회에 성공했습니다. 반환된 캠페인 ${data.campaigns.returnedCount}건입니다. 회원 연결과 성과 조회는 별도입니다.`:'미모 광고계정 접근은 확인했지만 캠페인 조회는 확인하지 못했습니다. 회원 연결은 별도입니다.':`네이버 API 접근을 확인하지 못했습니다 (${typeof data?.reason==='string'?data.reason:'unavailable'}).`);
   }catch(error){if(!abort.signal.aborted&&current.current===owner)setMessage(error instanceof Error&&error.message==='forbidden'?'운영자 권한을 확인하지 못했습니다.':error instanceof Error&&error.message==='rate_limited'?'요청이 많습니다. 잠시 후 다시 확인해 주세요.':'진단을 완료하지 못했습니다. 로그인과 진단 상태를 확인해 주세요.');}
   finally{if(pending.current===abort){pending.current=null;setBusy(false);}}
  }
- return <><StoreHeading title="광고계정 조회 진단" description="운영자용 읽기 전용 확인"/><StoreCard><p>미모 광고계정의 네이버 API 접근 여부만 확인합니다. 회원 연결이나 광고 성과 조회는 별도 단계입니다.</p>{!user?<p>운영자 계정으로 먼저 로그인해 주세요.</p>:<StoreButton disabled={busy} onClick={()=>void check()}>미모 계정 조회 확인</StoreButton>}{message&&<p role="status">{message}</p>}</StoreCard></>;
+ return <><StoreHeading title="광고계정 조회 진단" description="운영자용 읽기 전용 확인"/><StoreCard><p>미모 광고계정의 네이버 API 접근과 반환된 캠페인 수를 확인합니다. 회원 연결이나 광고 성과 조회는 별도 단계입니다.</p>{!user?<p>운영자 계정으로 먼저 로그인해 주세요.</p>:<StoreButton disabled={busy} onClick={()=>void check()}>미모 계정 조회 확인</StoreButton>}{message&&<p role="status">{message}</p>}</StoreCard></>;
 }

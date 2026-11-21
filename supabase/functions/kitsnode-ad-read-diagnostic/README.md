@@ -12,3 +12,7 @@ The candidate uses the production shared operator rate limiter. An authenticated
 4. The response does not verify a KITSNODE member's ownership, establish a connection, query campaigns, or prove any advertising performance result. Those require the existing separately authenticated member application and operator review flow.
 
 Checks run locally: handler policy, rate limiter, Deno runtime startup with fake secrets and no external network, unconditional 410 runtime, self-contained deployment bundle `deno check`, isolated browser session UI, typecheck, and builds with the diagnostic page flag on and off. No real credentials or account data were used.
+
+## Campaign count candidate
+
+The diagnostic also requests `/ncc/campaigns` using the server-verified Naver customer ID and returns only the number of rows in that response. A successful empty array produces `returnedCount: 0`; failed or invalid requests use a separate `campaigns.status: unavailable`. This is a count of returned rows, not a guarantee that the list is complete, and it is not an advertising performance measurement. It does not establish a KITSNODE member binding. The runtime route remains an operator-only, rate-limited diagnostic and must not replace the existing ad API. This change has only been tested in isolated fixtures and has not been deployed or used for a live campaign query.
