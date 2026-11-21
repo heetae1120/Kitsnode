@@ -1,11 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {NAVER_INVITE_POLICY_VERSION,NAVER_INVITE_POLICY_DIGEST} from '../src/lib/naver-invite-policy.mjs';
 import {approveInviteProofCandidate} from '../src/lib/invite-proof-web-candidate.mjs';
 
 const userId='11111111-1111-4111-8111-111111111111',consentId='22222222-2222-4222-8222-222222222222',requestId='33333333-3333-4333-8333-333333333333',nonce='44444444-4444-4444-8444-444444444444',digest='a'.repeat(64),extension='a'.repeat(32);
 function fixture(){
  const calls:{kind:string;value:any}[]=[];let active=true;
- const request={requestId,consentId,accountId:'123',viewerId:'advertiser',consentDigest:`sha256:${digest}`,consentVersion:'v1',recipientId:'kitsnode',role:'OPERATIONS_VIEWER',autoPolicy:true,publicKey:{kty:'EC',crv:'P-256',x:'A'.repeat(43),y:'B'.repeat(43),ext:true}};
+ const request={requestId,consentId,accountId:'123',viewerId:'advertiser',consentDigest:`sha256:${digest}`,consentVersion:'v1',naverPolicyVersion:NAVER_INVITE_POLICY_VERSION,naverPolicyDigest:`sha256:${NAVER_INVITE_POLICY_DIGEST}`,recipientId:'kitsnode',role:'OPERATIONS_VIEWER',autoPolicy:true,publicKey:{kty:'EC',crv:'P-256',x:'A'.repeat(43),y:'B'.repeat(43),ext:true}};
  const runtime={sendMessage:async (_id:string,m:any)=>{calls.push({kind:'extension',value:m});return m.type==='kitsnode.proof.start.v2'?{status:'started'}:m.type==='kitsnode.proof.prepare.v2'?{status:'pending'}:m.type==='kitsnode.proof.get.v2'?{status:'ready',request}:{status:'signalled'};}};
  const args={userId,consentId,accountId:'123',consentVersion:'v1',policyDigest:digest,nonce,extension,runtime,wait:async()=>{},signal:new AbortController().signal,isCurrent:()=>active,getSession:async()=>({data:{session:{user:{id:userId},access_token:'bearer.token'}}}),fetcher:async (url:any,init:any)=>{calls.push({kind:'server',value:{url,init}});return Response.json({status:'approved'});}};
  return {args,request,calls,logout:()=>{active=false}};
@@ -18,7 +19,7 @@ test('member token goes only to the fixed server and extension receives identifi
  assert.deepEqual(JSON.parse(f.calls[3].value.init.body),{consentId,request:f.request});
 });
 test('rejects other consent, account, viewer, private keys and wrong digest before server',async()=>{
- for(const mutate of [(r:any)=>r.consentId=nonce,(r:any)=>r.accountId='456',(r:any)=>r.viewerId='kitsnode',(r:any)=>r.consentDigest='sha256:'+'b'.repeat(64),(r:any)=>r.publicKey.d='secret']){
+ for(const mutate of [(r:any)=>r.consentId=nonce,(r:any)=>r.accountId='456',(r:any)=>r.viewerId='kitsnode',(r:any)=>r.consentDigest='sha256:'+'b'.repeat(64),(r:any)=>r.publicKey.d='secret',(r:any)=>r.naverPolicyDigest='sha256:'+'c'.repeat(64),(r:any)=>r.naverPolicyVersion='old']){
   const f=fixture();mutate(f.request);assert.deepEqual(await approveInviteProofCandidate(f.args),{status:'blocked'});assert.equal(f.calls.filter(x=>x.kind==='server').length,0);
  }
 });
