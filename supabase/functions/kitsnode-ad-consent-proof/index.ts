@@ -11,4 +11,7 @@ const url=e('SUPABASE_URL'),anon=e('SUPABASE_ANON_KEY'),secret=e('SUPABASE_SERVI
 if(url!=='https://bjpguxwqxlsteektkhwf.supabase.co'||!anon||!secret||anon===secret||!/^[a-p]{32}$/.test(extensionId))throw Error('invalid_configuration');
 const opts={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
 const authClient=createClient(url,anon,opts),serviceClient=createClient(url,secret,opts);
-Deno.serve(createExecutionProofHandler({authClient,serviceClient,extensionId,consentVersion:INVITE_CONSENT_VERSION,consentDigest:INVITE_CONSENT_DIGEST}));
+// Keep proof execution closed until the published extension identity and
+// release have been verified. The web feature is separately disabled.
+const RELEASE_ENABLED=false;
+Deno.serve(RELEASE_ENABLED ? createExecutionProofHandler({authClient,serviceClient,extensionId,consentVersion:INVITE_CONSENT_VERSION,consentDigest:INVITE_CONSENT_DIGEST}) : async () => new Response('temporarily unavailable', {status:503,headers:{'Cache-Control':'no-store'}}));
