@@ -1,0 +1,60 @@
+.store-theme .ad-analysis { min-height:100svh; background:#0b0b0b; color:#f5f2eb; }
+.ad-analysis a { color:inherit; text-decoration:none; }
+.ad-analysis-skip { position:fixed; z-index:2000; top:-100px; left:20px; padding:14px; background:#ff5a1f; color:#0b0b0b!important; }
+.ad-analysis-skip:focus { top:15px; }
+.ad-analysis-header { height:88px; padding:0 6vw; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid #ffffff25; }
+.ad-analysis-brand { font-size:39px; font-weight:850; letter-spacing:-2.7px; line-height:1; }
+.ad-analysis-brand span { display:inline-block; margin:4px 0 0 5px; vertical-align:top; font-size:12px; letter-spacing:0; }
+.ad-analysis-back { display:inline-flex; align-items:center; gap:9px; font-size:13px; font-weight:600; }
+.ad-analysis-back:hover { color:#ff5a1f; }
+.ad-analysis-main { width:min(1180px,100%); margin:auto; padding:clamp(52px,7vw,90px) 6vw 60px; outline:none; }
+.ad-analysis-intro { display:flex; align-items:end; justify-content:space-between; gap:24px; padding-bottom:34px; border-bottom:1px solid #353535; margin-bottom:28px; }
+.ad-analysis-eyebrow,.ad-analysis-section-label { display:block; color:#ff8052; font-size:11px; font-weight:700; letter-spacing:.12em; }
+.store-theme .ad-analysis-intro h1 { margin:20px 0 9px; font-size:clamp(32px,4vw,50px); letter-spacing:-.055em; line-height:1.18; }
+.ad-analysis-lead { color:#aaa7a0; font-size:15px; line-height:1.7; word-break:keep-all; }
+.ad-analysis-intro-tag { color:#aaa7a0; white-space:nowrap; font-size:11px; font-weight:650; letter-spacing:.1em; }
+.ad-analysis-intro-tag span { color:#ff5a1f; font-size:15px; margin-left:8px; }
+.store-theme .ad-analysis .store-card { border-color:#353535; border-radius:2px; background:#111; }
+.store-theme .ad-analysis .store-card + .store-card { margin-top:16px; }
+.store-theme .ad-analysis .store-button { cursor:pointer; }
+.store-theme .ad-analysis-login { display:flex; align-items:flex-start; gap:20px; padding:clamp(24px,4vw,42px); }
+.ad-analysis-icon,.ad-analysis-status-icon { display:grid; place-items:center; flex:none; width:48px; height:48px; background:#321b12; color:#ff8052; }
+.store-theme .ad-analysis-login h2 { margin-top:14px; }
+.ad-analysis-status { display:flex; justify-content:space-between; align-items:center; gap:20px; }
+.ad-analysis-status-copy { display:flex; align-items:flex-start; gap:18px; min-width:0; }
+.ad-analysis-status-copy h2 { margin:10px 0 4px; }
+.ad-analysis-status-copy p { color:#aaa7a0; font-size:14px; line-height:1.7; word-break:keep-all; }
+.ad-analysis-status-icon { width:42px; height:42px; color:#a8dab7; background:#14271d; }
+.ad-analysis-status > button { flex-shrink:0; }
+.ad-analysis-card-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+.ad-analysis-card-head h2 { margin-top:9px!important; }
+.ad-analysis-empty { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:220px; margin-top:24px; padding:28px; border:1px dashed #454545; text-align:center; }
+.ad-analysis-empty p { margin:18px 0 4px; color:#f5f2eb; font-weight:650; }
+.ad-analysis-empty > span { color:#aaa7a0; font-size:13px; line-height:1.6; }
+.ad-analysis-empty-mark { display:flex; align-items:end; gap:5px; height:31px; }
+.ad-analysis-empty-mark span { width:6px; background:#ff5a1f; opacity:.6; }
+.ad-analysis-empty-mark span:nth-child(1) { height:12px; }.ad-analysis-empty-mark span:nth-child(2) { height:20px; }.ad-analysis-empty-mark span:nth-child(3) { height:15px; }.ad-analysis-empty-mark span:nth-child(4) { height:28px; }
+.ad-analysis-connection { margin-top:16px; border:1px solid #353535; background:#111; }
+.ad-analysis-connection > summary { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:24px; cursor:pointer; list-style:none; }
+.ad-analysis-connection > summary::-webkit-details-marker { display:none; }
+.ad-analysis-connection > summary strong { display:block; margin:7px 0 3px; font-size:18px; }
+.ad-analysis-connection > summary div > span:last-child { color:#aaa7a0; font-size:13px; }
+.ad-analysis-connection > summary > svg { color:#aaa7a0; transition:transform .16s ease; }
+.ad-analysis-connection[open] > summary > svg { transform:rotate(180deg); }
+.ad-analysis-connection-content { padding:0 24px 24px; }
+.store-theme .ad-analysis-connection-content > .store-card { border:0; border-top:1px solid #353535; padding:24px 0 0; }
+.ad-analysis-connection-content :is(input:not([type=checkbox]),select) { width:100%; max-width:420px; min-height:48px; padding:10px 14px; border:1px solid #666; border-radius:0; background:#171717; color:#f5f2eb; font:inherit; }
+.ad-analysis-connection-content form { display:grid; gap:12px; margin:20px 0; }
+.ad-analysis-connection-content form button { justify-self:start; }
+.ad-analysis-connection-content label { font-size:14px; font-weight:600; }
+.ad-analysis-connection-content input[type=checkbox] { accent-color:#ff5a1f; }
+.ad-analysis-footer { display:flex; align-items:center; flex-wrap:wrap; gap:8px 16px; margin-top:52px; padding-top:22px; border-top:1px solid #353535; font-size:12px; color:#aaa7a0; }
+.ad-analysis-footer span:first-child { color:#f5f2eb; font-size:16px; font-weight:750; letter-spacing:-.05em; }
+.ad-analysis-footer a { margin-left:auto; text-decoration:underline; text-underline-offset:3px; }
+@media(max-width:760px) {
+ .ad-analysis-header { height:72px; padding:0 22px; }.ad-analysis-brand { font-size:32px; }.ad-analysis-back { font-size:12px; }
+ .ad-analysis-main { padding:48px 22px 50px; }.ad-analysis-intro { padding-bottom:26px; }.ad-analysis-intro-tag { display:none; }
+ .store-theme .ad-analysis-login { flex-direction:column; gap:16px; }.ad-analysis-status { align-items:flex-start; flex-direction:column; }
+ .ad-analysis-connection > summary { padding:20px; }.ad-analysis-connection-content { padding:0 20px 20px; }.ad-analysis-empty { min-height:190px; padding:20px; }
+}
+@media(max-width:390px) { .ad-analysis-main { padding-left:16px; padding-right:16px; }.ad-analysis-status-copy { gap:12px; }.ad-analysis-footer a { margin-left:0; } }

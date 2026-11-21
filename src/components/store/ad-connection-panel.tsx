@@ -9,7 +9,7 @@ import {createInviteConsentClient} from '@/lib/invite-consent-client.mjs';
 import {StoreBadge, StoreButton, StoreCard} from './store-ui';
 import type {AdConnectionTransport} from '@/lib/ad-connection-transport.mjs';
 
-const consentClient=createInviteConsentClient({enabled:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED==='true',version:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION,policyDigest:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST,policyUrl:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL});
+const consentClient=createInviteConsentClient({enabled:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED==='true',version:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION,policyDigest:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST,policyUrl:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL,disclosureUrl:process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL});
 const inviteExtensionId = process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID || '';
 
 type Connection = {requestId: string; adAccountId: string; status: string};
@@ -110,7 +110,7 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
       if(!token||session.data.session?.user.id!==owner||userRef.current!==owner||controller.signal.aborted)throw Error('session_changed');
       await consentClient.record(token,selected,controller.signal);
       if(!controller.signal.aborted&&userRef.current===owner){setConsentAccepted(false);setConsentMessage('사전 동의를 저장했습니다. 초대 발송과 권한 수락은 별도입니다.');}
-    }catch {if(!controller.signal.aborted&&userRef.current===owner)setConsentMessage('사전 동의를 저장하지 못했습니다. 잠시 후 다시 확인해 주세요.');}
+    }catch {if(!controller.signal.aborted&&userRef.current===owner)setConsentMessage('사전 동의를 저장하지 못했습니다. 로그인과 키츠노드 이용약관·개인정보 동의 상태를 확인한 뒤 다시 시도해 주세요.');}
     finally {if(activeRef.current===controller){activeRef.current=null;setConsentBusy(false);}}
   }
 
@@ -157,8 +157,9 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
       <ul className="store-list"><li>Chrome 확장프로그램을 이용한 네이버 광고계정 연결</li><li>네이버의 개인정보 제공 및 회원 초대 정책 동의</li><li>회원 ID <strong>kitsnode</strong> 초대와 <strong>운영 조회</strong> 권한 선택</li><li>연결된 계정의 광고와 성과 정보 조회</li></ul>
       {consentClient&&signedIn&&connections.some(c=>c.status!=='disconnected')?<form onSubmit={recordConsent}>
         <label htmlFor="consent-account">동의할 광고계정</label><select id="consent-account" value={consentAccount} onChange={e=>{setConsentAccount(e.target.value);setConsentAccepted(false);setConsentMessage('');}} disabled={consentBusy}><option value="">계정을 선택하세요</option>{connections.filter(c=>c.status!=='disconnected').map(c=><option key={c.requestId} value={c.adAccountId}>{c.adAccountId}</option>)}</select>
-        <p><a className="store-text-link" href={consentClient.policyUrl} target="_blank" rel="noopener noreferrer">네이버 정책 확인 (새 창)</a></p>
-        <label><input type="checkbox" checked={consentAccepted} onChange={e=>setConsentAccepted(e.target.checked)} disabled={!consentAccount||consentBusy}/> 선택한 계정의 위 연결 절차와 네이버 정책을 확인하고 동의합니다.</label>
+        <p><a className="store-text-link" href={consentClient.disclosureUrl} target="_blank" rel="noopener noreferrer">키츠노드 광고계정 연결 및 데이터 분석 사전 동의 보기 (새 창)</a></p>
+        <p><a className="store-text-link" href={consentClient.policyUrl} target="_blank" rel="noopener noreferrer">네이버 운영정책 보기 (새 창)</a></p>
+        <label><input type="checkbox" checked={consentAccepted} onChange={e=>setConsentAccepted(e.target.checked)} disabled={!consentAccount||consentBusy}/> 선택한 계정의 키츠노드 사전 동의 내용을 확인하고 동의합니다.</label>
         <StoreButton type="submit" disabled={!consentAccepted||!consentAccount||consentBusy}>{consentBusy?'저장 중…':'사전 동의 저장'}</StoreButton>
         {consentMessage&&<p role="status">{consentMessage}</p>}
       </form>:<p>사전 동의의 계정별 저장과 자동 초대 기능은 연결 준비 중입니다. 현재 아래 연결 확인 요청은 광고계정 번호만 접수하며, 이 동의를 저장하거나 초대를 자동 발송하지 않습니다.</p>}

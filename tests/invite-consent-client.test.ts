@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createInviteConsentClient} from '../src/lib/invite-consent-client.mjs';
-const options={enabled:true,version:'v1',policyDigest:'a'.repeat(64),policyUrl:'https://ads.naver.com/adguide/policy'};
+const options={enabled:true,version:'v1',policyDigest:'a'.repeat(64),policyUrl:'https://ads.naver.com/adguide/policy',disclosureUrl:'https://heetae1120.github.io/Kitsnode/policies/advertiser-consent-2026-11-21-v1.txt'};
 test('consent client only enables with complete trusted configuration',()=>{
  assert.equal(createInviteConsentClient({...options,enabled:false}),undefined);
  assert.equal(createInviteConsentClient({...options,policyUrl:'https://ads.naver.com.example.com/'}),undefined);
  assert.equal(createInviteConsentClient({...options,policyDigest:'bad'}),undefined);
+ assert.equal(createInviteConsentClient({...options,disclosureUrl:'https://ads.naver.com/adguide/policy'}),undefined);
+ assert.equal(createInviteConsentClient({...options,disclosureUrl:options.disclosureUrl+'?changed=1'}),undefined);
  assert.ok(createInviteConsentClient(options));
 });
 test('records an account bound consent only at fixed endpoint',async()=>{
