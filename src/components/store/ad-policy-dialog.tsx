@@ -29,7 +29,7 @@ export function AdPolicyDialog({document, onClose}: {document: PolicyDocument | 
 
   return <>
     <style>{`
-      .ad-policy-dialog { width: min(760px, calc(100% - 32px)); max-width: none; max-height: min(800px, calc(100dvh - 32px)); padding: 0; border: 1px solid #dedede; border-radius: 18px; background: #fff; color: #202020; box-shadow: 0 24px 80px rgba(0,0,0,.25); }
+      .ad-policy-dialog { position: fixed; inset: 0; margin: auto; width: min(760px, calc(100% - 32px)); max-width: none; max-height: min(800px, calc(100dvh - 32px)); padding: 0; border: 1px solid #dedede; border-radius: 18px; background: #fff; color: #202020; box-shadow: 0 24px 80px rgba(0,0,0,.25); }
       .ad-policy-dialog::backdrop { background: rgba(20,20,20,.66); }
       .ad-policy-dialog__header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #e9e9e9; }
       .ad-policy-dialog__header h2 { margin: 0; font-size: 18px; line-height: 1.4; }
