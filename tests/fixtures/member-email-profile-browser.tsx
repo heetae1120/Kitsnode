@@ -1,0 +1,2 @@
+import React from 'react';import{createRoot}from'react-dom/client';import{MemberEmailProfile}from'../../src/components/store/member-email-profile';
+let attempts=0;const client={from:()=>({select(){return this},eq(){return this},async maybeSingle(){return {data:null,error:null}}}),async rpc(_name:string,_params:any){attempts++;return {data:attempts===1?'username_taken':'created',error:null}}};createRoot(document.getElementById('root')!).render(<MemberEmailProfile client={client} userId="00000000-0000-4000-8000-000000000001"/>);

@@ -13,6 +13,8 @@ import { MemberSelfWithdraw } from './member-self-withdraw';
 import {requestSelfWithdrawal,selfWithdrawalAvailable} from '@/lib/member-self-withdraw.mjs';
 import {writeNaverIntent,readNaverIntent,clearNaverIntent,naverBoundaryEnabled} from '@/lib/member-naver-intent.mjs';
 import { MemberNaverSignIn } from './member-naver-sign-in';
+import { MemberEmailProfile } from './member-email-profile';
+import {createUsernameClient} from '@/lib/member-username-client.mjs';
 import naverStyles from './naver-login.module.css';
 
 const naverErrorText: Record<string,string> = {
@@ -27,12 +29,15 @@ const naverStorage=()=>{try{return window.sessionStorage}catch{return null}};
 
 export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const [api,setApi] = useState<EmailAuth|null>(null);
+  const [usernameApi,setUsernameApi]=useState<ReturnType<typeof createUsernameClient>|null>(null);
   const [social,setSocial] = useState<ReturnType<typeof createNaverAuth>|null>(null);
   const [consent,setConsent] = useState<ReturnType<typeof createMemberConsent>|null>(null);
   const consentUserRef = useRef<string|null>(null);
   const [consentStatus,setConsentStatus] = useState<'checking'|'needed'|'accepted'|'error'>('checking');
   const [signedIn,setSignedIn] = useState(false);
   const [naverIdentity,setNaverIdentity] = useState({linked:false,canLinkEmail:false});
+  const [profileStatus,setProfileStatus]=useState<'checking'|'pending'|'ready'|'error'>('checking');
+  const [profileCompleted,setProfileCompleted]=useState(false);
   const [recovery,setRecovery] = useState(false);
   const [error,setError] = useState('');
   const [busy,setBusy] = useState(false);
@@ -64,6 +69,8 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     }
     const current = memberBrowserClient();
     if (!current) return;
+    const usernameClient=process.env.NEXT_PUBLIC_MEMBER_USERNAME_ENABLED==='true'?createUsernameClient({url:config.url,key:config.key,auth:current.auth}):null;
+    setUsernameApi(usernameClient);
     const email = createEmailAuthClient({auth:current.auth,trustedOrigin:window.location.origin,confirmationRedirectTo:redirectTo,recoveryRedirectTo:redirectTo,signupAllowed:MEMBER_INTAKE_REVIEWED && config.signup});
     // The Naver button must not outlive the member consent gate. These are UI
     // flags only; database authorisation remains a separate security boundary.
@@ -71,7 +78,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     const naver = createNaverAuth({auth:current.auth,trustedOrigin:window.location.origin,redirectTo,allowSignIn:socialEnabled,allowLink:socialEnabled && config.link});
     const {data:{subscription}} = current.auth.onAuthStateChange((event,session) => {
       const nextId=session?.user?.id || null;
-      if (memberUserIdRef.current !== nextId) { memberUserIdRef.current=nextId; consentUserRef.current=null; setConsentStatus('checking'); setMemberUserId(nextId); }
+      if (memberUserIdRef.current !== nextId) { memberUserIdRef.current=nextId; consentUserRef.current=null; setConsentStatus('checking'); setProfileStatus('checking'); setProfileCompleted(false); setMemberUserId(nextId); }
       setSignedIn(Boolean(session?.user));
       setNaverIdentity(naverIdentityState(session?.user));
       if(event === 'PASSWORD_RECOVERY') setRecovery(true);
@@ -80,7 +87,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     setApi({...email,updatePassword:async password=>{const result=await email.updatePassword(password);if(result.ok)setRecovery(false);return result;}});
     setConsent(createMemberConsent(current));
     setSocial(naver);
-    return () => { subscription.unsubscribe(); email.dispose(); };
+    return () => { subscription.unsubscribe(); email.dispose(); usernameClient?.dispose(); };
   // Configuration is build-time only and does not change in this component's lifetime.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
@@ -109,10 +116,19 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     return ()=>{active=false;};
   },[signedIn,memberUserId,recovery,consent,config?.signup,naverBoundary]);
   useEffect(() => {
+    let active=true;
+    if(process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED!=='true'||!signedIn||recovery||!memberUserId){setProfileStatus('ready');return ()=>{active=false};}
+    const current=memberBrowserClient();setProfileStatus('checking');
+    if(!current){setProfileStatus('error');return ()=>{active=false};}
+    void Promise.resolve(current.rpc('kitsnode_my_email_profile_pending')).then(({data,error})=>{if(active&&memberUserIdRef.current===memberUserId)setProfileStatus(error||typeof data!=='boolean'?'error':data?'pending':'ready')}).catch(()=>{if(active)setProfileStatus('error')});
+    return ()=>{active=false};
+  },[signedIn,recovery,memberUserId]);
+  useEffect(() => {
     if (!signedIn || recovery || !config?.signup || consentStatus !== 'accepted' || !memberUserId || consentUserRef.current !== memberUserId || memberUserIdRef.current !== memberUserId) return;
+    if(process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true'&&profileStatus!=='ready')return;
     const target = takeMemberReturn();
     if (target) window.location.assign(target);
-  },[signedIn,recovery,consentStatus,memberUserId,config?.signup]);
+  },[signedIn,recovery,consentStatus,memberUserId,config?.signup,profileStatus]);
   useEffect(() => {
     let active=true;
     setWithdrawAvailable(false);
@@ -144,8 +160,11 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const go = async (action:'signIn'|'link') => { if(busyRef.current)return;busyRef.current=true;setBusy(true);setError('');try {if(action==='signIn'&&naverBoundary&&!writeNaverIntent(naverStorage(),mode==='signup'?'signup':'signin')){setError(naverErrorText.unavailable);return;}const result=await social[action]();if(!result.ok){clearNaverIntent(naverStorage());setError(naverErrorText[result.code] || naverErrorText.unavailable);}} finally {busyRef.current=false;setBusy(false);} };
   return <section>
     {withdrawCompleted && <p role="status">회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.</p>}
-    <EmailAuthForm key={recovery?'recovery':'normal'} auth={api} signedIn={signedIn} recovery={recovery} initialMode={mode==='signup'?'signup':'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent}/>
-    {intakeEnabled && signedIn && !recovery && consent && memberUserId && consentStatus==='accepted' && <MemberConsentWithdraw key={memberUserId} selfServiceAvailable={withdrawAvailable} withdraw={async()=>{
+    <EmailAuthForm key={recovery?'recovery':'normal'} auth={api} signedIn={signedIn} recovery={recovery} initialMode={mode==='signup'?'signup':'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent} usernameSignIn={usernameApi?.signIn}/>
+    {process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true' && signedIn && !recovery && memberUserId && consentStatus==='accepted' && profileStatus==='pending' && <MemberEmailProfile key={`profile-${memberUserId}`} client={memberBrowserClient()!} userId={memberUserId} checkUsername={usernameApi?.checkUsername} onComplete={()=>{if(memberUserIdRef.current===memberUserId){setProfileCompleted(true);setProfileStatus('ready')}}}/>}
+    {profileCompleted && signedIn && <p role="status">회원가입이 완료되었습니다.</p>}
+    {process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true' && signedIn && profileStatus==='error' && <p role="alert">회원가입 완료 상태를 확인하지 못했습니다. 다시 로그인해 주세요.</p>}
+    {intakeEnabled && signedIn && !recovery && consent && memberUserId && consentStatus==='accepted' && <MemberConsentWithdraw key={`consent-${memberUserId}`} selfServiceAvailable={withdrawAvailable} withdraw={async()=>{
       const id=memberUserId;
       if(memberUserIdRef.current!==id)return {ok:false};
       const result=await consent.withdraw(id);
