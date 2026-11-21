@@ -16,11 +16,11 @@ test('real GoTrue JWT, PostgREST and Postgres bind one invitation attempt withou
  const proxy=await startProofProxy(handler);t.after(proxy.close);
  const extensionProof=process.env.KITS_TEST_EXTENSION?await import(process.env.KITS_TEST_EXTENSION):{createConsentProof};
  const proof=await extensionProof.createConsentProof({consentId,accountId:'123',viewerId:'advertiser',consentVersion:'v1',consentDigest:'sha256:'+'a'.repeat(64),naverPolicyVersion:'nav-invite-2026-11-21-v1',naverPolicyDigest:'sha256:c22f67b6cea2f70da3ddc3cca9a5b9923ae1b8cb77adbe3a7292714df7ba5596'});
- const invoke=async(path,origin,body,bearer)=>handler(new Request('https://local.test/kitsnode-ad-consent-proof/proof/'+path,{method:'POST',headers:{origin,'content-type':'application/json',...(bearer?{authorization:`Bearer ${bearer}`}:{})},body:JSON.stringify(body)}));
+ const invoke=async(path,origin,body,bearer)=>handler(new Request('https://local.test/functions/v1/kitsnode-ad-consent-proof/proof/'+path,{method:'POST',headers:{origin,'content-type':'application/json',...(bearer?{authorization:`Bearer ${bearer}`}:{})},body:JSON.stringify(body)}));
  assert.equal((await invoke('approve',site,{consentId,request:proof.request},token)).status,403);
  const otherSignup=await fetch(`${auth}/signup`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email:`other-${randomUUID()}@example.test`,password:'SyntheticOnly-123456!'})});assert.equal(otherSignup.status,200);const other=await otherSignup.json();
  const policy={consentId,naverPolicyVersion:'nav-invite-2026-11-21-v1',naverPolicyDigest:'sha256:c22f67b6cea2f70da3ddc3cca9a5b9923ae1b8cb77adbe3a7292714df7ba5596'};
- const confirmFor=(actor,body=policy)=>handler(new Request('https://local.test/kitsnode-ad-consent-proof/policy-confirm',{method:'POST',headers:{origin:site,'content-type':'application/json',authorization:`Bearer ${actor}`},body:JSON.stringify(body)}));
+ const confirmFor=(actor,body=policy)=>handler(new Request('https://local.test/functions/v1/kitsnode-ad-consent-proof/policy-confirm',{method:'POST',headers:{origin:site,'content-type':'application/json',authorization:`Bearer ${actor}`},body:JSON.stringify(body)}));
  assert.equal((await confirmFor(other.access_token)).status,403);assert.equal((await confirmFor(token,{...policy,naverPolicyVersion:'wrong'})).status,400);
  const {confirmNaverInvitePolicy}=await import('./fixtures/invite-web/naver-invite-policy-client.mjs');
  const {approveInviteProofCandidate}=await import('./fixtures/invite-web/invite-proof-web-candidate.mjs');

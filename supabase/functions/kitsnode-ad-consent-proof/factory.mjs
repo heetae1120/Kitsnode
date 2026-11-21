@@ -23,7 +23,10 @@ export function createExecutionProofHandler({authClient,serviceClient,extensionI
  const handler=createProofHttp({server,siteOrigin:'https://heetae1120.github.io',extensionOrigin:`chrome-extension://${extensionId}`,allowRequest});
  return async req=>{
   const url=new URL(req.url),base='/kitsnode-ad-consent-proof';
-  if(url.pathname===`${base}/policy-confirm`){
+  // Gateways can preserve or strip the public /functions/v1 prefix. Match
+  // exactly either supported form; never accept arbitrary path prefixes.
+  const path=url.pathname.startsWith(`/functions/v1${base}/`)?url.pathname.slice('/functions/v1'.length):url.pathname;
+  if(path===`${base}/policy-confirm`){
    const headers={'Cache-Control':'no-store','Content-Type':'application/json','Vary':'Origin','X-Content-Type-Options':'nosniff'};
    const reply=(status,data)=>new Response(JSON.stringify(data),{status,headers});
    if(req.headers.get('origin')!=='https://heetae1120.github.io'||url.search)return reply(403,{error:'forbidden'});
@@ -49,7 +52,7 @@ export function createExecutionProofHandler({authClient,serviceClient,extensionI
     if(result.error)throw Error('unavailable');return result.data===true?reply(200,{status:'confirmed'}):reply(403,{error:'forbidden'});
    }catch{return reply(503,{error:'unavailable'})}
   }
-  if(!url.pathname.startsWith(`${base}/proof/`))return new Response(null,{status:404});
-  return handler(new Request(`https://internal.invalid${url.pathname.slice(base.length)}${url.search}`,req));
+  if(!path.startsWith(`${base}/proof/`))return new Response(null,{status:404});
+  return handler(new Request(`https://internal.invalid${path.slice(base.length)}${url.search}`,req));
  };
 }
