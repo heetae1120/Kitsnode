@@ -1,0 +1,48 @@
+// Isolated component test: all non-local network access is blocked.
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
+import {build} from 'esbuild';
+const require=createRequire(import.meta.url);
+const playwrightPath=process.env.KITS_PLAYWRIGHT_PATH;
+const path=name=>fileURLToPath(new URL(name,import.meta.url));
+test('manual invitation guidance and confirmed disconnect use the signed-in connection', {skip:!playwrightPath,timeout:30000},async t=>{
+ const {chromium}=require(playwrightPath);
+ const built=await build({entryPoints:[path('./fixtures/ad-connection-browser.tsx')],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent',define:{'process.env.NEXT_PUBLIC_BASE_PATH':JSON.stringify(''),'process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID':JSON.stringify('a'.repeat(32))},alias:{'@/lib/member-browser-client':path('./fixtures/ad-connection-auth-stub.ts'),'next/link':path('./fixtures/ad-connection-link-stub.tsx'),'@/lib/member-return':path('../src/lib/member-return.ts')}});
+ const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}res.writeHead(200,{'content-type':'text/html'});res.end('<!doctype html><html lang="ko"><meta charset="utf-8"><div id="root"></div><script src="/app.js"></script></html>');});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));
+ const origin=`http://127.0.0.1:${server.address().port}`;
+ const browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
+ const page=await browser.newPage();await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
+ await page.goto(origin);
+ assert.equal(await page.getByRole('link',{name:'네이버애즈 열기 (새 창)'}).getAttribute('href'),'https://ads.naver.com/settings/ad-account');
+ await page.getByText('연결 확인 대기',{exact:false}).waitFor();
+ assert.equal(await page.getByText('kitsnode',{exact:true}).count(),1);
+ assert.equal(await page.getByText(/초대 발송과 담당자 수락은 직접 확인/).count(),1);
+ const extension=page.getByRole('button',{name:'확장 프로그램으로 네이버애즈 열기'});
+ assert.equal(await extension.isDisabled(),true);
+ await page.getByLabel('키츠노드에 운영 조회 권한을 초대하는 절차를 확인했습니다.').check();
+ await extension.click();await page.getByText(/네이버애즈를 열었습니다/).waitFor();
+ const messages=await page.evaluate(()=>window.connectionFixture.extensionCalls);
+ assert.equal(messages.length,1);assert.equal(messages[0].id,'a'.repeat(32));
+ assert.deepEqual(Object.keys(messages[0].message).sort(),['consent','nonce','type']);
+ await page.evaluate(()=>window.connectionFixture.disableExtension());
+ await extension.click();await page.getByText(/확장 프로그램을 열지 못했습니다/).waitFor();
+
+ page.once('dialog',dialog=>dialog.dismiss());await page.getByRole('button',{name:'연결 해제'}).click();
+ assert.deepEqual(await page.evaluate(()=>window.connectionFixture.calls),['list']);
+ page.once('dialog',dialog=>dialog.accept());await page.getByRole('button',{name:'연결 해제'}).click();
+ await page.getByText(/키츠노드 연결을 해제했습니다/).waitFor();
+ assert.equal(await page.getByRole('button',{name:'연결 해제'}).count(),0);
+ assert.deepEqual(await page.evaluate(()=>window.connectionFixture.calls),['list','disconnect:aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa']);
+ await page.getByRole('button',{name:'연결 상태 새로고침'}).click();
+ await page.waitForFunction(()=>window.connectionFixture.calls.length===3);
+ await page.goto(`${origin}/store/ads/connect/?signedout`);
+ const login=page.getByRole('link',{name:'로그인 후 연결하기'});await login.waitFor();
+ await login.evaluate(element=>element.addEventListener('click',event=>event.preventDefault()));
+ await login.click();
+ const saved=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('kitsnode-login-return-v1')));
+ assert.equal(saved.path,'/store/ads/connect/');
+});

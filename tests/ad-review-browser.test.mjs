@@ -1,0 +1,32 @@
+// Synthetic review UI only; no real API or customer data is used.
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createServer} from 'node:http';
+import {createRequire} from 'node:module';
+import {fileURLToPath} from 'node:url';
+import {build} from 'esbuild';
+const require=createRequire(import.meta.url),playwrightPath=process.env.KITS_PLAYWRIGHT_PATH;
+const path=name=>fileURLToPath(new URL(name,import.meta.url));
+test('review only permits approval of unexpired evidence for a pending request',{skip:!playwrightPath,timeout:30000},async t=>{
+ const {chromium}=require(playwrightPath);
+ const built=await build({entryPoints:[path('./fixtures/ad-review-browser.tsx')],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent',define:{'process.env.NEXT_PUBLIC_AD_REVIEW_ENABLED':'"true"'},alias:{'@/lib/member-browser-client':path('./fixtures/ad-connection-auth-stub.ts')}});
+ const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}res.writeHead(200,{'content-type':'text/html'});res.end('<!doctype html><html lang="ko"><meta charset="utf-8"><div id="root"></div><script src="/app.js"></script></html>');});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>server.close(resolve)));
+ const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
+ const page=await browser.newPage();await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());await page.goto(origin);
+ await page.getByRole('button',{name:'연결 요청 불러오기'}).click();
+ await page.getByText(/광고 계정 12345/).getByRole('button',{name:'검토'}).click();
+ await page.getByText(/case-expired/).waitFor();
+ assert.equal(await page.getByText(/case-expired/).getByRole('button',{name:'연결 승인'}).count(),0);
+ assert.equal(await page.getByText(/case-expired/).getByText('만료됨').count(),1);
+ await page.getByText(/case-current/).getByRole('button',{name:'연결 승인'}).click();
+ await page.getByText('연결을 승인했습니다.').waitFor();
+ const calls=await page.evaluate(()=>window.reviewFixture.calls);
+ assert.equal(calls.filter(call=>call.action==='approve').length,1);
+ assert.equal(calls.find(call=>call.action==='approve').evidenceId,'dddddddd-dddd-4ddd-8ddd-dddddddddddd');
+ await page.getByText(/광고 계정 54321/).getByRole('button',{name:'검토'}).click();
+ await page.getByText('연결 확인 대기 상태인 요청만 승인할 수 있습니다.').waitFor();
+ await page.getByText(/case-current/).waitFor();
+ assert.equal(await page.getByRole('button',{name:'연결 승인'}).count(),0);
+ assert.equal(await page.getByRole('button',{name:'확인 기록 저장'}).count(),0);
+});

@@ -18,8 +18,8 @@ test('uses one fixed destination and prevents redirect or ambient credentials',a
 });
 test('validates ownership-independent response shape and only accepts pending result',async()=>{
   const signal=new AbortController().signal;
-  const transport=createAdConnectionTransport({enabled:true,fetcher:async()=>Response.json({connections:[{adAccountId:'123',status:'read_connected',customerId:'secret'}]})})!;
-  assert.deepEqual(await transport.list('valid.token',signal),{connections:[{adAccountId:'123',status:'read_connected'}]});
+  const transport=createAdConnectionTransport({enabled:true,fetcher:async()=>Response.json({connections:[{requestId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',adAccountId:'123',status:'read_connected',customerId:'secret'}]})})!;
+  assert.deepEqual(await transport.list('valid.token',signal),{connections:[{requestId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',adAccountId:'123',status:'read_connected'}]});
   await assert.rejects(transport.request('token','123',signal));
   const bad=createAdConnectionTransport({enabled:true,fetcher:async()=>Response.json({connections:[{adAccountId:'123',status:'invented'}]})})!;
   await assert.rejects(bad.list('token',signal));
@@ -35,4 +35,19 @@ test('late response after cancellation is discarded',async()=>{
   const controller=new AbortController();
   const transport=createAdConnectionTransport({enabled:true,fetcher:async()=>{controller.abort();return Response.json({status:'pending_review'});}})!;
   await assert.rejects(transport.request('token','123',controller.signal),/request_cancelled/);
+});
+
+test('disconnect sends a validated request ID to the fixed endpoint and verifies the result',async()=>{
+  const id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const seen: Array<{input:RequestInfo|URL;init?:RequestInit}>=[];
+  const transport=createAdConnectionTransport({enabled:true,fetcher:async(input,init)=>{seen.push({input,init});return Response.json({status:'disconnected'});}})!;
+  const signal=new AbortController().signal;
+  assert.deepEqual(await transport.disconnect('valid.token',id,signal),{status:'disconnected'});
+  assert.equal(seen[0].input,`${AD_CONNECTION_ENDPOINT}/${id}`);
+  assert.equal(seen[0].init?.method,'DELETE');
+  assert.equal(seen[0].init?.redirect,'error');
+  await assert.rejects(transport.disconnect('valid.token','../other',signal));
+  assert.equal(seen.length,1);
+  const bad=createAdConnectionTransport({enabled:true,fetcher:async()=>Response.json({status:'pending_review'})})!;
+  await assert.rejects(bad.disconnect('valid.token',id,signal));
 });
