@@ -1,8 +1,8 @@
 # Read-only operator diagnostic candidate
 
-This candidate is **not deployed**. It uses existing Supabase Auth and the server-side operator allowlist, fixes the sole Naver target account to 2632357 and returns only the visibility status and role. It neither writes advertising data nor proves the relationship between a KITSNODE member and an advertiser. The Naver account resolver requires the existing runtime modules under the sibling `kitsnode-ad-api/src` directory; include those dependencies when packaging rather than overwriting the existing deployed API.
+This candidate is **not deployed**. It uses existing Supabase Auth and the server-side operator allowlist, fixes the sole Naver target account to 2647636 and returns the visibility status, role and campaign count. It neither writes advertising data nor proves the relationship between a KITSNODE member and an advertiser. The Naver account resolver requires the existing runtime modules under the sibling `kitsnode-ad-api/src` directory; include those dependencies when packaging rather than overwriting the existing deployed API.
 
-The candidate uses the production shared operator rate limiter. An authenticated operator session, deployment access, a verified removal/disable mechanism, and a runtime validation are required before deploying. Supabase's standard function-level JWT verification should be enabled. Do not expose API keys or tokens in logs. A live response would validate only the Naver access mapping, not campaign or performance retrieval. The test ad account currently has no registered ads.
+The candidate uses the production shared operator rate limiter. An authenticated operator session, deployment access, a verified removal/disable mechanism, and a runtime validation are required before deploying. Supabase's standard function-level JWT verification should be enabled. Do not expose API keys or tokens in logs. A successful live response validates the Naver access mapping and campaign count, but not performance retrieval or completeness of all campaign data.
 
 ## Prepared operator flow
 

@@ -17,8 +17,8 @@ export function createDiagnostic({verifySession,verifyOperator,resolveAccount,re
   if(!match)return reply(401,{error:'unauthenticated'});
   let user;try{user=await verifySession(match[1]);if(!user?.id)return reply(401,{error:'unauthenticated'});if(await verifyOperator(user.id)!==true)return reply(403,{error:'forbidden'});if(await allowRequest(user.id)!==true)return reply(429,{error:'rate_limited'});}catch{return reply(503,{error:'unavailable'});}
   try{
-   const r=await resolveAccount('2632357');
-   if(r?.ok===true && r.adAccountId==='2632357' && /^[1-9][0-9]{0,15}$/.test(r.customerId || '') && ['OWNER','MASTER','READ_ONLY'].includes(r.role)){
+   const r=await resolveAccount('2647636');
+   if(r?.ok===true && r.adAccountId==='2647636' && /^[1-9][0-9]{0,15}$/.test(r.customerId || '') && ['OWNER','MASTER','READ_ONLY'].includes(r.role)){
     let campaigns;try{campaigns=await readCampaigns(r.customerId);}catch{campaigns=null;}
     if(campaigns?.ok===true && Array.isArray(campaigns.data) && campaigns.data.length<=10000)return reply(200,{status:'accessible',role:r.role,campaigns:{status:'observed',returnedCount:campaigns.data.length}});
     const allowedCampaignErrors=['network_error','access_denied','rate_limited','upstream_error','invalid_response'];
