@@ -9,6 +9,7 @@ initdb -D "$d/data" -A trust --no-instructions >"$d/init.log"
 pg_ctl -D "$d/data" -o "-p 56415 -k $d -c listen_addresses=" -l "$d/server.log" start >/dev/null
 started=1
 psql -X -q -h "$d" -p 56415 -d postgres -v ON_ERROR_STOP=1 -c "create role anon; create role authenticated; create role service_role; create schema auth; create table auth.users(id uuid primary key); create table auth.sessions(id uuid primary key,user_id uuid not null references auth.users(id),not_after timestamptz); insert into auth.users values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'); insert into auth.sessions(id,user_id) values ('11111111-1111-4111-8111-111111111111','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');" >/dev/null
+psql -X -q -h "$d" -p 56415 -d postgres -v ON_ERROR_STOP=1 -c "create schema kitsnode_ads_private; create table kitsnode_ads_private.connections(id uuid primary key,user_id uuid not null,ad_account_id text not null,status text not null); insert into kitsnode_ads_private.connections values ('33333333-3333-4333-8333-333333333333','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','123','pending_review');" >/dev/null
 psql -X -q -h "$d" -p 56415 -d postgres -v ON_ERROR_STOP=1 -f "$root/supabase/migrations/20261121055943_kitsnode_invite_consent_recording.sql" >/dev/null
 KITS_CONSENT_PG_SOCKET="$d" KITS_CONSENT_PG_MODULE="${KITS_CONSENT_PG_MODULE:?set node_modules parent with pg installed}" node --test "$root/tests/invite-consent-rpc-integration.test.mjs"
 psql -X -q -h "$d" -p 56415 -d postgres -v ON_ERROR_STOP=1 -f "$root/docs/invite-consent-rollback.sql" >/dev/null

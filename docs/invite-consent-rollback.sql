@@ -11,4 +11,5 @@ drop function if exists kitsnode_ads_private.release_invite_consent_candidate(uu
 drop function if exists kitsnode_ads_private.begin_invite_send_candidate(uuid,uuid,uuid,text,text,text,uuid);
 drop function if exists kitsnode_ads_private.reserve_invite_consent_candidate(uuid,uuid,uuid,text,text,text,uuid);
 drop function if exists kitsnode_ads_private.record_invite_consent_candidate(uuid,uuid,uuid,text,text,text);
+drop function if exists kitsnode_ads_private.invite_has_active_connection(uuid,text);
 drop table if exists kitsnode_ads_private.invite_consent_candidate;

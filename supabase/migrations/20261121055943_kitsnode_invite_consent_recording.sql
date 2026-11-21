@@ -58,24 +58,35 @@ grant execute on function kitsnode_ads_private.release_invite_consent_candidate(
 create function public.kits_invite_active_session(p_user uuid,p_session uuid) returns boolean language sql stable security definer set search_path=pg_catalog as $$
  select exists(select 1 from auth.sessions where id=p_session and user_id=p_user and (not_after is null or not_after>now()))
 $$;
+-- A matching active connection is locked for the duration of each mutation,
+-- so concurrent disconnection cannot race an approval or send reservation.
+create function kitsnode_ads_private.invite_has_active_connection(p_user uuid,p_account text) returns boolean language plpgsql security definer set search_path=pg_catalog as $$
+declare n integer:=0; rec record;
+begin
+ for rec in select id from kitsnode_ads_private.connections where user_id=p_user and ad_account_id=p_account and status in ('pending_review','read_connected') for share loop
+  n:=n+1;
+ end loop;
+ return n=1;
+end $$;
+revoke all on function kitsnode_ads_private.invite_has_active_connection(uuid,text) from public,anon,authenticated,service_role;
 create function public.kits_invite_record(p_id uuid,p_user uuid,p_session uuid,p_account text,p_version text,p_digest text) returns uuid language plpgsql security definer set search_path=pg_catalog as $$
 begin
- if not public.kits_invite_active_session(p_user,p_session) then return null; end if;
+ if not public.kits_invite_active_session(p_user,p_session) or not kitsnode_ads_private.invite_has_active_connection(p_user,p_account) then return null; end if;
  return kitsnode_ads_private.record_invite_consent_candidate(p_id,p_user,p_session,p_account,p_version,p_digest);
 end $$;
 create function public.kits_invite_reserve(p_id uuid,p_user uuid,p_session uuid,p_account text,p_version text,p_digest text,p_reservation uuid) returns boolean language plpgsql security definer set search_path=pg_catalog as $$
 begin
- if not public.kits_invite_active_session(p_user,p_session) then return false; end if;
+ if not public.kits_invite_active_session(p_user,p_session) or not kitsnode_ads_private.invite_has_active_connection(p_user,p_account) then return false; end if;
  return kitsnode_ads_private.reserve_invite_consent_candidate(p_id,p_user,p_session,p_account,p_version,p_digest,p_reservation);
 end $$;
 create function public.kits_invite_begin(p_id uuid,p_user uuid,p_session uuid,p_account text,p_version text,p_digest text,p_reservation uuid) returns boolean language plpgsql security definer set search_path=pg_catalog as $$
 begin
- if not public.kits_invite_active_session(p_user,p_session) then return false; end if;
+ if not public.kits_invite_active_session(p_user,p_session) or not kitsnode_ads_private.invite_has_active_connection(p_user,p_account) then return false; end if;
  return kitsnode_ads_private.begin_invite_send_candidate(p_id,p_user,p_session,p_account,p_version,p_digest,p_reservation);
 end $$;
 create function public.kits_invite_release(p_id uuid,p_user uuid,p_session uuid,p_account text,p_version text,p_digest text,p_reservation uuid) returns boolean language plpgsql security definer set search_path=pg_catalog as $$
 begin
- if not public.kits_invite_active_session(p_user,p_session) then return false; end if;
+ if not public.kits_invite_active_session(p_user,p_session) or not kitsnode_ads_private.invite_has_active_connection(p_user,p_account) then return false; end if;
  return kitsnode_ads_private.release_invite_consent_candidate(p_id,p_user,p_session,p_account,p_version,p_digest,p_reservation);
 end $$;
 revoke all on function public.kits_invite_active_session(uuid,uuid) from public,anon,authenticated;
