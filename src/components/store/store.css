@@ -125,3 +125,46 @@
 @media(prefers-reduced-motion:reduce) {
  .store-theme * { scroll-behavior:auto; transition:none; animation:none; }
 }
+
+/* Advertising performance: grouped controls and readable results. */
+.store-theme .ad-performance-heading { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; padding-bottom:24px; border-bottom:1px solid var(--store-border, #ddd); }
+.store-theme .ad-performance-heading h2 { margin:9px 0 5px; }
+.store-theme .ad-performance-heading p,.store-theme .ad-performance-section > p,.store-theme .ad-performance-actions p { margin:0; color:var(--store-text-secondary); font-size:14px; line-height:1.6; }
+.store-theme .ad-performance-eyebrow { font-size:11px; font-weight:750; letter-spacing:.12em; color:#e75425; }
+.store-theme .ad-performance-heading-mark { color:#e75425; font-size:27px; line-height:1; }
+.store-theme .ad-performance-fields { display:grid; gap:24px; padding-top:24px; }
+.store-theme .ad-performance-section { min-width:0; margin:0; padding:0; border:0; }
+.store-theme .ad-performance-section legend { padding:0; font-size:16px; font-weight:700; }
+.store-theme .ad-performance-section legend span { display:inline-grid; place-items:center; width:29px; height:29px; margin-right:9px; background:#fff0e9; color:#b93610; font-size:11px; }
+.store-theme .ad-performance-section > p { margin:7px 0 13px; }
+.store-theme .ad-performance-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.store-theme .ad-performance-field { min-width:0; display:flex; flex-direction:column; gap:8px; padding:14px; border:1px solid #d8d8d8; background:#fafafa; }
+.store-theme .ad-performance-field label { font-size:13px; font-weight:700; }
+.store-theme .ad-performance-field :is(select,input) { box-sizing:border-box; width:100%; min-width:0; min-height:46px; padding:10px 12px; border:1px solid #aaa; border-radius:2px; background:#fff; color:#191919; font:inherit; font-size:14px; }
+.store-theme .ad-performance-field :is(select,input):disabled { color:#666; background:#eee; cursor:not-allowed; opacity:1; }
+.store-theme .ad-performance-field :is(select,input):focus-visible,.store-theme .ad-performance-actions button:focus-visible { outline:3px solid #ff875a; outline-offset:2px; }
+.store-theme .ad-performance-actions { display:flex; justify-content:space-between; align-items:center; gap:16px; padding-top:24px; }
+.store-theme .ad-performance-actions button { min-width:150px; justify-content:space-between; gap:20px; }
+.store-theme .ad-performance-actions button:disabled { cursor:not-allowed; opacity:.55; }
+.store-theme .ad-performance-result { margin-top:30px; padding-top:26px; border-top:1px solid #ccc; }
+.store-theme .ad-performance-result h3 { margin:0 0 12px; }
+.store-theme .ad-performance-result > p { color:var(--store-text-secondary); font-size:13px; line-height:1.6; }
+.store-theme .ad-performance-metrics { grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:10px; margin:20px 0; }
+.store-theme .ad-performance-metrics > div { padding:16px; background:#f7f7f7; border:1px solid #ddd; }
+.store-theme .ad-performance-metrics dd { font-size:21px; }
+.store-theme .ad-performance-chart { margin:20px 0; padding:20px; border:1px solid #ddd; }
+.store-theme .ad-performance-chart h4 { margin:0 0 4px; }.store-theme .ad-performance-chart p { color:var(--store-text-secondary); font-size:13px; }
+.store-theme .ad-performance-chart > div { display:grid; gap:8px; margin-top:14px; font-size:13px; }
+.store-theme .ad-analysis .ad-performance-heading { border-color:#353535; }
+.store-theme .ad-analysis .ad-performance-heading p,.store-theme .ad-analysis .ad-performance-section > p,.store-theme .ad-analysis .ad-performance-actions p,.store-theme .ad-analysis .ad-performance-result > p,.store-theme .ad-analysis .ad-performance-chart p { color:#aaa7a0; }
+.store-theme .ad-analysis .ad-performance-section legend span { background:#321b12; color:#ff9a75; }
+.store-theme .ad-analysis .ad-performance-field,.store-theme .ad-analysis .ad-performance-metrics > div { border-color:#353535; background:#191919; }
+.store-theme .ad-analysis .ad-performance-field :is(select,input) { border-color:#666; color:#f5f2eb; background:#101010; color-scheme:dark; }
+.store-theme .ad-analysis .ad-performance-field :is(select,input):disabled { color:#aaa; background:#242424; }
+.store-theme .ad-analysis .ad-performance-result,.store-theme .ad-analysis .ad-performance-chart { border-color:#353535; }
+@media(max-width:600px) {
+ .store-theme .ad-performance-grid { grid-template-columns:1fr; }
+ .store-theme .ad-performance-actions { align-items:stretch; flex-direction:column; }
+ .store-theme .ad-performance-actions button { width:100%; }
+ .store-theme .ad-performance-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}

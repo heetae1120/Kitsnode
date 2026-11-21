@@ -16,3 +16,8 @@ test('empty, invalid and unavailable responses are not shown as zero',()=>{
  const invalid=render({...base,period:{since:'2026-02-30',until:'2026-11-18'},status:'observed',metrics:{impressions:0}});
  assert.match(invalid,/확인하지 못했습니다/); assert.doesNotMatch(invalid,/0회/);
 });
+
+test('shows provider average CPC in won without estimating a missing value',()=>{
+ const html=render({...base,status:'observed',metrics:{impressions:232,clicks:10,cost:1000,clickThroughRate:4.31,averageClickCost:100}});
+ assert.match(html,/평균 CPC/); assert.match(html,/100원/);
+});
