@@ -10,7 +10,7 @@ const playwrightPath=process.env.KITS_PLAYWRIGHT_PATH;
 const path=name=>fileURLToPath(new URL(name,import.meta.url));
 test('manual invitation guidance and confirmed disconnect use the signed-in connection', {skip:!playwrightPath,timeout:30000},async t=>{
  const {chromium}=require(playwrightPath);
- const built=await build({entryPoints:[path('./fixtures/ad-connection-browser.tsx')],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent',define:{'process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED':JSON.stringify('false'),'process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION':JSON.stringify(''),'process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST':JSON.stringify(''),'process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL':JSON.stringify(''),'process.env.NEXT_PUBLIC_BASE_PATH':JSON.stringify(''),'process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID':JSON.stringify('a'.repeat(32))},alias:{'@/lib/member-browser-client':path('./fixtures/ad-connection-auth-stub.ts'),'next/link':path('./fixtures/ad-connection-link-stub.tsx'),'@/lib/member-return':path('../src/lib/member-return.ts')}});
+ const built=await build({entryPoints:[path('./fixtures/ad-connection-browser.tsx')],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent',define:{'process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED':JSON.stringify('false'),'process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION':JSON.stringify(''),'process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST':JSON.stringify(''),'process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL':JSON.stringify(''),'process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL':JSON.stringify(''),'process.env.NEXT_PUBLIC_BASE_PATH':JSON.stringify(''),'process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID':JSON.stringify('a'.repeat(32))},alias:{'@/lib/member-browser-client':path('./fixtures/ad-connection-auth-stub.ts'),'next/link':path('./fixtures/ad-connection-link-stub.tsx'),'@/lib/member-return':path('../src/lib/member-return.ts')}});
  const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}res.writeHead(200,{'content-type':'text/html'});res.end('<!doctype html><html lang="ko"><meta charset="utf-8"><div id="root"></div><script src="/app.js"></script></html>');});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve)}));
  const origin=`http://127.0.0.1:${server.address().port}`;
@@ -45,4 +45,22 @@ test('manual invitation guidance and confirmed disconnect use the signed-in conn
  await login.click();
  const saved=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('kitsnode-login-return-v1')));
  assert.equal(saved.path,'/store/ads/connect/');
+});
+
+test('consent form explains expiry and that saving does not send an invitation', {skip:!playwrightPath,timeout:30000},async t=>{
+ const {chromium}=require(playwrightPath);
+ const built=await build({entryPoints:[path('./fixtures/ad-connection-browser.tsx')],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent',define:{'process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED':'"true"','process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION':'"v1"','process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST':JSON.stringify('a'.repeat(64)),'process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL':'"https://ads.naver.com/adguide/policy"','process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL':'"https://heetae1120.github.io/Kitsnode/policies/advertiser-consent-2026-11-21-v1.txt"','process.env.NEXT_PUBLIC_BASE_PATH':'""','process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID':'""'},alias:{'@/lib/member-browser-client':path('./fixtures/ad-connection-auth-stub.ts'),'next/link':path('./fixtures/ad-connection-link-stub.tsx'),'@/lib/member-return':path('../src/lib/member-return.ts')}});
+ const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}res.writeHead(200,{'content-type':'text/html; charset=utf-8'});res.end('<!doctype html><html lang="ko"><div id="root"></div><script src="/app.js"></script></html>');});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve)}));
+ const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
+ const page=await browser.newPage();let requests=0;
+ await page.route('**/*',route=>{const url=new URL(route.request().url());if(url.origin===origin)return route.continue();if(url.hostname==='bjpguxwqxlsteektkhwf.supabase.co'&&url.pathname.endsWith('/invite-consents')){requests++;return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({status:'recorded',consentId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'})});}return route.abort();});
+ await page.goto(origin);await page.getByLabel('동의할 광고계정').selectOption('12345');
+ await page.getByText(/저장 후 10분간 유효합니다/).waitFor();
+ assert.equal(await page.getByText(/동의 저장만으로 초대가 발송되지 않습니다/).count(),1);
+ await page.getByLabel('선택한 계정의 키츠노드 사전 동의 내용을 확인하고 동의합니다.').check();
+ await page.getByRole('button',{name:'사전 동의 저장'}).click();
+ await page.getByText(/만료되면 다시 저장해야 합니다/).waitFor();
+ assert.equal(await page.getByText(/자동 초대는 아직 연결되지 않아 초대가 발송되지 않았습니다/).count(),1);
+ assert.equal(requests,1);
 });
