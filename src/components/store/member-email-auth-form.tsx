@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 type Result = { ok: boolean; code: string };
 export type EmailAuth = {
@@ -30,11 +30,14 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
   const [message, setMessage] = useState(previewStatus === 'verification' ? '요청을 처리했습니다. 입력한 이메일에서 인증 안내를 확인해 주세요.' : '');
   const [error, setError] = useState(previewStatus === 'error' ? '로그인 정보를 확인해 주세요.' : '');
   const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false);
   useEffect(() => { if (!recovery) setMode(current => current === 'update' ? 'signin' : current); }, [recovery]);
   const clear = (next: Mode) => { setMode(next); setMessage(''); setError(''); setPassword(''); setTermsAccepted(false); setPrivacyAcknowledged(false); };
   const execute = async (fn: () => Promise<Result>) => {
+    if (busyRef.current) return;
+    busyRef.current = true;
     setBusy(true); setError(''); setMessage('');
     try {
       const result = await fn();
@@ -52,11 +55,11 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
       else if (result.code === 'sign_in_failed') setError('로그인 정보를 확인해 주세요.');
       else setError('요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.');
     } catch { setError('요청을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
-    finally { setBusy(false); }
+    finally { busyRef.current = false; setBusy(false); }
   };
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (busy) return;
+    if (busyRef.current) return;
     if (mode === 'signup' && canSignup && signupConsent && termsAccepted && privacyAcknowledged) return void execute(() => signupConsent.register(email.trim(), password, {termsVersion:signupConsent.terms.version,privacyVersion:signupConsent.privacy.version,termsAccepted:true,privacyAcknowledged:true}));
     if (mode === 'signup') return;
     if (mode === 'signin') return void execute(() => auth.signIn(email.trim(), password));
