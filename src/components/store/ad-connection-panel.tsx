@@ -14,10 +14,11 @@ import {AdPolicyDialog, type PolicyDocument} from './ad-policy-dialog';
 import type {AdConnectionTransport} from '@/lib/ad-connection-transport.mjs';
 
 const consentClient=createInviteConsentClient({enabled:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED==='true',version:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION,policyDigest:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST,policyUrl:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL,disclosureUrl:process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL});
-const proofEnabled = process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED === 'true';
 const proofVersion = process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION || '';
 const proofDigest = process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST || '';
 const inviteExtensionId = process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID || '';
+// Incomplete build configuration must not expose a nonfunctional invitation flow.
+const proofEnabled = process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED === 'true' && Boolean(consentClient) && /^[a-p]{32}$/.test(inviteExtensionId);
 
 type Connection = {requestId: string; adAccountId: string; status: string};
 const statusLabels: Record<string,string> = {
@@ -189,6 +190,7 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
       {consentClient&&signedIn&&connections.some(c=>c.status!=='disconnected')?<form onSubmit={recordConsent}>
         <label htmlFor="consent-account">동의할 광고계정</label><select id="consent-account" value={consentAccount} onChange={e=>{proofRef.current?.abort();proofRef.current=null;setOpeningExtension(false);consentAccountRef.current=e.target.value;setConsentAccount(e.target.value);setSavedConsent(null);setConsentAccepted(false);setNaverPolicyAccepted(false);setConsentMessage('');setExtensionMessage('');}} disabled={consentBusy}><option value="">계정을 선택하세요</option>{connections.filter(c=>c.status!=='disconnected').map(c=><option key={c.requestId} value={c.adAccountId}>{c.adAccountId}</option>)}</select>
         <p>사전 동의는 저장 후 10분간 유효합니다. 만료되면 다시 저장해 주세요. {proofEnabled?'동의 저장만으로 초대가 발송되지 않습니다.':'확장프로그램 자동 초대는 아직 연결되지 않아 동의 저장만으로 초대가 발송되지 않습니다.'}</p>
+        {proofEnabled&&/^[a-p]{32}$/.test(inviteExtensionId)&&<p><a className="store-text-link" href={`https://chromewebstore.google.com/detail/${inviteExtensionId}`} target="_blank" rel="noopener noreferrer">Chrome 웹 스토어에서 확장프로그램 설치 (새 창)</a></p>}
         <p><button type="button" className="store-text-link" onClick={()=>setPolicyDocument({title:'키츠노드 광고계정 연결 및 데이터 분석 사전 동의',url:consentClient.disclosureUrl,kind:'disclosure'})}>키츠노드 사전 동의 내용 보기</button></p>
         <p><button type="button" className="store-text-link" onClick={()=>setPolicyDocument({title:'네이버 운영정책',url:consentClient.policyUrl,kind:'policy'})}>네이버 운영정책 보기</button></p>
         {proofEnabled&&<section aria-labelledby="naver-invite-policy-title"><h4 id="naver-invite-policy-title">네이버 회원 초대 정책</h4><p>네이버 회원 초대 화면에 표시되는 내용입니다. 변경되면 다시 확인이 필요합니다.</p><ol>{NAVER_INVITE_POLICY_ITEMS.map((item)=><li key={item}>{item}</li>)}</ol><label><input type="checkbox" checked={naverPolicyAccepted} onChange={e=>{setSavedConsent(null);setNaverPolicyAccepted(e.target.checked);}} disabled={!consentAccount||consentBusy||openingExtension}/> {NAVER_INVITE_POLICY_AGREEMENT}</label></section>}

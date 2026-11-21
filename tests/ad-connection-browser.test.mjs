@@ -91,6 +91,7 @@ test('consent-bound candidate displays the full Naver notice and requires both c
  const page=await browser.newPage();const calls=[];
  await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin===origin)return route.continue();if(u.hostname==='bjpguxwqxlsteektkhwf.supabase.co'){calls.push({path:u.pathname,body:route.request().postDataJSON()});return route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(u.pathname.endsWith('/invite-consents')?{status:'recorded',consentId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}:{status:'confirmed'})});}return route.abort();});
  await page.goto(origin);await page.getByLabel('동의할 광고계정').selectOption('12345');
+ assert.equal(await page.getByRole('link',{name:'Chrome 웹 스토어에서 확장프로그램 설치 (새 창)'}).getAttribute('href'),`https://chromewebstore.google.com/detail/${'a'.repeat(32)}`);
  const policy=page.getByRole('region',{name:'네이버 회원 초대 정책'});assert.equal(await policy.locator('li').count(),4);
  const save=page.getByRole('button',{name:'사전 동의 저장'});assert.equal(await save.isDisabled(),true);
  await page.getByLabel('선택한 계정의 키츠노드 사전 동의 내용을 확인하고 동의합니다.').check();assert.equal(await save.isDisabled(),true);
