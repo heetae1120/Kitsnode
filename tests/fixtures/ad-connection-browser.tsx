@@ -11,6 +11,6 @@ const transport={
 };
 const extensionCalls:unknown[]=[];
 let extensionAvailable=true;
-Object.defineProperty(window,'chrome',{value:{runtime:{sendMessage:async(id:string,message:{nonce:string})=>{extensionCalls.push({id,message});if(!extensionAvailable)throw new Error('unavailable');return {status:'opened',nonce:message.nonce};}}},configurable:true});
+Object.assign(window.chrome,{runtime:{sendMessage:async(id:string,message:{nonce:string})=>{extensionCalls.push({id,message});if(!extensionAvailable)throw new Error('unavailable');return {status:'opened',nonce:message.nonce};}}});
 Object.assign(window,{connectionFixture:{calls,extensionCalls,disableExtension:()=>{extensionAvailable=false;}}});
 createRoot(document.getElementById('root')!).render(<AdConnectionPanel transport={transport}/>);

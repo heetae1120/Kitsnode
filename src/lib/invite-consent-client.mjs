@@ -1,5 +1,5 @@
 // Candidate route; the fixed destination must authenticate and authorize the user.
-const endpoint='https://bjpguxwqxlsteektkhwf.supabase.co/functions/v1/kitsnode-ad-api/invite-consents';
+const endpoint='https://bjpguxwqxlsteektkhwf.supabase.co/functions/v1/kitsnode-ad-consent-api/invite-consents';
 const uuid=s=>typeof s==='string'&&/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(s);
 export function createInviteConsentClient({enabled,version,policyDigest,policyUrl,fetcher=globalThis.fetch}={}){
  let url;try{url=new URL(policyUrl);}catch{return undefined;}
