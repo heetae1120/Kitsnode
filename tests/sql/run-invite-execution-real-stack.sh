@@ -36,7 +36,7 @@ revoke all on function public.kits_ads_list(uuid) from public,anon,authenticated
 grant execute on function public.kits_test_connection(uuid,uuid,text),public.kits_test_revoke(uuid),public.kits_ads_list(uuid),public.kits_ads_rate_limit(uuid) to service_role;
 SQL
 docker exec -i "$db" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 < "$root/supabase/migrations/20261121055943_kitsnode_invite_consent_recording.sql" >/dev/null
-docker exec -i "$db" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 < "$root/supabase/migrations/20261121100734_invite_execution_consent.sql" >/dev/null
+docker exec -i "$db" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 < "$root/supabase/migrations/20261121115937_invite_execution_consent.sql" >/dev/null
 docker run --rm -d --name "$rest" --network "$net" --network-alias api -p 127.0.0.1::3000 \
  -e PGRST_DB_URI='postgres://test_invite_authenticator:local-postgrest-only-password@db:5432/postgres' -e PGRST_DB_SCHEMAS=public -e PGRST_DB_ANON_ROLE=anon -e PGRST_JWT_SECRET=local-test-only-secret-key-at-least-thirty-two-characters public.ecr.aws/supabase/postgrest:v16.5 >/dev/null
 ready=0
