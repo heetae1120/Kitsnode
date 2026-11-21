@@ -31,7 +31,8 @@ export function AdPerformanceResult({result}: {result: unknown}) {
     {!observed && !noData ? <p>광고 성과를 확인하지 못했습니다.</p> : <>
       <p>조회 기간: {period.since as string} ~ {period.until as string}</p>
       <p>조회 시각: <time dateTime={data.observedAt as string}>{new Date(data.observedAt as string).toLocaleString('ko-KR', {timeZone:'Asia/Seoul'})} (한국 시간)</time></p>
-      {noData ? <p>조회 기간에 반환된 통계가 없습니다.</p> : <dl>{metrics.map(([key, label, unit]) => <div key={key}><dt>{label}</dt><dd>{metric(values[key], unit)}</dd></div>)}</dl>}
+      {noData ? <p>조회 기간에 반환된 통계가 없습니다.</p> : <dl className="store-metrics">{metrics.map(([key, label, unit]) => <div key={key}><dt>{label}</dt><dd>{metric(values[key], unit)}</dd></div>)}</dl>}
+      {observed && typeof values.impressions === 'number' && Number.isFinite(values.impressions) && values.impressions >= 0 && typeof values.clicks === 'number' && Number.isFinite(values.clicks) && values.clicks >= 0 && <div aria-label="노출수와 클릭수 비교"><h4>노출과 클릭</h4><p>선택한 기간의 합계입니다.</p>{(['impressions','clicks'] as const).map(key=>{const value=values[key] as number, max=Math.max(values.impressions as number,values.clicks as number);return <div key={key}><span>{key==='impressions'?'노출수':'클릭수'}: {metric(value,'회')}</span><div aria-hidden="true" style={{height:8,background:'#e7e8ea',borderRadius:4,overflow:'hidden'}}><div style={{height:'100%',width:`${max===0?0:value/max*100}%`,background:key==='impressions'?'#425cde':'#36a78d'}}/></div></div>;})}</div>}
       <p>네이버 통계는 반영이 지연될 수 있습니다.</p>
     </>}
   </section>;

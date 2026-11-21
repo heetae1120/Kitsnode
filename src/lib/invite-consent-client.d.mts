@@ -1,0 +1,1 @@
+export function createInviteConsentClient(options:{enabled:boolean;version?:string;policyDigest?:string;policyUrl?:string;fetcher?:typeof fetch}):undefined|{policyUrl:string;record(token:string,accountId:string,signal:AbortSignal):Promise<{status:'recorded'}>};
