@@ -153,7 +153,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     }} onWithdrawn={()=>{if(memberUserIdRef.current===memberUserId)setConsentStatus('needed');}}/>}
     {withdrawAvailable && signedIn && !recovery && memberUserId && <MemberSelfWithdraw key={memberUserId} withdraw={()=>requestSelfWithdrawal(memberBrowserClient(),memberUserId,()=>setWithdrawCompleted(true))}/>}
     {canUseMemberNaver(config) && !signedIn && <MemberNaverSignIn basePath={basePath} busy={busy} signIn={()=>void go('signIn')}/>}
-    {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.canLinkEmail && !naverIdentity.linked && <div><button type="button" className={naverStyles.linkButton} disabled={busy} onClick={()=>void go('link')}><img src={`${basePath}/naver-login/icon.png`} alt="" width="48" height="48" /><span>네이버 계정 연결</span></button><p>현재 이메일 계정에 네이버 계정을 연결합니다. 네이버 앱 검수 전에는 등록된 시험 계정만 사용할 수 있습니다.</p></div>}
+    {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.canLinkEmail && !naverIdentity.linked && <div><button type="button" className={naverStyles.linkButton} disabled={busy} onClick={()=>void go('link')}><img src={`${basePath}/naver-login/icon.png`} alt="" width="48" height="48" /><span>네이버 계정 연결</span></button><p>현재 이메일 계정에 네이버 계정을 연결합니다.</p></div>}
     {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.linked && <p>네이버 계정이 연결되어 있습니다.</p>}
     {error && <p role="alert">{error}{error===naverErrorText.signup_required && <> <a href={`${basePath}/store/signup/`}>회원가입으로 이동</a></>}</p>}
   </section>;
