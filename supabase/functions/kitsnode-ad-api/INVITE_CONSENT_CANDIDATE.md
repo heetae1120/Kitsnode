@@ -11,3 +11,7 @@
 격리 통합 검사는 `KITS_CONSENT_PG_MODULE`에 `pg` 패키지를 포함한 node_modules 경로를 지정해 `tests/sql/run-invite-http-postgres.sh`로 실행한다. 이 검사는 모의 Supabase Auth와 임시 Postgres를 쓰며 실제 Supabase Auth/Edge는 검증하지 않는다.
 
 `tests/sql/run-invite-rpc-postgres.sh`는 제안한 마이그레이션과 실제 Postgres의 service-role RPC를 거쳐 HTTP 동의 기록, 세션 철회, 일반 회원 직접 접근 거부, 회원 삭제 시 기록 연쇄 삭제, 롤백을 격리 검증한다. Edge의 getUser는 합성이므로 실제 인증 테스트가 아니다. `tests/invite-consent-edge-runtime.test.mjs`는 Deno에서 번들 부팅과 익명·비허용 출처 차단을 확인한다. 현재 연결 신청은 광고주 소유권 증빙이 아니며 관리자 승인·네이버 초대·성과 조회와 연결하지 않았다.
+
+후보의 별도 Edge 함수는 서버 환경변수 `KITS_INVITE_CONSENT_VERSION`(영문자·숫자·`.`·`_`·`-`, 1~64자)과 `KITS_INVITE_POLICY_DIGEST`(SHA-256 소문자 64자)를 요구한다. 아직 확정된 값은 없다. 화면에서 사용자가 실제 확인하는 고정된 동일 문서의 정확한 UTF-8 원문을 기준으로 버전과 해시를 생성해 프론트와 서버가 같은 값을 사용해야 한다. 단순 체크 문구만으로 네이버 정책 전체의 내용을 증명할 수 없다. 별도의 서비스 연결 방식, 네이버 정책 전문 및 실제 초대 처리 결속은 여전히 검증되지 않았다.
+
+기존 운영 `kitsnode-ad-api` v16과 기존 서비스 설정은 별도 함수 배포로 건드리지 않는다. 후보 마이그레이션에는 제한된 service_role RPC, Auth 세션·연결 행의 트랜잭션 내 재검증과 회원 삭제 시 동의 연쇄 삭제가 있다. 롤백 SQL은 동의 기록을 삭제하므로 자동 실행하지 않는다. 브라우저/확장에 관리자 키를 넣어서는 안 된다.
