@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {disabled} from './disabled.mjs';
+test('disabled handler is unconditionally gone and does not echo inputs',async()=>{for(const method of ['GET','POST','OPTIONS']){const r=await disabled(new Request('https://example.com/',{method,headers:{authorization:'Bearer sensitive'}}));assert.equal(r.status,410);assert.equal(await r.text(),'');assert.equal(r.headers.get('cache-control'),'no-store');}});
