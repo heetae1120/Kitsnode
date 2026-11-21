@@ -160,8 +160,8 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
       {consentClient&&signedIn&&connections.some(c=>c.status!=='disconnected')?<form onSubmit={recordConsent}>
         <label htmlFor="consent-account">동의할 광고계정</label><select id="consent-account" value={consentAccount} onChange={e=>{setConsentAccount(e.target.value);setConsentAccepted(false);setConsentMessage('');}} disabled={consentBusy}><option value="">계정을 선택하세요</option>{connections.filter(c=>c.status!=='disconnected').map(c=><option key={c.requestId} value={c.adAccountId}>{c.adAccountId}</option>)}</select>
         <p>사전 동의는 저장 후 10분간 유효합니다. 만료되면 다시 저장해 주세요. 확장프로그램 자동 초대는 아직 연결되지 않아 동의 저장만으로 초대가 발송되지 않습니다.</p>
-        <p><button type="button" className="store-text-link" onClick={()=>setPolicyDocument({title:'키츠노드 광고계정 연결 및 데이터 분석 사전 동의',url:consentClient.disclosureUrl})}>키츠노드 사전 동의 내용 보기</button></p>
-        <p><button type="button" className="store-text-link" onClick={()=>setPolicyDocument({title:'네이버 운영정책',url:consentClient.policyUrl})}>네이버 운영정책 보기</button></p>
+        <p><button type="button" className="store-text-link" onClick={()=>setPolicyDocument({title:'키츠노드 광고계정 연결 및 데이터 분석 사전 동의',url:consentClient.disclosureUrl,kind:'disclosure'})}>키츠노드 사전 동의 내용 보기</button></p>
+        <p><button type="button" className="store-text-link" onClick={()=>setPolicyDocument({title:'네이버 운영정책',url:consentClient.policyUrl,kind:'policy'})}>네이버 운영정책 보기</button></p>
         <label><input type="checkbox" checked={consentAccepted} onChange={e=>setConsentAccepted(e.target.checked)} disabled={!consentAccount||consentBusy}/> 선택한 계정의 키츠노드 사전 동의 내용을 확인하고 동의합니다.</label>
         <StoreButton type="submit" disabled={!consentAccepted||!consentAccount||consentBusy}>{consentBusy?'저장 중…':'사전 동의 저장'}</StoreButton>
         {consentMessage&&<p role="status">{consentMessage}</p>}
