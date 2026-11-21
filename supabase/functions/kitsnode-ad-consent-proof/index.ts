@@ -5,7 +5,9 @@ import {createExecutionProofHandler} from './factory.mjs';
 import {INVITE_CONSENT_VERSION,INVITE_CONSENT_DIGEST} from '../kitsnode-ad-consent-api/disclosure-config.mjs';
 declare const Deno:{env:{get(x:string):string|undefined};serve(f:(r:Request)=>Promise<Response>):void};
 const e=(k:string)=>Deno.env.get(k)||'';
-const url=e('SUPABASE_URL'),anon=e('SUPABASE_ANON_KEY'),secret=e('SUPABASE_SERVICE_ROLE_KEY'),extensionId=e('KITS_INVITE_EXTENSION_ID');
+// Public Chrome Web Store ID; release is gated until that item is updated.
+const extensionId='eifbciflfmjcfcjmfiemkcdccpjphkhm';
+const url=e('SUPABASE_URL'),anon=e('SUPABASE_ANON_KEY'),secret=e('SUPABASE_SERVICE_ROLE_KEY');
 if(url!=='https://bjpguxwqxlsteektkhwf.supabase.co'||!anon||!secret||anon===secret||!/^[a-p]{32}$/.test(extensionId))throw Error('invalid_configuration');
 const opts={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
 const authClient=createClient(url,anon,opts),serviceClient=createClient(url,secret,opts);
