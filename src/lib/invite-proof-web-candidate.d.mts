@@ -1,0 +1,2 @@
+type Runtime = {sendMessage(id:string,message:Record<string,string>):Promise<unknown>};
+export function approveInviteProofCandidate(options:{consentId:string;accountId:string;consentVersion:string;policyDigest:string;nonce:string;extension:string;runtime?:Runtime;getSession:()=>Promise<unknown>;isCurrent:(userId:string)=>boolean;userId:string;signal:AbortSignal}):Promise<{status:'approved'|'blocked'}>;

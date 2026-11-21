@@ -7,6 +7,6 @@ export function createInviteConsentClient({enabled,version,policyDigest,policyUr
  return Object.freeze({policyUrl:policy.href,disclosureUrl:disclosure.href,async record(token,accountId,signal){
   if(typeof token!=='string'||!/^[A-Za-z0-9._-]{1,8192}$/.test(token)||!/^[1-9][0-9]{0,15}$/.test(accountId)||!signal||signal.aborted)throw Error('invalid_request');
   const response=await fetcher(endpoint,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({accountId,accepted:true,version,policyDigest}),signal,credentials:'omit',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer'});
-  if(!response.ok)throw Error('unavailable');const data=await response.json();if(signal.aborted||data?.status!=='recorded'||!uuid(data?.consentId))throw Error('invalid_response');return {status:'recorded'};
+  if(!response.ok)throw Error('unavailable');const data=await response.json();if(signal.aborted||data?.status!=='recorded'||!uuid(data?.consentId))throw Error('invalid_response');return {status:'recorded',consentId:data.consentId};
  }});
 }
