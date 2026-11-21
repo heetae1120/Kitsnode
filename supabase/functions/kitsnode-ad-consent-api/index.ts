@@ -10,8 +10,9 @@ import {createMemberEligibility} from '../kitsnode-ad-api/src/member-eligibility
 import {createSharedRateLimiter} from '../kitsnode-ad-api/src/shared-rate-limit.mjs';
 import {createSupabaseConnectionStore} from '../kitsnode-ad-api/src/supabase-connection-store.mjs';
 import {createSupabaseInviteStore} from './supabase-store.mjs';
+import {INVITE_CONSENT_VERSION,INVITE_CONSENT_DIGEST} from './disclosure-config.mjs';
 declare const Deno:{env:{get(x:string):string|undefined};serve(f:(r:Request)=>Promise<Response>):void};
-const e=(k:string)=>Deno.env.get(k)||'',url=e('SUPABASE_URL'),anon=e('SUPABASE_ANON_KEY'),secret=e('SUPABASE_SERVICE_ROLE_KEY'),version=e('KITS_INVITE_CONSENT_VERSION'),digest=e('KITS_INVITE_POLICY_DIGEST');
+const e=(k:string)=>Deno.env.get(k)||'',url=e('SUPABASE_URL'),anon=e('SUPABASE_ANON_KEY'),secret=e('SUPABASE_SERVICE_ROLE_KEY'),version=INVITE_CONSENT_VERSION,digest=INVITE_CONSENT_DIGEST;
 if(url!=='https://bjpguxwqxlsteektkhwf.supabase.co'||!anon||!secret||anon===secret||!version||!digest)throw Error('invalid_configuration');
 const opts={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
 const authClient=createClient(url,anon,opts),serviceClient=createClient(url,secret,opts),store=createSupabaseInviteStore(serviceClient);
