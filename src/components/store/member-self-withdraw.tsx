@@ -1,7 +1,41 @@
 'use client';
-import {useState} from 'react';
+import {useId, useRef, useState} from 'react';
+
 export function MemberSelfWithdraw({withdraw}: {withdraw:()=>Promise<{ok:boolean;code:string}>}) {
- const [open,setOpen]=useState(false),[confirmation,setConfirmation]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
- const submit=async()=>{if(busy||confirmation!=='회원 탈퇴')return;setBusy(true);setMessage('');try{const result=await withdraw();setMessage(result.ok?'회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.':result.code==='pending'?'탈퇴 처리가 아직 완료되지 않았습니다. 처리가 지연되면 고객센터로 문의해 주세요.':'탈퇴를 완료하지 못했습니다. 다시 시도해 주세요.');}catch{setMessage('탈퇴를 완료하지 못했습니다. 다시 시도해 주세요.');}finally{setBusy(false)}};
- return <section aria-label="회원 탈퇴"><h2>회원 탈퇴</h2>{!open?<button type="button" onClick={()=>setOpen(true)}>회원 탈퇴</button>:<div><p>탈퇴하면 키츠노드 계정과 관련 정보가 삭제됩니다. 다시 이용하려면 회원가입이 필요합니다.</p><p>네이버 광고 계정에 부여한 키츠노드 권한은 탈퇴 후에도 네이버에서 광고주가 직접 해제해야 합니다.</p><label>확인을 위해 ‘회원 탈퇴’를 입력해 주세요. <input value={confirmation} onChange={e=>setConfirmation(e.target.value)} autoComplete="off"/></label><button type="button" disabled={busy||confirmation!=='회원 탈퇴'} onClick={()=>void submit()}>탈퇴하기</button><button type="button" disabled={busy} onClick={()=>{setOpen(false);setConfirmation('');}}>취소</button></div>}{message&&<p role="status">{message}</p>}</section>
+ const dialog=useRef<HTMLDialogElement>(null);
+ const inFlight=useRef(false);
+ const title=useId();
+ const [busy,setBusy]=useState(false),[message,setMessage]=useState('');
+ const close=()=>{if(!inFlight.current)dialog.current?.close()};
+ const submit=async()=>{
+  if(inFlight.current)return;
+  inFlight.current=true;setBusy(true);setMessage('');
+  try {
+   const result=await withdraw();
+   if(result.ok){dialog.current?.close();setMessage('회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.');}
+   else setMessage(result.code==='pending'?'탈퇴 처리가 아직 완료되지 않았습니다. 처리가 지연되면 고객센터로 문의해 주세요.':result.code==='admin_protected'||result.code==='staff_linked'?'이 계정은 고객센터를 통해 탈퇴할 수 있습니다.':'탈퇴를 완료하지 못했습니다. 다시 시도해 주세요.');
+  }catch{setMessage('탈퇴를 완료하지 못했습니다. 다시 시도해 주세요.');}
+  finally{inFlight.current=false;setBusy(false)}
+ };
+ return <section aria-label="회원 탈퇴">
+  <h2>회원 탈퇴</h2><button type="button" onClick={()=>{setMessage('');dialog.current?.showModal()}}>회원 탈퇴</button>
+  <dialog ref={dialog} aria-labelledby={title} onCancel={event=>{if(inFlight.current)event.preventDefault()}}>
+   <h2 id={title}>회원 탈퇴를 진행할까요?</h2>
+   <p>탈퇴하면 키츠노드 계정과 관련 정보가 삭제됩니다. 다시 이용하려면 회원가입이 필요합니다.</p>
+   <p>네이버 광고 계정에 부여한 키츠노드 권한은 네이버에서 직접 해제해야 합니다. 설치한 확장프로그램도 직접 삭제할 수 있습니다.</p>
+   {message&&dialog.current?.open&&<p role="status">{message}</p>}
+   <button type="button" disabled={busy} onClick={close} autoFocus>취소</button>{' '}
+   <button type="button" disabled={busy} onClick={()=>void submit()}>{busy?'처리 중…':'탈퇴하기'}</button>
+  </dialog>
+  {message&&!dialog.current?.open&&<p role="status">{message}</p>}
+  <style jsx>{`
+   dialog { box-sizing:border-box; width:min(480px,calc(100% - 32px)); max-width:none; border:1px solid #555; border-radius:16px; padding:24px; background:#1c1c1c; color:#f7f7f7; box-shadow:0 24px 80px #0009; }
+   dialog::backdrop { background:#000b; }
+   dialog h2 { margin:0 0 16px; font-size:20px; }
+   dialog p { line-height:1.6; color:#ededed; }
+   dialog button { margin-top:12px; padding:10px 18px; border:1px solid #777; border-radius:8px; color:#fff; background:#303030; cursor:pointer; }
+   dialog button:last-child { border-color:#f26a36; background:#d84b1b; }
+   dialog button:disabled { opacity:.55; cursor:wait; }
+  `}</style>
+ </section>;
 }

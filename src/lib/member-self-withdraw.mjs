@@ -20,6 +20,7 @@ export async function requestSelfWithdrawal(client,expectedUserId,onComplete=()=
   if(response?.error) return {ok:false,code:'unavailable'};
   if(response?.data?.status==='complete') { try { onComplete(); } catch {} try { await client.auth.signOut({scope:'local'}); } catch {} return {ok:true,code:'complete'}; }
   if(response?.data?.status==='pending') return {ok:false,code:'pending'};
+  if(response?.data?.status==='admin_protected'||response?.data?.status==='staff_linked') return {ok:false,code:response.data.status};
   return {ok:false,code:'unavailable'};
  } catch {return {ok:false,code:'unavailable'};}
 }
