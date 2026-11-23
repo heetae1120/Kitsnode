@@ -1,8 +1,8 @@
 const uuid=x=>typeof x==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(x);
 // Supply real authentication and deletion adapters before deployment. The
 // client never chooses the account ID; it comes only from getUser(token).
-export function createSelfWithdrawalHandler({origin,verifyUser,withdraw}) {
- if(typeof origin!=='string'||new URL(origin).origin!==origin||new URL(origin).protocol!=='https:'||typeof verifyUser!=='function'||typeof withdraw!=='function')throw Error('invalid_configuration');
+export function createSelfWithdrawalHandler({origin,verifyUser,withdraw,isProtected}) {
+ if(typeof origin!=='string'||new URL(origin).origin!==origin||new URL(origin).protocol!=='https:'||typeof verifyUser!=='function'||typeof withdraw!=='function'||typeof isProtected!=='function')throw Error('invalid_configuration');
  return async request=>{
   const headers={'Cache-Control':'no-store','Content-Type':'application/json','X-Content-Type-Options':'nosniff','Vary':'Origin'};
   const requestOrigin=request.headers.get('origin');
@@ -15,6 +15,7 @@ export function createSelfWithdrawalHandler({origin,verifyUser,withdraw}) {
    if(!token||token.length>8192)return Response.json({error:'unauthenticated'},{status:401,headers});
    const user=await verifyUser(token);
    if(!uuid(user?.id))return Response.json({error:'unauthenticated'},{status:401,headers});
+   if(await isProtected(user)===true)return Response.json(request.method==='GET'?{available:false}:{status:'admin_protected'},{status:200,headers});
    if(request.method==='GET')return Response.json({available:true},{status:200,headers});
    if((request.headers.get('content-type')||'').split(';')[0].trim().toLowerCase()!=='application/json')return Response.json({error:'invalid_request'},{status:400,headers});
    const declared=request.headers.get('content-length');if(declared!==null&&(!/^\d+$/.test(declared)||Number(declared)>256))return Response.json({error:'invalid_request'},{status:400,headers});
@@ -24,6 +25,8 @@ export function createSelfWithdrawalHandler({origin,verifyUser,withdraw}) {
    if(!body||Array.isArray(body)||typeof body!=='object'||Object.keys(body).join(',')!=='confirmation'||body.confirmation!=='withdraw')return Response.json({error:'invalid_request'},{status:400,headers});
    const result=await withdraw(user.id);
    if(result?.status==='complete')return Response.json({status:'complete'},{status:200,headers});
+   if(result?.status==='admin_protected')return Response.json({status:'admin_protected'},{status:200,headers});
+   if(result?.status==='protected_reference')return Response.json({status:'protected_reference'},{status:200,headers});
    if(result?.status==='pending')return Response.json({status:'pending'},{status:202,headers});
    return Response.json({error:'unavailable'},{status:503,headers});
   }catch{return Response.json({error:'unavailable'},{status:503,headers})}
