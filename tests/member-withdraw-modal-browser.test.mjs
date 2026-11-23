@@ -14,6 +14,11 @@ test('confirmation dialog cancels safely and confirms without extra input',{skip
  await page.getByRole('button',{name:'회원 탈퇴',exact:true}).click();await page.getByRole('dialog').waitFor();
  assert.equal(await page.getByRole('dialog').getByRole('textbox').count(),0);
  await page.getByRole('button',{name:'취소'}).click();assert.equal(await page.evaluate(()=>window.withdrawCalls),0);
+ await page.evaluate(()=>window.withdrawMode='pending');
  await page.getByRole('button',{name:'회원 탈퇴',exact:true}).click();await page.getByRole('button',{name:'탈퇴하기'}).click();
- await page.getByText('회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.').waitFor();assert.equal(await page.evaluate(()=>window.withdrawCalls),1);
+ await page.getByText(/탈퇴 처리 결과를 확인하지 못했습니다/).waitFor();assert.equal(await page.evaluate(()=>window.withdrawCalls),1);
+ assert.equal(await page.getByText('회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.').count(),0);
+ await page.evaluate(()=>window.withdrawMode='complete');
+ await page.getByRole('button',{name:'탈퇴하기'}).click();
+ await page.getByText('회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.').waitFor();assert.equal(await page.evaluate(()=>window.withdrawCalls),2);
 });
