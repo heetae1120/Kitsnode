@@ -3,12 +3,12 @@
 // and external send remain disabled until a trusted extension bridge exists.
 // @ts-ignore Supabase Edge resolves npm packages at runtime.
 import {createClient} from 'npm:@supabase/supabase-js@2.119.0';
-import {createActiveSessionVerifier} from '../kitsnode-ad-api/src/invite-active-session.mjs';
-import {createInviteConsentService} from '../kitsnode-ad-api/src/invite-consent-service.mjs';
-import {createInviteConsentHttp} from '../kitsnode-ad-api/src/invite-consent-http.mjs';
-import {createMemberEligibility} from '../kitsnode-ad-api/src/member-eligibility.mjs';
-import {createSharedRateLimiter} from '../kitsnode-ad-api/src/shared-rate-limit.mjs';
-import {createSupabaseConnectionStore} from '../kitsnode-ad-api/src/supabase-connection-store.mjs';
+import {createActiveSessionVerifier} from './shared/invite-active-session.mjs';
+import {createInviteConsentService} from './shared/invite-consent-service.mjs';
+import {createInviteConsentHttp} from './shared/invite-consent-http.mjs';
+import {createMemberEligibility} from './shared/member-eligibility.mjs';
+import {createSharedRateLimiter} from './shared/shared-rate-limit.mjs';
+import {createSupabaseConnectionStore} from './shared/supabase-connection-store.mjs';
 import {createSupabaseInviteStore} from './supabase-store.mjs';
 import {INVITE_CONSENT_VERSION,INVITE_CONSENT_DIGEST} from './disclosure-config.mjs';
 declare const Deno:{env:{get(x:string):string|undefined};serve(f:(r:Request)=>Promise<Response>):void};
