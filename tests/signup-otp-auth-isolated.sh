@@ -72,4 +72,9 @@ result=$(docker exec "$DB" curl -fsS -X POST -H 'Content-Type: application/json'
 printf '%s' "$result" | jq -e '.access_token != null and .refresh_token != null and .user.email_confirmed_at != null' >/dev/null
 status=$(docker exec "$DB" curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "{\"email\":\"otp-member@example.test\",\"token\":\"$code\",\"type\":\"email\"}" http://auth:9999/verify)
 case "$status" in 4*) ;; *) echo 'OTP replay accepted' >&2;exit 1;; esac
+before=$(docker exec "$DB" wc -c </dev/null /tmp/otp-mailbox | awk '{print $1}')
+duplicate=$(docker exec "$DB" curl -fsS -X POST -H 'Content-Type: application/json' -d '{"email":"otp-member@example.test","password":"SyntheticOnly-123456!"}' http://auth:9999/signup)
+printf '%s' "$duplicate" | jq -e '.access_token == null and .identities == []' >/dev/null
+after=$(docker exec "$DB" wc -c </dev/null /tmp/otp-mailbox | awk '{print $1}')
+[ "$before" = "$after" ] || { echo 'Confirmed duplicate unexpectedly sent a new email' >&2;exit 1; }
 echo 'Real local Auth: signup OTP email, incorrect code, correct code, session and replay verification passed.'
