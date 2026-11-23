@@ -18,16 +18,23 @@ CREATE TABLE public.kitsnode_member_consents(user_id uuid REFERENCES auth.users(
 SQL
 "${psql_cmd[@]}" -f "$root_dir/supabase/migrations/20261123052714_naver_agreement_evidence_candidate.sql" >/dev/null
 "${psql_cmd[@]}" >/dev/null <<'SQL'
+INSERT INTO kitsnode_member_private.naver_agreement_versions(client_id,kind,document_version,term_code,effective_date) VALUES ('app','terms','v1','terms-v1','2026-11-23'),('app','privacy_ack','p1','privacy-v1','2026-11-23');
 INSERT INTO auth.users VALUES ('00000000-0000-4000-8000-000000000001'),('00000000-0000-4000-8000-000000000002');
 INSERT INTO auth.sessions VALUES ('00000000-0000-4000-8000-000000000011','00000000-0000-4000-8000-000000000001',NULL),('00000000-0000-4000-8000-000000000012','00000000-0000-4000-8000-000000000002',NULL);
 INSERT INTO auth.identities VALUES ('00000000-0000-4000-8000-000000000021','00000000-0000-4000-8000-000000000001','custom:naver','{"sub":"naver-a"}');
-DO $$ DECLARE u uuid:='00000000-0000-4000-8000-000000000001'; s uuid:='00000000-0000-4000-8000-000000000011'; a jsonb:='[{"termCode":"terms","agreeDate":"x"},{"termCode":"privacy","agreeDate":"y"}]'; BEGIN
+DO $$ DECLARE u uuid:='00000000-0000-4000-8000-000000000001'; s uuid:='00000000-0000-4000-8000-000000000011'; a jsonb:='[{"termCode":"terms-v1","agreeDate":"10:30:00.000 AM 11/25/2026"},{"termCode":"privacy-v1","agreeDate":"10:30:00.000 AM 11/25/2026"}]'; BEGIN
  IF has_function_privilege('authenticated','public.kits_naver_agreement_record_candidate(uuid,uuid,text,text,text,text,jsonb)','EXECUTE') OR has_function_privilege('anon','public.kits_naver_agreement_record_candidate(uuid,uuid,text,text,text,text,jsonb)','EXECUTE') THEN RAISE EXCEPTION 'unexpected privilege'; END IF;
  IF public.kits_naver_agreement_record_candidate(u,'00000000-0000-4000-8000-000000000012','naver-a','v1','p1','app',a) THEN RAISE EXCEPTION 'wrong user session accepted'; END IF;
  IF public.kits_naver_agreement_record_candidate(u,s,'naver-b','v1','p1','app',a) THEN RAISE EXCEPTION 'wrong identity accepted'; END IF;
  INSERT INTO kitsnode_member_private.deletion_access_blocks VALUES(u);
  IF public.kits_naver_agreement_record_candidate(u,s,'naver-a','v1','p1','app',a) THEN RAISE EXCEPTION 'blocked account accepted'; END IF;
  DELETE FROM kitsnode_member_private.deletion_access_blocks WHERE subject_id=u;
+ IF public.kits_naver_agreement_record_candidate(u,s,'naver-a','v1','p1','app','[{"termCode":"terms-v1","agreeDate":"10:30:00.000 AM 11/23/2026"},{"termCode":"privacy-v1","agreeDate":"10:30:00.000 AM 11/24/2026"}]') THEN RAISE EXCEPTION 'ambiguous effective date accepted'; END IF;
+ IF public.kits_naver_agreement_record_candidate(u,s,'naver-a','v1','p1','app','[{"termCode":"terms-v1","agreeDate":"10:30:00.000 AM 11/24/2026"},{"termCode":"privacy-v1","agreeDate":"10:30:00.000 AM 11/24/2026"}]') THEN RAISE EXCEPTION 'ambiguous next date accepted'; END IF;
+ IF public.kits_naver_agreement_record_candidate(u,s,'naver-a','v2','p1','app',a) THEN RAISE EXCEPTION 'unmapped version accepted'; END IF;
+ IF public.kits_naver_agreement_record_candidate(u,s,'naver-a','v1','p1','other-app',a) THEN RAISE EXCEPTION 'wrong app accepted'; END IF;
+ BEGIN UPDATE kitsnode_member_private.naver_agreement_versions SET document_version='v2' WHERE kind='terms'; RAISE EXCEPTION 'mutable mapping'; EXCEPTION WHEN raise_exception THEN IF SQLERRM<>'naver_version_mapping_is_immutable' THEN RAISE; END IF; END;
+ BEGIN INSERT INTO kitsnode_member_private.naver_agreement_versions(client_id,kind,document_version,term_code,effective_date) VALUES ('app','terms','v2','terms-v1','2026-11-24'); RAISE EXCEPTION 'reused code'; EXCEPTION WHEN unique_violation THEN NULL; END;
  IF NOT public.kits_naver_agreement_record_candidate(u,s,'naver-a','v1','p1','app',a) THEN RAISE EXCEPTION 'valid rejected'; END IF;
  IF (SELECT count(*) FROM kitsnode_member_private.naver_agreement_evidence)<>1 OR (SELECT count(*) FROM public.kitsnode_member_consents)<>1 THEN RAISE EXCEPTION 'missing evidence'; END IF;
  DELETE FROM auth.sessions WHERE id=s;
