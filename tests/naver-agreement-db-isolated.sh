@@ -16,8 +16,8 @@ CREATE TABLE auth.identities(id uuid PRIMARY KEY,user_id uuid REFERENCES auth.us
 CREATE TABLE kitsnode_member_private.deletion_access_blocks(subject_id uuid PRIMARY KEY);
 CREATE TABLE public.kitsnode_member_consents(user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE,terms_version text NOT NULL,privacy_version text NOT NULL,accepted_at timestamptz NOT NULL DEFAULT now(),PRIMARY KEY(user_id,terms_version,privacy_version));
 SQL
-"${psql_cmd[@]}" -f "$root_dir/supabase/migrations/20261123064230_naver_agreement_evidence.sql" >/dev/null
-"${psql_cmd[@]}" -f "$root_dir/supabase/migrations/20261123064238_naver_agreement_mapping.sql" >/dev/null
+"${psql_cmd[@]}" -f "$root_dir/supabase/migrations/20261123064744_naver_agreement_evidence.sql" >/dev/null
+"${psql_cmd[@]}" -f "$root_dir/supabase/migrations/20261123064750_naver_agreement_mapping.sql" >/dev/null
 "${psql_cmd[@]}" >/dev/null <<'SQL'
 INSERT INTO kitsnode_member_private.naver_agreement_versions(client_id,kind,document_version,term_code,effective_date) VALUES ('app','terms','v1','kits_terms_0123456789abcdef01234567','2020-01-01'),('app','privacy_ack','p1','kits_privacy_0123456789abcdef01234567','2020-01-01');
 INSERT INTO kitsnode_member_private.naver_agreement_versions(client_id,kind,document_version,term_code,effective_date)
