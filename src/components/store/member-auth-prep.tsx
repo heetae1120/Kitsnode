@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import {memberBrowserClient} from '@/lib/member-browser-client';
+import {memberBrowserClient,takeNaverProviderCallback} from '@/lib/member-browser-client';
 import {takeMemberReturn} from '@/lib/member-return';
 import { MEMBER_INTAKE_REVIEWED, canUseMemberNaver, readMemberAuthConfig, memberRedirect } from '@/lib/member-auth-config.mjs';
 import { createEmailAuthClient } from '@/lib/member-email-auth.mjs';
@@ -87,10 +87,12 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
       if (memberUserIdRef.current !== nextId) { agreementEpoch++;agreementAttempted=false;setNaverAgreementPending(false);memberUserIdRef.current=nextId; consentUserRef.current=null; setConsentStatus('checking'); setProfileStatus('checking'); setProfileCompleted(false); setMemberUserId(nextId); }
       setSignedIn(Boolean(session?.user));
       setNaverIdentity(naverIdentityState(session?.user));
-      if(socialEnabled&&process.env.NEXT_PUBLIC_NAVER_AGREEMENT_ENABLED==='true'&&!agreementAttempted&&nextId&&session?.provider_token&&naverIdentityState(session.user).linked&&(event==='SIGNED_IN'||event==='INITIAL_SESSION')){
+      const callbackToken=takeNaverProviderCallback(session);
+      const providerToken=session?.provider_token || callbackToken;
+      if(socialEnabled&&process.env.NEXT_PUBLIC_NAVER_AGREEMENT_ENABLED==='true'&&!agreementAttempted&&nextId&&session&&providerToken&&naverIdentityState(session.user).linked&&(event==='SIGNED_IN'||event==='INITIAL_SESSION')){
         agreementAttempted=true;const epoch=agreementEpoch;setNaverAgreementPending(true);
         // Do not await within Supabase's auth callback; the SDK may hold its lock.
-        setTimeout(()=>{void naverAgreement.verify(session).then(ok=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId){if(ok)setConsentRefresh(n=>n+1);setNaverAgreementPending(false)}}).catch(()=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId)setNaverAgreementPending(false)})},0);
+        setTimeout(()=>{void naverAgreement.verify({...session,provider_token:providerToken}).then(ok=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId){if(ok)setConsentRefresh(n=>n+1);setNaverAgreementPending(false)}}).catch(()=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId)setNaverAgreementPending(false)})},0);
       }
       if(event === 'PASSWORD_RECOVERY') setRecovery(true);
       if(event === 'SIGNED_OUT') setRecovery(false);
