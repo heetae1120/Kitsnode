@@ -42,7 +42,9 @@ DO $$ DECLARE u uuid:='00000000-0000-4000-8000-000000000001'; s uuid:='00000000-
  IF NOT public.kits_naver_agreement_record_candidate(u,s,'naver-a','v1','p1','app',a) THEN RAISE EXCEPTION 'valid rejected'; END IF;
  IF (SELECT count(*) FROM kitsnode_member_private.naver_agreement_evidence)<>1 OR (SELECT count(*) FROM public.kitsnode_member_consents)<>1 THEN RAISE EXCEPTION 'missing evidence'; END IF;
  DELETE FROM auth.sessions WHERE id=s;
- IF public.kits_naver_agreement_record_candidate(u,s,'naver-a','v2','p2','app',a) THEN RAISE EXCEPTION 'revoked session accepted'; END IF;
+ -- Reuse the exact known-good input: an unmapped version would fail even if
+ -- session revocation were broken and would therefore prove nothing here.
+ IF public.kits_naver_agreement_record_candidate(u,s,'naver-a','v1','p1','app',a) THEN RAISE EXCEPTION 'revoked session accepted'; END IF;
  DELETE FROM auth.users WHERE id=u;
  IF EXISTS(SELECT 1 FROM kitsnode_member_private.naver_agreement_evidence) OR EXISTS(SELECT 1 FROM public.kitsnode_member_consents) THEN RAISE EXCEPTION 'cascade failed'; END IF;
 END $$;
