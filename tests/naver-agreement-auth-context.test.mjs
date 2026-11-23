@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createNaverAuthContext} from '../supabase/functions/kitsnode-naver-agreement/auth-context.mjs';
+const userId='00000000-0000-4000-8000-000000000001',sessionId='00000000-0000-4000-8000-000000000002';
+const base={id:userId,aud:'authenticated',identities:[{provider:'custom:naver',identity_data:{sub:'provider-id'}}]};
+const token=claims=>`a.${Buffer.from(JSON.stringify({aud:'authenticated',sub:userId,session_id:sessionId,exp:1800000000,...claims})).toString('base64url')}.c`;
+const verify=(user=base,error=null)=>createNaverAuthContext({authClient:{auth:{getUser:async()=>({data:{user},error})}},now:()=>1700000000000});
+test('uses verified same-user JWT session and Naver identity',async()=>assert.deepEqual(await verify()(token()),{userId,sessionId,naverSubject:'provider-id'}));
+test('refuses malformed, changed or expired sessions',async()=>{for(const t of ['x',token({sub:'wrong'}),token({session_id:'bad'}),token({exp:1}),token({aud:'anon'})])assert.equal(await verify()(t),null)});
+test('refuses missing, ambiguous, banned and unauthenticated identities',async()=>{for(const u of [null,{...base,aud:'anon'},{...base,is_anonymous:true},{...base,banned_until:'2030-01-01'}, {...base,identities:[]},{...base,identities:[...base.identities,...base.identities]}])assert.equal(await verify(u)(token()),null);assert.equal(await verify(base,{message:'bad token'})(token()),null)});

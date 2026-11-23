@@ -9,7 +9,7 @@ export function createNaverAgreementHandler({origin, authenticate, recordEvidenc
     const headers={'content-type':'application/json','cache-control':'no-store','vary':'Origin'};
     if(request.headers.get('origin')!==origin) return new Response(null,{status:403,headers});
     headers['access-control-allow-origin']=origin;
-    if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...headers,'access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization, content-type'}});
+    if(request.method==='OPTIONS')return new Response(null,{status:204,headers:{...headers,'access-control-allow-methods':'POST, OPTIONS','access-control-allow-headers':'authorization, apikey, content-type'}});
     const fail=(status=400)=>Response.json({ok:false,code:'unavailable'},{status,headers});
     if(request.method!=='POST'||!/^application\/json(?:\s*;|$)/i.test(request.headers.get('content-type')||''))return fail();
     const auth=/^Bearer ([^\s]{1,8192})$/.exec(request.headers.get('authorization')||'');
@@ -27,7 +27,7 @@ export function createNaverAgreementHandler({origin, authenticate, recordEvidenc
       if(!verified.ok)return fail(403);
       // recordEvidence must atomically recheck the same active session and bind
       // the configured terms, versions and verified evidence before storing.
-      if(await recordEvidence({userId:session.userId,sessionId:session.sessionId,termsVersion,privacyVersion,agreements:verified.agreements})!==true)return fail(503);
+      if(await recordEvidence({userId:session.userId,sessionId:session.sessionId,naverSubject:session.naverSubject,clientId,termsVersion,privacyVersion,agreements:verified.agreements})!==true)return fail(503);
       return Response.json({ok:true},{headers});
     }catch{return fail(503)}
   };
