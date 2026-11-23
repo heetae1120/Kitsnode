@@ -37,3 +37,13 @@ for(const enabled of [false,true]) test(`composed production shopping and perfor
  assert.equal(calls.includes('kitsnode_email_profile_pending_for_service'),enabled);
  if(enabled)assert.equal(calls.includes('kits_ads_get_binding'),false);
 });
+
+test('both deployed ad gates accept either exact documented consent pair during migration',async()=>{
+ for(const factory of [createMemberEligibility,createConsentEligibility]){
+  for(const [terms,privacy,expected] of [['2026-11-14','2026-11-14-naver',true],['2026-11-23','2026-11-23',true],['2026-11-14','2026-11-23',false]]){
+   const client={from(){const filters={};return {select(){return this},eq(k,v){filters[k]=v;return this},async maybeSingle(){return {data:filters.terms_version===terms&&filters.privacy_version===privacy?{user_id:id,accepted_at:'2026-11-23T00:00:00Z'}:null,error:null}}}}};
+   const gate=factory(client,{termsVersion:'2026-11-14',privacyVersion:'2026-11-14-naver'});
+   assert.equal(await gate(id),expected);
+  }
+ }
+});

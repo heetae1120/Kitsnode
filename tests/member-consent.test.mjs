@@ -26,10 +26,10 @@ test('failed reads or writes keep consent unconfirmed',async()=>{
 });
 test('an older privacy acknowledgement does not satisfy the updated notice',async()=>{
   const filters={};
-  const old={terms_version:'2026-11-14',privacy_version:'2026-11-14',accepted_at:'2026-01-01'};
+  const old={terms_version:'2026-11-14',privacy_version:'2026-11-14-naver',accepted_at:'2026-01-01'};
   const client={from:()=>({select(){return this},eq(key,value){filters[key]=value;return this},async maybeSingle(){return {data:Object.entries(filters).every(([key,value])=>old[key]===value)?old:null,error:null}}})};
   assert.deepEqual(await createMemberConsent(client).hasCurrent(),{ok:true,accepted:false});
-  assert.deepEqual(filters,{terms_version:'2026-11-14',privacy_version:'2026-11-14-naver'});
+  assert.deepEqual(filters,{terms_version:termsVersion,privacy_version:privacyVersion});
 });
 test('recognizes prior consent while keeping read failures distinct from a new member',async()=>{
   for (const [data,error,expected] of [
