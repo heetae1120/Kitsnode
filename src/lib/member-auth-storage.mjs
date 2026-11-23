@@ -19,7 +19,7 @@ export function createProviderRedactingStorage(storage,sessionKey){
  return Object.freeze({
   getItem(key){
    const value=storage.getItem(key);if(value===null||key!==sessionKey)return value;
-   const clean=redact(value);if(clean!==value){try{if(clean===null)storage.removeItem(key);else storage.setItem(key,clean)}catch{try{storage.removeItem(key)}catch{}}}
+   const clean=redact(value);if(clean!==value){try{if(clean===null)storage.removeItem(key);else storage.setItem(key,clean)}catch{try{storage.removeItem(key)}catch{throw Error('storage_unavailable')}return null}}
    return clean;
   },
   setItem(key,value){
