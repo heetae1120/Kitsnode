@@ -69,6 +69,7 @@ docker run -d --name "$AUTH" --network "$NET" --network-alias auth \
  -e GOTRUE_JWT_SECRET=local-test-only-secret-key-at-least-thirty-two-characters -e GOTRUE_JWT_EXP=3600 -e GOTRUE_JWT_DEFAULT_GROUP_NAME=authenticated \
  -e GOTRUE_DISABLE_SIGNUP=false -e GOTRUE_EXTERNAL_EMAIL_ENABLED=true -e GOTRUE_MAILER_AUTOCONFIRM=false \
  -e GOTRUE_SMTP_HOST=db -e GOTRUE_SMTP_PORT=2525 -e GOTRUE_SMTP_ADMIN_EMAIL=local@example.test -e GOTRUE_SMTP_SENDER_NAME=Local \
+ -e GOTRUE_MAILER_OTP_LENGTH=8 \
  -e GOTRUE_MAILER_TEMPLATES_CONFIRMATION="${KITS_TEST_OTP_TEMPLATE:-$( [ "${KITS_TEST_OTP:-0}" = 1 ] && printf 'http://db:2526/template' || printf '' )}" \
  public.ecr.aws/supabase/gotrue:v2.198.0 >/dev/null
 ready=0
@@ -242,10 +243,10 @@ KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-username-login-local.mjs"
 KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-username-deno-local.mjs"
 
 
-KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-full-signup-browser-local.mjs"
 if [ "${KITS_TEST_OTP:-0}" = 1 ]; then
  KITS_TEST_DB="$DB" KITS_TLS_KEY="$TMP/gate-key.pem" KITS_TLS_CERT="$TMP/gate-cert.pem" node "$ROOT/tests/minimal-auth-otp-browser-local.mjs"
 else
+ KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-full-signup-browser-local.mjs"
  KITS_TEST_DB="$DB" KITS_TLS_KEY="$TMP/gate-key.pem" KITS_TLS_CERT="$TMP/gate-cert.pem" node "$ROOT/tests/minimal-auth-prep-full-browser-local.mjs"
 fi
 status=$(docker exec "$DB" curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$body" http://api:3000/rpc/kitsnode_complete_email_profile)
