@@ -47,6 +47,25 @@ export function createEmailAuthClient({auth, confirmationRedirectTo, recoveryRed
         return ok('signup_requested');
       } catch { return fail('unavailable'); }
     },
+    async verifySignupCode(email,token) {
+      if (signupAllowed !== true) return fail('signup_disabled');
+      if (!emailValid(email) || typeof token !== 'string' || !/^[0-9]{6,10}$/.test(token)) return fail('invalid_code');
+      try {
+        const result = await auth.verifyOtp({email:email.trim(),token,type:'email'});
+        if (result?.error) return fail('invalid_code');
+        const user = result?.data?.user;
+        if (!result?.data?.session || !user?.email_confirmed_at || user.email?.toLowerCase() !== email.trim().toLowerCase()) {
+          if (result?.data?.session) await auth.signOut();
+          return fail('invalid_code');
+        }
+        return ok('email_verified');
+      } catch { return fail('unavailable'); }
+    },
+    async resendSignupCode(email) {
+      if (signupAllowed !== true) return fail('signup_disabled');
+      if (!emailValid(email)) return fail('invalid_input');
+      return run(() => auth.resend({type:'signup',email:email.trim()}),'signup_code_resent');
+    },
     async signIn(email,password) {
       if (!emailValid(email) || typeof password !== 'string' || password.length < 1 || password.length > 72) return fail('invalid_input');
       try {

@@ -90,3 +90,28 @@ test('email rate limits produce a safe actionable result', async()=>{
   assert.deepEqual(await limited.client.requestPasswordReset('person@example.test'),{ok:false,code:'email_rate_limited'});
   assert.deepEqual(await limited.client.signUp('person@example.test','synthetic-password',consent),{ok:false,code:'email_rate_limited'});
 });
+
+test('signup code verifies the intended confirmed email and handles incorrect codes',async()=>{
+  const {client,calls}=fixture({async verifyOtp(payload){calls.push(['verify',payload]);return {data:{user:{email:'person@example.test',email_confirmed_at:'2026-01-01'},session:{synthetic:true}},error:null};}});
+  assert.deepEqual(await client.verifySignupCode('person@example.test','123456'),{ok:true,code:'email_verified'});
+  assert.deepEqual(calls[0],['verify',{email:'person@example.test',token:'123456',type:'email'}]);
+  assert.deepEqual(await client.verifySignupCode('person@example.test','oops'),{ok:false,code:'invalid_code'});
+  const bad=fixture({async verifyOtp(){return {error:{code:'otp_expired'},data:null};}});
+  assert.deepEqual(await bad.client.verifySignupCode('person@example.test','123456'),{ok:false,code:'invalid_code'});
+});
+
+test('signup resend is gated, limited and never reports failure details',async()=>{
+  const {client,calls}=fixture({async resend(payload){calls.push(['resend',payload]);return {error:null};}});
+  assert.deepEqual(await client.resendSignupCode('person@example.test'),{ok:true,code:'signup_code_resent'});
+  assert.deepEqual(calls[0],['resend',{email:'person@example.test',type:'signup'}]);
+  const limited=fixture({async resend(){return {error:{code:'over_email_send_rate_limit'}};}});
+  assert.deepEqual(await limited.client.resendSignupCode('person@example.test'),{ok:false,code:'email_rate_limited'});
+  const disabled=createEmailAuthClient({...fixture().config,signupAllowed:false});
+  assert.deepEqual(await disabled.resendSignupCode('person@example.test'),{ok:false,code:'signup_disabled'});
+});
+
+test('signup verification discards a session for the wrong or unconfirmed email',async()=>{
+  const {client,calls}=fixture({async verifyOtp(){return {data:{user:{email:'other@example.test',email_confirmed_at:'2026-01-01'},session:{synthetic:true}},error:null};}});
+  assert.deepEqual(await client.verifySignupCode('person@example.test','123456'),{ok:false,code:'invalid_code'});
+  assert.ok(calls.includes('signout'));
+});
