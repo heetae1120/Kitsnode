@@ -35,6 +35,15 @@ while IFS= read -r line; do
 done
 SMTP
 chmod 755 "$TMP/smtp.sh"
+if [ "${KITS_TEST_OTP:-0}" = 1 ]; then
+ cat > "$TMP/template.sh" <<'TEMPLATE'
+#!/bin/sh
+while IFS= read -r line; do [ "$line" = "$(printf '\r')" ] && break; done
+body='<a href="{{ .ConfirmationURL }}">Confirm</a><p>Verification code: {{ .Token }}</p>'
+printf 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %s\r\nConnection: close\r\n\r\n%s' "${#body}" "$body"
+TEMPLATE
+ chmod 755 "$TMP/template.sh"
+fi
 for image in public.ecr.aws/supabase/gotrue:v2.198.0 public.ecr.aws/supabase/postgres:17.12.0.000 public.ecr.aws/supabase/postgrest:v16.5; do docker image inspect "$image" >/dev/null; done
 docker network create --internal "$NET" >/dev/null
 docker run -d --name "$DB" --network "$NET" --network-alias db --memory 768m \
@@ -49,6 +58,10 @@ done
 [ "$ready" = 1 ] || { echo 'Database TCP readiness timed out' >&2; exit 1; }
 docker cp "$TMP/smtp.sh" "$DB:/tmp/kits-smtp.sh"
 docker exec -d "$DB" sh -c 'exec nc -lk -p 2525 -e /tmp/kits-smtp.sh'
+if [ "${KITS_TEST_OTP:-0}" = 1 ]; then
+ docker cp "$TMP/template.sh" "$DB:/tmp/kits-template.sh"
+ docker exec -d "$DB" sh -c 'exec nc -lk -p 2526 -e /tmp/kits-template.sh'
+fi
 docker run -d --name "$AUTH" --network "$NET" --network-alias auth \
  -e GOTRUE_API_HOST=0.0.0.0 -e GOTRUE_API_PORT=9999 -e API_EXTERNAL_URL=http://auth:9999 \
  -e GOTRUE_DB_DRIVER=postgres -e GOTRUE_DB_DATABASE_URL='postgres://supabase_admin:local-only-password@db:5432/postgres?sslmode=disable' \
@@ -56,6 +69,7 @@ docker run -d --name "$AUTH" --network "$NET" --network-alias auth \
  -e GOTRUE_JWT_SECRET=local-test-only-secret-key-at-least-thirty-two-characters -e GOTRUE_JWT_EXP=3600 -e GOTRUE_JWT_DEFAULT_GROUP_NAME=authenticated \
  -e GOTRUE_DISABLE_SIGNUP=false -e GOTRUE_EXTERNAL_EMAIL_ENABLED=true -e GOTRUE_MAILER_AUTOCONFIRM=false \
  -e GOTRUE_SMTP_HOST=db -e GOTRUE_SMTP_PORT=2525 -e GOTRUE_SMTP_ADMIN_EMAIL=local@example.test -e GOTRUE_SMTP_SENDER_NAME=Local \
+ -e GOTRUE_MAILER_TEMPLATES_CONFIRMATION="${KITS_TEST_OTP_TEMPLATE:-$( [ "${KITS_TEST_OTP:-0}" = 1 ] && printf 'http://db:2526/template' || printf '' )}" \
  public.ecr.aws/supabase/gotrue:v2.198.0 >/dev/null
 ready=0
 for i in $(seq 1 40); do
@@ -144,7 +158,7 @@ docker exec -i "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -1 <"
 [ "$(docker exec "$DB" psql -U supabase_admin -d postgres -Atqc "select count(*) from pg_trigger where tgname='kitsnode_email_profile_required'")" = 0 ] || { echo 'Profile trigger unexpectedly exists' >&2;exit 1; }
 docker exec -i "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -1 <"$ROOT/supabase/migrations/20261123011803_email_signup_cutoff_gate.sql" >/dev/null
 docker exec -i "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -1 <"$ROOT/supabase/migrations/20261123014656_enable_email_profile_completion.sql" >/dev/null
-docker exec -i "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -1 <"$ROOT/supabase/migrations/20261123034607_add_email_profile_company.sql" >/dev/null
+docker exec -i "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -1 <"$ROOT/supabase/migrations/20261123035840_add_email_profile_company.sql" >/dev/null
 docker exec "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -c 'update kitsnode_member_private.email_profile_gate set required_since=clock_timestamp()' >/dev/null
 
 [ "$(docker exec "$DB" psql -U supabase_admin -d postgres -Atqc "select public.kitsnode_email_profile_pending_for_service('$id1')")" = f ] || { echo 'Existing member unexpectedly gated' >&2;exit 1; }
@@ -229,7 +243,11 @@ KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-username-deno-local.mjs"
 
 
 KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-full-signup-browser-local.mjs"
-KITS_TEST_DB="$DB" KITS_TLS_KEY="$TMP/gate-key.pem" KITS_TLS_CERT="$TMP/gate-cert.pem" node "$ROOT/tests/minimal-auth-prep-full-browser-local.mjs"
+if [ "${KITS_TEST_OTP:-0}" = 1 ]; then
+ KITS_TEST_DB="$DB" KITS_TLS_KEY="$TMP/gate-key.pem" KITS_TLS_CERT="$TMP/gate-cert.pem" node "$ROOT/tests/minimal-auth-otp-browser-local.mjs"
+else
+ KITS_TEST_DB="$DB" KITS_TLS_KEY="$TMP/gate-key.pem" KITS_TLS_CERT="$TMP/gate-cert.pem" node "$ROOT/tests/minimal-auth-prep-full-browser-local.mjs"
+fi
 status=$(docker exec "$DB" curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$body" http://api:3000/rpc/kitsnode_complete_email_profile)
 case "$status" in 401|403|404) ;; *) echo 'Anonymous profile endpoint unexpectedly callable' >&2;exit 1;; esac
 docker exec "$DB" curl -fsS -o /dev/null -X POST -H "Authorization: Bearer $token" 'http://auth:9999/logout?scope=local'
