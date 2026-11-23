@@ -13,3 +13,12 @@ test('rejects invalid requests and responses for a different target',async()=>{
  const c=createAdPerformanceClient({enabled:true,fetcher:async()=>new Response(JSON.stringify({result:{status:'observed',targetId:'nad-other',period:{since:body.since,until:body.until},source:'naver_stats'}}))})!;
  await assert.rejects(c.read('abc',body,new AbortController().signal));await assert.rejects(c.read('abc',{...body,until:'2026-02-30'},new AbortController().signal));
 });
+test('hourly requests bind a single day and reject mismatched or malformed rows',async()=>{
+ const one={...body,since:'2026-11-18',until:'2026-11-18'};let called='';
+ const row={hour:18,impressions:64,clicks:5,cost:2419,purchases:1,revenue:28500,averageCpc:483.8};
+ const client=createAdPerformanceClient({enabled:true,fetcher:async(input)=>{called=String(input);return Response.json({result:{status:'observed',targetId:one.targetId,day:one.since,source:'naver_stats',hours:[row]}})}})!;
+ const result=await client.readHourly('abc.def',one,new AbortController().signal);assert.equal(result.status,'observed');assert.match(called,/performance-hourly$/);
+ await assert.rejects(client.readHourly('abc.def',{...one,until:'2026-11-19'},new AbortController().signal));
+ const malformed=createAdPerformanceClient({enabled:true,fetcher:async()=>Response.json({result:{status:'observed',targetId:one.targetId,day:one.since,source:'naver_stats',hours:[row,row]}})})!;
+ await assert.rejects(malformed.readHourly('abc.def',one,new AbortController().signal));
+});

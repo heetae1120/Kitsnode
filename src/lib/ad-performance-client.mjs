@@ -14,5 +14,17 @@ export function createAdPerformanceClient({enabled,fetcher=globalThis.fetch}={})
   const result=payload?.result;if(!result||!['observed','no_data','unavailable'].includes(result.status))throw Error('invalid_response');
   if(result.status!=='unavailable'&&(result.targetId!==targetId||result.period?.since!==since||result.period?.until!==until||result.source!=='naver_stats'))throw Error('invalid_response');
   return result;
+ },async readHourly(token,body,signal){
+  if(typeof token!=='string'||!/^[A-Za-z0-9._-]{1,8192}$/.test(token)||!signal||typeof signal.aborted!=='boolean'||signal.aborted||!body||!uuid(body.connectionId)||!['product','keyword'].includes(body.kind)||!id(body.campaignId,'cmp')||!id(body.groupId,'grp')||!id(body.targetId,body.kind==='product'?'nad':'nkw')||!date(body.since)||body.since!==body.until)throw Error('invalid_request');
+  const {connectionId,kind,campaignId,groupId,targetId,since,until}=body;
+  const response=await fetcher(endpoint+'-hourly',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({connectionId,kind,campaignId,groupId,targetId,since,until}),signal,credentials:'omit',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer'});
+  if(!response.ok)throw Error('unavailable');const result=(await response.json())?.result;if(signal.aborted)throw Error('aborted');
+  if(!result||!['observed','no_data','unavailable'].includes(result.status))throw Error('invalid_response');
+  if(result.status!=='unavailable'&&(result.targetId!==targetId||result.day!==since||result.source!=='naver_stats'))throw Error('invalid_response');
+  if(result.status==='observed'){
+   if(!Array.isArray(result.hours)||result.hours.length>24)throw Error('invalid_response');const seen=new Set();
+   for(const row of result.hours){if(!row||!Number.isInteger(row.hour)||row.hour<0||row.hour>23||seen.has(row.hour)||!['impressions','clicks','purchases'].every(k=>row[k]===null||(Number.isSafeInteger(row[k])&&row[k]>=0))||!['cost','revenue','averageCpc'].every(k=>row[k]===null||(typeof row[k]==='number'&&Number.isFinite(row[k])&&row[k]>=0)))throw Error('invalid_response');seen.add(row.hour);}
+  }
+  return result;
  }});
 }

@@ -1,0 +1,1 @@
+export function createShoppingPreviewClient(){return {catalog:async(_token,body)=>({connections:[{id:'11111111-1111-4111-8111-111111111111',accountId:'2647636'}],campaigns:[{id:'cmp-test',name:'캠페인'}],groups:[{id:'grp-test',name:'그룹'}],products:[{id:'nad-test',name:'상품'}]}[body.action]||[])}}

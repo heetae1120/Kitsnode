@@ -5,6 +5,8 @@ import {memberBrowserClient} from '@/lib/member-browser-client';
 import {createShoppingPreviewClient,type ShoppingItem} from '@/lib/shopping-preview-client.mjs';
 import {createAdPerformanceClient} from '@/lib/ad-performance-client.mjs';
 import {AdPerformanceResult} from './ad-performance-result';
+import {AdHourlyResult} from './ad-hourly-result';
+import type {HourlyResult} from '@/lib/ad-performance-client.mjs';
 import {AdPerformanceSelect} from './ad-performance-select';
 import {StoreButton,StoreCard} from './store-ui';
 
@@ -18,9 +20,11 @@ export function AdPerformancePanel(){
  const [connections,setConnections]=useState<ShoppingItem[]>([]),[campaigns,setCampaigns]=useState<ShoppingItem[]>([]),[groups,setGroups]=useState<ShoppingItem[]>([]),[targets,setTargets]=useState<ShoppingItem[]>([]);
  const [connection,setConnection]=useState(''),[campaign,setCampaign]=useState(''),[group,setGroup]=useState(''),[target,setTarget]=useState(''),[since,setSince]=useState(''),[until,setUntil]=useState('');
  const [result,setResult]=useState<unknown>(null);
+ const [hourDay,setHourDay]=useState(''),[hourStart,setHourStart]=useState('0'),[hourEnd,setHourEnd]=useState('24');
+ const [hourResult,setHourResult]=useState<{data:HourlyResult;start:number;end:number}|null>(null);
  const current=useRef<string|null>(null),active=useRef<AbortController|null>(null),auth=useRef<ReturnType<typeof memberBrowserClient>>(null);
  useEffect(()=>{if(!enabled){setChecking(false);return;}const client=memberBrowserClient();auth.current=client;if(!client){setChecking(false);return;}let mounted=true,version=0;
-  const apply=(id:string|null)=>{version++;if(current.current!==id){active.current?.abort();active.current=null;current.current=id;setConnections([]);setCampaigns([]);setGroups([]);setTargets([]);setConnection('');setCampaign('');setGroup('');setTarget('');setResult(null);setMessage('');setBusy(false);}setUser(id);setChecking(false);};
+  const apply=(id:string|null)=>{version++;if(current.current!==id){active.current?.abort();active.current=null;current.current=id;setConnections([]);setCampaigns([]);setGroups([]);setTargets([]);setConnection('');setCampaign('');setGroup('');setTarget('');setResult(null);setHourResult(null);setMessage('');setBusy(false);}setUser(id);setChecking(false);};
   const {data:{subscription}}=client.auth.onAuthStateChange((_event,session)=>{if(mounted)apply(session?.user?.id??null);});const initial=version;
   void client.auth.getSession().then(({data})=>{if(mounted&&initial===version)apply(data.session?.user?.id??null);}).catch(()=>{if(mounted&&initial===version)setChecking(false);});
   return ()=>{mounted=false;subscription.unsubscribe();active.current?.abort();current.current=null;auth.current=null;};
@@ -31,9 +35,9 @@ export function AdPerformancePanel(){
   finally{if(active.current===controller){active.current=null;setBusy(false);}}
  }
  useEffect(()=>{if(!user||!catalog)return;void run((token,signal)=>catalog.catalog(token,{action:'connections'},signal),setConnections);return ()=>active.current?.abort();},[user]);
- function chooseConnection(id:string,nextKind=kind){active.current?.abort();setConnection(id);setCampaign('');setGroup('');setTarget('');setCampaigns([]);setGroups([]);setTargets([]);setResult(null);if(id&&catalog)void run((t,s)=>catalog.catalog(t,{action:nextKind==='keyword'?'keywordCampaigns':'campaigns',connectionId:id},s),setCampaigns);}
- function chooseCampaign(id:string){active.current?.abort();setCampaign(id);setGroup('');setTarget('');setGroups([]);setTargets([]);setResult(null);if(id&&catalog)void run((t,s)=>catalog.catalog(t,{action:kind==='keyword'?'keywordGroups':'groups',connectionId:connection,campaignId:id},s),setGroups);}
- function chooseGroup(id:string){active.current?.abort();setGroup(id);setTarget('');setTargets([]);setResult(null);if(id&&catalog)void run((t,s)=>catalog.catalog(t,{action:kind==='keyword'?'keywords':'products',connectionId:connection,campaignId:campaign,groupId:id},s),setTargets);}
+ function chooseConnection(id:string,nextKind=kind){active.current?.abort();setConnection(id);setCampaign('');setGroup('');setTarget('');setCampaigns([]);setGroups([]);setTargets([]);setResult(null);setHourResult(null);if(id&&catalog)void run((t,s)=>catalog.catalog(t,{action:nextKind==='keyword'?'keywordCampaigns':'campaigns',connectionId:id},s),setCampaigns);}
+ function chooseCampaign(id:string){active.current?.abort();setCampaign(id);setGroup('');setTarget('');setGroups([]);setTargets([]);setResult(null);setHourResult(null);if(id&&catalog)void run((t,s)=>catalog.catalog(t,{action:kind==='keyword'?'keywordGroups':'groups',connectionId:connection,campaignId:id},s),setGroups);}
+ function chooseGroup(id:string){active.current?.abort();setGroup(id);setTarget('');setTargets([]);setResult(null);setHourResult(null);if(id&&catalog)void run((t,s)=>catalog.catalog(t,{action:kind==='keyword'?'keywords':'products',connectionId:connection,campaignId:campaign,groupId:id},s),setTargets);}
  return <StoreCard className="ad-performance" aria-labelledby="ad-performance-panel-title">
   <div className="ad-performance-heading"><div><span className="ad-performance-eyebrow">AD PERFORMANCE</span><h2 id="ad-performance-panel-title">내 광고 성과</h2><p>연결된 광고계정에서 상품 또는 키워드의 성과를 확인하세요.</p></div><span className="ad-performance-heading-mark" aria-hidden="true">↗</span></div>
   {!enabled?<p>광고 성과 조회를 준비하고 있습니다.</p>:checking?<p role="status">로그인 상태를 확인하고 있습니다.</p>:!user?<p><Link href="/store/login/">로그인 후 이용하기</Link></p>:<>
@@ -43,7 +47,7 @@ export function AdPerformancePanel(){
      <div className="ad-performance-field"><label htmlFor="performance-connection">광고 계정</label><AdPerformanceSelect id="performance-connection" value={connection} disabled={busy} options={[{value:'',label:'계정을 선택하세요'},...connections.map(x=>({value:x.id,label:`광고 계정 ${x.accountId}`}))]} onChange={chooseConnection}/></div>
      <div className="ad-performance-field"><label htmlFor="performance-campaign">캠페인</label><AdPerformanceSelect id="performance-campaign" value={campaign} disabled={busy||!connection} options={[{value:'',label:'캠페인을 선택하세요'},...campaigns.map(x=>({value:x.id,label:x.name||x.id}))]} onChange={chooseCampaign}/></div>
      <div className="ad-performance-field"><label htmlFor="performance-group">광고그룹</label><AdPerformanceSelect id="performance-group" value={group} disabled={busy||!campaign} options={[{value:'',label:'광고그룹을 선택하세요'},...groups.map(x=>({value:x.id,label:x.name||x.id}))]} onChange={chooseGroup}/></div>
-     <div className="ad-performance-field"><label htmlFor="performance-target">상품 또는 키워드</label><AdPerformanceSelect id="performance-target" value={target} disabled={busy||!group} options={[{value:'',label:'대상을 선택하세요'},...targets.map(x=>({value:x.id,label:x.name||x.id}))]} onChange={value=>{setTarget(value);setResult(null);}}/></div>
+     <div className="ad-performance-field"><label htmlFor="performance-target">상품 또는 키워드</label><AdPerformanceSelect id="performance-target" value={target} disabled={busy||!group} options={[{value:'',label:'대상을 선택하세요'},...targets.map(x=>({value:x.id,label:x.name||x.id}))]} onChange={value=>{setTarget(value);setResult(null);setHourResult(null);}}/></div>
     </div></fieldset>
     <fieldset className="ad-performance-section"><legend><span>03</span> 조회 기간</legend><p>조회할 시작일과 종료일을 선택하세요.</p><div className="ad-performance-grid">
      <div className="ad-performance-field"><label htmlFor="performance-since">시작일</label><input id="performance-since" type="date" value={since} disabled={busy} onChange={e=>{setSince(e.target.value);setResult(null);}}/></div>
@@ -52,6 +56,14 @@ export function AdPerformancePanel(){
    </div>
    <div className="ad-performance-actions"><p>선택한 대상 하나의 성과를 조회합니다.</p><StoreButton type="button" disabled={busy||!target||!since||!until||!performance} onClick={()=>{if(!performance)return;setResult(null);void run((token,signal)=>performance.read(token,{connectionId:connection,kind,campaignId:campaign,groupId:group,targetId:target,since,until},signal),setResult);}}>{busy?'조회 중…':'성과 조회'} <span aria-hidden="true">↗</span></StoreButton></div>
    {message&&<p role="status">{message}</p>}{result!==null&&<AdPerformanceResult result={result}/>}
+   <fieldset className="ad-performance-section"><legend><span>04</span> 시간대별 조회</legend><p>날짜와 확인할 시간 범위를 선택하세요. 시간은 1시간 단위이며 한국 시간 기준입니다.</p><div className="ad-performance-grid">
+    <div className="ad-performance-field"><label htmlFor="hourly-day">조회 날짜</label><input id="hourly-day" type="date" value={hourDay} disabled={busy} onChange={e=>{setHourDay(e.target.value);setHourResult(null);}}/></div>
+    <div className="ad-performance-field"><label htmlFor="hourly-start">시작 시간</label><select id="hourly-start" value={hourStart} disabled={busy} onChange={e=>{setHourStart(e.target.value);setHourResult(null);}}>{Array.from({length:24},(_,h)=><option key={h} value={h}>{String(h).padStart(2,'0')}:00</option>)}</select></div>
+    <div className="ad-performance-field"><label htmlFor="hourly-end">종료 시간</label><select id="hourly-end" value={hourEnd} disabled={busy} onChange={e=>{setHourEnd(e.target.value);setHourResult(null);}}>{Array.from({length:24},(_,i)=><option key={i+1} value={i+1}>{String(i+1).padStart(2,'0')}:00</option>)}</select></div>
+   </div><p>쇼핑검색 시간대별 통계는 조회 가능 기간이 제한됩니다.</p>
+   <StoreButton type="button" disabled={busy||!target||!hourDay||!performance||Number(hourStart)>=Number(hourEnd)} onClick={()=>{if(!performance)return;const start=Number(hourStart),end=Number(hourEnd);setHourResult(null);void run((token,signal)=>performance.readHourly(token,{connectionId:connection,kind,campaignId:campaign,groupId:group,targetId:target,since:hourDay,until:hourDay},signal),data=>setHourResult({data,start,end}));}}>{busy?'조회 중…':'시간대별 성과 조회'}</StoreButton>
+   {Number(hourStart)>=Number(hourEnd)&&<p role="alert">종료 시간은 시작 시간보다 늦어야 합니다.</p>}</fieldset>
+   {hourResult&&<AdHourlyResult result={hourResult.data} start={hourResult.start} end={hourResult.end}/>}
   </>}
  </StoreCard>;
 }
