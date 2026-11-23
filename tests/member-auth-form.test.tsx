@@ -34,8 +34,11 @@ test('ready signup renders separate unchecked consent and age acknowledgements',
   const html=renderToStaticMarkup(<EmailAuthForm auth={auth} initialMode="signup" allowSignup={true} signupConsent={signupConsent}/>);
   assert.match(html,/href="\/Kitsnode\/terms\/"/);
   assert.match(html,/href="\/Kitsnode\/privacy\/"/);
-  assert.equal((html.match(/type="checkbox"/g)||[]).length,3);
+  assert.equal((html.match(/type="checkbox"/g)||[]).length,4);
   assert.match(html,/만 14세 이상입니다/);
+  assert.match(html,/전체 선택/);
+  assert.match(html,/인증번호 받기/);
+  assert.match(html,/인증번호 확인/);
   assert.doesNotMatch(html,/checked=""/);
   assert.match(html,/disabled="">이메일 회원가입<\/button>/);
 });
