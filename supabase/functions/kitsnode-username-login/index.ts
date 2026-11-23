@@ -12,6 +12,7 @@ const config=()=>{
   limit:async({kind,username}:{kind:string;username:string})=>{const {data,error}=await admin.rpc('kitsnode_consume_username_limit_auto',{p_kind:kind,p_username:username});return !error&&data===true},
   lookup:async(username:string)=>{const {data,error}=await admin.rpc('kitsnode_lookup_email_login',{p_username:username});if(error)throw Error('unavailable');const row=Array.isArray(data)?data[0]:null;return row?{userId:row.user_id,email:row.email}:null},
   login:async(email:string,password:string)=>{const client=createClient(url,anon,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});const {data,error}=await client.auth.signInWithPassword({email,password});return error?null:data},
+  pending:async(userId:string)=>{const {data,error}=await admin.rpc('kitsnode_email_profile_pending_for_service',{p_user:userId});if(error)throw Error('unavailable');return data===true},
   revokeSession:async(session:{access_token:string})=>{const {error}=await admin.auth.admin.signOut(session.access_token,'local');if(error)throw Error('revocation_failed')},
   dummyEmail:()=>`no-${crypto.randomUUID()}@example.invalid`,
  });
