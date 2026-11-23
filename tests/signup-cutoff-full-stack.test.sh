@@ -144,6 +144,7 @@ docker exec -i "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -1 <"
 [ "$(docker exec "$DB" psql -U supabase_admin -d postgres -Atqc "select count(*) from pg_trigger where tgname='kitsnode_email_profile_required'")" = 0 ] || { echo 'Profile trigger unexpectedly exists' >&2;exit 1; }
 docker exec -i "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -1 <"$ROOT/supabase/migrations/20261123011803_email_signup_cutoff_gate.sql" >/dev/null
 docker exec -i "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -1 <"$ROOT/supabase/migrations/20261123014656_enable_email_profile_completion.sql" >/dev/null
+docker exec -i "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -1 <"$ROOT/supabase/migrations/20261123034607_add_email_profile_company.sql" >/dev/null
 docker exec "$DB" psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -c 'update kitsnode_member_private.email_profile_gate set required_since=clock_timestamp()' >/dev/null
 
 [ "$(docker exec "$DB" psql -U supabase_admin -d postgres -Atqc "select public.kitsnode_email_profile_pending_for_service('$id1')")" = f ] || { echo 'Existing member unexpectedly gated' >&2;exit 1; }
@@ -225,6 +226,7 @@ body='{"p_username":"seller_two","p_name":"Synthetic","p_phone":"010-1234-5678",
 body='{"p_username":"seller_one","p_name":"Synthetic","p_phone":"010-1234-5678","p_age_confirmed":true}'
 KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-username-login-local.mjs"
 KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-username-deno-local.mjs"
+
 KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-full-signup-browser-local.mjs"
 KITS_TEST_DB="$DB" KITS_TLS_KEY="$TMP/gate-key.pem" KITS_TLS_CERT="$TMP/gate-cert.pem" node "$ROOT/tests/minimal-auth-prep-full-browser-local.mjs"
 status=$(docker exec "$DB" curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$body" http://api:3000/rpc/kitsnode_complete_email_profile)
