@@ -28,12 +28,15 @@ export function createEmailAuthClient({auth, confirmationRedirectTo, recoveryRed
     catch { return fail('unavailable'); }
   };
   return {
-    async signUp(email,password,evidence) {
+    async signUp(email,password,evidence,draft) {
       // Defense in depth only: direct requests to the public Auth API bypass this.
       if (signupAllowed !== true) return fail('signup_disabled');
       if (!emailValid(email) || !passwordValid(password) || evidence?.termsAccepted !== true || evidence?.privacyAcknowledged !== true || evidence?.termsVersion !== MEMBER_TERMS_VERSION || evidence?.privacyVersion !== MEMBER_PRIVACY_VERSION) return fail('invalid_input');
+      if(draft!==undefined && (!draft || typeof draft.username!=='string'||!/^[a-z0-9][a-z0-9_-]{3,19}$/.test(draft.username)||typeof draft.name!=='string'||draft.name.length<1||draft.name.length>100||/[\x00-\x1f\x7f]/.test(draft.name)||typeof draft.phone!=='string'||!/^01[016789][0-9]{7,8}$/.test(draft.phone.replace(/[ -]/g,''))||!/^[0-9 -]+$/.test(draft.phone)||typeof draft.company!=='string'||draft.company.length>100||/[\x00-\x1f\x7f]/.test(draft.company)||draft.ageConfirmed!==true))return fail('invalid_input');
       try {
-        const result = await auth.signUp({email:email.trim(),password,options:{emailRedirectTo:confirmationRedirectTo,data:{kitsnode_consent:{termsVersion:evidence.termsVersion,privacyVersion:evidence.privacyVersion,termsAccepted:true,privacyAcknowledged:true}}}});
+        const data={kitsnode_consent:{termsVersion:evidence.termsVersion,privacyVersion:evidence.privacyVersion,termsAccepted:true,privacyAcknowledged:true}};
+        if(draft)data.kitsnode_signup_draft={username:draft.username,name:draft.name,phone:draft.phone,company:draft.company,ageConfirmed:true};
+        const result = await auth.signUp({email:email.trim(),password,options:{emailRedirectTo:confirmationRedirectTo,data}});
         if (result?.error) return fail(result.error.code === 'over_email_send_rate_limit' ? 'email_rate_limited' : 'unavailable');
         // A session here means project email confirmation is disabled: do not proceed.
         if (result?.data?.session) {

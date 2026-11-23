@@ -37,6 +37,15 @@ test('signup requests confirmation, with no automatic login',async()=>{
   assert.equal(calls.length,1);
 });
 
+test('signup carries validated profile draft without storing the password in metadata',async()=>{
+ const {client,calls}=fixture();const draft={username:'seller_one',name:'Synthetic',phone:'01012345678',company:'',ageConfirmed:true};
+ assert.deepEqual(await client.signUp('person@example.test','synthetic-password',consent,draft),{ok:true,code:'signup_requested'});
+ assert.deepEqual(calls[0][1].options.data.kitsnode_signup_draft,draft);
+ assert.equal(JSON.stringify(calls[0][1].options.data).includes('synthetic-password'),false);
+ assert.deepEqual(await client.signUp('person@example.test','synthetic-password',consent,{...draft,company:'x'.repeat(101)}),{ok:false,code:'invalid_input'});
+ assert.equal(calls.length,1);
+});
+
 test('signup is disabled by default and makes no Auth API request',async()=>{
   const {config,calls}=fixture();
   const client=createEmailAuthClient({...config,signupAllowed:undefined});

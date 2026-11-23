@@ -6,7 +6,7 @@ import { MEMBER_INTAKE_REVIEWED, canUseMemberNaver, readMemberAuthConfig, member
 import { createEmailAuthClient } from '@/lib/member-email-auth.mjs';
 import { createNaverAuth, naverIdentityState, oauthCallbackError } from '@/lib/member-naver-auth.mjs';
 import { bindConsentToUser, createMemberConsent, MEMBER_PRIVACY_VERSION, MEMBER_TERMS_VERSION } from '@/lib/member-consent.mjs';
-import { EmailAuthForm, type EmailAuth } from './member-email-auth-form';
+import { EmailAuthForm, type EmailAuth, type SignupDraft } from './member-email-auth-form';
 import { MemberConsentGate } from './member-consent-gate';
 import { MemberConsentWithdraw } from './member-consent-withdraw';
 import { MemberSelfWithdraw } from './member-self-withdraw';
@@ -152,15 +152,15 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const signupConsent=intakeEnabled ? {
     terms:{href:`${basePath}/terms/`,version:MEMBER_TERMS_VERSION},
     privacy:{href:`${basePath}/privacy/`,version:MEMBER_PRIVACY_VERSION},
-    register:async (email:string,password:string,evidence:{termsVersion:string;privacyVersion:string;termsAccepted:true;privacyAcknowledged:true}) => {
+    register:async (email:string,password:string,evidence:{termsVersion:string;privacyVersion:string;termsAccepted:true;privacyAcknowledged:true},draft:SignupDraft) => {
       if(evidence.termsAccepted!==true || evidence.privacyAcknowledged!==true || evidence.termsVersion!==MEMBER_TERMS_VERSION || evidence.privacyVersion!==MEMBER_PRIVACY_VERSION) return {ok:false,code:'invalid_input'};
-      return api.signUp(email,password,evidence);
+      return api.signUp(email,password,evidence,draft);
     },
   } : undefined;
   const go = async (action:'signIn'|'link') => { if(busyRef.current)return;busyRef.current=true;setBusy(true);setError('');try {if(action==='signIn'&&naverBoundary&&!writeNaverIntent(naverStorage(),mode==='signup'?'signup':'signin')){setError(naverErrorText.unavailable);return;}const result=await social[action]();if(!result.ok){clearNaverIntent(naverStorage());setError(naverErrorText[result.code] || naverErrorText.unavailable);}} finally {busyRef.current=false;setBusy(false);} };
   return <section>
     {withdrawCompleted && <p role="status">회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.</p>}
-    <EmailAuthForm key={recovery?'recovery':'normal'} auth={api} signedIn={signedIn} recovery={recovery} initialMode={mode==='signup'?'signup':'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent} usernameSignIn={usernameApi?.signIn}/>
+    <EmailAuthForm key={recovery?'recovery':'normal'} auth={api} signedIn={signedIn} recovery={recovery} initialMode={mode==='signup'?'signup':'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent} usernameSignIn={usernameApi?.signIn} checkUsername={usernameApi?.checkUsername}/>
     {process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true' && signedIn && !recovery && memberUserId && consentStatus==='accepted' && profileStatus==='pending' && <MemberEmailProfile key={`profile-${memberUserId}`} client={memberBrowserClient()!} userId={memberUserId} checkUsername={usernameApi?.checkUsername} onComplete={()=>{if(memberUserIdRef.current===memberUserId){setProfileCompleted(true);setProfileStatus('ready')}}}/>}
     {profileCompleted && signedIn && <p role="status">회원가입이 완료되었습니다.</p>}
     {process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true' && signedIn && profileStatus==='error' && <p role="alert">회원가입 완료 상태를 확인하지 못했습니다. 다시 로그인해 주세요.</p>}

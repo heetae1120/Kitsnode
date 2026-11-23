@@ -3,8 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 type Result = { ok: boolean; code: string };
+export type SignupDraft = {username:string;name:string;phone:string;company:string;ageConfirmed:true};
 export type EmailAuth = {
-  signUp(email: string, password: string, evidence: {termsVersion:string;privacyVersion:string;termsAccepted:true;privacyAcknowledged:true}): Promise<Result>;
+  signUp(email: string, password: string, evidence: {termsVersion:string;privacyVersion:string;termsAccepted:true;privacyAcknowledged:true},draft?:SignupDraft): Promise<Result>;
   signIn(email: string, password: string): Promise<Result>;
   signOut(): Promise<Result>;
   requestPasswordReset(email: string): Promise<Result>;
@@ -16,17 +17,20 @@ type Mode = 'signup' | 'signin' | 'reset' | 'update';
 export type SignupConsent = {
   terms: { href: string; version: string };
   privacy: { href: string; version: string };
-  register: (email: string, password: string, evidence: { termsVersion: string; privacyVersion: string; termsAccepted: true; privacyAcknowledged: true }) => Promise<Result>;
+  register: (email: string, password: string, evidence: { termsVersion: string; privacyVersion: string; termsAccepted: true; privacyAcknowledged: true },draft:SignupDraft) => Promise<Result>;
 };
 function validNotice(notice: {href:string;version:string}) {
   return /^\/(?!\/)[A-Za-z0-9/_-]+\/$/.test(notice.href) && /^[A-Za-z0-9._-]{1,64}$/.test(notice.version);
 }
 
-export function EmailAuthForm({ auth, recovery = false, signedIn = false, initialMode = 'signin', allowSignup = false, signupConsent, previewStatus, usernameSignIn }: { auth: EmailAuth; recovery?: boolean; signedIn?: boolean; initialMode?: 'signin' | 'signup'; allowSignup?: boolean; signupConsent?: SignupConsent; previewStatus?: 'error' | 'verification'; usernameSignIn?:(username:string,password:string)=>Promise<Result> }) {
+export function EmailAuthForm({ auth, recovery = false, signedIn = false, initialMode = 'signin', allowSignup = false, signupConsent, previewStatus, usernameSignIn, checkUsername }: { auth: EmailAuth; recovery?: boolean; signedIn?: boolean; initialMode?: 'signin' | 'signup'; allowSignup?: boolean; signupConsent?: SignupConsent; previewStatus?: 'error' | 'verification'; usernameSignIn?:(username:string,password:string)=>Promise<Result>;checkUsername?:(username:string)=>Promise<Result> }) {
   const canSignup = Boolean(allowSignup && signupConsent && validNotice(signupConsent.terms) && validNotice(signupConsent.privacy) && typeof signupConsent.register === 'function');
   const [mode, setMode] = useState<Mode>(recovery ? 'update' : initialMode === 'signup' && !canSignup ? 'signin' : initialMode);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
+  const [name,setName]=useState(''),[phone,setPhone]=useState(''),[company,setCompany]=useState('');
+  const [age,setAge]=useState(false),[checked,setChecked]=useState(''),[availability,setAvailability]=useState('');
+  const checkSeq=useRef(0);
   const [loginMethod,setLoginMethod] = useState<'email'|'username'>('email');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
@@ -65,7 +69,8 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
     if (busyRef.current) return;
     if (mode === 'signup' && canSignup && signupConsent && termsAccepted && privacyAcknowledged) {
       if (!confirmation || password !== confirmation) { setError('비밀번호 확인이 일치하지 않습니다.'); return; }
-      return void execute(() => signupConsent.register(email.trim(), password, {termsVersion:signupConsent.terms.version,privacyVersion:signupConsent.privacy.version,termsAccepted:true,privacyAcknowledged:true}));
+      if(!age||!checkUsername||checked!==username.trim().toLowerCase()){setError('아이디 중복 확인과 나이 확인을 완료해 주세요.');return;}
+      return void execute(() => signupConsent.register(email.trim(), password, {termsVersion:signupConsent.terms.version,privacyVersion:signupConsent.privacy.version,termsAccepted:true,privacyAcknowledged:true},{username:username.trim().toLowerCase(),name:name.trim(),phone:phone.trim(),company:company.trim(),ageConfirmed:true}));
     }
     if (mode === 'signup') return;
     if (mode === 'signin') return void execute(() => loginMethod==='username' && usernameSignIn ? usernameSignIn(username.trim().toLowerCase(),password) : auth.signIn(email.trim(), password));
@@ -79,11 +84,13 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
     {mode === 'reset' && <p>가입한 이메일을 입력하고 아래 버튼을 누르면 재설정 안내를 보내드립니다.</p>}
     {mode === 'signup' && canSignup && <p>가입 시 이용약관과 개인정보 처리방침을 확인해 주세요.</p>}
     {signedIn && !recovery ? <button type="button" disabled={busy} onClick={() => void execute(() => auth.signOut())}>로그아웃</button> : <form onSubmit={submit}>
-      {mode === 'signin' && loginMethod==='username' ? <label>아이디<input required autoComplete="username" value={username} onChange={event=>setUsername(event.target.value)} disabled={busy}/></label> : mode !== 'update' && <label>이메일<input data-auth-edit="email-input" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>}
+      {mode === 'signup' && <><label>아이디<input required minLength={4} maxLength={20} pattern="[A-Za-z0-9](?:[A-Za-z0-9_]|-){3,19}" autoComplete="username" value={username} onChange={event=>{checkSeq.current++;setUsername(event.target.value);setChecked('');setAvailability('')}} disabled={busy}/></label><button type="button" disabled={busy||!checkUsername} onClick={()=>{const candidate=username.trim().toLowerCase(),ticket=++checkSeq.current;setAvailability('확인 중입니다.');void checkUsername?.(candidate).then(result=>{if(ticket!==checkSeq.current)return;if(result.ok&&result.code==='available'){setChecked(candidate);setAvailability('사용 가능한 아이디입니다.')}else setAvailability(result.ok?'이미 사용 중인 아이디입니다.':'아이디를 확인하지 못했습니다.')}).catch(()=>{if(ticket===checkSeq.current)setAvailability('아이디를 확인하지 못했습니다.')})}}>아이디 중복 확인</button><p role="status">{availability}</p></>}
+      {mode === 'signin' && loginMethod==='username' ? <label>아이디<input required autoComplete="username" value={username} onChange={event=>setUsername(event.target.value)} disabled={busy}/></label> : mode !== 'update' && mode !== 'signup' && <label>이메일<input data-auth-edit="email-input" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>}
       {mode !== 'reset' && <label>비밀번호<input data-auth-edit="password-input" type="password" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} required minLength={8} value={password} onChange={event => setPassword(event.target.value)} disabled={busy} /></label>}
       {mode === 'signup' && <label>비밀번호 재확인<input type="password" autoComplete="new-password" required minLength={8} value={confirmation} onChange={event => setConfirmation(event.target.value)} disabled={busy} /></label>}
+      {mode === 'signup' && <><label>이름<input required maxLength={100} autoComplete="name" value={name} onChange={event=>setName(event.target.value)} disabled={busy}/></label><label>이메일<input data-auth-edit="email-input" type="email" autoComplete="email" required value={email} onChange={event=>setEmail(event.target.value)} disabled={busy}/></label><p>가입 요청 후 이메일로 인증 안내를 보내드립니다.</p><label>휴대폰 번호<input required type="tel" autoComplete="tel" value={phone} onChange={event=>setPhone(event.target.value)} disabled={busy}/></label><label>업체명 (선택)<input maxLength={100} autoComplete="organization" value={company} onChange={event=>setCompany(event.target.value)} disabled={busy}/></label><label><input type="checkbox" checked={age} onChange={event=>setAge(event.target.checked)} disabled={busy}/> 만 14세 이상입니다.</label></>}
       {mode === 'signup' && canSignup && signupConsent && <fieldset><legend>가입 안내 확인</legend><label><input type="checkbox" checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} required disabled={busy} /> <a href={signupConsent.terms.href} target="_blank" rel="noopener noreferrer">이용약관</a>에 동의합니다.</label><label><input type="checkbox" checked={privacyAcknowledged} onChange={event => setPrivacyAcknowledged(event.target.checked)} required disabled={busy} /> <a href={signupConsent.privacy.href} target="_blank" rel="noopener noreferrer">임시 개인정보 처리방침</a>을 확인했습니다.</label></fieldset>}
-      <button data-auth-edit="submit-button" type="submit" disabled={busy || (mode === 'signup' && (!canSignup || !termsAccepted || !privacyAcknowledged))}>{busy ? '처리 중…' : heading}</button>
+      <button data-auth-edit="submit-button" type="submit" disabled={busy || (mode === 'signup' && (!canSignup || !termsAccepted || !privacyAcknowledged || !age || !checkUsername || checked!==username.trim().toLowerCase()))}>{busy ? '처리 중…' : heading}</button>
     </form>}
     {message && <p role="status">{message}</p>}{error && <p role="alert">{error}</p>}
     {!signedIn && !recovery && <nav aria-label="회원 인증 메뉴">
