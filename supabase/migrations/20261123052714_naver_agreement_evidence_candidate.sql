@@ -41,7 +41,7 @@ CREATE FUNCTION public.kits_naver_agreement_record_candidate(
  p_privacy_version text,p_client_id text,p_agreements jsonb
 ) RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
 DECLARE sess uuid; identity_id uuid; terms_code text; privacy_code text;
- terms_date date; privacy_date date; terms_raw text; privacy_raw text;
+ terms_date date; privacy_date date; terms_raw text; privacy_raw text; terms_agree_day date; privacy_agree_day date;
 BEGIN
  IF p_user IS NULL OR p_session IS NULL OR p_naver_subject IS NULL OR p_terms_version IS NULL OR p_privacy_version IS NULL OR p_client_id IS NULL OR p_agreements IS NULL OR length(p_naver_subject) NOT BETWEEN 1 AND 255
  OR length(p_terms_version) NOT BETWEEN 1 AND 100 OR length(p_privacy_version) NOT BETWEEN 1 AND 100
@@ -72,8 +72,13 @@ BEGIN
  -- Naver does not document the timezone. Do not infer an instant from it.
  -- Accept only a civil date at least two dates after the published date;
  -- ambiguous near-boundary dates fall back to the ordinary consent screen.
- IF pg_catalog.to_date(pg_catalog.right(terms_raw,10),'MM/DD/YYYY') <= terms_date+1
- OR pg_catalog.to_date(pg_catalog.right(privacy_raw,10),'MM/DD/YYYY') <= privacy_date+1 THEN RETURN false; END IF;
+ terms_agree_day:=pg_catalog.to_date(pg_catalog.right(terms_raw,10),'MM/DD/YYYY');
+ privacy_agree_day:=pg_catalog.to_date(pg_catalog.right(privacy_raw,10),'MM/DD/YYYY');
+ IF terms_agree_day <= terms_date+1 OR privacy_agree_day <= privacy_date+1 THEN RETURN false; END IF;
+ -- A timezone-free civil date at or after yesterday in UTC could still denote
+ -- a future instant; reject the whole boundary rather than assume a timezone.
+ IF terms_agree_day >= (pg_catalog.clock_timestamp() AT TIME ZONE 'UTC')::date-1
+ OR privacy_agree_day >= (pg_catalog.clock_timestamp() AT TIME ZONE 'UTC')::date-1 THEN RETURN false; END IF;
  INSERT INTO public.kitsnode_member_consents(user_id,terms_version,privacy_version) VALUES(p_user,p_terms_version,p_privacy_version)
  ON CONFLICT(user_id,terms_version,privacy_version) DO NOTHING;
  INSERT INTO kitsnode_member_private.naver_agreement_evidence(user_id,terms_version,privacy_version,client_id,agreements)
