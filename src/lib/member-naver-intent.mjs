@@ -1,7 +1,9 @@
 const key='kitsnode.naver.auth.intent';
 const testKey='kitsnode.withdraw.test';
 export function naverBoundaryEnabled(storage,flag,search='') {
- try{if(new URLSearchParams(search).get('withdraw_test')==='1')storage?.setItem(testKey,'1');return flag==='true'||storage?.getItem(testKey)==='1'}catch{return flag==='true'}
+ // A stale trial marker must not override the published production setting.
+ if(flag!=='true')try{storage?.removeItem(testKey)}catch{}
+ return flag==='true';
 }
 export function writeNaverIntent(storage,kind,now=Date.now()) {
  if(!storage||!['signin','signup'].includes(kind)||!Number.isSafeInteger(now))return false;
