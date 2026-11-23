@@ -13,7 +13,7 @@ export function MemberSelfWithdraw({withdraw}: {withdraw:()=>Promise<{ok:boolean
   try {
    const result=await withdraw();
    if(result.ok){dialog.current?.close();setMessage('회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.');}
-   else setMessage(result.code==='pending'?'탈퇴 처리 결과를 확인하지 못했습니다. 로그인이 되지 않으면 탈퇴가 완료됐을 수 있습니다. 확인이 필요하면 고객센터로 문의해 주세요.':result.code==='admin_protected'?'관리자 계정은 고객 회원탈퇴를 이용할 수 없습니다.':'탈퇴 요청을 시작하지 못했습니다. 로그인 상태를 확인한 뒤 다시 시도해 주세요.');
+   else setMessage(result.code==='pending'?'탈퇴 처리 결과를 확인하지 못했습니다. 로그인이 되지 않으면 탈퇴가 완료됐을 수 있습니다. 확인이 필요하면 고객센터로 문의해 주세요.':result.code==='admin_protected'?'관리자 계정은 고객 회원탈퇴를 이용할 수 없습니다.':result.code==='protected_reference'?'이 계정은 바로 탈퇴할 수 없습니다. 고객센터로 문의해 주세요.':'탈퇴 요청을 시작하지 못했습니다. 로그인 상태를 확인한 뒤 다시 시도해 주세요.');
   }catch{setMessage('탈퇴 처리 결과를 확인하지 못했습니다. 로그인이 되지 않으면 탈퇴가 완료됐을 수 있습니다. 확인이 필요하면 고객센터로 문의해 주세요.');}
   finally{inFlight.current=false;setBusy(false)}
  };
