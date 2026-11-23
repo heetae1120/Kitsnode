@@ -10,19 +10,21 @@ test('signup screen does not offer signup when consent workflow is not ready',()
   const html=renderToStaticMarkup(<EmailAuthForm auth={auth} initialMode="signup" allowSignup={false}/>);
   assert.match(html,/회원가입은 준비 중/);
   assert.doesNotMatch(html,/>회원가입<\/button>/);
-  assert.match(html,/이메일 로그인/);
+  assert.match(html,/아이디 로그인/);
+  assert.doesNotMatch(html,/이메일 로그인/);
 });
 test('a signup flag alone cannot bypass missing consent workflow',()=>{
   const html=renderToStaticMarkup(<EmailAuthForm auth={auth} initialMode="signup" allowSignup={true}/>);
   assert.match(html,/회원가입은 준비 중/);
   assert.doesNotMatch(html,/>회원가입<\/button>/);
 });
-test('ready consent interface renders separate unchecked required acknowledgements',()=>{
+test('ready signup renders separate unchecked consent and age acknowledgements',()=>{
   const signupConsent={terms:{href:'/Kitsnode/terms/',version:'v1'},privacy:{href:'/Kitsnode/privacy/',version:'v1'},register:async()=>({ok:false,code:'disabled'})};
   const html=renderToStaticMarkup(<EmailAuthForm auth={auth} initialMode="signup" allowSignup={true} signupConsent={signupConsent}/>);
   assert.match(html,/href="\/Kitsnode\/terms\/"/);
   assert.match(html,/href="\/Kitsnode\/privacy\/"/);
-  assert.equal((html.match(/type="checkbox"/g)||[]).length,2);
+  assert.equal((html.match(/type="checkbox"/g)||[]).length,3);
+  assert.match(html,/만 14세 이상입니다/);
   assert.doesNotMatch(html,/checked=""/);
   assert.match(html,/disabled="">이메일 회원가입<\/button>/);
 });
