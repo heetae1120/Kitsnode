@@ -25,8 +25,8 @@ export function MemberPreview({ mode, stage }: { mode: 'login' | 'signup'; stage
   });
   const intakeEnabled = Boolean(MEMBER_INTAKE_REVIEWED && config?.signup);
   const signupConsent: SignupConsent | undefined = intakeEnabled ? {
-    terms: { href: `${basePath}/terms/`, version: MEMBER_TERMS_VERSION },
-    privacy: { href: `${basePath}/privacy/`, version: MEMBER_PRIVACY_VERSION },
+    terms: { href: `${basePath}/terms/2026-11-23/`, version: MEMBER_TERMS_VERSION },
+    privacy: { href: `${basePath}/privacy/2026-11-23/`, version: MEMBER_PRIVACY_VERSION },
     register: denied,
   } : undefined;
   const content = stage === 'consent' ?

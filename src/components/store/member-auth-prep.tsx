@@ -151,8 +151,8 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     if (consentStatus !== 'accepted') return <p role="alert">회원 이용 안내를 확인하지 못했습니다. 다시 로그인해 주세요.</p>;
   }
   const signupConsent=intakeEnabled ? {
-    terms:{href:`${basePath}/terms/`,version:MEMBER_TERMS_VERSION},
-    privacy:{href:`${basePath}/privacy/`,version:MEMBER_PRIVACY_VERSION},
+    terms:{href:`${basePath}/terms/2026-11-23/`,version:MEMBER_TERMS_VERSION},
+    privacy:{href:`${basePath}/privacy/2026-11-23/`,version:MEMBER_PRIVACY_VERSION},
     register:async (email:string,password:string,evidence:{termsVersion:string;privacyVersion:string;termsAccepted:true;privacyAcknowledged:true},draft:SignupDraft) => {
       if(evidence.termsAccepted!==true || evidence.privacyAcknowledged!==true || evidence.termsVersion!==MEMBER_TERMS_VERSION || evidence.privacyVersion!==MEMBER_PRIVACY_VERSION) return {ok:false,code:'invalid_input'};
       return api.signUp(email,password,evidence,draft);

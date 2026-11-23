@@ -49,7 +49,7 @@ export function AdvertiserAnalysis(){
     {state==='connected'&&<><StoreCard className="ad-analysis-status"><div className="ad-analysis-status-copy"><span className="ad-analysis-status-icon"><Check size={17} aria-hidden="true"/></span><div><StoreBadge tone="primary">연결 확인됨</StoreBadge><h2>광고계정 연결됨</h2><p>{performanceReady?'연결한 광고계정의 성과를 조회할 수 있습니다.':'연결한 광고계정의 성과 조회를 준비하고 있습니다.'}</p></div></div><StoreButton type="button" className="store-button--secondary" onClick={()=>setRefresh(x=>x+1)}><RefreshCw size={15} aria-hidden="true"/>연결 상태 새로고침</StoreButton></StoreCard>{performanceReady?<AdPerformancePanel/>:<StoreCard className="ad-analysis-pending"><div className="ad-analysis-card-head"><div><span className="ad-analysis-section-label">PERFORMANCE</span><h2>광고 성과</h2></div><StoreBadge>준비 중</StoreBadge></div><div className="ad-analysis-empty"><div className="ad-analysis-empty-mark" aria-hidden="true"><span/><span/><span/><span/></div><p>성과 조회 기능을 준비하고 있습니다.</p><span>연결된 계정의 실제 데이터를 확인할 수 있도록 준비 중이에요.</span></div></StoreCard>}</>}
     {user&&<details className="ad-analysis-connection" open={state==='not-connected'}><summary><div><span className="ad-analysis-section-label">AD ACCOUNT</span><strong>광고계정 연결 관리</strong><span>계정 등록과 연결 상태를 확인하세요.</span></div><ChevronDown size={20} aria-hidden="true"/></summary><div className="ad-analysis-connection-content"><AdConnectionPanel transport={transport}/></div></details>}
    </>}
-   <footer className="ad-analysis-footer"><span>kitsnode</span><span>브랜드 전략 · 광고 컨설팅</span><Link href="/privacy/">개인정보 처리방침</Link></footer>
+   <footer className="ad-analysis-footer"><span>kitsnode</span><span>브랜드 전략 · 광고 컨설팅</span><Link href="/privacy/2026-11-23/">개인정보 처리방침</Link></footer>
   </main>
  </div>;
 }

@@ -104,7 +104,7 @@ export function VisitorAnalytics() {
   return <aside className={styles.banner} aria-labelledby="analytics-title">
     <div className={styles.content}>
       <h2 id="analytics-title">더 나은 키츠노드를 위해 방문 분석에 동의해 주세요.</h2>
-      <p>이용 현황을 분석해 서비스를 개선합니다. 자세한 내용은 개인정보 처리방침에서 확인할 수 있습니다. <Link href="/privacy/" target="_blank" rel="noopener noreferrer">개인정보 처리방침</Link></p>
+      <p>이용 현황을 분석해 서비스를 개선합니다. 자세한 내용은 개인정보 처리방침에서 확인할 수 있습니다. <Link href="/privacy/2026-11-23/" target="_blank" rel="noopener noreferrer">개인정보 처리방침</Link></p>
       {!saved && <p role="status" className={styles.warning}>브라우저 저장이 차단되어 선택은 이번 탭에만 적용됩니다. 다시 열면 분석 설정을 확인해 주세요.</p>}
     </div>
     <div className={styles.actions}>
