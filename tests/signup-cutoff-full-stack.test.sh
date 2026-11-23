@@ -227,6 +227,7 @@ body='{"p_username":"seller_one","p_name":"Synthetic","p_phone":"010-1234-5678",
 KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-username-login-local.mjs"
 KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-username-deno-local.mjs"
 
+
 KITS_TEST_DB="$DB" node "$ROOT/tests/minimal-full-signup-browser-local.mjs"
 KITS_TEST_DB="$DB" KITS_TLS_KEY="$TMP/gate-key.pem" KITS_TLS_CERT="$TMP/gate-cert.pem" node "$ROOT/tests/minimal-auth-prep-full-browser-local.mjs"
 status=$(docker exec "$DB" curl -sS -o /dev/null -w '%{http_code}' -X POST -H 'Content-Type: application/json' -d "$body" http://api:3000/rpc/kitsnode_complete_email_profile)
