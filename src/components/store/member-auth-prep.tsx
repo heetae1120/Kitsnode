@@ -81,18 +81,20 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     const socialEnabled=canUseMemberNaver(config);
     const naver = createNaverAuth({auth:current.auth,trustedOrigin:window.location.origin,redirectTo,allowSignIn:socialEnabled,allowLink:socialEnabled && config.link});
     const naverAgreement=createNaverAgreementBridge({enabled:socialEnabled&&process.env.NEXT_PUBLIC_NAVER_AGREEMENT_ENABLED==='true',url:config.url,key:config.key});
-    let active=true, agreementAttempted=false, agreementEpoch=0;
+    let active=true, agreementAttempted=false, agreementEpoch=0, agreementAccess:string|null=null;
     const {data:{subscription}} = current.auth.onAuthStateChange((event,session) => {
       const nextId=session?.user?.id || null;
-      if (memberUserIdRef.current !== nextId) { agreementEpoch++;agreementAttempted=false;setNaverAgreementPending(false);memberUserIdRef.current=nextId; consentUserRef.current=null; setConsentStatus('checking'); setProfileStatus('checking'); setProfileCompleted(false); setMemberUserId(nextId); }
+      const nextAccess=session?.access_token || null;
+      if(agreementAccess!==nextAccess){agreementAccess=nextAccess;agreementEpoch++;naverAgreement.cancel();agreementAttempted=false;setNaverAgreementPending(false);}
+      if (memberUserIdRef.current !== nextId) { agreementEpoch++;naverAgreement.cancel();agreementAttempted=false;setNaverAgreementPending(false);memberUserIdRef.current=nextId; consentUserRef.current=null; setConsentStatus('checking'); setProfileStatus('checking'); setProfileCompleted(false); setMemberUserId(nextId); }
       setSignedIn(Boolean(session?.user));
       setNaverIdentity(naverIdentityState(session?.user));
-      const callbackToken=takeNaverProviderCallback(session);
+      const callbackToken=(event==='SIGNED_IN'||event==='INITIAL_SESSION')?takeNaverProviderCallback(session):null;
       const providerToken=session?.provider_token || callbackToken;
       if(socialEnabled&&process.env.NEXT_PUBLIC_NAVER_AGREEMENT_ENABLED==='true'&&!agreementAttempted&&nextId&&session&&providerToken&&naverIdentityState(session.user).linked&&(event==='SIGNED_IN'||event==='INITIAL_SESSION')){
         agreementAttempted=true;const epoch=agreementEpoch;setNaverAgreementPending(true);
         // Do not await within Supabase's auth callback; the SDK may hold its lock.
-        setTimeout(()=>{void naverAgreement.verify({...session,provider_token:providerToken}).then(ok=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId){if(ok)setConsentRefresh(n=>n+1);setNaverAgreementPending(false)}}).catch(()=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId)setNaverAgreementPending(false)})},0);
+        setTimeout(()=>{if(!active||epoch!==agreementEpoch||memberUserIdRef.current!==nextId)return;void naverAgreement.verify({...session,provider_token:providerToken}).then(ok=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId){if(ok)setConsentRefresh(n=>n+1);setNaverAgreementPending(false)}}).catch(()=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId)setNaverAgreementPending(false)})},0);
       }
       if(event === 'PASSWORD_RECOVERY') setRecovery(true);
       if(event === 'SIGNED_OUT') setRecovery(false);
