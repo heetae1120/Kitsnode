@@ -92,7 +92,7 @@ jobs:
           NEXT_PUBLIC_MEMBER_AUTH_NAVER_LINK_ENABLED: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_NAVER_LINK_ENABLED }}
           # Server-side release gate limits the button to the designated test account until rollout.
           NEXT_PUBLIC_SELF_WITHDRAW_ENABLED: 'true'
-          NEXT_PUBLIC_NAVER_SIGNUP_BOUNDARY: 'false'
+          NEXT_PUBLIC_NAVER_SIGNUP_BOUNDARY: 'true'
       - name: Test member authentication
         run: node --import tsx --test tests/member-auth-prep.test.ts tests/member-auth-form.test.tsx tests/member-email-auth.test.mjs tests/member-consent.test.mjs tests/member-consent-gate.test.tsx tests/member-consent-withdraw.test.tsx tests/member-naver-intent.test.mjs tests/member-self-withdraw*.test.mjs tests/member-self-withdraw-ui.test.tsx
       - run: npm run typecheck

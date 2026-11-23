@@ -11,7 +11,7 @@ import { MemberConsentGate } from './member-consent-gate';
 import { MemberConsentWithdraw } from './member-consent-withdraw';
 import { MemberSelfWithdraw } from './member-self-withdraw';
 import {requestSelfWithdrawal,selfWithdrawalAvailable} from '@/lib/member-self-withdraw.mjs';
-import {writeNaverIntent,readNaverIntent,clearNaverIntent,naverBoundaryEnabled} from '@/lib/member-naver-intent.mjs';
+import {writeNaverIntent,readNaverIntent,clearNaverIntent,naverBoundaryEnabled,requiresNaverSignupIntent} from '@/lib/member-naver-intent.mjs';
 import { MemberNaverSignIn } from './member-naver-sign-in';
 import { MemberEmailProfile } from './member-email-profile';
 import {createUsernameClient} from '@/lib/member-username-client.mjs';
@@ -99,7 +99,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     setConsentStatus('checking');
     void consent.hasCurrent().then(async result => {
       if (active && checkedUserId && memberUserIdRef.current===checkedUserId) {
-        if(result.ok && !result.accepted && naverBoundary && readNaverIntent(naverStorage())==='signin'){
+        if(result.ok && !result.accepted && requiresNaverSignupIntent(naverBoundary,naverIdentity.linked,readNaverIntent(naverStorage()))){
           const history=await consent.hasAny();
           if(!active || memberUserIdRef.current!==checkedUserId)return;
           if(!history.ok){setConsentStatus('error');return;}
@@ -114,7 +114,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
       }
     }).catch(()=>{if(active && checkedUserId && memberUserIdRef.current===checkedUserId)setConsentStatus('error');});
     return ()=>{active=false;};
-  },[signedIn,memberUserId,recovery,consent,config?.signup,naverBoundary]);
+  },[signedIn,memberUserId,recovery,consent,config?.signup,naverBoundary,naverIdentity.linked]);
   useEffect(() => {
     let active=true;
     if(process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED!=='true'||!signedIn||recovery||!memberUserId){setProfileStatus('ready');return ()=>{active=false};}

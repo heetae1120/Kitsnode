@@ -11,3 +11,6 @@ export function readNaverIntent(storage,now=Date.now()) {
  try{const v=JSON.parse(storage?.getItem(key)||'null');if(!v||!['signin','signup'].includes(v.kind)||!Number.isSafeInteger(v.at)||now<v.at||now-v.at>600000)return null;return v.kind}catch{return null}
 }
 export function clearNaverIntent(storage){try{storage?.removeItem(key)}catch{}}
+// Missing, expired or malformed intent cannot turn a login into a signup.
+// Accounts with earlier consent are handled separately by the caller.
+export function requiresNaverSignupIntent(enabled,naverLinked,intent){return enabled===true&&naverLinked===true&&intent!=='signup'}
