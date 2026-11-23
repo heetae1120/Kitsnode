@@ -13,6 +13,7 @@ import { MemberSelfWithdraw } from './member-self-withdraw';
 import {requestSelfWithdrawal,selfWithdrawalAvailable} from '@/lib/member-self-withdraw.mjs';
 import {writeNaverIntent,readNaverIntent,clearNaverIntent,naverBoundaryEnabled,requiresNaverSignupIntent} from '@/lib/member-naver-intent.mjs';
 import { MemberNaverSignIn } from './member-naver-sign-in';
+import { MemberNaverError } from './member-naver-error';
 import { MemberEmailProfile } from './member-email-profile';
 import {createUsernameClient} from '@/lib/member-username-client.mjs';
 import naverStyles from './naver-login.module.css';
@@ -174,6 +175,6 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     {canUseMemberNaver(config) && !signedIn && <MemberNaverSignIn basePath={basePath} busy={busy} signIn={()=>void go('signIn')}/>}
     {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.canLinkEmail && !naverIdentity.linked && <div><button type="button" className={naverStyles.linkButton} disabled={busy} onClick={()=>void go('link')}><img src={`${basePath}/naver-login/icon.png`} alt="" width="48" height="48" /><span>네이버 계정 연결</span></button><p>현재 이메일 계정에 네이버 계정을 연결합니다.</p></div>}
     {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.linked && <p>네이버 계정이 연결되어 있습니다.</p>}
-    {error && <p role="alert">{error}{error===naverErrorText.signup_required && <> <a href={`${basePath}/store/signup/`}>회원가입으로 이동</a></>}</p>}
+    {error && <MemberNaverError message={error} conflict={error===naverErrorText.identity_conflict} signupRequired={error===naverErrorText.signup_required} basePath={basePath}/>}
   </section>;
 }
