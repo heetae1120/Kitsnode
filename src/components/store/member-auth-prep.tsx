@@ -8,7 +8,7 @@ import { createNaverAuth, naverIdentityState, oauthCallbackError } from '@/lib/m
 import { bindConsentToUser, createMemberConsent, MEMBER_PRIVACY_VERSION, MEMBER_TERMS_VERSION } from '@/lib/member-consent.mjs';
 import { EmailAuthForm, type EmailAuth, type SignupDraft } from './member-email-auth-form';
 import { MemberConsentGate } from './member-consent-gate';
-import { MemberConsentWithdraw } from './member-consent-withdraw';
+import { DiagnosisDownload } from '../diagnosis-download';
 import { MemberSelfWithdraw } from './member-self-withdraw';
 import {requestSelfWithdrawal,selfWithdrawalAvailable} from '@/lib/member-self-withdraw.mjs';
 import {writeNaverIntent,readNaverIntent,clearNaverIntent,naverBoundaryEnabled,requiresNaverSignupIntent} from '@/lib/member-naver-intent.mjs';
@@ -37,6 +37,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const consentUserRef = useRef<string|null>(null);
   const [consentStatus,setConsentStatus] = useState<'checking'|'needed'|'accepted'|'error'>('checking');
   const [signedIn,setSignedIn] = useState(false);
+  const [accountEmail,setAccountEmail] = useState<string|null>(null);
   const [naverIdentity,setNaverIdentity] = useState({linked:false,canLinkEmail:false});
   const [profileStatus,setProfileStatus]=useState<'checking'|'pending'|'ready'|'error'>('checking');
   const [profileCompleted,setProfileCompleted]=useState(false);
@@ -88,6 +89,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
       if(agreementAccess!==nextAccess){agreementAccess=nextAccess;agreementEpoch++;naverAgreement.cancel();agreementAttempted=false;setNaverAgreementPending(false);}
       if (memberUserIdRef.current !== nextId) { agreementEpoch++;naverAgreement.cancel();agreementAttempted=false;setNaverAgreementPending(false);memberUserIdRef.current=nextId; consentUserRef.current=null; setConsentStatus('checking'); setProfileStatus('checking'); setProfileCompleted(false); setMemberUserId(nextId); }
       setSignedIn(Boolean(session?.user));
+      setAccountEmail(session?.user?.email || null);
       setNaverIdentity(naverIdentityState(session?.user));
       const callbackToken=(event==='SIGNED_IN'||event==='INITIAL_SESSION')?takeNaverProviderCallback(session):null;
       const providerToken=session?.provider_token || callbackToken;
@@ -178,14 +180,9 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     {withdrawCompleted && <p role="status">회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.</p>}
     <EmailAuthForm key={recovery?'recovery':'normal'} auth={api} signedIn={signedIn} recovery={recovery} initialMode={mode==='signup'?'signup':'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent} usernameSignIn={usernameApi?.signIn} resumeSignup={usernameApi?.resumeSignup} checkUsername={usernameApi?.checkUsername}/>
     {process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true' && signedIn && !recovery && memberUserId && consentStatus==='accepted' && profileStatus==='pending' && <MemberEmailProfile key={`profile-${memberUserId}`} client={memberBrowserClient()!} userId={memberUserId} checkUsername={usernameApi?.checkUsername} onComplete={()=>{if(memberUserIdRef.current===memberUserId){setProfileCompleted(true);setProfileStatus('ready')}}}/>}
+    {signedIn && !recovery && <section aria-label="계정 정보"><h2>계정 정보</h2><p>로그인 계정: {accountEmail || '이메일 정보 없음'}</p><DiagnosisDownload key={memberUserId}/></section>}
     {profileCompleted && signedIn && <p role="status">회원가입이 완료되었습니다.</p>}
     {process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true' && signedIn && profileStatus==='error' && <p role="alert">회원가입 완료 상태를 확인하지 못했습니다. 다시 로그인해 주세요.</p>}
-    {intakeEnabled && signedIn && !recovery && consent && memberUserId && consentStatus==='accepted' && <MemberConsentWithdraw key={`consent-${memberUserId}`} selfServiceAvailable={withdrawAvailable} withdraw={async()=>{
-      const id=memberUserId;
-      if(memberUserIdRef.current!==id)return {ok:false};
-      const result=await consent.withdraw(id);
-      return memberUserIdRef.current===id ? result : {ok:false};
-    }} onWithdrawn={()=>{if(memberUserIdRef.current===memberUserId)setConsentStatus('needed');}}/>}
     {withdrawAvailable && signedIn && !recovery && memberUserId && <MemberSelfWithdraw key={memberUserId} withdraw={()=>requestSelfWithdrawal(memberBrowserClient(),memberUserId,()=>setWithdrawCompleted(true))}/>}
     {canUseMemberNaver(config) && !signedIn && <MemberNaverSignIn basePath={basePath} busy={busy} signIn={()=>void go('signIn')}/>}
     {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.canLinkEmail && !naverIdentity.linked && <div><button type="button" className={naverStyles.linkButton} disabled={busy} onClick={()=>void go('link')}><img src={`${basePath}/naver-login/icon.png`} alt="" width="48" height="48" /><span>네이버 계정 연결</span></button><p>현재 이메일 계정에 네이버 계정을 연결합니다.</p></div>}
