@@ -16,6 +16,7 @@ import { MemberNaverSignIn } from './member-naver-sign-in';
 import { MemberNaverError } from './member-naver-error';
 import { MemberEmailProfile } from './member-email-profile';
 import {createUsernameClient} from '@/lib/member-username-client.mjs';
+import {createNaverAgreementBridge} from '@/lib/member-naver-agreement.mjs';
 import naverStyles from './naver-login.module.css';
 
 const naverErrorText: Record<string,string> = {
@@ -47,6 +48,8 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const [memberUserId,setMemberUserId] = useState<string|null>(null);
   const [withdrawAvailable,setWithdrawAvailable] = useState(false);
   const [naverBoundary,setNaverBoundary] = useState(false);
+  const [naverAgreementPending,setNaverAgreementPending] = useState(false);
+  const [consentRefresh,setConsentRefresh] = useState(0);
   const [withdrawCompleted,setWithdrawCompleted] = useState(false);
   const config = readMemberAuthConfig({
     enabled:process.env.NEXT_PUBLIC_MEMBER_AUTH_ENABLED,
@@ -77,23 +80,30 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     // flags only; database authorisation remains a separate security boundary.
     const socialEnabled=canUseMemberNaver(config);
     const naver = createNaverAuth({auth:current.auth,trustedOrigin:window.location.origin,redirectTo,allowSignIn:socialEnabled,allowLink:socialEnabled && config.link});
+    const naverAgreement=createNaverAgreementBridge({enabled:socialEnabled&&process.env.NEXT_PUBLIC_NAVER_AGREEMENT_ENABLED==='true',url:config.url,key:config.key});
+    let active=true, agreementAttempted=false, agreementEpoch=0;
     const {data:{subscription}} = current.auth.onAuthStateChange((event,session) => {
       const nextId=session?.user?.id || null;
-      if (memberUserIdRef.current !== nextId) { memberUserIdRef.current=nextId; consentUserRef.current=null; setConsentStatus('checking'); setProfileStatus('checking'); setProfileCompleted(false); setMemberUserId(nextId); }
+      if (memberUserIdRef.current !== nextId) { agreementEpoch++;agreementAttempted=false;setNaverAgreementPending(false);memberUserIdRef.current=nextId; consentUserRef.current=null; setConsentStatus('checking'); setProfileStatus('checking'); setProfileCompleted(false); setMemberUserId(nextId); }
       setSignedIn(Boolean(session?.user));
       setNaverIdentity(naverIdentityState(session?.user));
+      if(socialEnabled&&process.env.NEXT_PUBLIC_NAVER_AGREEMENT_ENABLED==='true'&&!agreementAttempted&&nextId&&session?.provider_token&&naverIdentityState(session.user).linked&&(event==='SIGNED_IN'||event==='INITIAL_SESSION')){
+        agreementAttempted=true;const epoch=agreementEpoch;setNaverAgreementPending(true);
+        // Do not await within Supabase's auth callback; the SDK may hold its lock.
+        setTimeout(()=>{void naverAgreement.verify(session).then(ok=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId){if(ok)setConsentRefresh(n=>n+1);setNaverAgreementPending(false)}}).catch(()=>{if(active&&epoch===agreementEpoch&&memberUserIdRef.current===nextId)setNaverAgreementPending(false)})},0);
+      }
       if(event === 'PASSWORD_RECOVERY') setRecovery(true);
       if(event === 'SIGNED_OUT') setRecovery(false);
     });
     setApi({...email,updatePassword:async password=>{const result=await email.updatePassword(password);if(result.ok)setRecovery(false);return result;}});
     setConsent(createMemberConsent(current));
     setSocial(naver);
-    return () => { subscription.unsubscribe(); email.dispose(); usernameClient?.dispose(); };
+    return () => { active=false;agreementEpoch++;naverAgreement.dispose();subscription.unsubscribe(); email.dispose(); usernameClient?.dispose(); };
   // Configuration is build-time only and does not change in this component's lifetime.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[]);
   useEffect(() => {
-    if (!MEMBER_INTAKE_REVIEWED || !config?.signup || !signedIn || recovery || !consent) return;
+    if (!MEMBER_INTAKE_REVIEWED || !config?.signup || !signedIn || recovery || !consent || naverAgreementPending) return;
     let active=true;
     const checkedUserId=memberUserId;
     consentUserRef.current=null;
@@ -115,7 +125,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
       }
     }).catch(()=>{if(active && checkedUserId && memberUserIdRef.current===checkedUserId)setConsentStatus('error');});
     return ()=>{active=false;};
-  },[signedIn,memberUserId,recovery,consent,config?.signup,naverBoundary,naverIdentity.linked]);
+  },[signedIn,memberUserId,recovery,consent,config?.signup,naverBoundary,naverIdentity.linked,naverAgreementPending,consentRefresh]);
   useEffect(() => {
     let active=true;
     if(process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED!=='true'||!signedIn||recovery||!memberUserId){setProfileStatus('ready');return ()=>{active=false};}
@@ -142,6 +152,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const intakeEnabled=MEMBER_INTAKE_REVIEWED && config.signup;
   const basePath=process.env.NEXT_PUBLIC_BASE_PATH || '';
   if (intakeEnabled && signedIn && !recovery && consent) {
+    if (naverAgreementPending) return <p role="status">회원 이용 안내 확인 중입니다.</p>;
     if (consentStatus === 'checking') return <p role="status">회원 이용 안내 확인 중입니다.</p>;
     if (consentStatus === 'error') return <section><p role="alert">회원 이용 안내를 확인하지 못했습니다. 잠시 후 다시 로그인해 주세요.</p><button type="button" onClick={()=>void api.signOut()}>로그아웃</button></section>;
     if (consentStatus === 'needed' && memberUserId) {

@@ -1,0 +1,1 @@
+export function createNaverAuthContext(options:{authClient:{auth:{getUser(token:string):PromiseLike<{data:{user:any};error:unknown}>}};now?:()=>number}):(token:string)=>Promise<{userId:string;sessionId:string;naverSubject:string}|null>;

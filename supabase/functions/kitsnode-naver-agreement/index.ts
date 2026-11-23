@@ -13,7 +13,10 @@ function configure(){
  const opts={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
  const admin=createClient(url,service,opts),authClient=createClient(url,anon,opts);
  const clientId=env('KITS_NAVER_CLIENT_ID'),termsVersion=env('KITS_NAVER_TERMS_VERSION'),privacyVersion=env('KITS_NAVER_PRIVACY_VERSION');
- const requiredTermCodes=[env('KITS_NAVER_TERMS_CODE'),env('KITS_NAVER_PRIVACY_CODE')];
+ // The second registered item must be titled "키츠노드 개인정보 처리방침 확인".
+ // Its evidence records acknowledgement of the notice only; it is not a
+ // separate consent to collect, use, share, or market personal information.
+ const requiredTermCodes=[env('KITS_NAVER_TERMS_CODE'),env('KITS_NAVER_PRIVACY_ACK_CODE')];
  return createNaverAgreementHandler({origin:'https://heetae1120.github.io',clientId,termsVersion,privacyVersion,requiredTermCodes,
   authenticate:createNaverAuthContext({authClient}),
   recordEvidence:async(e:any)=>{const {data,error}=await admin.rpc('kits_naver_agreement_record_candidate',{p_user:e.userId,p_session:e.sessionId,p_naver_subject:e.naverSubject,p_terms_version:e.termsVersion,p_privacy_version:e.privacyVersion,p_client_id:e.clientId,p_agreements:e.agreements});return !error&&data===true;}

@@ -90,6 +90,8 @@ jobs:
           NEXT_PUBLIC_MEMBER_USERNAME_ENABLED: ${{ vars.NEXT_PUBLIC_MEMBER_USERNAME_ENABLED }}
           NEXT_PUBLIC_MEMBER_AUTH_NAVER_ENABLED: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_NAVER_ENABLED }}
           NEXT_PUBLIC_MEMBER_AUTH_NAVER_LINK_ENABLED: ${{ vars.NEXT_PUBLIC_MEMBER_AUTH_NAVER_LINK_ENABLED }}
+          # Enable only after Naver Plus codes and server evidence verification are ready.
+          NEXT_PUBLIC_NAVER_AGREEMENT_ENABLED: ${{ vars.NEXT_PUBLIC_NAVER_AGREEMENT_ENABLED }}
           # Server-side release gate limits the button to the designated test account until rollout.
           NEXT_PUBLIC_SELF_WITHDRAW_ENABLED: 'true'
           NEXT_PUBLIC_NAVER_SIGNUP_BOUNDARY: 'false'
