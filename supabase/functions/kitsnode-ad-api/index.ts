@@ -2,7 +2,7 @@
 // Every non-preflight request is authenticated by Supabase Auth getUser and
 // review operations additionally require the server-side operator allowlist.
 // It does not contain a scheduler or any Naver bid-changing endpoint.
-// @ts-expect-error Deno resolves npm specifiers inside Supabase Edge Functions.
+// @ts-ignore Deno resolves npm specifiers inside Supabase Edge Functions.
 import {createClient} from 'npm:@supabase/supabase-js@2.119.0';
 import {createConnectionApp} from './src/connection-app.mjs';
 import {createReviewApp} from './src/review-app.mjs';
@@ -22,7 +22,7 @@ function getApps() {
  const options={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
  const serviceClient=createClient(url,serviceKey,options),authClient=createClient(url,anonKey,options);
  const resolveAccount=createAccountResolver({apiKey,secretKey,principalCustomerId:'4561674'});
- apps={connection:createConnectionApp({authClient,serviceClient,allowedOrigins:[origin],termsVersion:'2026-11-14',privacyVersion:'2026-11-14-naver',resolveAccount,verifyOperator:async()=>false,verifyOwnershipEvidence:async()=>false,allowRequest:undefined}),review:createReviewApp({authClient,serviceClient,resolveAccount,operatorIds:operators,origin,allowRequest:undefined})};
+ apps={connection:createConnectionApp({authClient,serviceClient,allowedOrigins:[origin],termsVersion:'2026-11-14',privacyVersion:'2026-11-14-naver',resolveAccount,verifyOperator:async()=>false,verifyOwnershipEvidence:async()=>false,allowRequest:undefined,requireEmailProfile:Deno.env.get('MEMBER_REQUIRE_EMAIL_PROFILE')==='true'}),review:createReviewApp({authClient,serviceClient,resolveAccount,operatorIds:operators,origin,allowRequest:undefined})};
  return apps;
 }
 function getShopping(){
@@ -30,14 +30,14 @@ function getShopping(){
  const url=Deno.env.get('SUPABASE_URL')||'',serviceKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'',anonKey=Deno.env.get('SUPABASE_ANON_KEY')||'',apiKey=Deno.env.get('NAVER_SEARCHAD_API_KEY')||'',secretKey=Deno.env.get('NAVER_SEARCHAD_SECRET_KEY')||'';
  if(url!=='https://bjpguxwqxlsteektkhwf.supabase.co'||!serviceKey||!anonKey||serviceKey===anonKey||!apiKey||!secretKey)throw Error('invalid_config');
  const options={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
- shopping=createShoppingPreviewApp({authClient:createClient(url,anonKey,options),serviceClient:createClient(url,serviceKey,options),allowedOrigins:[origin],apiKey,secretKey,fetcher:fetch});return shopping;
+ shopping=createShoppingPreviewApp({authClient:createClient(url,anonKey,options),serviceClient:createClient(url,serviceKey,options),allowedOrigins:[origin],apiKey,secretKey,fetcher:fetch,requireEmailProfile:Deno.env.get('MEMBER_REQUIRE_EMAIL_PROFILE')==='true'});return shopping;
 }
 function getPerformance(){
  if(performance)return performance;
  const url=Deno.env.get('SUPABASE_URL')||'',serviceKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'',anonKey=Deno.env.get('SUPABASE_ANON_KEY')||'',apiKey=Deno.env.get('NAVER_SEARCHAD_API_KEY')||'',secretKey=Deno.env.get('NAVER_SEARCHAD_SECRET_KEY')||'';
  if(url!=='https://bjpguxwqxlsteektkhwf.supabase.co'||!serviceKey||!anonKey||serviceKey===anonKey||!apiKey||!secretKey)throw Error('invalid_config');
  const options={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
- performance=createPerformanceApp({authClient:createClient(url,anonKey,options),serviceClient:createClient(url,serviceKey,options),allowedOrigins:[origin],apiKey,secretKey,fetcher:fetch});return performance;
+ performance=createPerformanceApp({authClient:createClient(url,anonKey,options),serviceClient:createClient(url,serviceKey,options),allowedOrigins:[origin],apiKey,secretKey,fetcher:fetch,requireEmailProfile:Deno.env.get('MEMBER_REQUIRE_EMAIL_PROFILE')==='true'});return performance;
 }
 Deno.serve(async req=>{
  const fallback=(status:number)=>new Response(JSON.stringify({error:'unavailable'}),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});

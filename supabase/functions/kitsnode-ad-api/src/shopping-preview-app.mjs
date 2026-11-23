@@ -12,8 +12,8 @@ import {createShoppingShadowService,createShoppingShadowStore} from './shopping-
 import {createNaverRankEstimate} from './naver-rank-estimate.mjs';
 import {createDualDeviceEstimateService} from './dual-device-estimate-service.mjs';
 
-export function createShoppingPreviewApp({authClient,serviceClient,allowedOrigins,apiKey,secretKey,fetcher=fetch}) {
- const verifySession=createSupabaseSessionVerifier(authClient),memberAllowed=createMemberEligibility(serviceClient,{termsVersion:'2026-11-14',privacyVersion:'2026-11-14-naver'});
+export function createShoppingPreviewApp({authClient,serviceClient,allowedOrigins,apiKey,secretKey,fetcher=fetch,requireEmailProfile=false}) {
+ const verifySession=createSupabaseSessionVerifier(authClient),memberAllowed=createMemberEligibility(serviceClient,{termsVersion:'2026-11-14',privacyVersion:'2026-11-14-naver',requireEmailProfile});
  const listOwned=createSupabaseConnectionStore(serviceClient).listOwned,getBinding=createShoppingBindingStore(serviceClient),allowRequest=createSharedRateLimiter(serviceClient);
  const readerForCustomer=customerId=>createNaverAdReader({apiKey,secretKey,customerId,fetcher});
  const preview=createShoppingPreviewService({verifySession,memberAllowed,getBinding,readerForCustomer});

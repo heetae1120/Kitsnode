@@ -8,9 +8,9 @@ import {createNaverPerformanceReader} from './naver-performance-read.mjs';
 import {createPerformanceService} from './performance-service.mjs';
 import {createPerformanceHttp} from './performance-http.mjs';
 
-export function createPerformanceApp({authClient,serviceClient,allowedOrigins,apiKey,secretKey,fetcher=fetch}) {
+export function createPerformanceApp({authClient,serviceClient,allowedOrigins,apiKey,secretKey,fetcher=fetch,requireEmailProfile=false}) {
  const verifySession=createSupabaseSessionVerifier(authClient);
- const memberAllowed=createMemberEligibility(serviceClient,{termsVersion:'2026-11-14',privacyVersion:'2026-11-14-naver'});
+ const memberAllowed=createMemberEligibility(serviceClient,{termsVersion:'2026-11-14',privacyVersion:'2026-11-14-naver',requireEmailProfile});
  const listOwned=createSupabaseConnectionStore(serviceClient).listOwned,getBinding=createShoppingBindingStore(serviceClient),allowRequest=createSharedRateLimiter(serviceClient);
  const readerForCustomer=customerId=>createNaverAdReader({apiKey,secretKey,customerId,fetcher});
  const catalog=createShoppingCatalogService({verifySession,memberAllowed,listOwned,getBinding,readerForCustomer});
