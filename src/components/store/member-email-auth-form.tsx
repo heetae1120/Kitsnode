@@ -105,7 +105,6 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
     </form>}
     {message && <p role="status">{message}</p>}{error && <p role="alert">{error}</p>}
     {!signedIn && !recovery && <nav aria-label="회원 인증 메뉴">
-      {canSignup && mode !== 'verify' && <button type="button" disabled={busy} onClick={()=>clear('verify')}>이메일 인증하기</button>}
       {mode === 'signup' && resumeSignup && <button type="button" disabled={busy} onClick={()=>clear('resume')}>가입 이어하기</button>}
       {mode !== 'signin' && <button type="button" disabled={busy} onClick={() => clear('signin')}>로그인</button>}
       {canSignup && mode !== 'signup' && <button type="button" disabled={busy} onClick={() => clear('signup')}>회원가입</button>}

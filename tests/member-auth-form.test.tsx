@@ -45,3 +45,10 @@ test('invalid notice links keep signup disabled',()=>{
   assert.match(html,/회원가입은 준비 중/);
   assert.doesNotMatch(html,/evil\.test/);
 });
+
+test('login does not offer a separate email verification entry',()=>{
+  const signupConsent={terms:{href:'/terms/',version:'v1'},privacy:{href:'/privacy/',version:'v1'},register:fn};
+  const html=renderToStaticMarkup(<EmailAuthForm auth={auth} allowSignup signupConsent={signupConsent} usernameSignIn={fn}/>);
+  assert.doesNotMatch(html,/>이메일 인증하기<\/button>/);
+  assert.match(html,/아이디 로그인/);
+});
