@@ -6,6 +6,17 @@ import {EmailAuthForm, type EmailAuth} from '../src/components/store/member-emai
 
 const fn = async () => ({ok:false,code:'disabled'});
 const auth:EmailAuth = {signUp:fn,signIn:fn,signOut:fn,requestPasswordReset:fn,updatePassword:fn};
+test('signed-in members see their login status instead of a login form',()=>{
+  const html=renderToStaticMarkup(<EmailAuthForm auth={auth} signedIn={true}/>);
+  assert.match(html,/<h2 id="auth-title">로그인 상태<\/h2>/);
+  assert.match(html,/>로그아웃<\/button>/);
+  assert.doesNotMatch(html,/아이디 로그인/);
+});
+test('password recovery keeps its heading for signed-in sessions',()=>{
+  const html=renderToStaticMarkup(<EmailAuthForm auth={auth} signedIn={true} recovery={true}/>);
+  assert.match(html,/<h2 id="auth-title">새 비밀번호 설정<\/h2>/);
+  assert.doesNotMatch(html,/로그인 상태/);
+});
 test('signup screen does not offer signup when consent workflow is not ready',()=>{
   const html=renderToStaticMarkup(<EmailAuthForm auth={auth} initialMode="signup" allowSignup={false}/>);
   assert.match(html,/회원가입은 준비 중/);

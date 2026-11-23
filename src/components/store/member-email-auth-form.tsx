@@ -87,11 +87,11 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
   const heading = { signup: '이메일 회원가입', signin: '아이디 로그인', reset: '비밀번호 재설정', update: '새 비밀번호 설정', resume: '가입 이어하기', verify: '이메일 인증' }[mode];
   return <section aria-labelledby="auth-title">
     {!canSignup && <p role="note">회원가입은 준비 중입니다.</p>}
-    <h2 id="auth-title">{heading}</h2>
-    {mode === 'verify' && <p>가입할 때 입력한 이메일로 전송된 인증번호를 입력해 주세요. 인증번호는 60초 후 다시 요청할 수 있습니다.</p>}
-    {mode === 'reset' && <p>가입한 이메일을 입력하고 아래 버튼을 누르면 재설정 안내를 보내드립니다.</p>}
-    {mode === 'resume' && <p>이메일 인증을 마쳤지만 가입을 완료하지 못한 경우에만 이용할 수 있습니다.</p>}
-    {mode === 'signup' && canSignup && <p>가입 시 이용약관과 개인정보 처리방침을 확인해 주세요.</p>}
+    <h2 id="auth-title">{signedIn && !recovery ? '로그인 상태' : heading}</h2>
+    {(!signedIn || recovery) && mode === 'verify' && <p>가입할 때 입력한 이메일로 전송된 인증번호를 입력해 주세요. 인증번호는 60초 후 다시 요청할 수 있습니다.</p>}
+    {(!signedIn || recovery) && mode === 'reset' && <p>가입한 이메일을 입력하고 아래 버튼을 누르면 재설정 안내를 보내드립니다.</p>}
+    {(!signedIn || recovery) && mode === 'resume' && <p>이메일 인증을 마쳤지만 가입을 완료하지 못한 경우에만 이용할 수 있습니다.</p>}
+    {(!signedIn || recovery) && mode === 'signup' && canSignup && <p>가입 시 이용약관과 개인정보 처리방침을 확인해 주세요.</p>}
     {signedIn && !recovery ? <button type="button" disabled={busy} onClick={() => void execute(() => auth.signOut())}>로그아웃</button> : <form onSubmit={submit}>
       {mode === 'signup' && <><label>아이디<input required minLength={4} maxLength={20} pattern="[A-Za-z0-9](?:[A-Za-z0-9_]|-){3,19}" autoComplete="username" value={username} onChange={event=>{checkSeq.current++;setUsername(event.target.value);setChecked('');setAvailability('')}} disabled={busy}/></label><button type="button" disabled={busy||!checkUsername} onClick={()=>{const candidate=username.trim().toLowerCase(),ticket=++checkSeq.current;setAvailability('확인 중입니다.');void checkUsername?.(candidate).then(result=>{if(ticket!==checkSeq.current)return;if(result.ok&&result.code==='available'){setChecked(candidate);setAvailability('사용 가능한 아이디입니다.')}else setAvailability(result.ok?'이미 사용 중인 아이디입니다.':'아이디를 확인하지 못했습니다.')}).catch(()=>{if(ticket===checkSeq.current)setAvailability('아이디를 확인하지 못했습니다.')})}}>아이디 중복 확인</button><p role="status">{availability}</p></>}
       {mode === 'signin' ? <label>아이디<input required autoComplete="username" value={username} onChange={event=>setUsername(event.target.value)} disabled={busy}/></label> : mode !== 'update' && mode !== 'signup' && <label>이메일<input data-auth-edit="email-input" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>}
