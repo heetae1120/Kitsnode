@@ -37,7 +37,7 @@ export function createEmailAuthClient({auth, confirmationRedirectTo, recoveryRed
         const data={kitsnode_consent:{termsVersion:evidence.termsVersion,privacyVersion:evidence.privacyVersion,termsAccepted:true,privacyAcknowledged:true}};
         if(draft)data.kitsnode_signup_draft={username:draft.username,name:draft.name,phone:draft.phone,company:draft.company,ageConfirmed:true};
         const result = await auth.signUp({email:email.trim(),password,options:{emailRedirectTo:confirmationRedirectTo,data}});
-        if (result?.error) return fail(result.error.code === 'over_email_send_rate_limit' ? 'email_rate_limited' : 'unavailable');
+        if (result?.error) return fail(['over_email_send_rate_limit','over_request_rate_limit'].includes(result.error.code) ? 'email_rate_limited' : 'unavailable');
         // A session here means project email confirmation is disabled: do not proceed.
         if (result?.data?.session) {
           await auth.signOut();

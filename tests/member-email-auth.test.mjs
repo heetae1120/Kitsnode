@@ -89,6 +89,8 @@ test('email rate limits produce a safe actionable result', async()=>{
   const limited=fixture({async resetPasswordForEmail(){return {error:{code:'over_email_send_rate_limit'}};},async signUp(){return {error:{code:'over_email_send_rate_limit'}};}});
   assert.deepEqual(await limited.client.requestPasswordReset('person@example.test'),{ok:false,code:'email_rate_limited'});
   assert.deepEqual(await limited.client.signUp('person@example.test','synthetic-password',consent),{ok:false,code:'email_rate_limited'});
+  const frequent=fixture({async signUp(){return {error:{code:'over_request_rate_limit'}};}});
+  assert.deepEqual(await frequent.client.signUp('person@example.test','synthetic-password',consent),{ok:false,code:'email_rate_limited'});
 });
 
 test('signup code verifies the intended confirmed email and handles incorrect codes',async()=>{
