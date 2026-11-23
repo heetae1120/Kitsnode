@@ -24,7 +24,7 @@ export function createEmailAuthClient({auth, confirmationRedirectTo, recoveryRed
     else if (event === 'SIGNED_OUT' || event === 'SIGNED_IN') recovery = false;
   });
   const run = async (call, success, failure = 'unavailable') => {
-    try { const result = await call(); if (result?.error?.code === 'over_email_send_rate_limit') return fail('email_rate_limited'); return !result || result.error ? fail(failure) : ok(success); }
+    try { const result = await call(); if (['over_email_send_rate_limit','over_request_rate_limit'].includes(result?.error?.code)) return fail('email_rate_limited'); return !result || result.error ? fail(failure) : ok(success); }
     catch { return fail('unavailable'); }
   };
   return {

@@ -106,6 +106,8 @@ test('signup resend is gated, limited and never reports failure details',async()
   assert.deepEqual(calls[0],['resend',{email:'person@example.test',type:'signup'}]);
   const limited=fixture({async resend(){return {error:{code:'over_email_send_rate_limit'}};}});
   assert.deepEqual(await limited.client.resendSignupCode('person@example.test'),{ok:false,code:'email_rate_limited'});
+  const frequent=fixture({async resend(){return {error:{code:'over_request_rate_limit'}};}});
+  assert.deepEqual(await frequent.client.resendSignupCode('person@example.test'),{ok:false,code:'email_rate_limited'});
   const disabled=createEmailAuthClient({...fixture().config,signupAllowed:false});
   assert.deepEqual(await disabled.resendSignupCode('person@example.test'),{ok:false,code:'signup_disabled'});
 });

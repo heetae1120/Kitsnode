@@ -88,7 +88,7 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
   return <section aria-labelledby="auth-title">
     {!canSignup && <p role="note">회원가입은 준비 중입니다.</p>}
     <h2 id="auth-title">{heading}</h2>
-    {mode === 'verify' && <p>가입할 때 입력한 이메일로 전송된 인증번호를 입력해 주세요.</p>}
+    {mode === 'verify' && <p>가입할 때 입력한 이메일로 전송된 인증번호를 입력해 주세요. 인증번호는 60초 후 다시 요청할 수 있습니다.</p>}
     {mode === 'reset' && <p>가입한 이메일을 입력하고 아래 버튼을 누르면 재설정 안내를 보내드립니다.</p>}
     {mode === 'resume' && <p>이메일 인증을 마쳤지만 가입을 완료하지 못한 경우에만 이용할 수 있습니다.</p>}
     {mode === 'signup' && canSignup && <p>가입 시 이용약관과 개인정보 처리방침을 확인해 주세요.</p>}
