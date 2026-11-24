@@ -57,6 +57,9 @@
 .ad-invitation-choice summary small { display:block; margin-top:7px; color:#aaa7a0; font-weight:400; line-height:1.5; }
 .ad-invitation-choice ol { padding-left:20px; }
 .ad-invitation-choice li + li { margin-top:8px; }
+.ad-policy-details { margin:12px 0; padding:12px; border:1px solid #454545; }
+.ad-policy-details > summary { color:#ff9a72; }
+.ad-policy-details p, .ad-policy-details li { line-height:1.6; }
 .ad-invitation-notice { color:#f2d49b; }
 .ad-invitation-footer { color:#c8c5bd; line-height:1.6; }
 @media(max-width:600px) { .ad-invitation-grid { grid-template-columns:1fr; } }
