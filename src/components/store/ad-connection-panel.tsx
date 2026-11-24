@@ -252,6 +252,14 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
     <StoreBadge tone="warning">{transport ? '권한 확인 후 연결' : '연결 기능 준비 중'}</StoreBadge>
     <h2 id="ad-connection-panel-title">네이버 광고 계정 연결</h2>
     <p>광고 성과 조회를 위해 네이버 광고계정을 연결해 주세요.</p>
+    <section className="ad-extension-overview" aria-labelledby="ad-extension-overview-title">
+      <h3 id="ad-extension-overview-title">확장 프로그램이 하는 일</h3>
+      {proofEnabled
+        ? <p>사전 동의와 계정 선택 후 네이버 초대 정책을 확인하고 <strong>kitsnode</strong> ID 입력, <strong>운영 조회</strong> 권한 선택과 초대 발송을 진행합니다.</p>
+        : <><p>확장 프로그램의 자동 진행은 <strong>kitsnode</strong> ID 입력, <strong>운영 조회</strong> 권한 선택과 초대 발송을 돕습니다.</p><p className="ad-extension-overview-status">현재 사전 동의와 확장 프로그램 자동 초대의 연동은 준비 중입니다. 저장한 동의만으로 초대가 발송되지 않습니다.</p></>}
+      <p><strong>직접 확인할 사항</strong> · 네이버 로그인과 광고계정 선택, {proofEnabled?'초대 발송 및 수락 상태':'네이버 정책 동의와 초대 발송·수락 상태'}를 확인해 주세요. 수락과 연결 확인 후 광고 데이터를 조회할 수 있습니다.</p>
+      <details><summary>연결 과정 자세히 보기</summary><ol><li>키츠노드에서 연결할 광고계정을 확인하고 사전 동의 내용을 확인합니다.</li><li>네이버에 로그인하고 연결할 광고계정을 선택합니다.</li><li>{proofEnabled?'확장 프로그램이 네이버 초대 정책을 확인하고 초대 발송을 진행합니다.':'네이버에서 초대 정책에 직접 동의한 뒤 확장 프로그램의 자동 진행을 이용합니다.'}</li><li>네이버에서 초대 발송과 수락 상태를 확인합니다. 권한이나 정책이 예상과 다르면 직접 확인해 주세요.</li></ol></details>
+    </section>
     {!proofEnabled && <><ol className="list-decimal space-y-2 pl-5">
       <li><a className="store-text-link" href="https://ads.naver.com/settings/ad-account" target="_blank" rel="noopener noreferrer">네이버애즈 열기 (새 창)</a>에서 광고주 계정으로 로그인합니다.</li>
       <li>권한 관리에서 회원 ID <strong>kitsnode</strong>를 <strong>운영 조회</strong> 권한으로 초대합니다. 네이버 정책과 초대 발송 상태를 확인해 주세요.</li>

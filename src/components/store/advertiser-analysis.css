@@ -43,6 +43,14 @@
 .ad-analysis-connection[open] > summary > svg { transform:rotate(180deg); }
 .ad-analysis-connection-content { padding:0 24px 24px; }
 .ad-invite-methods { margin:24px 0; }
+.ad-extension-overview { margin:20px 0; padding:18px; border:1px solid #454545; background:#181818; }
+.ad-extension-overview h3 { margin:0 0 8px; font-size:16px; }
+.ad-extension-overview p { margin:8px 0; line-height:1.6; }
+.ad-extension-overview-status { color:#f2d49b; }
+.ad-extension-overview details { margin-top:12px; }
+.ad-extension-overview summary { cursor:pointer; font-weight:700; }
+.ad-extension-overview ol { margin:12px 0 0; padding-left:20px; }
+.ad-extension-overview li + li { margin-top:6px; }
 .ad-invite-method { margin:10px 0; padding:16px; border:1px solid #454545; background:#181818; }
 .ad-invite-method summary { cursor:pointer; font-weight:700; }
 .ad-invite-method ol { margin:16px 0; }
