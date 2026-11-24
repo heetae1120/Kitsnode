@@ -14,4 +14,4 @@ const extensionCalls:unknown[]=[];
 let extensionAvailable=true;
 Object.assign((window as unknown as {chrome:object}).chrome,{runtime:{sendMessage:async(id:string,message:{nonce:string;type:string})=>{extensionCalls.push({id,message});if(!extensionAvailable)throw new Error('unavailable');if(message.type==='kitsnode.account.start.v1')return {status:'started'};if(message.type==='kitsnode.account.get.v1')return {status:'selected',accountId:'12345'};return {status:'opened',nonce:message.nonce};}}});
 Object.assign(window,{connectionFixture:{calls,extensionCalls,disableExtension:()=>{extensionAvailable=false;},failNext:()=>{failNext=true;}}});
-createRoot(document.getElementById('root')!).render(<AdConnectionPanel transport={transport}/>);
+createRoot(document.getElementById('root')!).render(<AdConnectionPanel transport={transport} manualEntry={new URLSearchParams(location.search).has('manual')}/>);

@@ -9,6 +9,25 @@ import {build} from 'esbuild';
 const require=createRequire(import.meta.url);
 const playwrightPath=process.env.KITS_PLAYWRIGHT_PATH;
 const path=name=>fileURLToPath(new URL(name,import.meta.url));
+test('connection screen separates invitation methods and shows only verified statuses', {skip:!playwrightPath,timeout:30000},async t=>{
+ const {chromium}=require(playwrightPath);
+ const built=await build({entryPoints:[path('./fixtures/ad-connection-browser.tsx')],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent',define:{'process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED':'"false"','process.env.NEXT_PUBLIC_AD_ACCOUNT_DISCOVERY_ENABLED':'"false"','process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED':'"false"','process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION':'""','process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST':'""','process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL':'""','process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL':'""','process.env.NEXT_PUBLIC_BASE_PATH':'""','process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID':JSON.stringify('a'.repeat(32))},alias:{'@/lib/member-browser-client':path('./fixtures/ad-connection-auth-stub.ts'),'next/link':path('./fixtures/ad-connection-link-stub.tsx'),'@/lib/member-return':path('../src/lib/member-return.ts')}});
+ const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}res.writeHead(200,{'content-type':'text/html; charset=utf-8'});res.end('<!doctype html><html lang="ko"><div id="root"></div><script src="/app.js"></script></html>');});
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve)}));
+ const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
+ const page=await browser.newPage();await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
+ await page.goto(origin);await page.getByText(/계정 12345 · 연결 확인 대기/).first().waitFor();
+ assert.equal(await page.getByLabel('광고 계정 ID').count(),0);
+ assert.equal(await page.getByText(/키츠노드에서 초대를 확인하고 수락해야/).isVisible(),true);
+ await page.getByText('1. 수동 초대',{exact:true}).click();
+ assert.equal(await page.getByRole('link',{name:'별도 화면에서 연결 확인을 요청'}).isVisible(),true);
+ await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();
+ assert.equal(await page.getByText(/사전 동의와 자동 초대의 연동은 준비 중/).isVisible(),true);
+ await page.goto(origin+'/?manual&empty');
+ await page.getByLabel('광고 계정 ID').fill('67890');
+ await page.getByRole('button',{name:'연결 확인 요청'}).click();
+ await page.getByText(/연결 확인 요청이 접수되었습니다/).waitFor();
+});
 test('manual invitation account discovery registers the selected account only once', {skip:!playwrightPath,timeout:30000},async t=>{
  const {chromium}=require(playwrightPath);
  const built=await build({entryPoints:[path('./fixtures/ad-connection-browser.tsx')],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent',define:{'process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED':'"false"','process.env.NEXT_PUBLIC_AD_ACCOUNT_DISCOVERY_ENABLED':'"true"','process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED':'"false"','process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION':'""','process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST':'""','process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL':'""','process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL':'""','process.env.NEXT_PUBLIC_BASE_PATH':'""','process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID':JSON.stringify('a'.repeat(32))},alias:{'@/lib/member-browser-client':path('./fixtures/ad-connection-auth-stub.ts'),'next/link':path('./fixtures/ad-connection-link-stub.tsx'),'@/lib/member-return':path('../src/lib/member-return.ts')}});
@@ -16,9 +35,9 @@ test('manual invitation account discovery registers the selected account only on
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve)}));
  const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
  const page=await browser.newPage();await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
- await page.goto(origin+'/?empty');await page.getByRole('button',{name:'네이버 광고계정 선택'}).click();await page.getByText(/광고계정을 등록했습니다/).waitFor();
+ await page.goto(origin+'/?empty');await page.getByText('1. 수동 초대',{exact:true}).click();await page.getByRole('button',{name:'광고계정 확인'}).click();await page.getByText(/광고계정을 등록했습니다/).waitFor();
  assert.deepEqual(await page.evaluate(()=>window.connectionFixture.calls),['list','list','request','list']);
- await page.getByRole('button',{name:'네이버 광고계정 선택'}).click();await page.waitForFunction(()=>window.connectionFixture.extensionCalls.length===4);
+ await page.getByRole('button',{name:'광고계정 확인'}).click();await page.waitForFunction(()=>window.connectionFixture.extensionCalls.length===4);
  await page.waitForFunction(()=>window.connectionFixture.calls.length>=5);assert.equal((await page.evaluate(()=>window.connectionFixture.calls)).filter(c=>c==='request').length,1);
 });
 test('manual invitation guidance and confirmed disconnect use the signed-in connection', {skip:!playwrightPath,timeout:30000},async t=>{
