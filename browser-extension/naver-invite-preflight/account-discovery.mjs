@@ -14,11 +14,11 @@ export async function accountDiscovery({chromeApi,message,sender,now=Date.now}={
   }
   const record=(await chromeApi.storage.session.get(key))[key];
   if(!record||record.siteTabId!==sender.tab.id||now()>=record.expiresAt)return {status:'blocked'};
-  const tab=await chromeApi.tabs.get(record.naverTabId),u=new URL(tab.url);
-  if(u.origin!=='https://ads.naver.com'||u.search||u.hash)return {status:'selecting'};
-  const match=u.pathname.match(/^\/manage\/ad-accounts\/([1-9][0-9]{0,15})\/(?:dashboard|all-campaigns|settings\/billing\/balance|settings\/authorities\/members\/invited)$/);
-  if(!match)return {status:'selecting'};
+  const parent=await chromeApi.tabs.get(record.naverTabId);
+  const candidates=[parent,...(await chromeApi.tabs.query({})).filter(tab=>tab.openerTabId===parent.id)];
+  const accounts=candidates.flatMap(tab=>{try{const u=new URL(tab.url);if(u.origin!=='https://ads.naver.com'||u.search||u.hash)return [];const match=u.pathname.match(/^\/manage\/ad-accounts\/([1-9][0-9]{0,15})\/(?:dashboard|all-campaigns|settings\/billing\/balance|settings\/authorities\/members\/invited)$/);return match?[match[1]]:[]}catch{return []}});
+  if(accounts.length!==1)return {status:'selecting'};
   await chromeApi.storage.session.remove(key);
-  return {status:'selected',accountId:match[1]};
+  return {status:'selected',accountId:accounts[0]};
  }catch{return {status:'blocked'}}
 }

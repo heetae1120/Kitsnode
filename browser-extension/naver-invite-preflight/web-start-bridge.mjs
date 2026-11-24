@@ -25,11 +25,11 @@ export async function routeSelectedAdvertiserTab({chromeApi,tabId,now = Date.now
     const match=u.pathname.match(/^\/manage\/ad-accounts\/([1-9][0-9]{0,15})\/(?:dashboard|all-campaigns|settings\/billing\/balance)$/);
     if (!match) return {status:'ignored'};
     const rows=await chromeApi.storage.session.get(null);
-    const eligible=Object.entries(rows).filter(([key,record])=>key.startsWith('web_start_') && record?.state==='login_opened' && record.naverTabId===tabId && Number.isSafeInteger(stamp) && stamp>=record.createdAt && stamp<record.expiresAt);
+    const eligible=Object.entries(rows).filter(([key,record])=>key.startsWith('web_start_') && record?.state==='login_opened' && (record.naverTabId===tabId || tab.openerTabId===record.naverTabId) && Number.isSafeInteger(stamp) && stamp>=record.createdAt && stamp<record.expiresAt);
     if(eligible.length!==1) return {status:'blocked'};
     const [key,record]=eligible[0];
     if(record.expectedAccountId && record.expectedAccountId!==match[1]) return {status:'blocked'};
-    await chromeApi.storage.session.set({[key]:{...record,state:'account_routing',accountId:match[1]}});
+    await chromeApi.storage.session.set({[key]:{...record,naverTabId:tabId,state:'account_routing',accountId:match[1]}});
     await chromeApi.tabs.update(tabId,{url:`https://ads.naver.com/manage/ad-accounts/${match[1]}/settings/authorities/members/invited`});
     return {status:'routing'};
   } catch { return {status:'unavailable'}; }
