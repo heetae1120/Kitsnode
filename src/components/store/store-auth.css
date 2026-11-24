@@ -58,7 +58,7 @@
 .member-profile{display:flex;align-items:center;gap:14px;padding:20px;border:1px solid #454545;border-radius:14px;background:#191919}
 .member-profile__avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#321b12;color:#ff8052}
 .member-profile__info{min-width:0;flex:1;overflow-wrap:anywhere}
-.member-profile__info h3{margin:0;font-size:18px;line-height:1.4}
+.member-profile__info h3{margin:0;font-family:var(--font-pretendard),Arial,sans-serif;font-size:18px;font-weight:800;line-height:1.4}
 .member-panel .member-profile__info p{margin:3px 0 0;font-size:12px;color:#aaa7a0}
 .member-profile__status{flex:none;color:#a8dab7;font-size:11px;font-weight:700}
 .member-menu{margin-top:32px}
