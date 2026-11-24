@@ -6,6 +6,7 @@ let status=new URLSearchParams(location.search).has('empty')?'':'pending_review'
 let selectedAccount='12345',failNext=false;
 const calls:string[]=[];
 const transport={
+  async verify(){return {status:'pending_review' as const};},
   async list(){calls.push('list');return {connections:status?[{requestId,adAccountId:selectedAccount,status}]:[]};},
   async request(_token:string,id:string){calls.push('request');if(failNext){failNext=false;throw Error('connection_unavailable');}selectedAccount=id;status='pending_review';return {status:'pending_review' as const};},
   async disconnect(_token:string,id:string){calls.push(`disconnect:${id}`);status='disconnected';return {status:'disconnected' as const};},

@@ -34,5 +34,11 @@ export function createAdConnectionTransport({enabled, fetcher = globalThis.fetch
     if (!payload || !Array.isArray(payload.connections) || payload.connections.length > 100 || !payload.connections.every(item=>item && validId(item.requestId) && validAccount(item.adAccountId) && validStatus.has(item.status))) throw new Error('invalid_response');
     return {connections:payload.connections.map(({requestId,adAccountId,status})=>({requestId,adAccountId,status}))};
   }
-  return Object.freeze({list:(token,signal)=>call('GET',token,signal),request:(token,id,signal)=>call('POST',token,signal,id),disconnect:(token,id,signal)=>call('DELETE',token,signal,id)});
+  async function verify(token,requestId,signal) {
+    if (!validToken(token) || !validId(requestId) || !signal || signal.aborted) throw new Error('invalid_request');
+    const response=await fetcher('https://bjpguxwqxlsteektkhwf.supabase.co/functions/v1/kitsnode-ad-api/auto-connect',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({requestId}),credentials:'omit',redirect:'error',cache:'no-store',referrerPolicy:'no-referrer',signal});
+    if(!response.ok)throw new Error('connection_unavailable');
+    const data=await response.json();if(signal.aborted || !['pending_review','read_connected'].includes(data?.status))throw new Error('invalid_response');return data;
+  }
+  return Object.freeze({list:(token,signal)=>call('GET',token,signal),request:(token,id,signal)=>call('POST',token,signal,id),disconnect:(token,id,signal)=>call('DELETE',token,signal,id),verify});
 }

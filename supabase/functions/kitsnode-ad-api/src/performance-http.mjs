@@ -5,7 +5,7 @@ const exact=(o,keys)=>o&&typeof o==='object'&&!Array.isArray(o)&&Object.keys(o).
 // Unmounted read-only performance endpoint. It only calls the authorized statistics
 // service, never a provider writer or a scheduler. The server must supply
 // authenticated sessions, per-user throttling and explicitly allowed origins.
-export function createPerformanceHttp({allowedOrigins,verifySession,allowRequest,readPerformance}={}){
+export function createPerformanceHttp({allowedOrigins,verifySession,allowRequest,readPerformance,path="/api/performance"}={}){
  if(!Array.isArray(allowedOrigins)||!allowedOrigins.length||!allowedOrigins.every(o=>{try{const u=new URL(o);return u.protocol==='https:'&&u.origin===o&&!u.username&&!u.password}catch{return false}})||![verifySession,allowRequest,readPerformance].every(f=>typeof f==='function'))throw TypeError('invalid_dependencies');
  return async req=>{
   const origin=req.headers.get('origin'),headers={'Cache-Control':'no-store','Content-Type':'application/json','Vary':'Origin','X-Content-Type-Options':'nosniff'};
@@ -17,7 +17,7 @@ export function createPerformanceHttp({allowedOrigins,verifySession,allowRequest
    if(req.headers.get('access-control-request-method')!=='POST'||requested.some(x=>!['authorization','content-type'].includes(x)))return out({error:'preflight_denied'},403);
    headers['Access-Control-Allow-Methods']='POST, OPTIONS';headers['Access-Control-Allow-Headers']='Authorization, Content-Type';return new Response(null,{status:204,headers});
   }
-  const url=new URL(req.url);if(url.pathname!=='/api/performance'||url.search||req.method!=='POST')return out({error:'not_found'},404);
+  const url=new URL(req.url);if(url.pathname!==path||url.search||req.method!=='POST')return out({error:'not_found'},404);
   const token=(req.headers.get('authorization')||'').match(/^Bearer ([A-Za-z0-9._-]{1,8192})$/)?.[1];if(!token)return out({error:'unauthenticated'},401);
   try{const user=await verifySession(token);if(!uuid(user?.id))return out({error:'unauthenticated'},401);if(await allowRequest(user.id)!==true)return out({error:'rate_limited'},429)}catch{return out({error:'unavailable'},503)}
   if(!/^application\/json(?:\s*;\s*charset=utf-8)?$/i.test(req.headers.get('content-type')||''))return out({error:'invalid_input'},400);

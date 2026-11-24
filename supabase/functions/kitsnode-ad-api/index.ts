@@ -9,10 +9,12 @@ import {createReviewApp} from './src/review-app.mjs';
 import {createAccountResolver} from './src/naver-account-map.mjs';
 import {createShoppingPreviewApp} from './src/shopping-preview-app.mjs';
 import {createPerformanceApp} from './src/performance-app.mjs';
+import {createAutoConnectApp} from './src/auto-connect-app.mjs';
 import {selectRoute} from './src/select-route.mjs';
 declare const Deno: {env:{get(name:string):string|undefined};serve(handler:(req:Request)=>Promise<Response>):void};
 const origin='https://heetae1120.github.io';
 let apps: {connection:ReturnType<typeof createConnectionApp>;review:ReturnType<typeof createReviewApp>}|undefined;
+let autoConnect:ReturnType<typeof createAutoConnectApp>|undefined;
 let shopping:ReturnType<typeof createShoppingPreviewApp>|undefined;
 let performance:ReturnType<typeof createPerformanceApp>|undefined;
 function getApps() {
@@ -24,6 +26,13 @@ function getApps() {
  const resolveAccount=createAccountResolver({apiKey,secretKey,principalCustomerId:'4561674'});
  apps={connection:createConnectionApp({authClient,serviceClient,allowedOrigins:[origin],termsVersion:'2026-11-14',privacyVersion:'2026-11-14-naver',resolveAccount,verifyOperator:async()=>false,verifyOwnershipEvidence:async()=>false,allowRequest:undefined,requireEmailProfile:true}),review:createReviewApp({authClient,serviceClient,resolveAccount,operatorIds:operators,origin,allowRequest:undefined})};
  return apps;
+}
+function getAutoConnect(){
+ if(autoConnect)return autoConnect;
+ const url=Deno.env.get('SUPABASE_URL')||'',serviceKey=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')||'',anonKey=Deno.env.get('SUPABASE_ANON_KEY')||'',apiKey=Deno.env.get('NAVER_SEARCHAD_API_KEY')||'',secretKey=Deno.env.get('NAVER_SEARCHAD_SECRET_KEY')||'';
+ if(url!=='https://bjpguxwqxlsteektkhwf.supabase.co'||!serviceKey||!anonKey||serviceKey===anonKey||!apiKey||!secretKey)throw Error('invalid_config');
+ const options={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
+ autoConnect=createAutoConnectApp({authClient:createClient(url,anonKey,options),serviceClient:createClient(url,serviceKey,options),resolveAccount:createAccountResolver({apiKey,secretKey,principalCustomerId:'4561674'}),origin,pilotUser:Deno.env.get('KITS_AD_AUTO_CONNECT_PILOT_USER')||'',pilotAccount:Deno.env.get('KITS_AD_AUTO_CONNECT_PILOT_ACCOUNT')||''});return autoConnect;
 }
 function getShopping(){
  if(shopping)return shopping;
@@ -45,7 +54,7 @@ Deno.serve(async req=>{
   const u=new URL(req.url),base='/kitsnode-ad-api';const pos=u.pathname.indexOf(base);
   if(pos<0)return fallback(404);
   const route=u.pathname.slice(pos+base.length);
-  const selected=selectRoute(route,{getApps,getShopping,getPerformance,performanceEnabled:Deno.env.get('KITS_AD_PERFORMANCE_ENABLED')==='true',shoppingEnabled:Deno.env.get('KITS_SHOPPING_PREVIEW_ENABLED')==='true',shadowEnabled:Deno.env.get('KITS_SHOPPING_SHADOW_ENABLED')==='true'});
+  const selected=selectRoute(route,{getApps,getShopping,getPerformance,getAutoConnect,autoConnectEnabled:Deno.env.get('KITS_AD_AUTO_CONNECT_ENABLED')==='true',performanceEnabled:Deno.env.get('KITS_AD_PERFORMANCE_ENABLED')==='true',shoppingEnabled:Deno.env.get('KITS_SHOPPING_PREVIEW_ENABLED')==='true',shadowEnabled:Deno.env.get('KITS_SHOPPING_SHADOW_ENABLED')==='true'});
   if(!selected)return fallback(404);
   return await selected.handler(new Request(`https://internal.invalid${selected.path}${u.search}`,req));
  } catch {return fallback(503);}

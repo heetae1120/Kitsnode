@@ -34,7 +34,8 @@ export function AdvertiserAnalysis(){
   void (async()=>{try{
    const session=await memberBrowserClient()?.auth.getSession();
    if(!session?.data.session?.access_token||session.data.session.user.id!==owner||current.current!==owner){if(!controller.signal.aborted&&current.current===owner)setState('unavailable');return;}
-   const data=await transport.list(session.data.session.access_token,controller.signal);
+   let data=await transport.list(session.data.session.access_token,controller.signal);
+   if(process.env.NEXT_PUBLIC_AD_AUTO_CONNECT_ENABLED==='true'){let changed=false;for(const item of data.connections.filter(c=>c.status==='pending_review')){try{const verified=await transport.verify(session.data.session.access_token,item.requestId,controller.signal);if(verified.status==='read_connected')changed=true;}catch{/* Keep pending on unavailable or non-pilot requests. */}}if(changed)data=await transport.list(session.data.session.access_token,controller.signal);}
    if(!controller.signal.aborted&&current.current===owner){const next=data.connections.some(c=>c.status==='read_connected')?'connected':data.connections.some(c=>c.status==='pending_review')?'pending':'not-connected';const becameConnected=lastConnection.current!==null&&lastConnection.current!=='connected'&&next==='connected';lastConnection.current=next;setStep(previous=>previous===null||becameConnected?(next==='connected'?2:1):previous);setState(next);}
   }catch{if(!controller.signal.aborted&&current.current===owner)setState('unavailable');}})();
   return ()=>controller.abort();
