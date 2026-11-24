@@ -17,7 +17,7 @@ test('installed test extension enables the candidate flow on the normal page', {
  const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
  const page=await browser.newPage();await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
  await page.goto(origin);await page.getByText(/설치된 0.3.1 시험본으로 연결합니다/).waitFor();assert.equal(new URL(page.url()).search,'');
- await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();await page.getByRole('button',{name:'네이버 광고주 로그인 및 계정 선택'}).click();await page.getByText('광고계정을 확인했습니다. 사전 동의를 진행해 주세요.').waitFor();
+ await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();await page.getByRole('button',{name:'네이버 광고주 로그인'}).click();await page.getByText('광고계정을 확인했습니다. 사전 동의를 진행해 주세요.').waitFor();
  assert.ok((await page.evaluate(()=>window.connectionFixture.extensionCalls)).every(x=>x.id==='b'.repeat(32)));
  await page.goto(origin+'/?no-test-extension');await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();
  assert.equal(await page.getByText(/설치된 0.3.1 시험본으로 연결합니다/).count(),0);
@@ -37,7 +37,7 @@ test('connection screen separates invitation methods and shows only verified sta
  assert.equal(await page.getByRole('link',{name:'별도 화면에서 연결 확인을 요청'}).isVisible(),true);
  await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();
  assert.equal(await page.getByText(/현재 저장한 사전 동의는 확장프로그램과 연동되지 않습니다/).isVisible(),true);
- assert.equal(await page.getByRole('button',{name:'확장프로그램으로 네이버애즈 열기'}).isEnabled(),true);
+ assert.equal(await page.getByRole('button',{name:'네이버 광고주 로그인'}).isEnabled(),true);
  assert.equal(await page.getByLabel('키츠노드에 운영 조회 권한을 초대하는 절차를 확인했습니다.').count(),0);
  await page.goto(origin+'/?manual&empty');
  await page.getByLabel('광고 계정 ID').fill('67890');
@@ -155,7 +155,7 @@ test('consent-bound candidate displays the full Naver notice and requires both c
  await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin===origin)return route.continue();if(u.hostname==='bjpguxwqxlsteektkhwf.supabase.co'){calls.push({path:u.pathname,body:route.request().postDataJSON()});return route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(u.pathname.endsWith('/invite-consents')?{status:'recorded',consentId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}:{status:'confirmed'})});}return route.abort();});
  await page.goto(origin);await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();
  const start=page.getByRole('button',{name:'초대 진행'});assert.equal(await start.isDisabled(),true);
- await page.getByRole('button',{name:'네이버 광고주 로그인 및 계정 선택'}).click();await page.getByText('광고계정을 확인했습니다. 사전 동의를 진행해 주세요.').waitFor();
+ await page.getByRole('button',{name:'네이버 광고주 로그인'}).click();await page.getByText('광고계정을 확인했습니다. 사전 동의를 진행해 주세요.').waitFor();
  assert.equal(await page.getByLabel('동의할 광고계정').count(),0);
  assert.equal(await page.getByText('선택한 광고계정:',{exact:false}).count(),1);
  const policy=page.getByRole('region',{name:'네이버 회원 초대 정책'});assert.equal(await policy.locator('li').count(),4);
