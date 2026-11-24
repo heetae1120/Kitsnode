@@ -44,7 +44,6 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const [signedIn,setSignedIn] = useState(false);
   const [accountEmail,setAccountEmail] = useState<string|null>(null);
   const [accountName,setAccountName] = useState<string|null>(null);
-  const [accountUsername,setAccountUsername] = useState<string|null>(null);
   const [diagnosisCount,setDiagnosisCount] = useState<number|null>(null);
   const [signOutError,setSignOutError] = useState('');
   const [naverIdentity,setNaverIdentity] = useState({linked:false,canLinkEmail:false});
@@ -153,10 +152,10 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     return ()=>{active=false};
   },[signedIn,recovery,memberUserId]);
   useEffect(() => {
-    let active=true; setAccountName(null); setAccountUsername(null);
+    let active=true; setAccountName(null);
     if (!signedIn || !memberUserId) return () => { active=false; };
     const client=memberBrowserClient();
-    if (client) void Promise.resolve(client.from('kitsnode_email_profiles').select('name,username').eq('user_id',memberUserId).maybeSingle()).then(({data})=>{if(active && memberUserIdRef.current===memberUserId){setAccountName(typeof data?.name==='string' ? data.name.trim() || null : null);setAccountUsername(typeof data?.username==='string' ? data.username : null)}}).catch(()=>{});
+    if (client) void Promise.resolve(client.from('kitsnode_email_profiles').select('name').eq('user_id',memberUserId).maybeSingle()).then(({data})=>{if(active && memberUserIdRef.current===memberUserId && typeof data?.name==='string')setAccountName(data.name.trim() || null)}).catch(()=>{});
     return () => { active=false; };
   },[signedIn,memberUserId,profileCompleted]);
   useEffect(() => {
@@ -199,7 +198,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   return <section className={signedIn && !recovery ? "member-signed-in" : undefined}>
     {withdrawCompleted && <p role="status">회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.</p>}
     {(!signedIn || recovery) && <EmailAuthForm key={recovery?'recovery':'normal'} auth={api} signedIn={signedIn} recovery={recovery} initialMode={mode==='signup'?'signup':'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent} usernameSignIn={usernameApi?.signIn} resumeSignup={usernameApi?.resumeSignup} checkUsername={usernameApi?.checkUsername}/>}
-    {signedIn && !recovery && <><h2 className="member-account-title">내 계정</h2><section className="member-profile" aria-label="로그인 계정"><div className="member-profile__avatar"><UserRound size={24} aria-hidden="true"/></div><div className="member-profile__info"><h3>{accountUsername || accountName || (accountEmail ? accountEmail.split('@')[0] : '회원')}님</h3>{accountUsername && accountName && <p>{accountName}</p>}<p>{accountEmail || '이메일 정보 없음'}</p></div><span className="member-profile__status">● 로그인 중</span></section></>}
+    {signedIn && !recovery && <><h2 className="member-account-title">내 계정</h2><section className="member-profile" aria-label="로그인 계정"><div className="member-profile__avatar"><UserRound size={24} aria-hidden="true"/></div><div className="member-profile__info"><h3>{accountName || (accountEmail ? accountEmail.split('@')[0] : '회원')}님</h3><p>{accountEmail || '이메일 정보 없음'}</p></div><span className="member-profile__status">● 로그인 중</span></section></>}
     {process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true' && signedIn && !recovery && memberUserId && consentStatus==='accepted' && profileStatus==='pending' && <MemberEmailProfile key={`profile-${memberUserId}`} client={memberBrowserClient()!} userId={memberUserId} checkUsername={usernameApi?.checkUsername} onComplete={()=>{if(memberUserIdRef.current===memberUserId){setProfileCompleted(true);setProfileStatus('ready')}}}/>}
     {signedIn && !recovery && <section className="member-menu" aria-labelledby="member-activity-title"><h3 id="member-activity-title">내 활동</h3><Link className="member-menu__row" href="/store/ads/"><span className="member-menu__icon"><BarChart3 size={20} aria-hidden="true"/></span><span className="member-menu__label">광고 성과 분석</span><ChevronRight size={19} aria-hidden="true"/></Link><details className="member-menu__details"><summary className="member-menu__row"><span className="member-menu__icon"><FileText size={20} aria-hidden="true"/></span><span className="member-menu__label">내 진단서</span><span className="member-menu__meta">{diagnosisCount === null ? '' : `${diagnosisCount} / 3`}</span><ChevronRight size={19} aria-hidden="true"/></summary><div className="member-menu__expanded"><DiagnosisDownload key={memberUserId} onCountChange={setDiagnosisCount}/></div></details></section>}
     {profileCompleted && signedIn && <p role="status">회원가입이 완료되었습니다.</p>}
