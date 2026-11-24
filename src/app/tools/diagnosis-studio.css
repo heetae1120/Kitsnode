@@ -453,6 +453,17 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-dialog [data-guide
 .ds-reorder-headline time{display:block;font-size:clamp(32px,5vw,56px);letter-spacing:-.055em;line-height:1.12;font-weight:800;color:var(--rd-orange);font-variant-numeric:tabular-nums;animation:ds-reorder-number .26s ease-out both}
 .ds-reorder-reserve{padding:5px 10px;border:1px solid #68402f;border-radius:4px;color:#ff9b73;font-size:13px;font-weight:650}
 .ds-reorder-dashboard .ds-calendar-controls{margin-block:20px 8px;gap:8px 20px}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-metrics{gap:0;padding:18px 0;border-block:1px solid #353535}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-metrics>div{min-width:0;padding-inline:clamp(10px,2vw,24px);border-inline-start:1px solid #353535}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-metrics>div:first-child{border-inline-start:0}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-metrics span{color:#d0ccc5;font-size:clamp(14px,1.35vw,19px);line-height:1.45}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-metrics b{margin-top:6px;font-size:clamp(24px,2.65vw,38px);line-height:1.2;overflow-wrap:anywhere}
+@media(max-width:650px){
+ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-metrics{grid-template-columns:1fr;padding:0}
+ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-metrics>div{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;padding:12px;border-inline-start:0}
+ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-metrics>div+div{border-top:1px solid #353535}
+ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-metrics b{margin-top:0}
+}
 .ds-reorder-dashboard .ds-calendar-start{min-width:0;flex-wrap:wrap;gap:6px 12px}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard .ds-calendar-start[data-guide-active=true]::before{display:none}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard .ds-calendar-start input:focus{outline:1px solid var(--rd-orange)!important;outline-offset:1px!important}
@@ -643,7 +654,8 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row>
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-slot{margin-top:0;align-self:flex-start}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack{margin:0}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row>span{align-self:center}
-@media(max-width:700px){html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row{gap:18px;overflow-x:auto}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-slot{flex:0 0 auto;min-width:max-content}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-download-stack .mp-actions{gap:18px;overflow:visible}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row>span{display:none}}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-download-stack .mp-actions{flex-wrap:wrap!important;gap:12px;overflow:visible}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow #report-funds .ds-report-download-stack .mp-actions>:is(button,a){white-space:normal;max-width:100%}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-visit[aria-disabled=true]{opacity:.6;cursor:default}
 
 /* Status cards use a continuous outline; keyword ranks are plain orange type. */

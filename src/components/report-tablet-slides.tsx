@@ -3,18 +3,17 @@ import {Children,useRef,useState,type ReactNode} from "react";
 import {AnimatePresence,motion,useReducedMotion} from "framer-motion";
 import {ArrowLeft,ArrowRight} from "lucide-react";
 import '@/app/tools/report-motion.css';
-export function ReportTabletSlides({children,heading,beforeNext,onBack}:{children:ReactNode;heading:(page:number)=>ReactNode;beforeNext?:(proceed:()=>void)=>void;onBack:()=>void}){
- const slides=Children.toArray(children),[page,setPage]=useState(0),[direction,setDirection]=useState(1);
+export function ReportTabletSlides({children,heading,beforeNext,onBack,onFinish,initialPage=0,finalActions}:{children:ReactNode;heading:(page:number)=>ReactNode;beforeNext?:(proceed:()=>void)=>void;onBack:()=>void;onFinish:()=>void;initialPage?:0|2;finalActions?:ReactNode}){
+ const slides=Children.toArray(children),[page,setPage]=useState<number>(initialPage),[direction,setDirection]=useState(1);
  const root=useRef<HTMLDivElement>(null),screen=useRef<HTMLDivElement>(null);
  const reduced=useReducedMotion(),last=page===slides.length-1;
- function finish(){root.current?.dispatchEvent(new Event("kitsnode:report-continue",{bubbles:true}));}
  function move(next:number){
   const target=Math.max(0,Math.min(slides.length-1,next));if(target===page)return;
   setDirection(target>page?1:-1);setPage(target);
   screen.current?.focus({preventScroll:true});
   root.current?.scrollIntoView({behavior:'instant',block:'start'});
  }
- function next(){if(page===0&&beforeNext){beforeNext(()=>move(1));return;}if(last)finish();else move(page+1);}
+ function next(){if(page===0&&beforeNext){beforeNext(()=>move(1));return;}if(last)onFinish();else move(page+1);}
  return <div className="kn-tablet-slides ds-report-chapters" ref={root}>
   {heading(page)}
   <div ref={screen} className="kn-tablet-slide-screen" role="region" aria-label={"수익 보고서 "+(page+1)+" / "+slides.length} tabIndex={0}>
@@ -29,5 +28,6 @@ export function ReportTabletSlides({children,heading,beforeNext,onBack}:{childre
    <span aria-live="polite">{page+1} / {slides.length}</span>
    <button type="button" className="mp-secondary ds-report-previous" data-diagnosis-back onClick={page===0?onBack:()=>move(page-1)}><ArrowLeft size={16}/>{page===0?'이전 · 비용 입력':'이전'}</button>
   </nav>
+  {last&&finalActions}
  </div>;
 }

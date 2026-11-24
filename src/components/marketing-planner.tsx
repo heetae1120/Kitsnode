@@ -47,9 +47,10 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const [playerPurpose,setPlayerPurpose]=useState<PlayerPurpose|null>(null);
  const [libraryOpen,setLibraryOpen]=useState(false);
  const [adCheck,setAdCheck]=useState(false);
+ const adCheckInput=useRef<HTMLInputElement>(null);
  const [keywordInput,setKeywordInput]=useState('');
  const [adKeyword,setAdKeyword]=useState('');
- const [returnToKeywords,setReturnToKeywords]=useState(false);
+ const [returnToGoal,setReturnToGoal]=useState(false);
  const stickySummary=useRef<HTMLDivElement>(null);
  const [goalOpen,setGoalOpen]=useState(false);
  const mode=selectedMode??'starter';
@@ -83,7 +84,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const missing=extras.filter(([key])=>draft[key]==='').length;
  const returnCostMissing=Number(draft.returnRate)>0&&draft.returnHandling==='';
  const overBudget=hasBudget&&stockCost!==null&&stockCost>Number(draft.available);
- function move(next:number){if(next===3)setReturnToKeywords(step===4);setDirection(next>step?1:-1);setStep(next);setError('');requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});const target=next===3?(focus.current?.querySelector('.mp-scroll-card')??focus.current):focus.current;target?.scrollIntoView({behavior:'smooth',block:'start'});});}
+ function move(next:number){if(next===3)setReturnToGoal(step===4);setDirection(next>step?1:-1);setStep(next);setError('');requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});const target=next===3?(focus.current?.querySelector('.mp-scroll-card')??focus.current):focus.current;target?.scrollIntoView({behavior:'smooth',block:'start'});});}
  function submit(event:FormEvent){
   event.preventDefault();
   if(step===1){
@@ -120,6 +121,15 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
   setSelectedMode(null);setShowPlayerIntro(false);setPlayerPurpose(null);
   requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});
  }
+ function openAdCheck(productName?:string){
+  if(productName!==undefined)setKeywordInput(productName);
+  setAdKeyword('');setSelectedMode(null);setShowPlayerIntro(false);setAdCheck(true);
+ }
+ useEffect(()=>{
+  if(!adCheck)return;
+  window.scrollTo({top:0,behavior:'instant'});
+  adCheckInput.current?.focus({preventScroll:true});
+ },[adCheck]);
  function closeAdCheck(){
   setAdCheck(false);setAdKeyword('');
   requestAnimationFrame(()=>choiceHeading.current?.focus());
@@ -152,7 +162,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
    <h1>광고 체크하기</h1>
    <form className="ds-ad-check-form" onSubmit={event=>{event.preventDefault();setAdKeyword(keywordInput.trim());}}>
     <label htmlFor="ds-ad-keyword">키워드를 입력하세요</label>
-    <div><input id="ds-ad-keyword" required maxLength={100} value={keywordInput} onChange={event=>setKeywordInput(event.target.value)}/><button type="submit" className="mp-primary" disabled={!keywordInput.trim()}>분석하기</button></div>
+    <div><input id="ds-ad-keyword" ref={adCheckInput} required maxLength={100} value={keywordInput} onChange={event=>setKeywordInput(event.target.value)}/><button type="submit" className="mp-primary" disabled={!keywordInput.trim()}>분석하기</button></div>
    </form>
    {adKeyword&&<article className="mp-story"><KeywordBudgetReport key={adKeyword} productName={adKeyword} keywordOnly/></article>}
   </main>
@@ -164,7 +174,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
    <div className="ds-choice-grid">
     <button type="button" className="ds-choice-card ds-starter" onClick={()=>chooseMode('starter')}><span className="ds-card-number">01 / 첫 판매 준비</span><span className="ds-choice-art ds-art-target" aria-hidden="true"><i/><b/></span><span className="ds-card-title">스타터</span><strong>판매가 처음이에요.</strong><span className="ds-card-description">판매 전에 필요한 금액과<br/>실제로 남는 이익을 확인하세요.</span><span className="ds-card-action">내 상품 진단하기 <ArrowUpRight size={25}/></span></button>
     <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-card-number">02 / 다음 성장 준비</span><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><strong>판매 경험이 있어요.</strong><span className="ds-card-description">상품의 수익 구조를 점검하고<br/>앞으로의 판매 방향을 함께 정리하세요.</span><span className="ds-card-action">현 상태 진단하기 <ArrowUpRight size={25}/></span></button>
-    <button type="button" className="ds-choice-card ds-shortcut-card" aria-label="광고 체크하기" onClick={()=>{setAdCheck(true);requestAnimationFrame(()=>document.getElementById('ds-ad-keyword')?.focus());}}>
+    <button type="button" className="ds-choice-card ds-shortcut-card" aria-label="광고 체크하기" onClick={()=>openAdCheck()}>
      <span className="ds-card-number">키워드 광고 분석</span>
      <span className="ds-choice-art ds-art-keyword" aria-hidden="true"><i/><i/><i/></span>
      <span className="ds-card-title">광고 체크</span>
@@ -243,7 +253,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
      {step===1&&overBudget&&<p className="mp-error" role="alert">상품 구매비가 예산보다 많아요.</p>}
      {error&&<p className="mp-error" role="alert">{error}</p>}
      <div className="mp-actions">{step===2&&<button type="button" className="mp-secondary" onClick={()=>move(1)}>이전 단계</button>}<button type="submit" className="mp-primary">{step===1?'다음 단계 · 비용 확인':'진단 결과 확인하기'}<ArrowRight size={17}/></button></div>
-    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport key={previewStage||'visitor'} initialPage={previewStage==='3-keywords'||returnToKeywords?1:0} onRequestMonths={requestMonths} name={report.name} months={report.months} input={report.input} result={report.result} exampleFields={report.examples} onEdit={()=>move(2)} onMoreCosts={()=>move(4)}/>)}
+    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport key={previewStage||'visitor'} initialAdIntro={previewStage==='3-keywords'} initialSlide={returnToGoal?2:0} onAdCheck={openAdCheck} onRequestMonths={requestMonths} name={report.name} months={report.months} input={report.input} exampleFields={report.examples} onEdit={()=>move(2)} onMoreCosts={()=>move(4)}/>)}
     {step<3&&<span className="mp-ipad-home" aria-hidden="true"/>}
    </section>
   </main>
