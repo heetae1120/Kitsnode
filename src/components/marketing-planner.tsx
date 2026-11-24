@@ -286,7 +286,7 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
      {step===1&&overBudget&&<p className="mp-error" role="alert">재고를 모두 구매하면 예산을 초과해요.</p>}
      {error&&<p id="mp-form-error" className="mp-error" role="alert">{error}</p>}
      <div className="mp-actions">{step===2&&<button type="button" className="mp-secondary" onClick={()=>move(1)}>이전 단계</button>}<button type="submit" className="mp-primary">{step===1?'다음: 추가 비용':'진단 결과 보기'}<ArrowRight size={17}/></button></div>
-    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport key={previewStage||'visitor'} initialAdIntro={previewStage==='3-keywords'} initialSlide={returnToGoal?2:0} onAdCheck={openAdCheck} onRequestMonths={requestMonths} name={report.name} months={report.months} input={report.input} exampleFields={report.examples} onEdit={()=>move(2)} onMoreCosts={()=>move(4)}/>)}
+    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport key={previewStage||'visitor'} initialAdIntro={previewStage==='3-keywords'} initialSlide={returnToGoal?2:0} onAdCheck={openAdCheck} onRequestMonths={requestMonths} name={report.name} months={report.months} input={report.input} exampleFields={report.examples} onEdit={()=>move(2)}/>)}
     {step<3&&<span className="mp-ipad-home" aria-hidden="true"/>}
    </section>
   </main>

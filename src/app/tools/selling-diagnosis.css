@@ -103,8 +103,6 @@ html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .ds-
 .selling-diagnosis .sd-result-lead strong { display: block; color: #f5f2eb; font-size: clamp(35px, 6.25vw, 70px); font-variant-numeric: tabular-nums; line-height: 1.14; letter-spacing: -.04em; overflow-wrap: anywhere; }
 .selling-diagnosis .sd-result-lead strong.is-loss { color: #ff848c; }
 .selling-diagnosis .sd-result-lead small { font-size: 14px; line-height: 1.55; color: var(--sd-muted); }
-.selling-diagnosis .sd-goal-summary > p { font-weight: 450; }
-.selling-diagnosis .sd-goal-summary > h2 { text-wrap: wrap; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .mp-plan-recap { gap: 0; margin: 0 0 18px; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .mp-plan-recap > div { min-width: 0; padding: 12px clamp(8px, 1.6vw, 20px); }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .mp-plan-recap dt { font-size: 14px; }

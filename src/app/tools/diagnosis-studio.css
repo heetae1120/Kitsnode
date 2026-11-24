@@ -517,6 +517,9 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard 
 .ds-reorder-risk>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;min-width:0;animation:ds-reorder-number .23s ease-out both}
 .ds-reorder-risk strong,.ds-reorder-risk b{color:var(--rd-status)}
 .ds-reorder-risk span{color:var(--rd-text)}
+.ds-reorder-dashboard:is([data-risk=safe],[data-risk=risk]) .ds-reorder-risk{font-size:clamp(16px,1.7vw,23px);line-height:1.4;padding:14px 16px}
+.ds-reorder-dashboard:is([data-risk=safe],[data-risk=risk]) .ds-reorder-risk span{color:var(--rd-status);font-weight:650}
+.ds-reorder-dashboard:is([data-risk=safe],[data-risk=risk]) .ds-reorder-risk>svg{width:23px;height:23px}
 @keyframes ds-reorder-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes ds-reorder-number{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:800px){

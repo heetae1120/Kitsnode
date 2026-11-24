@@ -1,38 +1,49 @@
 'use client';
-import {useRef} from 'react';
+import {useEffect,useState} from 'react';
 import {useReducedMotion} from 'framer-motion';
-import {GrowthIllustration} from './growth-illustration';
-import {AboutHeroDisciplines} from './about-hero-disciplines';
-import {dealWheelCards,dealWheelSlots} from './deal-wheel-data';
-import {wheelGeometry,wheelCardPose} from '@/lib/deal-wheel';
-import {useDealWheel,type WheelNodes} from './use-deal-wheel';
+
 const base=process.env.NEXT_PUBLIC_BASE_PATH||'';
-const initialGeometry=wheelGeometry(1220,760);
+const disciplines=[
+  {label:'Product', title:'팔리는 상품의 조건을 찾습니다.', description:'검색 수요와 판매 비용을 살펴, 상품의 가격과 판매 방향을 정합니다.', image:'/hero-menu/mint-0.webp'},
+  {label:'Pop-up', title:'고객이 브랜드를 만나는 공간.', description:'상품을 직접 경험하고 기억할 수 있는 팝업을 기획합니다.', image:'/about-gallery/brand-people.webp'},
+  {label:'Branding', title:'다시 찾는 브랜드를 만듭니다.', description:'상품, 메시지, 디자인에 하나의 방향을 담습니다.', image:'/about-gallery/brand-making.webp'},
+] as const;
 
 export function AboutGalleryHero(){
-  const nodes=useRef<WheelNodes>({root:null,viewport:null,stage:null,cards:[],videos:[]});
-  useDealWheel(nodes,!!useReducedMotion());
-  return <section className="dw-hero" aria-labelledby="kp-hero-title" ref={el=>{nodes.current.root=el;}}>
-    <div className="dw-viewport" ref={el=>{nodes.current.viewport=el;}} role="region" aria-label="브랜드 카드 휠. 드래그하거나 좌우 방향키로 살펴보세요. 스페이스 키로 자동 회전을 멈추거나 재생합니다." tabIndex={0}>
-      <ul className="sv-visually-hidden">{dealWheelCards.map(card=><li key={card.label}>{card.label}</li>)}</ul>
-      <div className="dw-stage" ref={el=>{nodes.current.stage=el;}} style={{top:initialGeometry.originY,transform:initialGeometry.transform}}>
-        {dealWheelSlots.map((card,index)=>{const pose=wheelCardPose(index,0,initialGeometry);return <div key={index} className={'dw-card dw-tone-'+card.tone} aria-hidden="true" draggable={false}
-          data-card-source={index%dealWheelCards.length} style={{visibility:pose.visible?'visible':'hidden',transform:pose.transform,zIndex:1000-Math.round(pose.away*3)}} ref={el=>{nodes.current.cards[index]=el;}}>
-          <div className="dw-front">
-            {card.image?<img src={base+card.image} alt="" width={2000} height={1250} loading="eager" decoding="async" draggable={false}/>:card.art?<GrowthIllustration kind={card.art}/>:null}
-            {card.video&&<video ref={el=>{nodes.current.videos[index]=el;}} className="dw-preview" src={base+card.video} muted loop playsInline preload="none" aria-hidden="true"
-              onPlaying={event=>{const video=event.currentTarget;if(video.dataset.wanted==='true')video.dataset.playing='true';else video.pause();}}
-              onPause={event=>{delete event.currentTarget.dataset.playing;}}/>}
-            <span className="dw-card-caption">{card.label}</span>
+  const [current,setCurrent]=useState(0);
+  const [playing,setPlaying]=useState(true);
+  const [hovered,setHovered]=useState(false);
+  const [focused,setFocused]=useState(false);
+  const reduced=useReducedMotion();
+  useEffect(()=>{
+    if(reduced||!playing||hovered||focused)return;
+    const timer=window.setInterval(()=>setCurrent(index=>(index+1)%disciplines.length),5600);
+    return ()=>window.clearInterval(timer);
+  },[reduced,playing,hovered,focused]);
+  return <section className="dw-hero" aria-label="키츠노드 프로젝트 분야">
+    <div className="dw-landing" onPointerEnter={event=>{if(event.pointerType==='mouse')setHovered(true);}} onPointerLeave={()=>setHovered(false)}
+      onFocus={()=>setFocused(true)} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget))setFocused(false);}}>
+      <div className="dw-landing-scenes">
+        {disciplines.map((item,index)=><div key={item.label} id={'about-discipline-'+index} className="dw-landing-scene" data-active={current===index}
+          aria-hidden={current!==index}>
+          <img className="dw-landing-image" src={base+item.image} alt="" fetchPriority={index===0?'high':undefined} decoding="async"/>
+          <div className="dw-landing-copy">
+            <h2>{item.title}</h2>
+            <p>{item.description}</p>
           </div>
-        </div>;})}
+        </div>)}
       </div>
-      <div className="dw-floor" aria-hidden="true"/>
-      <AboutHeroDisciplines/>
+      <div className="dw-landing-controls">
+        <div className="dw-disciplines" role="group" aria-label="프로젝트 분야 선택">
+          {disciplines.map(({label},index)=><button key={label} type="button" className="dw-discipline" aria-controls={'about-discipline-'+index}
+            aria-pressed={current===index} onClick={()=>{setCurrent(index);setPlaying(false);}}>{label}</button>)}
+        </div>
+        <button type="button" className="dw-rotation" onClick={()=>setPlaying(value=>!value)}>{playing?'일시정지':'자동 전환'}</button>
+      </div>
     </div>
     <div className="dw-copy">
       <span className="dw-eyebrow">KITSNODE · BRAND GROWTH PARTNER</span>
-      <h1 id="kp-hero-title">순위 말고,<br/><em>브랜드를 남깁니다.</em></h1>
+      <h1>순위 말고,<br/><em>브랜드를 남깁니다.</em></h1>
       <p>광고를 줄여도 고객이 찾는 브랜드를 만듭니다.</p>
     </div>
   </section>;

@@ -4,12 +4,13 @@ import {AdvertisingDiagnosisIntro} from './advertising-diagnosis-intro';
 
 type Props={
  productName:string;
+ months:number;
  initialAdIntro?:boolean;
  onAdCheck:()=>void;
  overview:(showAdIntro:()=>void)=>ReactNode;
 };
 
-export function ProfitReportPages({productName,initialAdIntro=false,onAdCheck,overview}:Props){
+export function ProfitReportPages({productName,months,initialAdIntro=false,onAdCheck,overview}:Props){
  const [introOpen,setIntroOpen]=useState(initialAdIntro);
  const report=useRef<HTMLDivElement>(null);
  function backToReport(){
@@ -20,7 +21,7 @@ export function ProfitReportPages({productName,initialAdIntro=false,onAdCheck,ov
   });
  }
  return <div className="mp-report-pages" ref={report} tabIndex={-1}>
-  {introOpen&&<AdvertisingDiagnosisIntro productName={productName} onBack={backToReport} onContinue={onAdCheck}/>}
+  {introOpen&&<AdvertisingDiagnosisIntro productName={productName} months={months} onBack={backToReport} onContinue={onAdCheck}/>}
   <div hidden={introOpen} inert={introOpen}>{overview(()=>setIntroOpen(true))}</div>
  </div>;
 }

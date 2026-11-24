@@ -2,7 +2,6 @@
 import {useState} from 'react';
 import {DiagnosisDownload} from './diagnosis-download';
 import {reportPriority} from '@/lib/report-priority';
-import {ArrowRight} from 'lucide-react';
 import {ProfitReportPages} from './profit-report-pages';
 import {ReportTabletSlides} from './report-tablet-slides';
 
@@ -34,8 +33,8 @@ function ProfitComparison({before,after,extraCosts}:{before:number;after:number;
  </figure>;
 }
 
-type Props={initialAdIntro?:boolean;initialSlide?:0|2;name:string;months:number;input:MarketingPlanInput;onEdit:()=>void;onMoreCosts:()=>void;onAdCheck:(productName:string)=>void;onRequestMonths?:(proceed:()=>void)=>void;exampleFields?:string[]};
-export function BeginnerProfitReport({initialAdIntro,initialSlide,name,months,input,onEdit,onMoreCosts,onAdCheck,onRequestMonths,exampleFields=[]}:Props){
+type Props={initialAdIntro?:boolean;initialSlide?:0|2;name:string;months:number;input:MarketingPlanInput;onEdit:()=>void;onAdCheck:(productName:string)=>void;onRequestMonths?:(proceed:()=>void)=>void;exampleFields?:string[]};
+export function BeginnerProfitReport({initialAdIntro,initialSlide,name,months,input,onEdit,onAdCheck,onRequestMonths,exampleFields=[]}:Props){
  const r=salesFundedMarketingPlan(input);
  const unitProfit=r.margin-r.fixed/input.quantity;
  const beforeMonths=months<1?onRequestMonths:undefined;
@@ -47,11 +46,10 @@ export function BeginnerProfitReport({initialAdIntro,initialSlide,name,months,in
  const finalActions=months>0?<div className="ds-report-download-stack">
   <DiagnosisDownload
    report={{name,months,price:input.price,quantity:input.quantity,sales:r.sales,costs:r.reserved,profit:r.profitRoom,margin:unitProfit,marketing:r.marketing,breakEven:r.breakEvenUnits,priority:priority.title,action:priority.action,examples:exampleFields.length>0}}
-   trailingAction={<button type="button" className="mp-secondary mp-more-considerations" onClick={onMoreCosts}>보관·수입·인증 비용 참고<ArrowRight size={16}/></button>}
   />
  </div>:null;
  return <article className="mp-story">
-  <ProfitReportPages productName={name} initialAdIntro={initialAdIntro} onAdCheck={()=>onAdCheck(name)} overview={showAdIntro=>
+  <ProfitReportPages productName={name} months={months} initialAdIntro={initialAdIntro} onAdCheck={()=>onAdCheck(name)} overview={showAdIntro=>
   <section id="report-funds" aria-label="금액 정리와 재고 계획">
    <div className="ds-open-report">
     <ReportTabletSlides
