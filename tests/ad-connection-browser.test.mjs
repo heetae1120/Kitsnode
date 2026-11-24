@@ -16,6 +16,7 @@ test('installed test extension enables the candidate flow on the normal page', {
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve)}));
  const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
  const page=await browser.newPage();await page.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
+ await page.goto(origin+'/?wait-discovery');await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();await page.getByRole('button',{name:'확장프로그램으로 네이버 광고주 로그인'}).click();await page.getByRole('button',{name:'계정 확인 중단하고 다시 시작'}).click();assert.equal(await page.getByRole('button',{name:'확장프로그램으로 네이버 광고주 로그인'}).isEnabled(),true);
  await page.goto(origin);await page.getByText(/설치된 0.3.1 시험본으로 연결합니다/).waitFor();assert.equal(new URL(page.url()).search,'');
  await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();await page.getByRole('button',{name:'확장프로그램으로 네이버 광고주 로그인'}).click();await page.getByText('광고계정을 확인했습니다. 사전 동의를 진행해 주세요.').waitFor();
  assert.ok((await page.evaluate(()=>window.connectionFixture.extensionCalls)).every(x=>x.id==='b'.repeat(32)));
