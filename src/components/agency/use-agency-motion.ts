@@ -11,6 +11,7 @@ export function useAgencyMotion(){
   const [scene,setScene]=useState(0);
   const [enhanced,setEnhanced]=useState(false);
   const [tone,setTone]=useState('dark');
+  const [showFloatingDiagnosis,setShowFloatingDiagnosis]=useState(false);
   useGSAP(()=>{
     const el=root.current;if(!el)return;
     const media=gsap.matchMedia();
@@ -28,13 +29,13 @@ export function useAgencyMotion(){
         gsap.from('.as-scene-01 .as-word',{yPercent:i=>110+i*15,duration:.85,stagger:.12,ease:'power4.out',clearProps:'transform'});
         timeline=gsap.timeline({defaults:{ease:'power2.inOut'},onUpdate:()=>{
             const time=timeline?.time()??0;
-            const index=time<1.65?0:time<3.65?1:time<6?2:3;
+            const index=time<1.65?0:time<3.65?1:2;
             setScene(index);
             const trigger=timeline?.scrollTrigger;
             if(trigger?.isActive||trigger?.progress===0)setTone(index===1?'orange':'dark');
-            if(progress)progress.style.transform=`scaleX(${time/8})`;
+            if(progress)progress.style.transform=`scaleX(${time/(timeline?.duration()||1)})`;
           },scrollTrigger:{
-          trigger:hero,pin,start:'top top',end:()=>`+=${window.innerHeight*(window.innerWidth<760?3.2:4)}`,
+          trigger:hero,pin,start:'top top',end:()=>`+=${window.innerHeight*(window.innerWidth<760?2.4:3)}`,
           scrub:.65,anticipatePin:1,invalidateOnRefresh:true,
         }});
         timeline
@@ -50,15 +51,7 @@ export function useAgencyMotion(){
           .from('.as-scene-03 .as-word',{yPercent:115,stagger:.1,duration:.6},3.4)
           .from('.as-strategy-keywords span',{y:35,opacity:0,stagger:.1,duration:.45},3.8)
           .from('.as-scene-03 .as-scene-copy',{y:24,opacity:0,duration:.4},4)
-          .to('.as-grid-mark',{rotation:90,y:-25,duration:1.6},3.9)
-          .to('.as-strategy-disc',{scale:22,duration:.75},5.25)
-          .to('.as-scene-03 .as-word',{yPercent:-120,stagger:.06,duration:.65},5.6)
-          .set('.as-scene-04',{autoAlpha:1},6)
-          .from('.as-scene-04 .as-word',{yPercent:120,stagger:.12,duration:.7},6)
-          .from('.as-final-orbit',{scale:.3,rotation:-65,opacity:0,duration:1},6)
-          .from('.as-scene-04 .as-scene-copy',{y:25,opacity:0,duration:.5},6.45)
-          .from('.as-scene-04 .as-service-description',{y:24,opacity:0,duration:.5},6.7)
-          .to('.as-final-orbit',{rotation:25,duration:.7},7.3);
+          .to('.as-grid-mark',{rotation:90,y:-25,duration:1.6},3.9);
         setEnhanced(true);
         return ()=>{timeline?.scrollTrigger?.kill();timeline?.kill();delete hero.dataset.motion;setEnhanced(false);setScene(0);};
       }catch{
@@ -79,7 +72,21 @@ export function useAgencyMotion(){
         gsap.from(item,{y:45,opacity:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:item,start:'top 91%',once:true}});
       });
     });
-    return ()=>media.revert();
+    const hero = el.querySelector('.as-hero');
+    const diagnosisLink = el.querySelector('.as-conversion-cta');
+    const floatingTrigger = hero && diagnosisLink ? ScrollTrigger.create({
+      trigger: hero,
+      start: 'top -48px',
+      endTrigger: diagnosisLink,
+      end: 'top bottom',
+      refreshPriority: -1,
+      onToggle: ({isActive}) => setShowFloatingDiagnosis(isActive),
+      onRefresh: ({isActive}) => setShowFloatingDiagnosis(isActive),
+    }) : null;
+    return () => {
+      floatingTrigger?.kill();
+      media.revert();
+    };
   },{scope:root});
-  return {root,scene,enhanced,tone};
+  return {root,scene,enhanced,tone,showFloatingDiagnosis};
 }
