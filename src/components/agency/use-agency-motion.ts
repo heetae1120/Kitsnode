@@ -91,19 +91,13 @@ export function useAgencyMotion(){
         setScene(0);
       };
     });
-    const shortcut=ScrollTrigger.create({
-      trigger:hero,
-      start:'top -48px',
-      endTrigger:diagnosisLink,
-      end:()=>hero.dataset.motion==='on'?'max':'top bottom',
-      refreshPriority:-1,
-      onToggle:({isActive})=>setShowShortcut(isActive),
-      onRefresh:({isActive})=>setShowShortcut(isActive),
-    });
+    const syncShortcut=()=>setShowShortcut(window.scrollY>=48);
+    window.addEventListener('scroll',syncShortcut,{passive:true});
+    syncShortcut();
     return ()=>{
-      shortcut.kill();
+      window.removeEventListener('scroll',syncShortcut);
       media.revert();
     };
   },{scope:root});
-  return {root,scene,enhanced,jumpToDiagnosis,showFloatingDiagnosis:showShortcut&&(!enhanced||scene<2)};
+  return {root,scene,enhanced,jumpToDiagnosis,showFloatingDiagnosis:showShortcut};
 }

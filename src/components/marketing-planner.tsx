@@ -9,6 +9,8 @@ import {ArrowRight,ArrowUpRight,Check,TriangleAlert} from 'lucide-react';
 import {FormattedNumberInput} from './formatted-number-input';
 import {SellingPreparation} from './selling-preparation';
 import {BeginnerProfitReport} from './beginner-profit-report';
+import {useDiagnosisBack} from './use-diagnosis-back';
+import {KeywordBudgetReport} from './keyword-budget-report';
 import {DiagnosisDownload} from './diagnosis-download';
 import {PlannerCostHelp} from './planner-cost-help';
 import {marketingPlan,budgetPurchaseCapacity,type MarketingPlanInput} from '@/lib/marketing-plan';
@@ -42,6 +44,12 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const [selectedMode,setSelectedMode]=useState<'starter'|'player'|null>(initialMode??null);
  const [showPlayerIntro,setShowPlayerIntro]=useState(initialMode==='player');
  const [playerPurpose,setPlayerPurpose]=useState<PlayerPurpose|null>(null);
+ const [libraryOpen,setLibraryOpen]=useState(false);
+ const [adCheck,setAdCheck]=useState(false);
+ const [keywordInput,setKeywordInput]=useState('');
+ const [adKeyword,setAdKeyword]=useState('');
+ const [returnToKeywords,setReturnToKeywords]=useState(false);
+ const stickySummary=useRef<HTMLDivElement>(null);
  const [goalOpen,setGoalOpen]=useState(false);
  const mode=selectedMode??'starter';
  const [draft,setDraft]=useState<Draft>(empty);
@@ -74,7 +82,7 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  const missing=extras.filter(([key])=>draft[key]==='').length;
  const returnCostMissing=Number(draft.returnRate)>0&&draft.returnHandling==='';
  const overBudget=hasBudget&&stockCost!==null&&stockCost>Number(draft.available);
- function move(next:number){setDirection(next>step?1:-1);setStep(next);setError('');requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});const target=next===3?(focus.current?.querySelector('.mp-scroll-card')??focus.current):focus.current;target?.scrollIntoView({behavior:'smooth',block:'start'});});}
+ function move(next:number){if(next===3)setReturnToKeywords(step===4);setDirection(next>step?1:-1);setStep(next);setError('');requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});const target=next===3?(focus.current?.querySelector('.mp-scroll-card')??focus.current):focus.current;target?.scrollIntoView({behavior:'smooth',block:'start'});});}
  function submit(event:FormEvent){
   event.preventDefault();
   if(step===1){
@@ -107,6 +115,47 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
   setSelectedMode(next);setShowPlayerIntro(next==='player');setDraft(empty);setStep(1);setMarket('');setReport(null);setExampleFields([]);setError('');
   requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});
  }
+ function backToChoice(){
+  setSelectedMode(null);setShowPlayerIntro(false);setPlayerPurpose(null);
+  requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});
+ }
+ function closeAdCheck(){
+  setAdCheck(false);setAdKeyword('');
+  requestAnimationFrame(()=>choiceHeading.current?.focus());
+ }
+ useDiagnosisBack(libraryOpen||adCheck||selectedMode!==null,()=>{
+  if(adCheck){
+   if(adKeyword){setAdKeyword('');document.getElementById('ds-ad-keyword')?.focus();}
+   else closeAdCheck();
+   return;
+  }
+  if(showPlayerIntro&&playerPurpose){setPlayerPurpose(null);return;}
+  if(step>1){move(step-1);return;}
+  if(selectedMode==='player'&&!showPlayerIntro){setShowPlayerIntro(true);return;}
+  backToChoice();
+ },!previewStage);
+ useEffect(()=>{
+  const bar=stickySummary.current;
+  const shell=bar?.parentElement;
+  if(!bar||!shell)return;
+  const sync=()=>shell.style.setProperty('--ds-sticky-offset',bar.offsetHeight+16+'px');
+  sync();
+  const observer=new ResizeObserver(sync);
+  observer.observe(bar);
+  return ()=>observer.disconnect();
+ },[selectedMode,showPlayerIntro,previewStage]);
+ if(adCheck)return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow ds-ad-check">
+  <DiagnosisHeader/>
+  <main className="mp-main">
+   <button type="button" className="mp-secondary" onClick={closeAdCheck}>이전 · 진단 메뉴</button>
+   <h1>광고 체크하기</h1>
+   <form className="ds-ad-check-form" onSubmit={event=>{event.preventDefault();setAdKeyword(keywordInput.trim());}}>
+    <label htmlFor="ds-ad-keyword">키워드를 입력하세요</label>
+    <div><input id="ds-ad-keyword" required maxLength={100} value={keywordInput} onChange={event=>setKeywordInput(event.target.value)}/><button type="submit" className="mp-primary" disabled={!keywordInput.trim()}>분석하기</button></div>
+   </form>
+   {adKeyword&&<article className="mp-story"><KeywordBudgetReport key={adKeyword} productName={adKeyword} keywordOnly/></article>}
+  </main>
+ </div>;
  if(selectedMode===null&&(!previewStage||previewStage==='choice'))return <div className="finance-dashboard mp-shell diagnosis-studio" data-preview-stage="choice" data-diagnosis-stage="choose">
   <DiagnosisHeader/>
   <main className="ds-choice" aria-labelledby="ds-choice-title">
@@ -115,20 +164,22 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
     <button type="button" className="ds-choice-card ds-starter" onClick={()=>chooseMode('starter')}><span className="ds-card-number">01 / 첫 판매 준비</span><span className="ds-choice-art ds-art-target" aria-hidden="true"><i/><b/></span><span className="ds-card-title">스타터</span><strong>판매가 처음이에요.</strong><span className="ds-card-description">판매 전에 필요한 금액과<br/>실제로 남는 이익을 확인하세요.</span><span className="ds-card-action">내 상품 진단하기 <ArrowUpRight size={25}/></span></button>
     <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-card-number">02 / 다음 성장 준비</span><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><strong>판매 경험이 있어요.</strong><span className="ds-card-description">상품의 수익 구조를 점검하고<br/>앞으로의 판매 방향을 함께 정리하세요.</span><span className="ds-card-action">현 상태 진단하기 <ArrowUpRight size={25}/></span></button>
    </div>
-   <DiagnosisDownload/>
+   <div className="ds-choice-shortcuts" aria-label="진단 도구 바로가기">
+    <DiagnosisDownload libraryShortcut onLibraryOpenChange={setLibraryOpen}/>
+    <button type="button" className="mp-secondary" onClick={()=>{setAdCheck(true);requestAnimationFrame(()=>document.getElementById('ds-ad-keyword')?.focus());}}>광고 체크하기</button>
+   </div>
   </main>
  </div>;
  if(selectedMode==='player'&&showPlayerIntro&&!previewStage){
-  const backToChoice=()=>{setSelectedMode(null);setShowPlayerIntro(false);setPlayerPurpose(null);requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});};
   return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow"><DiagnosisHeader mode="player" onChoose={backToChoice}/>{playerPurpose?<PlayerIntroduction onStart={()=>{setShowPlayerIntro(false);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>:<PlayerPurposeDialog onSelect={setPlayerPurpose} onBack={backToChoice}/>}</div>;
  }
  return <div ref={guideRoot} className="finance-dashboard mp-shell diagnosis-studio ds-flow" data-preview-stage={step===3&&report&&previewStage==='3-keywords'?'3-keywords':String(step)} data-diagnosis-stage={step}>
-  <div className="ds-sticky-summary">
+  <div className="ds-sticky-summary" ref={stickySummary}>
   <DiagnosisHeader mode={mode} onChoose={()=>{setSelectedMode(null);requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>
-  {step<3&&<aside className={`mp-live-bar ${live&&live.profit<0?'is-loss':''}`} aria-label="실시간 상품 손익" aria-live="polite">
+  {(step<3||mode==='starter')&&<aside className={`mp-live-bar ${live&&live.profit<0?'is-loss':''}`} aria-label="실시간 상품 손익" aria-live="polite">
    <div className="mp-live-values">
     <span>판매가<b>{basicReady?money(Number(draft.price)):'—'}</b></span>
-    <span>원가<b>{live?money(live.unitCost):'—'}</b></span>
+    <span>원가<b>{draft.cost!==''?money(Number(draft.cost)):'—'}</b>{step>=2&&live&&<small className="ds-live-cost-delta">추가 비용 +{money(Math.max(0,live.unitCost-Number(draft.cost)))}</small>}</span>
     <span>판매수량<b>{draft.quantity?Number(draft.quantity).toLocaleString('ko-KR')+'개':'—'}</b></span>
     <span>개당 이익<b className={live?(live.profit>0?'ds-profit-positive':live.profit<0?'mp-negative':'mp-neutral'):undefined}>{live?money(live.profit):'—'}</b></span>
    </div>
@@ -163,14 +214,11 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
        {step===2&&Number(draft.returnRate)>0&&<div className="mp-field mp-return-cost"><div className="mp-field-label"><label htmlFor="mp-returnHandling">반품 한 건 처리비</label><PlannerCostHelp field="returnHandling" label="반품 한 건 처리비"/></div><div className="mp-input-wrap"><FormattedNumberInput aria-describedby="mp-help-returnHandling" id="mp-returnHandling" value={draft.returnHandling} onValueChange={value=>update('returnHandling',value)} placeholder="처리비 입력"/><span>원 / 건</span></div><div className="mp-quick-costs"><button type="button" data-guide-example onClick={()=>useExample('returnHandling')}>참고값 넣기</button><button type="button" onClick={()=>update('returnHandling','0')}>비용 없음 · 0원</button></div><p>개당 반품 비용: {returnCostMissing?'처리비 입력 필요':live?money(live.returns):'—'}</p></div>}
      </div>
      </div>
-     {step===1&&<aside className="mp-sales-summary" aria-live="polite">
-      <div><span>총 매출</span><b>{basicReady?money(Number(draft.price)*Number(draft.quantity)):'—'}</b></div><div><span>나에게 남을 이익</span><b className={live?(live.marginTotal>0?'ds-profit-positive':live.marginTotal<0?'mp-negative':'mp-neutral'):undefined}>{live?money(live.marginTotal):'—'}</b></div>
-      {overBudget&&<p role="alert">상품 구매비가 예산보다 많아요.</p>}
-     </aside>}
+     {step===1&&overBudget&&<p className="mp-error" role="alert">상품 구매비가 예산보다 많아요.</p>}
      {step===2&&<aside className={`mp-actual-cost ${live&&live.profit<0?'is-loss':''}`} aria-live="polite"><div className="mp-cost-change"><span><small>처음 원가</small><b>{money(Number(draft.cost))}</b></span><ArrowRight size={22} aria-label="비용 추가 후"/><span><small>비용 포함 원가</small><strong>{live?money(live.unitCost):'—'}</strong></span><span className="mp-cost-delta"><small>추가되는 비용</small><strong>{live?`${live.unitCost-Number(draft.cost)>0?'+':''}${money(live.unitCost-Number(draft.cost))}`:'—'}</strong></span></div></aside>}
      {error&&<p className="mp-error" role="alert">{error}</p>}
      <div className="mp-actions">{step===2&&<button type="button" className="mp-secondary" onClick={()=>move(1)}>이전 단계</button>}<button type="submit" className="mp-primary">{step===1?'다음 단계 · 비용 확인':'진단 결과 확인하기'}<ArrowRight size={17}/></button></div>
-    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport key={previewStage||'visitor'} initialPage={previewStage==='3-keywords'?1:0} onRequestMonths={requestMonths} name={report.name} months={report.months} input={report.input} result={report.result} exampleFields={report.examples} onEdit={()=>move(1)} onMoreCosts={()=>move(4)}/>)}
+    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport key={previewStage||'visitor'} initialPage={previewStage==='3-keywords'||returnToKeywords?1:0} onRequestMonths={requestMonths} name={report.name} months={report.months} input={report.input} result={report.result} exampleFields={report.examples} onEdit={()=>move(1)} onMoreCosts={()=>move(4)}/>)}
     {step<3&&<span className="mp-ipad-home" aria-hidden="true"/>}
    </section>
   </main>
