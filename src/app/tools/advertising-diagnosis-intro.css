@@ -7,6 +7,8 @@
 .ds-ad-intro-copy h2 em{font-style:normal;color:#ff5a1f!important}
 .ds-ad-intro-copy p{margin:28px 0 0;font-size:clamp(14px,1.4vw,18px);line-height:1.9;color:#d0ccc5!important}
 .ds-ad-intro-copy p strong{color:#f5f2eb!important}
+.ds-ad-intro-copy p+p{margin-top:12px}
+.ds-ad-intro-source{display:inline-block;margin-inline-start:6px;font-size:.8em;text-decoration:underline;text-underline-offset:3px;color:#d0ccc5}
 .ds-ad-intro-actions{display:flex;align-items:center;flex-wrap:wrap;gap:16px;margin-top:38px}
 .ds-ad-intro-actions .mp-primary{min-height:58px;padding:16px 26px}
 .ds-ad-intro-mobile-break{display:none}

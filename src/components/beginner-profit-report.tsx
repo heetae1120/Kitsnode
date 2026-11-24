@@ -7,24 +7,46 @@ import {DiagnosisResult} from './diagnosis-result';
 import {diagnosisOutcome} from '@/lib/diagnosis-outcome';
 import {ReportPriorityContext,type ReportDiagnostic} from './report-priority-context';
 import {reportPriority} from '@/lib/report-priority';
-import {ArrowDown,ArrowRight,Printer,Pencil,Search,Check} from 'lucide-react';
+import {ArrowRight,Search,Check} from 'lucide-react';
 import {ProfitReportPages} from './profit-report-pages';
 import {ReportTabletSlides} from './report-tablet-slides';
 
 import {KeywordBudgetReport} from './keyword-budget-report';
 import {marketingPlan,salesFundedMarketingPlan,type MarketingPlanInput} from '@/lib/marketing-plan';
-import {ReorderTimeline} from './reorder-timeline';
+import {ReorderTimeline,type ReorderDates} from './reorder-timeline';
 import {GoalInvitation} from './goal-invitation';
-const tone=(value:number)=>value<0?'mp-negative':value>0?'mp-positive':'mp-neutral';
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
+
+function ProfitComparison({before,after,extraCosts}:{before:number;after:number;extraCosts:number}){
+ const minimum=Math.min(0,before,after);
+ const maximum=Math.max(0,before,after);
+ const range=(maximum-minimum)||1;
+ const zero=-minimum/range*100;
+ const rows=[
+  {label:'원가만 뺀 원래 이익',value:before},
+  {label:'추가 비용을 뺀 실제 이익',value:after},
+ ];
+ return <figure className="ds-profit-chart">
+  <figcaption><b>전체 이익 비교</b><small>0원 기준 · 손실은 왼쪽, 이익은 오른쪽</small></figcaption>
+  {rows.map(({label,value},index)=><div key={label} className="ds-profit-row">
+   <div className="ds-profit-label"><span>{label}</span><strong className={value<0?'is-loss':undefined}>{money(value)}</strong></div>
+   <div className="ds-profit-track" aria-hidden="true">
+    <span className={`ds-profit-bar${index===1?' is-actual':''}${value<0?' is-loss':''}`} style={{left:Math.min((value-minimum)/range*100,zero)+'%',width:Math.abs(value)/range*100+'%'}}/>
+    <span className="ds-profit-zero" style={{left:zero+'%'}}/>
+   </div>
+  </div>)}
+  <p className="ds-profit-gap">추가 비용으로 줄어든 이익 <strong>{money(extraCosts)}</strong></p>
+ </figure>;
+}
+
 type Props={initialPage?:0|1;name:string;months:number;input:MarketingPlanInput;result:ReturnType<typeof marketingPlan>;onEdit:()=>void;onMoreCosts:()=>void;onRequestMonths?:(proceed:()=>void)=>void;exampleFields?:string[]};
 export function BeginnerProfitReport({initialPage=0,name,months,input,onEdit,onMoreCosts,onRequestMonths,exampleFields=[]}:Props){
  const r=salesFundedMarketingPlan(input);
  const unitProfit=r.margin-r.fixed/input.quantity;
- const unitCost=r.variable+r.fixed/input.quantity;
  const beforeMonths=months<1?onRequestMonths:undefined;
  const [diagnostic,setDiagnostic]=useState<ReportDiagnostic>(null);
  const [evidence,setEvidence]=useState<ReportEvidence>({});
+ const [reorderDates,setReorderDates]=useState<ReorderDates>({});
  const updateEvidence=useCallback((next:Partial<ReportEvidence>)=>setEvidence(previous=>({...previous,...next})),[]);
  const priority=reportPriority({margin:unitProfit,perOrder:r.perOrder,exampleCosts:exampleFields.length>0,cost:input.cost,extraCost:input.logistics+input.packaging,diagnostic});
  const outcome=diagnosisOutcome({quantity:input.quantity,months,sales:r.sales,costs:r.reserved,profit:r.profitRoom,marketing:r.marketing,analysis:evidence});
@@ -35,16 +57,12 @@ export function BeginnerProfitReport({initialPage=0,name,months,input,onEdit,onM
  return <ReportEvidenceContext.Provider value={updateEvidence}><ReportPriorityContext.Provider value={setDiagnostic}><article className="mp-story">
   <ProfitReportPages productName={name} initialPage={initialPage} beforeKeywords={beforeMonths} actions={<div className="ds-report-download-stack"><DiagnosisDownload trailingAction={<button type="button" className="mp-primary mp-more-considerations" onClick={onMoreCosts}>이 외에도 고려해야 할 것들 보러가기<ArrowRight size={16}/></button>} report={{name,months,analysis:evidence,price:input.price,quantity:input.quantity,sales:r.sales,costs:r.reserved,profit:r.profitRoom,margin:unitProfit,marketing:r.marketing,breakEven:r.breakEvenUnits,priority:priority.title,action:priority.action,examples:exampleFields.length>0}}/></div>} overview={<>
   <section id="report-funds" aria-label="총매출과 비용">
-   <div className="ds-open-report"><div className="ds-result-heading"><span>03 / BUSINESS DIAGNOSIS</span><h1>그래서,<br/>얼마나 남을까요?</h1><p>입력한 판매 조건과 비용을 바탕으로 계산한 결과를 확인해보세요.</p></div>
-    <ReportTabletSlides beforeNext={beforeMonths}><div className="mp-tablet-budget"><dl className="mp-plan-recap" aria-label="판매 계획 합계"><div><dt>총 판매금액</dt><dd>{money(r.sales)}</dd><small>판매가 {money(input.price)} × {input.quantity.toLocaleString('ko-KR')}개</small></div><div><dt>총 상품 원가</dt><dd>{money(stockCost)}</dd><small>원가 {money(input.cost)} × {input.quantity.toLocaleString('ko-KR')}개</small></div><div><dt>판매 목표</dt><dd>{input.quantity.toLocaleString('ko-KR')}개</dd><small>{months>0?`${months}개월 안에 전부 판매`:'계획 수량 전량 판매 기준'}</small></div></dl>
-     <section className="mp-profit-reality" aria-label="비용을 빼기 전후 전체 이익"><div className="mp-profit-comparison"><div className="mp-profit-before"><span>원가만 뺀 원래 이익</span><strong className={tone(expectedProfit)}>{money(expectedProfit)}</strong><small>총 판매금액 − 총 상품 원가</small></div><div className="mp-profit-after"><span>수수료·기타 비용을 뺀 실제이익</span><strong>{money(r.profitRoom)}</strong><small>추가 비용 {money(extraCosts)} 차감</small></div></div><details className="mp-profit-deductions mp-story-details"><summary>판매 수수료·세부 비용 보기</summary><dl className="mp-breakdown">{([['판매 수수료',r.fee*input.quantity],['배송·물류비',input.logistics*input.quantity],['포장·기타 비용',input.packaging*input.quantity],['반품 예상 비용',input.returns*input.quantity],...(input.fixed>0?[['상세페이지 및 썸네일 비용',input.fixed]]:[]),...(input.certification>0?[['인증 비용',input.certification]]:[])] as [string,number][]).map(([label,value])=><div key={label}><dt>{label}</dt><dd>{money(value)}</dd></div>)}<div className="mp-extra-total"><dt>추가로 빠지는 비용</dt><dd>{money(extraCosts)}</dd></div></dl></details><p className="mp-story-caption">계획 수량 전량 판매 기준이며, 마케팅비용과 미입력 비용은 아직 빼지 않았어요.</p></section>
+   <div className="ds-open-report"><div className="ds-result-heading"><h1>재고 스케줄러</h1><p>입력한 판매 조건과 비용을 바탕으로 계산한 결과를 확인해보세요.</p></div>
+    <ReportTabletSlides beforeNext={beforeMonths} onBack={onEdit}><div className="mp-tablet-budget"><dl className="mp-plan-recap" aria-label="판매 계획 합계"><div><dt>총 판매금액</dt><dd>{money(r.sales)}</dd><small>판매가 {money(input.price)} × {input.quantity.toLocaleString('ko-KR')}개</small></div><div><dt>총 상품 원가</dt><dd>{money(stockCost)}</dd><small>원가 {money(input.cost)} × {input.quantity.toLocaleString('ko-KR')}개</small></div><div><dt>판매 목표</dt><dd>{input.quantity.toLocaleString('ko-KR')}개</dd><small>{months>0?`${months}개월 안에 전부 판매`:'계획 수량 전량 판매 기준'}</small></div></dl>
+     <section className="mp-profit-reality" aria-label="비용을 빼기 전후 전체 이익"><ProfitComparison before={expectedProfit} after={r.profitRoom} extraCosts={extraCosts}/><details className="mp-profit-deductions mp-story-details"><summary>판매 수수료·세부 비용 보기</summary><dl className="mp-breakdown">{([['판매 수수료',r.fee*input.quantity],['배송·물류비',input.logistics*input.quantity],['포장·기타 비용',input.packaging*input.quantity],['반품 예상 비용',input.returns*input.quantity],...(input.fixed>0?[['상세페이지 및 썸네일 비용',input.fixed]]:[]),...(input.certification>0?[['인증 비용',input.certification]]:[])] as [string,number][]).map(([label,value])=><div key={label}><dt>{label}</dt><dd>{money(value)}</dd></div>)}<div className="mp-extra-total"><dt>추가로 빠지는 비용</dt><dd>{money(extraCosts)}</dd></div></dl></details><p className="mp-story-caption">계획 수량 전량 판매 기준이며, 마케팅비용과 미입력 비용은 아직 빼지 않았어요.</p></section>
 
-   <section id="report-sales" className="mp-story-chapter mp-unit-summary" aria-labelledby="unit-profit-title">
-   <h2 id="unit-profit-title">한 개 팔면 내 손에 얼마가 남을까요?</h2>
-   <div className="mp-story-sale"><div><span>판매가</span><b>{money(input.price)}</b></div><span>−</span><div><span>모든 판매 비용</span><b>{money(unitCost)}</b></div><span>=</span><div><span>홍보 전 개당 이익</span><b className={tone(unitProfit)}>{money(unitProfit)}</b></div></div>
-   <details className="mp-story-details"><summary>한 개당 비용 보기</summary><dl className="mp-breakdown">{([['상품 구매·제조비',input.cost],['판매 수수료',r.fee],['배송·물류비',input.logistics],['포장·기타 비용',input.packaging],['반품 예상 비용',input.returns],...(r.fixed>0?[['나눠 반영한 고정비',r.fixed/input.quantity]]:[])] as [string,number][]).map(([label,value])=><div key={label}><dt>{label}</dt><dd className={tone(value)}>{money(value)}</dd></div>)}</dl></details>
-  </section></div>
-  <ReorderTimeline quantity={input.quantity} months={months}/>
+    </div>
+  <ReorderTimeline quantity={input.quantity} months={months} dates={reorderDates} onDatesChange={setReorderDates}/>
   <GoalInvitation months={months} profit={r.profitRoom}/>
   </ReportTabletSlides></div></section></>} keywords={<>
   <DiagnosisResult report={{quantity:input.quantity,months,sales:r.sales,costs:r.reserved,profit:r.profitRoom,marketing:r.marketing,analysis:evidence}}/>
