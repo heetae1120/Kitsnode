@@ -31,6 +31,13 @@ test('invalid inputs and aborted requests are not sent',async()=>{
   await assert.rejects(transport.request('token','12/3',new AbortController().signal));
   assert.equal(count,0);
 });
+test('distinguishes explicit rejections from an uncertain server failure',async()=>{
+  const signal=new AbortController().signal;
+  for(const [status,code] of [[401,'session_expired'],[403,'request_forbidden'],[409,'request_conflict'],[429,'rate_limited'],[503,'connection_unavailable']] as const){
+    const transport=createAdConnectionTransport({enabled:true,fetcher:async()=>new Response(null,{status})})!;
+    await assert.rejects(transport.request('token','123',signal),new RegExp(code));
+  }
+});
 test('late response after cancellation is discarded',async()=>{
   const controller=new AbortController();
   const transport=createAdConnectionTransport({enabled:true,fetcher:async()=>{controller.abort();return Response.json({status:'pending_review'});}})!;

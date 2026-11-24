@@ -30,7 +30,7 @@ export function AdvertiserAnalysis(){
  useEffect(()=>{
   if(!user)return;
   if(!transport){setState('unavailable');return;}
-  const controller=new AbortController(),owner=user;setState('loading');
+  const controller=new AbortController(),owner=user;if(lastConnection.current===null)setState('loading');
   void (async()=>{try{
    const session=await memberBrowserClient()?.auth.getSession();
    if(!session?.data.session?.access_token||session.data.session.user.id!==owner||current.current!==owner){if(!controller.signal.aborted&&current.current===owner)setState('unavailable');return;}

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
+import {readFileSync} from 'node:fs';
 import {build} from 'esbuild';
 const require=createRequire(import.meta.url);
 const playwrightPath=process.env.KITS_PLAYWRIGHT_PATH;
@@ -11,7 +12,7 @@ const path=name=>fileURLToPath(new URL(name,import.meta.url));
 test('manual invitation guidance and confirmed disconnect use the signed-in connection', {skip:!playwrightPath,timeout:30000},async t=>{
  const {chromium}=require(playwrightPath);
  const built=await build({entryPoints:[path('./fixtures/ad-connection-browser.tsx')],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent',define:{'process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED':'"false"','process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED':JSON.stringify('false'),'process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION':JSON.stringify(''),'process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST':JSON.stringify(''),'process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL':JSON.stringify(''),'process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL':JSON.stringify(''),'process.env.NEXT_PUBLIC_BASE_PATH':JSON.stringify(''),'process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID':JSON.stringify('a'.repeat(32))},alias:{'@/lib/member-browser-client':path('./fixtures/ad-connection-auth-stub.ts'),'next/link':path('./fixtures/ad-connection-link-stub.tsx'),'@/lib/member-return':path('../src/lib/member-return.ts')}});
- const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}res.writeHead(200,{'content-type':'text/html'});res.end('<!doctype html><html lang="ko"><meta charset="utf-8"><div id="root"></div><script src="/app.js"></script></html>');});
+ const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}if(req.url==='/style.css'){res.writeHead(200,{'content-type':'text/css'});return res.end(readFileSync(path('../src/components/store/advertiser-analysis.css')))}res.writeHead(200,{'content-type':'text/html'});res.end('<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*,*:before,*:after{box-sizing:border-box}body{margin:0}</style><link rel="stylesheet" href="/style.css"><div class="store-theme"><div class="ad-analysis"><div class="ad-analysis-connection-content"><div id="root"></div></div></div></div><script src="/app.js"></script></html>');});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve)}));
  const origin=`http://127.0.0.1:${server.address().port}`;
  const browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
@@ -19,11 +20,13 @@ test('manual invitation guidance and confirmed disconnect use the signed-in conn
  await page.goto(origin);
  assert.equal(await page.getByRole('link',{name:'네이버애즈 열기 (새 창)'}).getAttribute('href'),'https://ads.naver.com/settings/ad-account');
  await page.getByText('연결 확인 대기',{exact:false}).waitFor();
+ for(const width of [375,1280]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
+ await page.getByLabel('광고 계정 ID').fill('12345');await page.getByRole('button',{name:'연결 확인 요청'}).click();await page.getByText(/이미 연결 확인을 요청한 광고계정/).waitFor();assert.deepEqual(await page.evaluate(()=>window.connectionFixture.calls),['list']);
  assert.ok(await page.getByText('kitsnode',{exact:true}).count()>=1);
  assert.equal(await page.getByText(/초대 발송과 담당자 수락은 직접 확인/).isVisible(),false);
  await page.getByText('연결 도움말',{exact:true}).click();
  assert.equal(await page.getByText(/초대 발송과 담당자 수락은 직접 확인/).isVisible(),true);
- await page.getByText('Chrome 확장 프로그램으로 연결하기',{exact:true}).click();
+ await page.getByText('Chrome 확장 프로그램과 사전 동의',{exact:true}).click();
  const extension=page.getByRole('button',{name:'확장 프로그램으로 네이버애즈 열기'});
  assert.equal(await extension.isDisabled(),true);
  await page.getByLabel('키츠노드에 운영 조회 권한을 초대하는 절차를 확인했습니다.').check();
@@ -48,6 +51,16 @@ test('manual invitation guidance and confirmed disconnect use the signed-in conn
  await login.click();
  const saved=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('kitsnode-login-return-v1')));
  assert.equal(saved.path,'/store/ads/connect/');
+ await page.goto(origin+'/?empty');
+ await page.getByRole('button',{name:'연결 확인 요청'}).waitFor();
+ await page.getByLabel('광고 계정 ID').fill('67890');
+ await page.getByRole('button',{name:'연결 확인 요청'}).click();
+ await page.getByText('연결 확인 요청이 접수되었습니다.',{exact:false}).waitFor();
+ await page.getByText('67890',{exact:true}).waitFor();
+ await page.evaluate(()=>window.connectionFixture.failNext());
+ await page.getByLabel('광고 계정 ID').fill('98765');
+ await page.getByRole('button',{name:'연결 확인 요청'}).click();
+ await page.getByText(/요청 결과를 확인하지 못했습니다/).waitFor();
 });
 
 test('consent form explains expiry and that saving does not send an invitation', {skip:!playwrightPath,timeout:30000},async t=>{
@@ -58,7 +71,7 @@ test('consent form explains expiry and that saving does not send an invitation',
  const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
  const page=await browser.newPage({colorScheme:'dark'});let requests=0;
  await page.route('**/*',route=>{const url=new URL(route.request().url());if(url.origin===origin)return route.continue();if(url.hostname==='heetae1120.github.io')return route.fulfill({status:200,headers:{'access-control-allow-origin':'*'},contentType:'text/plain; charset=utf-8',body:'# 사전 동의 원문\n\n1. 광고계정 연결 안내'});if(url.hostname==='ads.naver.com')return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:'<p>원문 표시 확인</p>'});if(url.hostname==='bjpguxwqxlsteektkhwf.supabase.co'&&url.pathname.endsWith('/invite-consents')){requests++;return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({status:'recorded',consentId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'})});}return route.abort();});
- await page.goto(origin);await page.getByText('광고계정 연결 사전 동의',{exact:true}).click();await page.getByLabel('동의할 광고계정').selectOption('12345');
+ await page.goto(origin);await page.getByText('Chrome 확장 프로그램과 사전 동의',{exact:true}).click();await page.getByLabel('동의할 광고계정').selectOption('12345');
  await page.getByText(/저장 후 10분간 유효합니다/).waitFor();
  const disclosure=page.getByRole('button',{name:'키츠노드 사전 동의 내용 보기'});
  await disclosure.click();
@@ -110,7 +123,7 @@ test('consent-bound candidate displays the full Naver notice and requires both c
  await page.getByLabel('선택한 계정의 키츠노드 사전 동의 내용을 확인하고 동의합니다.').check();assert.equal(await start.isDisabled(),true);
  await page.getByLabel('위 내용을 숙지하였으며, 개인정보 제공 및 회원 초대 정책에 동의합니다.').check();await save.click();
  await page.waitForFunction(()=>[...document.querySelectorAll('button')].some(b=>b.textContent.includes('확장프로그램으로 연결 진행')&&!b.disabled));
- await page.getByLabel('동의할 광고계정').selectOption('');await page.getByText('2. 광고계정 연결 사전 동의',{exact:true}).click();assert.equal(await start.isDisabled(),true);
+ await page.getByLabel('동의할 광고계정').selectOption('');assert.equal(await start.isDisabled(),true);
  await page.getByLabel('동의할 광고계정').selectOption('12345');
  await page.getByLabel('위 내용을 숙지하였으며, 개인정보 제공 및 회원 초대 정책에 동의합니다.').check();
  await page.getByLabel('선택한 계정의 키츠노드 사전 동의 내용을 확인하고 동의합니다.').check();await save.click();

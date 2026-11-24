@@ -17,7 +17,10 @@ export function createAdConnectionTransport({enabled, fetcher = globalThis.fetch
       ...(method === 'POST' ? {body:JSON.stringify({adAccountId:accountId})} : {}),
       credentials:'omit', redirect:'error', cache:'no-store', referrerPolicy:'no-referrer', signal,
     });
-    if (!response.ok) throw new Error('connection_unavailable');
+    if (!response.ok) {
+      const known={400:'request_invalid',401:'session_expired',403:'request_forbidden',409:'request_conflict',429:'rate_limited'};
+      throw new Error(known[response.status] || 'connection_unavailable');
+    }
     const payload = await response.json();
     if (signal.aborted) throw new Error('request_cancelled');
     if (method === 'DELETE') {
