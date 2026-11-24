@@ -106,6 +106,7 @@ export function StoreSurvey() {
     function onKey(e: KeyboardEvent) {
       if (e.key !== "Enter" || e.isComposing) return;
       const t = e.target as HTMLElement;
+      if (!t.closest("[data-analytics-survey]")) return;
       if (t.closest("button, input, textarea, select, a")) return;
       if (step.kind === "contact" || savedId) return;
       e.preventDefault();
