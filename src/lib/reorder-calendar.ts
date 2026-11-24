@@ -1,8 +1,19 @@
 const DAY=86400000;
+function dayTimestamp(date:string){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date.startsWith('0000'))return null;
+ const time=Date.parse(`${date}T00:00:00Z`);
+ return Number.isFinite(time)&&new Date(time).toISOString().slice(0,10)===date?time:null;
+}
 export function dateAfter(start:string,offset:number){
- if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!Number.isInteger(offset))return null;
- const time=Date.parse(`${start}T00:00:00Z`);if(!Number.isFinite(time)||new Date(time).toISOString().slice(0,10)!==start)return null;
- return new Date(time+offset*DAY).toISOString().slice(0,10);
+ const time=dayTimestamp(start);
+ if(time===null||!Number.isSafeInteger(offset))return null;
+ const shifted=new Date(time+offset*DAY);
+ if(!Number.isFinite(shifted.getTime())||shifted.getUTCFullYear()<1||shifted.getUTCFullYear()>9999)return null;
+ return shifted.toISOString().slice(0,10);
+}
+export function daysBetween(start:string,end:string){
+ const first=dayTimestamp(start),last=dayTimestamp(end);
+ return first===null||last===null?null:(last-first)/DAY;
 }
 export function calendarMonth(anchor:string,offset=0){
  if(!dateAfter(anchor,0))return null;

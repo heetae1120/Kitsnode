@@ -1,19 +1,125 @@
 "use client";
-import {dateAfter} from '@/lib/reorder-calendar';
-export function ReorderCalendar({start,recommended,deadline,duration}:{start:string;recommended:number;deadline:number;duration:number}){
- const dates=[dateAfter(start,recommended),dateAfter(start,deadline),dateAfter(start,duration)];
- if(dates.some(date=>!date))return null;
- const events=[
-  {title:'재발주 권장',day:recommended,note:'여유 있게 주문하는 날',kind:'recommended'},
-  {title:'주문 마감',day:deadline,note:'늦어도 이 날까지 주문',kind:'deadline'},
-  {title:'재고 소진',day:duration,note:'계획상 물건이 다 팔리는 날',kind:'depletion'},
+import {useId,useState,type PointerEvent,type ReactNode} from 'react';
+import {CircleCheck,Clock3,TriangleAlert} from 'lucide-react';
+import {stockAtDay,type reorderSchedule} from '@/lib/reorder-timeline';
+
+type Schedule=NonNullable<ReturnType<typeof reorderSchedule>>;
+type MilestoneKind='start'|'recommended'|'deadline'|'arrival'|'depletion';
+type Milestone={kind:MilestoneKind;label:string;day:number;date:string};
+const stateCopy={
+ safe:{title:'안전',text:'재고 소진 전에 입고가 예상됩니다.',icon:CircleCheck},
+ caution:{title:'주의',text:'입고 일정에 여유가 부족합니다.',icon:Clock3},
+ risk:{title:'위험',text:'입고 전 재고 소진이 예상됩니다.',icon:TriangleAlert},
+ pending:{title:'일정 확인',text:'판매 시작일과 재발주일을 확인해 주세요.',icon:Clock3},
+};
+const formatDate=(date:string)=>date.replaceAll('-','.');
+const formatStock=(quantity:number)=>quantity.toLocaleString('ko-KR')+'개';
+
+function Milestones({schedule,quantity}:{schedule:Schedule;quantity:number}){
+ const id=useId();
+ const [hovered,setHovered]=useState<MilestoneKind|null>(null);
+ const [focused,setFocused]=useState<MilestoneKind|null>(null);
+ const [pinned,setPinned]=useState<MilestoneKind|null>(null);
+ const active=hovered??focused??pinned;
+ const {duration,arrivalDay}=schedule;
+ const horizon=Math.max(duration,arrivalDay??0);
+ const percent=(day:number)=>day/horizon*100;
+ const events:Milestone[]=[
+  {kind:'start',label:'판매 시작일',day:0,date:schedule.start},
+  {kind:'recommended',label:'재발주 권장일',day:schedule.recommendedDay,date:schedule.recommended},
+  {kind:'deadline',label:'주문 마감일',day:schedule.deadlineDay,date:schedule.deadline},
  ];
- return <section className="ds-reorder-calendar ds-key-dates" aria-label="재발주 핵심 일정">
-  <h3>재발주 일정, 한눈에 보기</h3>
-  <ol className="ds-key-date-list">{events.map((event,i)=>{
-   const date=dates[i]!;
-   return <li key={event.kind} className={`ds-key-date is-${event.kind}`}><span className="ds-key-date-label">{event.title}</span><time dateTime={date}><small>{date.slice(0,4)}년</small><strong>{Number(date.slice(5,7))}월 {Number(date.slice(8,10))}일</strong></time><b>판매 시작 {event.day}일째</b><p>{event.note}</p></li>;
-  })}</ol>
-  <div className="ds-key-date-gaps"><span>권장일 → 주문 마감 <b>{deadline-recommended}일 여유</b></span><span>주문 마감 → 재고 소진 <b>{duration-deadline}일</b></span></div>
+ if(schedule.arrival&&arrivalDay!==null)events.push({kind:'arrival',label:'예상 입고일',day:arrivalDay,date:schedule.arrival});
+ events.push({kind:'depletion',label:'예상 재고 소진일',day:duration,date:schedule.depletion});
+ events.sort((a,b)=>a.day-b.day);
+
+ // 가까운 날짜는 같은 가로 좌표를 유지하고 세로 위치만 분리합니다.
+ const laneEnds=[-Infinity,-Infinity,-Infinity,-Infinity,-Infinity];
+ const laneOffsets=[0,-18,18,-36,36];
+ const points=events.map(event=>{
+  const x=percent(event.day);
+  const lane=laneEnds.findIndex(last=>x-last>=5);
+  laneEnds[lane]=x;
+  return {...event,x,y:laneOffsets[lane]};
+ });
+ const segments=[
+  {kind:'neutral',start:0,end:schedule.recommendedDay},
+  {kind:'buffer',start:schedule.recommendedDay,end:schedule.deadlineDay},
+  {kind:'risk',start:schedule.deadlineDay,end:duration},
+  {kind:'shortage',start:duration,end:horizon},
+ ];
+
+ function toggle(kind:MilestoneKind){
+  setHovered(null);
+  setPinned(current=>current===kind?null:kind);
+ }
+ function hover(event:PointerEvent,kind:MilestoneKind){
+  if(event.pointerType==='mouse'&&window.matchMedia('(hover: hover) and (min-width: 801px)').matches)setHovered(kind);
+ }
+ return <div className="ds-reorder-timeline" onPointerLeave={()=>setHovered(null)} onKeyDown={event=>{
+  if(event.key==='Escape'){setHovered(null);setFocused(null);setPinned(null);}
+ }}>
+  <div className="ds-reorder-axis" aria-hidden="true">
+   <div className="ds-reorder-track">
+    {segments.map(segment=><i key={segment.kind} className={`is-${segment.kind}`} style={{left:percent(segment.start)+'%',width:percent(segment.end-segment.start)+'%'}}/>)}
+   </div>
+   {points.map(({kind,x,y})=><i key={kind} className="ds-reorder-stem" style={{left:x+'%',top:`calc(50% + ${Math.min(0,y)}px)`,height:Math.abs(y)}}/>)}
+   {points.map(({kind,x,y})=><span key={kind} className={`ds-reorder-point is-${kind}`} style={{left:x+'%',top:`calc(50% + ${y}px)`}} onPointerEnter={event=>hover(event,kind)} onClick={()=>toggle(kind)}>
+    <i className="ds-reorder-symbol"/>
+   </span>)}
+  </div>
+  <ol className="ds-reorder-events" aria-label="주요 일정">
+   {points.map(({kind,label,day,date})=><li className={`is-${kind}`} key={kind} onPointerEnter={event=>hover(event,kind)}>
+    <button type="button" aria-expanded={active===kind} aria-describedby={active===kind?`${id}-${kind}`:undefined} onFocus={event=>{if(event.currentTarget.matches(':focus-visible'))setFocused(kind);}} onBlur={()=>setFocused(null)} onClick={()=>toggle(kind)}>
+     <i className="ds-reorder-symbol" aria-hidden="true"/>
+     <span>{label}<time dateTime={date}>{formatDate(date)}</time></span>
+    </button>
+    {active===kind&&<div className="ds-reorder-tooltip" id={`${id}-${kind}`} role="tooltip">
+     <strong>{formatDate(date)}</strong>
+     <span>예상 잔여 재고 <b>{formatStock(stockAtDay(quantity,duration,day))}</b></span>
+     <span>판매 경과 <b>{day.toLocaleString('ko-KR')}일</b></span>
+    </div>}
+   </li>)}
+  </ol>
+  <div className="ds-reorder-windows">
+   <span><i className="is-buffer"/>권장일 → 주문 마감 <b>{schedule.orderWindow}일 여유</b></span>
+   <span><i className="is-risk"/>주문 마감 → 재고 소진 <b>{duration-schedule.deadlineDay}일</b></span>
+  </div>
+  {duration>schedule.deadlineDay&&<p className="ds-reorder-legend-note">빨간 구간에 발주하면 입고 전 품절 위험이 있어요.</p>}
+ </div>;
+}
+
+export function ReorderCalendar({schedule,quantity,controls,statusId,invalidMessage}:{schedule:Schedule|null;quantity:number;controls:ReactNode;statusId:string;invalidMessage?:string}){
+ const id=useId();
+ const days=schedule?.daysAtArrival??null;
+ const arrivalDay=schedule?.arrivalDay??null;
+ const state=schedule?.risk??'pending';
+ const {title,text,icon:Icon}=stateCopy[state];
+ const metrics=schedule?[
+  {label:'예상 입고일',value:schedule.arrival?formatDate(schedule.arrival):'—',date:schedule.arrival},
+  {label:'입고 소요 기간',value:schedule.leadDays+'일'},
+  {label:'입고 시 잔여 재고 일수',value:days===null?'—':Math.max(0,days)+'일'},
+  {label:'입고 시 잔여 재고 수량',value:arrivalDay===null?'—':formatStock(stockAtDay(quantity,schedule.duration,arrivalDay))},
+ ]:[];
+ return <section className="ds-reorder-dashboard" data-risk={state} aria-labelledby={id}>
+  <header className="ds-reorder-dashboard-heading">
+   <h3 id={id}>재발주 일정, 한눈에 보기</h3>
+   <p>재고가 소진되기 전에 다음 입고를 준비하세요.</p>
+  </header>
+  {schedule&&<div className="ds-reorder-headline">
+   <div><span>재발주 권장일</span><time key={schedule.recommended} dateTime={schedule.recommended}>{formatDate(schedule.recommended)}</time></div>
+   <span className="ds-reorder-reserve">{schedule.recommendedBuffer>0?`재고 여유 ${schedule.recommendedBuffer}일 확보`:schedule.recommendedBuffer===0?'권장일 발주 시 재고 여유 0일':`권장일에 발주해도 ${-schedule.recommendedBuffer}일 부족`}</span>
+  </div>}
+  {controls}
+  {schedule&&<>
+   <Milestones schedule={schedule} quantity={quantity}/>
+   <dl className="ds-reorder-kpis" aria-label="입고 및 재고 지표">
+    {metrics.map(({label,value,date})=><div key={label}><dt>{label}</dt><dd><span key={value}>{date?<time dateTime={date}>{value}</time>:value}</span></dd></div>)}
+   </dl>
+  </>}
+  <div className="ds-reorder-risk" id={statusId} role="status" aria-live="polite">
+   <Icon size={19} aria-hidden="true"/>
+   <div key={state}><strong>{title}</strong><span>{invalidMessage??text}</span>{days!==null&&days<0&&<b>예상 품절 기간 {(-days).toLocaleString('ko-KR')}일</b>}</div>
+  </div>
  </section>;
 }
