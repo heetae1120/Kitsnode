@@ -57,8 +57,7 @@ html body .profit-tool .mp-auto-ad-captures h5{font-size:18px;line-height:1.5;ma
 /* Ice blue identifies supporting information; orange remains the primary action. */
 html body .agency-site :is(.as-scene-01,.as-scene-04) .as-scene-label,
 html body .profit-tool :is(.ag-eyebrow,.ag-secondary,.ag-secondary span),
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.ds-group-index,.mp-plan-recap dt,.mp-keyword-table th,.mp-ad-heading>div>span,.mp-ad-observed,.mp-story-details summary),
-html body .ds-choice .ds-starter .ds-card-number{color:var(--brand-secondary)!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.ds-group-index,.mp-plan-recap dt,.mp-keyword-table th,.mp-ad-heading>div>span,.mp-ad-observed,.mp-story-details summary){color:var(--brand-secondary)!important}
 html body .public-categories a:is(:hover,:focus-visible),
 html body .agency-site .as-header-login:is(:hover,:focus-visible),
 html body .kn-colophon a:is(:hover,:focus-visible),

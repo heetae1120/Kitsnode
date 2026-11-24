@@ -25,7 +25,7 @@ export function ReportTabletSlides({children,heading,beforeNext,onBack}:{childre
    </AnimatePresence>
   </div>
   <nav className="kn-tablet-slide-actions" aria-label="진단 결과 넘기기">
-   <button type="button" className="mp-primary" onClick={next}>{last?'확인하러 가기':page===0?'그럼 재고는 어떨까요?':'이제 판매 목표를 확인해볼까요?'}<ArrowRight size={16}/></button>
+   <button type="button" className="mp-primary" onClick={next}>{last?'확인하러 가기':page===0?'재고 상태는 어떨까요?':'이제 판매 목표를 확인해볼까요?'}<ArrowRight size={16}/></button>
    <span aria-live="polite">{page+1} / {slides.length}</span>
    <button type="button" className="mp-secondary ds-report-previous" data-diagnosis-back onClick={page===0?onBack:()=>move(page-1)}><ArrowLeft size={16}/>{page===0?'이전 · 비용 입력':'이전'}</button>
   </nav>

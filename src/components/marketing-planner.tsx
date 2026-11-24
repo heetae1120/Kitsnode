@@ -24,7 +24,7 @@ import '@/app/tools/marketing-planner.css';
 import '@/app/tools/diagnosis-studio.css';
 
 const basics=[
- ['price','판매가','원 / 개'],
+ ['price','예상 판매가','원 / 개'],
  ['cost','상품 원가','원 / 개'],
  ['quantity','재고','개'],
 ] as const;
