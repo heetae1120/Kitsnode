@@ -55,7 +55,9 @@
 .member-panel .member-diagnoses h3,.member-panel .member-naver-card h2{margin:0 0 12px;font-size:18px}
 @media(max-width:370px){.member-welcome,.member-diagnoses,.member-naver-card{padding:16px}}
 .member-panel .member-account-title{margin:0 0 22px;font-size:26px}
-.member-profile{display:flex;align-items:center;gap:14px;padding:20px;border:1px solid #454545;border-radius:14px;background:#191919}
+.member-profile{position:relative;display:flex;align-items:center;gap:14px;padding:20px;border:1px solid #454545;border-radius:14px;background:#191919}
+.member-profile--naver{padding-top:32px}
+.member-profile__naver{position:absolute;top:9px;right:12px;display:grid;place-items:center;width:19px;height:19px;border-radius:4px;background:#03c75a;color:#fff;font-size:12px;font-weight:900;line-height:1}
 .member-profile__avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#321b12;color:#ff8052}
 .member-profile__info{min-width:0;flex:1;overflow-wrap:anywhere}
 .member-profile__info h3{margin:0;font-family:var(--font-pretendard),Arial,sans-serif;font-size:18px;font-weight:800;line-height:1.4}
@@ -73,7 +75,7 @@
 .member-menu__details summary{list-style:none}.member-menu__details summary::-webkit-details-marker{display:none}.member-menu__details[open] summary>svg:last-child{transform:rotate(90deg)}
 .member-menu__expanded{padding:12px 4px 18px}.member-menu__expanded .ds-diagnosis-download h3{font-size:15px}.member-menu__expanded .ds-diagnosis-download ul{padding-left:20px}.member-menu__expanded .ds-diagnosis-download button{margin:4px 8px 4px 0}
 .member-menu>section[aria-label="회원 탈퇴"]{margin-top:20px}.member-menu>section[aria-label="회원 탈퇴"] h2{font-size:14px}
-@media(max-width:370px){.member-profile{padding:16px;gap:10px}.member-profile__status{font-size:10px}}
+@media(max-width:370px){.member-profile{padding:16px;gap:10px}.member-profile--naver{padding-top:32px}.member-profile__status{font-size:10px}}
 .member-profile-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(480px,calc(100% - 32px));max-height:calc(100dvh - 32px);padding:24px;border:1px solid #555;border-radius:16px;background:#191919;color:#f5f2eb;box-shadow:0 24px 80px #0009}
 .member-profile-dialog::backdrop{background:#000b}.member-profile-dialog__heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.member-panel .member-profile-dialog__heading h2{margin:0;font-size:21px}.member-profile-dialog__heading button{border:0;background:transparent;color:inherit;font-size:28px;cursor:pointer}.member-panel .member-profile-dialog form{margin:20px 0 0}.member-profile-dialog input[readonly]{opacity:.7}.member-panel .member-profile-dialog p{margin:8px 0}
 
