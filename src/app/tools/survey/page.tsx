@@ -1,48 +1,6 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { ToolsHeader } from "@/components/tools-header";
-import { StoreSurvey } from "@/components/store-survey";
-import { BrandWordmark } from "@/components/brand-wordmark";
-import "../finance-bento.css";
-import "../kits-pages.css";
-import "./survey.css";
+import {redirect} from 'next/navigation';
+import {SURVEY_HREF} from '@/components/public-categories';
 
-export const metadata: Metadata = {
-  title: "브랜드 설문 | KITSNODE",
-  description:
-    "만들고 싶은 브랜드와 필요한 준비를 함께 정리합니다.",
-};
-
-export default function SurveyPage() {
-  return (
-    <div className="kits-page finance-dashboard survey-page">
-      <ToolsHeader active="survey" />
-      <main className="kp-main">
-        <div className="kp-wrap kp-survey">
-          <div className="kp-survey-intro">
-            <h1>브랜드 설문</h1>
-            <p>
-              만들고 싶은 브랜드를 알려주세요. 첫걸음을 함께 정리할게요.
-            </p>
-            <ul>
-              <li>브랜드 이야기부터 연락처까지 8단계예요</li>
-              <li>아직 정하지 못한 부분이 있어도 괜찮아요</li>
-              <li>마지막에 연락처를 남겨주세요</li>
-            </ul>
-            <p className="kp-small">
-              어떤 팀인지 궁금하다면{" "}
-              <Link href="/tools/about/">소개</Link>를 확인하세요.
-            </p>
-          </div>
-          <StoreSurvey />
-        </div>
-        <div className="kp-wrap">
-          <footer className="kp-footer light">
-            <strong className="kn-wordmark"><BrandWordmark/></strong>
-            <span>고객이 다시 찾는 브랜드를 만듭니다</span>
-          </footer>
-        </div>
-      </main>
-    </div>
-  );
+export default function SurveyPage(){
+ redirect(SURVEY_HREF);
 }

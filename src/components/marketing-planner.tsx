@@ -1,9 +1,9 @@
 "use client";
-import {DiagnosisHeader} from './diagnosis-header';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import {AnimatePresence,motion,useReducedMotion} from 'framer-motion';
 import { useDraftPreviewStage } from '@/lib/draft-preview-stage';
-import Link from 'next/link';
+import {AD_KEYWORD_LABEL,AdvertisingToolNavigation} from './public-categories';
+import {DiagnosisHeader} from './diagnosis-header';
 import {ArrowRight,ArrowUpRight,Check,TriangleAlert} from 'lucide-react';
 import {FormattedNumberInput} from './formatted-number-input';
 import {SellingPreparation} from './selling-preparation';
@@ -40,12 +40,13 @@ const sampleInput:MarketingPlanInput={price:30000,cost:12000,quantity:100,availa
 const previewReport={name:'미리보기 예시',months:3,input:sampleInput,result:marketingPlan(sampleInput),examples:[]};
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
 const enteredNumber=(value:string)=>value!==''&&Number.isFinite(Number(value))?Number(value):null;
-export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
+export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'starter'|'player';adCheckRoute?:boolean}){
  const [selectedMode,setSelectedMode]=useState<'starter'|'player'|null>(initialMode??null);
  const [showPlayerIntro,setShowPlayerIntro]=useState(initialMode==='player');
  const [playerPurpose,setPlayerPurpose]=useState<PlayerPurpose|null>(null);
  const [libraryOpen,setLibraryOpen]=useState(false);
  const [adCheck,setAdCheck]=useState(false);
+ const showAdCheck=adCheck||adCheckRoute;
  const adCheckInput=useRef<HTMLInputElement>(null);
  const [keywordInput,setKeywordInput]=useState('');
  const [adKeyword,setAdKeyword]=useState('');
@@ -122,19 +123,31 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
  }
  function openAdCheck(productName?:string){
   if(productName!==undefined)setKeywordInput(productName);
-  setAdKeyword('');setSelectedMode(null);setShowPlayerIntro(false);setAdCheck(true);
+  setAdKeyword('');setSelectedMode(null);setShowPlayerIntro(false);
+  if(initialMode)setAdCheck(true);
+  else {
+   const url=new URL(window.location.href);
+   url.searchParams.set('view','ad-check');
+   url.hash='';
+   window.history.pushState(null,'',url);
+  }
  }
  useEffect(()=>{
-  if(!adCheck)return;
+  if(!showAdCheck)return;
   window.scrollTo({top:0,behavior:'instant'});
   adCheckInput.current?.focus({preventScroll:true});
- },[adCheck]);
+ },[showAdCheck]);
  function closeAdCheck(){
   setAdCheck(false);setAdKeyword('');
+  if(adCheckRoute){
+   const url=new URL(window.location.href);
+   url.searchParams.delete('view');
+   window.history.replaceState(null,'',url);
+  }
   requestAnimationFrame(()=>choiceHeading.current?.focus());
  }
- useDiagnosisBack(libraryOpen||adCheck||selectedMode!==null,()=>{
-  if(adCheck){
+ useDiagnosisBack(libraryOpen||showAdCheck||selectedMode!==null,()=>{
+  if(showAdCheck){
    if(adKeyword){setAdKeyword('');document.getElementById('ds-ad-keyword')?.focus();}
    else closeAdCheck();
    return;
@@ -154,11 +167,12 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
   observer.observe(bar);
   return ()=>observer.disconnect();
  },[selectedMode,showPlayerIntro,previewStage]);
- if(adCheck)return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow ds-ad-check">
-  <DiagnosisHeader/>
+ if(showAdCheck)return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow ds-ad-check">
+  <DiagnosisHeader active="keywords"/>
   <main className="mp-main">
    <button type="button" className="mp-secondary" onClick={closeAdCheck}>이전 · 진단 메뉴</button>
-   <h1>광고 체크하기</h1>
+   <h1>{AD_KEYWORD_LABEL}</h1>
+   <AdvertisingToolNavigation active="ad-check"/>
    <form className="ds-ad-check-form" onSubmit={event=>{event.preventDefault();setAdKeyword(keywordInput.trim());}}>
     <label htmlFor="ds-ad-keyword">키워드를 입력하세요</label>
     <div><input id="ds-ad-keyword" ref={adCheckInput} required maxLength={100} value={keywordInput} onChange={event=>setKeywordInput(event.target.value)}/><button type="submit" className="mp-primary" disabled={!keywordInput.trim()}>분석하기</button></div>
@@ -173,13 +187,13 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
    <div className="ds-choice-grid">
     <button type="button" className="ds-choice-card ds-starter" onClick={()=>chooseMode('starter')}><span className="ds-card-number">01 / 첫 판매 준비</span><span className="ds-choice-art ds-art-target" aria-hidden="true"><i/><b/></span><span className="ds-card-title">스타터</span><strong>판매가 처음이에요.</strong><span className="ds-card-description">판매 전에 필요한 금액과<br/>실제로 남는 이익을 확인하세요.</span><span className="ds-card-action">내 상품 진단하기 <ArrowUpRight size={25}/></span></button>
     <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-card-number">02 / 다음 성장 준비</span><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><strong>판매 경험이 있어요.</strong><span className="ds-card-description">상품의 수익 구조를 점검하고<br/>앞으로의 판매 방향을 함께 정리하세요.</span><span className="ds-card-action">현 상태 진단하기 <ArrowUpRight size={25}/></span></button>
-    <button type="button" className="ds-choice-card ds-shortcut-card" aria-label="광고 체크하기" onClick={()=>openAdCheck()}>
-     <span className="ds-card-number">키워드 광고 분석</span>
+    <button type="button" className="ds-choice-card ds-shortcut-card" aria-label={AD_KEYWORD_LABEL} onClick={()=>openAdCheck()}>
+     <span className="ds-card-number">검색량·클릭 비용</span>
      <span className="ds-choice-art ds-art-keyword" aria-hidden="true"><i/><i/><i/></span>
-     <span className="ds-card-title">광고 체크</span>
-     <strong>검색어와 클릭 비용을 확인해요.</strong>
-     <span className="ds-card-description">키워드를 입력해 CPC와 관련 검색어를 살펴보세요.</span>
-     <span className="ds-card-action">광고 체크하기 <ArrowUpRight size={25}/></span>
+     <span className="ds-card-title ds-ad-keyword-title">{AD_KEYWORD_LABEL}</span>
+     <strong>검색 수요와 광고비를 함께 확인해요.</strong>
+     <span className="ds-card-description">관련 검색어, PC·모바일 검색량과 클릭당 비용을 살펴보세요.</span>
+     <span className="ds-card-action">광고·키워드 분석하기 <ArrowUpRight size={25}/></span>
     </button>
     <DiagnosisDownload onLibraryOpenChange={setLibraryOpen} libraryTrigger={<>
      <span className="ds-card-number">저장한 진단 결과</span>

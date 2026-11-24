@@ -40,6 +40,42 @@ html body #tools-navigation :is(.nimbus-item,.nv-bg,.nv-glass){background-color:
 .public-categories{margin-left:auto;display:flex;gap:24px;align-items:center;background:#0b0b0b;color:#f5f2eb}
 .public-categories a{font-size:13px;white-space:nowrap;text-decoration:none;padding:12px 0}
 .public-categories a:hover,.public-categories a:focus-visible{color:#ff5a1f}
+.public-categories a[aria-current=page]{text-decoration:underline;text-underline-offset:5px}
+.public-categories a{color:inherit}
+html body :is(.profit-tool,.store-theme) .tool-topbar.shared-tools-header{
+ display:flex;align-items:center;gap:clamp(18px,3.3vw,54px);height:88px;padding:0 6vw;
+ position:sticky;top:0;z-index:40;background:#0b0b0b;color:#f5f2eb;border-bottom:1px solid #353535
+}
+.shared-tools-note{font-size:11px;line-height:1.7;white-space:nowrap}
+.shared-tools-header .as-header-login{display:inline-flex;align-items:center;gap:4px;color:inherit;border:0;background:none;font:inherit;font-size:13px;white-space:nowrap;padding:10px 0;text-decoration:none;cursor:pointer}
+.shared-tools-header .as-header-login:hover{text-decoration:underline;text-underline-offset:4px}
+.shared-ads-shell .ad-analysis-header{display:none}
+html body .profit-tool .mp-shell.diagnosis-studio .ds-header>.public-categories{gap:24px}
+html body .profit-tool .mp-shell.diagnosis-studio .ds-header>.ds-header-actions{margin-left:0}
+.advertising-tool-nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px 22px;margin:18px 0 24px;border-bottom:1px solid #353535}
+.advertising-tool-nav a{display:inline-flex;align-items:center;min-height:42px;padding:8px 0;color:#aaa7a0;border-bottom:2px solid transparent;text-decoration:none;font-size:15px}
+.advertising-tool-nav a[aria-current=page]{color:#f5f2eb;border-bottom-color:#ff5a1f;font-weight:700}
+.advertising-tool-nav a:hover{color:#f5f2eb}
+.advertising-tool-nav a:focus-visible{outline:2px solid #ff8c61;outline-offset:2px}
+.ds-ad-keyword-title{font-size:clamp(28px,3.75vw,55px);overflow-wrap:anywhere}
+.ds-ad-check .mp-main>h1{margin-top:20px}
+.about-gallery-page #survey{scroll-margin-top:133px}
+@media(max-width:1050px){
+ .shared-tools-note{display:none}
+ html body .profit-tool .mp-shell.diagnosis-studio .ds-header{gap:20px}
+}
+@media(max-width:850px){
+ html body :is(.profit-tool,.store-theme) .tool-topbar.shared-tools-header{height:120px;padding:12px 22px;gap:12px 18px;flex-wrap:wrap;align-content:center}
+ .shared-tools-header .as-header-login{margin-left:auto;font-size:12px}
+ html body .profit-tool .mp-shell.diagnosis-studio .ds-header{height:auto;min-height:106px;gap:9px 12px;flex-wrap:wrap;align-content:center;padding:11px 22px}
+ html body .profit-tool .mp-shell.diagnosis-studio .ds-header>.public-categories{gap:8px}
+ html body .profit-tool .mp-shell.diagnosis-studio .ds-header>.ds-header-actions{flex-basis:auto;margin-left:auto;gap:9px}
+ .ds-header-actions .ds-mode-label{display:none}
+}
+@media(max-width:460px){
+ html body .profit-tool .mp-shell.diagnosis-studio .ds-header>.ds-header-actions{font-size:11px}
+ .ds-header-actions>button{white-space:nowrap}
+}
 @media(max-width:850px){.as-header:has(.public-categories){height:120px;gap:18px;flex-wrap:wrap;align-content:center;padding-top:10px;padding-bottom:10px}.as-header:has(.public-categories) .as-header-login{margin-left:auto}.public-categories{order:3;flex-basis:100%;justify-content:space-between;gap:12px}.public-categories a{font-size:12px;padding:5px 0}}
 html body .ds-diagnosis-download{flex-basis:100%;width:100%;padding:24px 0;border-top:1px solid #353535}
 html body .ds-diagnosis-download .mp-actions{justify-content:flex-start;gap:12px}

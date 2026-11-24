@@ -4,8 +4,11 @@ import { AboutGalleryHero } from "@/components/about-gallery-hero";
 import "./about-gallery.css";
 import { ToolsHeader } from "@/components/tools-header";
 import { BrandWordmark } from "@/components/brand-wordmark";
+import { StoreSurvey } from "@/components/store-survey";
+import { AD_CHECK_HREF } from "@/components/public-categories";
 import "../finance-bento.css";
 import "../kits-pages.css";
+import "../survey/survey.css";
 
 export const metadata: Metadata = {
   title: "소개 | KITSNODE",
@@ -143,10 +146,10 @@ export default function AboutPage() {
               <Link href="/tools/">
                 남는 돈 계산<span>광고비를 쓰고 남는 돈</span>
               </Link>
-              <Link href="/tools/keywords/">
-                검색어 찾기<span>PC·모바일 검색량 비교</span>
+              <Link href={AD_CHECK_HREF}>
+                광고·키워드 분석<span>검색량과 클릭당 광고비 확인</span>
               </Link>
-              <Link href="/tools/survey/">
+              <Link href="#survey">
                 진단 설문<span>내 스토어 상황 알려주기</span>
               </Link>
             </nav>
@@ -159,17 +162,33 @@ export default function AboutPage() {
               <h2 id="kp-close-title">우리 스토어부터 진단해 보세요</h2>
               <p>지금 고민을 알려주세요. 함께 살펴볼게요.</p>
             </div>
-            <Link className="kp-button primary" href="/tools/survey/">
+            <Link className="kp-button primary" href="#survey">
               설문 시작하기
             </Link>
           </div>
+        </section>
+        <section id="survey" className="survey-page" aria-labelledby="about-survey-title">
+          <div className="kp-wrap kp-survey">
+            <div className="kp-survey-intro">
+              <h2 id="about-survey-title">브랜드 설문</h2>
+              <p>만들고 싶은 브랜드를 알려주세요. 첫걸음을 함께 정리할게요.</p>
+              <ul>
+                <li>브랜드 이야기부터 연락처까지 8단계예요</li>
+                <li>아직 정하지 못한 부분이 있어도 괜찮아요</li>
+                <li>마지막에 연락처를 남겨주세요</li>
+              </ul>
+            </div>
+            <StoreSurvey />
+          </div>
+        </section>
+        <div className="kp-plate kp-close">
           <div className="kp-wrap">
             <footer className="kp-footer">
               <strong className="kn-wordmark"><BrandWordmark/></strong>
               <span>고객이 다시 찾는 브랜드를 만듭니다</span>
             </footer>
           </div>
-        </section>
+        </div>
       </main>
     </div>
   );

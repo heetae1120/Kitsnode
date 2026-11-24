@@ -38,7 +38,7 @@ export function StoreSurvey() {
   const heading = useRef<HTMLHeadingElement>(null);
   const first = useRef(true);
 
-  const previewStage = useDraftPreviewStage('/tools/survey/');
+  const previewStage = useDraftPreviewStage('/tools/about/');
   useEffect(() => { if (previewStage) setIndex(Number(previewStage.slice(7))); }, [previewStage]);
   const active = steps;
   const step = active[Math.min(index, active.length - 1)];

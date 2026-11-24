@@ -55,11 +55,13 @@ test("store navigation does not enter the editor tool allowlist", () => {
   assert.deepEqual(storeLinks.map(item => item.href), ["/store/", "/store/ads/", "/store/sales/"]);
   assert.ok(toolLinks.every(item => item.href.startsWith("/tools/")));
 });
-test("header adds store links after the original notice nodes without changing their order", () => {
-  const source = readFileSync("src/components/tools-header.tsx", "utf8");
-  assert.ok(source.indexOf('className="tool-membership-notice"') < source.indexOf('className="tool-membership-note"'));
-  assert.ok(source.indexOf('className="tool-membership-note"') < source.indexOf("storeLinks.map"));
-  assert.match(source, /item.id === "store" && storeLinks.map/);
+test("public tool headers share the hero categories and retain the advertising account entry", () => {
+  for (const file of ["tools-header.tsx", "agency/agency-home.tsx", "diagnosis-header.tsx"]) {
+    assert.match(readFileSync("src/components/" + file, "utf8"), /<PublicCategories\b/);
+  }
+  const categories = readFileSync("src/components/public-categories.tsx", "utf8");
+  assert.match(categories, /href:'\/store\/ads\/'/);
+  assert.doesNotMatch(categories, /href:'\/tools\/survey\/'/);
 });
 test("member pages cannot accept credentials or fabricate authentication", () => {
   const pages = readFileSync("src/components/store/store-pages.tsx", "utf8");

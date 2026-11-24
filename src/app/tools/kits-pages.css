@@ -478,7 +478,7 @@ body {
   position: sticky;
   top: 100px;
 }
-.profit-tool .kits-page .kp-survey-intro h1 {
+.profit-tool .kits-page .kp-survey-intro h2 {
   font-size: clamp(32px, 3.4vw, 44px);
   line-height: 1.15;
   font-weight: 800;

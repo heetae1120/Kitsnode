@@ -24,6 +24,7 @@ import {
   researchKeywordsCsv,
 } from "@/lib/keyword-research";
 import { ToolsHeader } from "@/components/tools-header";
+import { AD_CHECK_HREF, AdvertisingToolNavigation } from "@/components/public-categories";
 import { isDraftPreviewMode } from "@/lib/draft-preview-stage";
 import { Help } from "@/components/ui/tooltip";
 import { classifyKeywords } from "@/lib/keyword-relevance";
@@ -299,6 +300,7 @@ export default function KeywordTool() {
             <span>{fetchedLabel}</span>
           </p>
         </header>
+        <AdvertisingToolNavigation active="keywords" />
 
         <section className="kw-plate" aria-labelledby="kw-plate-title">
           <div className="kw-plate-head">
@@ -828,7 +830,7 @@ export default function KeywordTool() {
             </p>
             <p>
               쇼핑광고 예상 가격은{" "}
-              <Link href="/tools/start/">광고 진단에서 확인</Link>
+              <Link href={AD_CHECK_HREF}>광고 체크에서 확인</Link>
               하세요. 이 화면에는 API 비밀 키를 저장하지 않으며, 실제 조회는
               인증 정보를 가진 별도 자료 연결를 연결한 뒤 사용할 수 있습니다.
             </p>

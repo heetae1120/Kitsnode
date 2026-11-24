@@ -78,7 +78,21 @@ export function VisitorAnalytics() {
     touch();
     for (const event of ['pointerdown','keydown','scroll','touchstart']) document.addEventListener(event,touch,{passive:true});
     if (!page) return () => { for (const event of ['pointerdown','keydown','scroll','touchstart']) document.removeEventListener(event,touch); };
-    const stop = startVisitorAnalytics(page, endpoint, window, document, allowed, classifyAttribution(window.location.search, document.referrer, window.location.origin, navigation.current.internal));
+    const pageStop = startVisitorAnalytics(page, endpoint, window, document, allowed, attr);
+    const survey = page === '/tools/about/' ? document.getElementById('survey') : null;
+    let surveyStop: ReturnType<typeof startVisitorAnalytics> | undefined;
+    const surveyObserver = survey ? new IntersectionObserver(entries => {
+      if (!entries.some(entry => entry.isIntersecting) || !allowed()) return;
+      surveyObserver?.disconnect();
+      // Keep the existing survey reporting key after moving the form to About.
+      surveyStop = startVisitorAnalytics('/tools/survey/', endpoint, window, document, allowed, attr);
+    }, {threshold: 0.1}) : null;
+    if (survey) surveyObserver?.observe(survey);
+    const stop = (leaving = false) => {
+      surveyObserver?.disconnect();
+      pageStop(leaving);
+      surveyStop?.(leaving);
+    };
     stopRef.current = stop;
     return () => {
       for (const event of ['pointerdown','keydown','scroll','touchstart']) document.removeEventListener(event,touch);

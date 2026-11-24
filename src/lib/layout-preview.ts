@@ -7,6 +7,7 @@ export const PREVIEW_STAGES: Record<string, readonly string[]> = {
   '/tools/': ['choice', '1', '2', '3', '3-keywords', '4'],
   '/tools/player/': ['1', '2', '3', '3-keywords', '4'],
   '/tools/survey/': ['survey-0', 'survey-1', 'survey-2', 'survey-3', 'survey-4', 'survey-5', 'survey-6', 'survey-7'],
+  '/tools/about/': ['survey-0', 'survey-1', 'survey-2', 'survey-3', 'survey-4', 'survey-5', 'survey-6', 'survey-7'],
   '/tools/market/': ['market-start', 'market-ads', 'market-agency', 'market-starter', 'market-profit', 'market-direct', 'market-outsourced', 'market-starter-result', 'market-profit-result', 'market-direct-result', 'market-outsourced-result'],
   '/tools/seo/': ['seo-default', 'seo-checked'],
   '/tools/consultation/': ['consultation-default', 'consultation-invalid', 'consultation-sending', 'consultation-success', 'consultation-failed'],
