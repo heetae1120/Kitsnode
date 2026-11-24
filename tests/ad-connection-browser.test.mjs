@@ -91,9 +91,9 @@ test('consent-bound candidate displays the full Naver notice and requires both c
  const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}res.writeHead(200,{'content-type':'text/html; charset=utf-8'});res.end('<!doctype html><html lang="ko"><div id="root"></div><script src="/app.js"></script></html>');});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve)}));
  const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
- const page=await browser.newPage();const calls=[];
+ const page=await browser.newPage();page.setDefaultTimeout(5000);page.on('pageerror',e=>console.error(e));const calls=[];
  await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin===origin)return route.continue();if(u.hostname==='bjpguxwqxlsteektkhwf.supabase.co'){calls.push({path:u.pathname,body:route.request().postDataJSON()});return route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(u.pathname.endsWith('/invite-consents')?{status:'recorded',consentId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}:{status:'confirmed'})});}return route.abort();});
- await page.goto(origin);await page.getByText('광고계정 연결 사전 동의',{exact:true}).click();await page.getByLabel('동의할 광고계정').selectOption('12345');
+ await page.goto(origin);await page.getByRole('button',{name:'네이버 광고계정 선택'}).click();await page.getByText('선택한 광고 계정 ID:',{exact:false}).waitFor();await page.getByRole('button',{name:'이 계정으로 계속'}).click();await page.getByText('광고계정을 확인했습니다. 사전 동의를 진행해 주세요.').waitFor();
  assert.equal(await page.getByRole('link',{name:'Chrome 웹 스토어에서 확장프로그램 설치 (새 창)'}).getAttribute('href'),`https://chromewebstore.google.com/detail/${'a'.repeat(32)}`);
  const policy=page.getByRole('region',{name:'네이버 회원 초대 정책'});assert.equal(await policy.locator('li').count(),4);
  const save=page.getByRole('button',{name:'사전 동의 저장'});assert.equal(await save.isDisabled(),true);
@@ -110,7 +110,7 @@ test('consent-bound candidate displays the full Naver notice and requires both c
  await page.getByLabel('선택한 계정의 키츠노드 사전 동의 내용을 확인하고 동의합니다.').check();assert.equal(await start.isDisabled(),true);
  await page.getByLabel('위 내용을 숙지하였으며, 개인정보 제공 및 회원 초대 정책에 동의합니다.').check();await save.click();
  await page.waitForFunction(()=>[...document.querySelectorAll('button')].some(b=>b.textContent.includes('확장프로그램으로 연결 진행')&&!b.disabled));
- await page.getByLabel('동의할 광고계정').selectOption('');assert.equal(await start.isDisabled(),true);
+ await page.getByLabel('동의할 광고계정').selectOption('');await page.getByText('2. 광고계정 연결 사전 동의',{exact:true}).click();assert.equal(await start.isDisabled(),true);
  await page.getByLabel('동의할 광고계정').selectOption('12345');
  await page.getByLabel('위 내용을 숙지하였으며, 개인정보 제공 및 회원 초대 정책에 동의합니다.').check();
  await page.getByLabel('선택한 계정의 키츠노드 사전 동의 내용을 확인하고 동의합니다.').check();await save.click();

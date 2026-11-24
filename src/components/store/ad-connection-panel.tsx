@@ -94,6 +94,53 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
     return ()=>{controller.abort();if(activeRef.current===controller)activeRef.current=null;};
   },[currentUser,transport,refreshKey]);
 
+  async function discoverAccount() {
+    const owner=userRef.current,client=authRef.current;
+    if(!proofEnabled||!owner||!client||!transport||openingExtension||busy)return;
+    const runtime=(window as unknown as {chrome?:{runtime?:{sendMessage(id:string,message:Record<string,string>):Promise<unknown>}}}).chrome?.runtime;
+    if(!runtime?.sendMessage){setExtensionMessage('확장 프로그램을 설치하거나 최신 버전으로 업데이트해 주세요.');return;}
+    const controller=new AbortController();proofRef.current?.abort();proofRef.current=controller;
+    const nonce=window.crypto.randomUUID();setAccountId('');consentAccountRef.current='';setConsentAccount('');setSavedConsent(null);setConsentAccepted(false);setNaverPolicyAccepted(false);setOpeningExtension(true);setExtensionMessage('네이버애즈에서 연결할 광고계정을 선택해 주세요.');
+    try {
+      const session=await client.auth.getSession(),token=session.data.session?.access_token;
+      if(!token||session.data.session?.user.id!==owner||userRef.current!==owner)throw Error('session_changed');
+      const start=await runtime.sendMessage(inviteExtensionId,{type:'kitsnode.account.start.v1',nonce}) as {status?:string};
+      if(start?.status!=='started')throw Error('unavailable');
+      for(let i=0;i<600&&!controller.signal.aborted;i++){
+        await new Promise(resolve=>setTimeout(resolve,1000));
+        if(userRef.current!==owner||controller.signal.aborted) return;
+        const current=await client.auth.getSession();
+        if(current.data.session?.access_token!==token||current.data.session.user.id!==owner)throw Error('session_changed');
+        const result=await runtime.sendMessage(inviteExtensionId,{type:'kitsnode.account.get.v1',nonce}) as {status?:string;accountId?:string};
+        if(result?.status==='selected'&&/^[1-9]\d{0,15}$/.test(result.accountId||'')){
+          setAccountId(result.accountId!);setExtensionMessage('선택한 광고계정을 확인한 뒤 계속해 주세요.');return;
+        }
+        if(result?.status!=='selecting')throw Error('unavailable');
+      }
+      if(!controller.signal.aborted)setExtensionMessage('계정 선택 시간이 만료됐습니다. 다시 시도해 주세요.');
+    }catch{if(!controller.signal.aborted&&userRef.current===owner)setExtensionMessage('계정을 확인하지 못했습니다. 확장 프로그램과 로그인 상태를 확인해 주세요.');}
+    finally{if(proofRef.current===controller){proofRef.current=null;setOpeningExtension(false);}}
+  }
+
+  async function registerDiscoveredAccount() {
+    const owner=userRef.current,client=authRef.current,selected=accountId;
+    if(!proofEnabled||!owner||!client||!transport||busy||openingExtension||!/^[1-9]\d{0,15}$/.test(selected))return;
+    const controller=new AbortController();activeRef.current?.abort();activeRef.current=controller;setBusy(true);setMessage('');
+    try{
+      const session=await client.auth.getSession(),token=session.data.session?.access_token;
+      if(!token||session.data.session?.user.id!==owner||userRef.current!==owner)throw Error('session_changed');
+      let list=await transport.list(token,controller.signal);
+      if(!list.connections.some(c=>c.adAccountId===selected&&c.status!=='disconnected')){
+        const result=await transport.request(token,selected,controller.signal);
+        if(result.status!=='pending_review')throw Error('invalid_response');
+        list=await transport.list(token,controller.signal);
+      }
+      if(controller.signal.aborted||userRef.current!==owner||!list.connections.some(c=>c.adAccountId===selected&&c.status!=='disconnected'))throw Error('invalid_response');
+      setConnections(list.connections);consentAccountRef.current=selected;setConsentAccount(selected);setConsentAccepted(false);setNaverPolicyAccepted(false);setSavedConsent(null);setMessage('광고계정을 확인했습니다. 사전 동의를 진행해 주세요.');
+    }catch{if(!controller.signal.aborted&&userRef.current===owner)setMessage('광고계정을 등록하지 못했습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.');}
+    finally{if(activeRef.current===controller){activeRef.current=null;setBusy(false);}}
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if(lock.current || !transport || !signedIn) return;
@@ -183,7 +230,7 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
     <StoreBadge tone="warning">{transport ? '권한 확인 후 연결' : '연결 기능 준비 중'}</StoreBadge>
     <h2 id="ad-connection-panel-title">네이버 광고 계정 연결</h2>
     <p>광고 성과 조회를 위해 네이버 광고계정을 연결해 주세요.</p>
-    <ol className="list-decimal space-y-2 pl-5">
+    {!proofEnabled && <><ol className="list-decimal space-y-2 pl-5">
       <li><a className="store-text-link" href="https://ads.naver.com/settings/ad-account" target="_blank" rel="noopener noreferrer">네이버애즈 열기 (새 창)</a>에서 광고주 계정으로 로그인합니다.</li>
       <li>권한 관리에서 회원 ID <strong>kitsnode</strong>를 <strong>운영 조회</strong> 권한으로 초대합니다. 네이버 정책과 초대 발송 상태를 확인해 주세요.</li>
       <li>광고 계정 ID를 입력하고 연결 확인을 요청합니다.</li>
@@ -200,7 +247,9 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
       {extensionMessage && <p role="status" aria-live="polite">{extensionMessage}</p>}
     </div>}
     </details>
-    <details className="ad-invite-method"><summary>광고계정 연결 사전 동의</summary>
+    </>}
+    {proofEnabled && <section><h3>1. 광고계정 선택</h3><p>네이버애즈에서 연결할 광고계정을 선택해 주세요. <a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">확장 프로그램 설치 또는 업데이트</a></p>{!signedIn&&<p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>로그인 후 연결하기</Link></p>}<StoreButton type="button" disabled={!signedIn||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'네이버 광고계정 선택'}</StoreButton>{extensionMessage&&<p role="status">{extensionMessage}</p>}{accountId&&<div><p>선택한 광고 계정 ID: <strong>{accountId}</strong></p><StoreButton type="button" disabled={busy||openingExtension} onClick={()=>void registerDiscoveredAccount()}>{busy?'확인 중…':'이 계정으로 계속'}</StoreButton></div>}</section>}
+    <details className="ad-invite-method" open={proofEnabled && Boolean(consentAccount)}><summary>{proofEnabled?'2. 광고계정 연결 사전 동의':'광고계정 연결 사전 동의'}</summary>
       <p>광고계정 연결 및 성과 정보 조회에 관한 내용입니다.</p>
       {consentClient&&signedIn&&connections.some(c=>c.status!=='disconnected')?<form onSubmit={recordConsent}>
         <label htmlFor="consent-account">동의할 광고계정</label><select id="consent-account" value={consentAccount} onChange={e=>{proofRef.current?.abort();proofRef.current=null;setOpeningExtension(false);consentAccountRef.current=e.target.value;setConsentAccount(e.target.value);setSavedConsent(null);setConsentAccepted(false);setNaverPolicyAccepted(false);setConsentMessage('');setExtensionMessage('');}} disabled={consentBusy}><option value="">계정을 선택하세요</option>{connections.filter(c=>c.status!=='disconnected').map(c=><option key={c.requestId} value={c.adAccountId}>{c.adAccountId}</option>)}</select>
@@ -216,13 +265,14 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
       </form>:<p>{consentClient && signedIn ? '먼저 광고 계정 ID로 연결 확인을 요청해 주세요.' : '현재 연결 확인 요청은 광고계정 번호만 접수합니다. 사전 동의 저장과 자동 초대는 제공되지 않습니다.'}</p>}
     </details>
     <AdPolicyDialog document={policyDocument} onClose={()=>setPolicyDocument(null)}/>
-    <h3>초대 후 연결 확인 요청</h3>
+    {!proofEnabled && <><h3>초대 후 연결 확인 요청</h3>
     {checking ? <p role="status">로그인 상태를 확인하고 있어요.</p> : !signedIn ? <p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>로그인 후 연결하기</Link></p> : <form onSubmit={submit}>
       <label htmlFor="naver-ad-account-id">광고 계정 ID</label>{' '}
       <input id="naver-ad-account-id" inputMode="numeric" autoComplete="off" maxLength={16} value={accountId} onChange={e=>setAccountId(e.target.value)} disabled={!transport || busy} aria-describedby="ad-account-hint" />
       <p id="ad-account-hint" className="store-caption">네이버애즈 광고 계정 정보에서 확인할 수 있는 숫자입니다. 비밀번호나 API 키는 입력하지 마세요.</p>
       <StoreButton type="submit" disabled={!transport || busy}>{busy?'요청 중…':'연결 확인 요청'}</StoreButton>
     </form>}
+    </>}
     <details className="ad-invite-method"><summary>연결 도움말</summary><p>초대 발송과 담당자 수락은 직접 확인해 주세요. 관리계정만으로 연결된 광고 계정은 현재 자동으로 확인할 수 없습니다. 검색광고 API 고객 ID는 별도로 확인합니다.</p></details>
     {!transport && <p className="store-caption">연결 서버 준비가 끝나면 요청할 수 있습니다.</p>}
     {message && <p role="status" aria-live="polite">{message}</p>}
