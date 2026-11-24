@@ -186,3 +186,28 @@
 .store-theme .ad-analysis .ad-performance-select__list { border-color:#555; background:#202020; }
 .store-theme .ad-analysis .ad-performance-select__option { color:#f5f2eb; }
 .store-theme .ad-analysis .ad-performance-select__option.is-active { background:#713317; }
+
+/* Date selection for the ad analysis panel */
+.store-theme .ad-performance-grid { margin-top:14px; }
+.store-theme .ad-date-section { padding-top:24px; border-top:1px solid #444; }
+.store-theme .ad-date-section h3 { margin:0 0 14px; font-size:18px; }
+.store-theme .ad-date-modes { display:flex; gap:8px; flex-wrap:wrap; }
+.store-theme .ad-date-modes button { padding:9px 18px; border:1px solid #666; border-radius:3px; background:transparent; color:inherit; cursor:pointer; font:inherit; }
+.store-theme .ad-date-modes button[aria-pressed=true] { background:#f35d2e; border-color:#f35d2e; color:#fff; font-weight:700; }
+.store-theme .ad-date-layout { display:grid; grid-template-columns:minmax(240px,360px) minmax(200px,1fr); gap:20px; align-items:start; }
+.store-theme .ad-calendar { padding:16px; border:1px solid #555; background:#191919; color:#f5f2eb; }
+.store-theme .ad-calendar-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.store-theme .ad-calendar-head button,.store-theme .ad-calendar-grid button { border:0; background:transparent; color:inherit; cursor:pointer; font:inherit; }
+.store-theme .ad-calendar-head button { width:36px; height:36px; font-size:24px; }
+.store-theme .ad-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:3px; text-align:center; }
+.store-theme .ad-calendar-weekday { padding:8px 0; color:#aaa7a0; font-size:12px; }
+.store-theme .ad-calendar-grid button { aspect-ratio:1; min-height:36px; border-radius:3px; }
+.store-theme .ad-calendar-grid button:hover,.store-theme .ad-calendar-grid button[data-in-range] { background:#573022; }
+.store-theme .ad-calendar-grid button[aria-pressed=true] { background:#f35d2e; color:#fff; font-weight:700; }
+.store-theme .ad-calendar button:focus-visible,.store-theme .ad-date-modes button:focus-visible { outline:3px solid #ff875a; outline-offset:2px; }
+.store-theme .ad-calendar button:disabled,.store-theme .ad-date-modes button:disabled { opacity:.5; cursor:not-allowed; }
+.store-theme .ad-date-options { display:grid; gap:12px; }
+.store-theme .ad-date-options p { margin:0; color:#aaa7a0; font-size:13px; }
+.store-theme .ad-hour-range { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.store-theme .ad-date-options > button { justify-content:center; }
+@media(max-width:700px) { .store-theme .ad-date-layout { grid-template-columns:1fr; } }
