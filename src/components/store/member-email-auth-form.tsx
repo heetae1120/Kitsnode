@@ -95,7 +95,7 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
     if (mode === 'reset') return void execute(() => auth.requestPasswordReset(email.trim()));
     return void execute(() => auth.updatePassword(password));
   };
-  const heading = { signup: '이메일 회원가입', signin: '아이디 로그인', reset: '비밀번호 재설정', update: '새 비밀번호 설정', resume: '가입 이어하기', verify: '이메일 인증' }[mode];
+  const heading = { signup: '이메일 회원가입', signin: '아이디 로그인', reset: '비밀번호 찾기', update: '새 비밀번호 설정', resume: '가입 이어하기', verify: '이메일 인증' }[mode];
   return <section aria-labelledby="auth-title">
     {!canSignup && <p role="note">회원가입은 준비 중입니다.</p>}
     <h2 id="auth-title">{signedIn && !recovery ? '로그인 상태' : heading}</h2>
@@ -129,7 +129,7 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
     {!signedIn && !recovery && mode !== 'signup' && <nav aria-label="회원 인증 메뉴">
       {mode !== 'signin' && <button type="button" disabled={busy} onClick={() => clear('signin')}>로그인</button>}
       {canSignup && <button type="button" disabled={busy} onClick={() => clear('signup')}>회원가입</button>}
-      {mode !== 'reset' && <button type="button" disabled={busy} onClick={() => clear('reset')}>비밀번호 재설정</button>}
+      {mode !== 'reset' && <button type="button" disabled={busy} onClick={() => clear('reset')}>비밀번호 찾기</button>}
     </nav>}
   </section>;
 }

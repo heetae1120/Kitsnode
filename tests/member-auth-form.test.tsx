@@ -55,3 +55,10 @@ test('login does not offer a separate email verification entry',()=>{
   assert.doesNotMatch(html,/>이메일 인증하기<\/button>/);
   assert.match(html,/아이디 로그인/);
 });
+
+test('login offers password recovery as 비밀번호 찾기',()=>{
+  const html=renderToStaticMarkup(<EmailAuthForm auth={auth} usernameSignIn={fn}/>);
+  assert.doesNotMatch(html,/>비밀번호 재설정<\/button>/);
+  assert.match(html,/>비밀번호 찾기<\/button>/);
+  assert.match(html,/아이디 로그인/);
+});
