@@ -1,5 +1,5 @@
 "use client";
-import {useRef,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import gsap from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
 import {useGSAP} from '@gsap/react';
@@ -8,85 +8,102 @@ gsap.registerPlugin(ScrollTrigger,useGSAP);
 
 export function useAgencyMotion(){
   const root=useRef<HTMLDivElement>(null);
+  const heroTimeline=useRef<gsap.core.Timeline>(null);
+  const focusDiagnosis=useRef(false);
   const [scene,setScene]=useState(0);
   const [enhanced,setEnhanced]=useState(false);
-  const [tone,setTone]=useState('dark');
-  const [showFloatingDiagnosis,setShowFloatingDiagnosis]=useState(false);
+  const [showShortcut,setShowShortcut]=useState(false);
+
+  function jumpToDiagnosis(){
+    const timeline=heroTimeline.current;
+    const trigger=timeline?.scrollTrigger;
+    if(!timeline||!trigger)return false;
+    const link=root.current?.querySelector<HTMLElement>('.as-conversion-cta');
+    const alreadyActive=link?.closest('#diagnosis')?.getAttribute('aria-hidden')==='false';
+    focusDiagnosis.current=!alreadyActive;
+    window.scrollTo({top:trigger.end,behavior:'instant'});
+    trigger.update();
+    timeline.progress(1);
+    if(alreadyActive)link?.focus({preventScroll:true});
+    return true;
+  }
+
+  useEffect(()=>{
+    if(scene===2&&focusDiagnosis.current){
+      focusDiagnosis.current=false;
+      root.current?.querySelector<HTMLElement>('.as-conversion-cta')?.focus({preventScroll:true});
+    }
+  },[scene]);
+
   useGSAP(()=>{
-    const el=root.current;if(!el)return;
+    const el=root.current;
+    const hero=el?.querySelector<HTMLElement>('.as-hero');
+    const pin=hero?.querySelector<HTMLElement>('.as-pin');
+    const diagnosis=pin?.querySelector<HTMLElement>('#diagnosis');
+    const diagnosisLink=diagnosis?.querySelector('.as-conversion-cta');
+    if(!hero||!pin||!diagnosis||!diagnosisLink)return;
+
     const media=gsap.matchMedia();
     media.add('(prefers-reduced-motion: no-preference)',()=>{
-      const hero=el.querySelector<HTMLElement>('.as-hero');
-      const pin=el.querySelector<HTMLElement>('.as-pin');
-      if(!hero||!pin)return;
       hero.dataset.motion='on';
-      const scenes=gsap.utils.toArray<HTMLElement>('.as-scene',el);
-      const progress=el.querySelector<HTMLElement>('.as-progress-fill');
-      let timeline:gsap.core.Timeline|undefined;
-      try{
-        gsap.set(scenes.slice(1),{autoAlpha:0});
-        gsap.set('.as-scene-03',{yPercent:100});
-        gsap.from('.as-scene-01 .as-word',{yPercent:i=>110+i*15,duration:.85,stagger:.12,ease:'power4.out',clearProps:'transform'});
-        timeline=gsap.timeline({defaults:{ease:'power2.inOut'},onUpdate:()=>{
-            const time=timeline?.time()??0;
-            const index=time<1.65?0:time<3.65?1:2;
-            setScene(index);
-            const trigger=timeline?.scrollTrigger;
-            if(trigger?.isActive||trigger?.progress===0)setTone(index===1?'orange':'dark');
-            if(progress)progress.style.transform=`scaleX(${time/(timeline?.duration()||1)})`;
-          },scrollTrigger:{
-          trigger:hero,pin,start:'top top',end:()=>`+=${window.innerHeight*(window.innerWidth<760?2.4:3)}`,
-          scrub:.65,anticipatePin:1,invalidateOnRefresh:true,
-        }});
-        timeline
-          .to('.as-portal',{scale:16,rotation:45,duration:1.15},.65)
-          .to('.as-scene-01 .as-word',{yPercent:-120,stagger:.08,duration:.55},.95)
-          .to('.as-scene-01 .as-scene-copy',{opacity:0,duration:.3},1.05)
-          .set('.as-scene-02',{autoAlpha:1},1.65)
-          .from('.as-scene-02 .as-word',{yPercent:125,xPercent:12,rotation:8,stagger:.13,duration:.7},1.65)
-          .from('.as-scene-02 .as-scene-copy',{y:30,opacity:0,duration:.5},2)
-          .fromTo('.as-black-star',{rotation:-30,scale:.6},{rotation:110,scale:1,duration:1.9},1.7)
-          .to('.as-scene-02 .as-word',{xPercent:-20,yPercent:-125,stagger:.08,duration:.7},3.05)
-          .to('.as-scene-03',{autoAlpha:1,yPercent:0,duration:.8},3.25)
-          .from('.as-scene-03 .as-word',{yPercent:115,stagger:.1,duration:.6},3.4)
-          .from('.as-strategy-keywords span',{y:35,opacity:0,stagger:.1,duration:.45},3.8)
-          .from('.as-scene-03 .as-scene-copy',{y:24,opacity:0,duration:.4},4)
-          .to('.as-grid-mark',{rotation:90,y:-25,duration:1.6},3.9);
-        setEnhanced(true);
-        return ()=>{timeline?.scrollTrigger?.kill();timeline?.kill();delete hero.dataset.motion;setEnhanced(false);setScene(0);};
-      }catch{
-        timeline?.scrollTrigger?.kill(true);
-        timeline?.kill();
-        const elements=el.querySelectorAll('.as-scene, .as-scene *');
-        gsap.killTweensOf(elements);
-        delete hero.dataset.motion;
-        gsap.set(elements,{clearProps:'all'});
-        setEnhanced(false);
-      }
-    });
-    el.querySelectorAll<HTMLElement>('[data-header-tone]').forEach(section=>{
-      ScrollTrigger.create({trigger:section,start:'top 76px',end:'bottom 76px',onEnter:()=>setTone(section.dataset.headerTone||'dark'),onEnterBack:()=>setTone(section.dataset.headerTone||'dark')});
-    });
-    media.add('(prefers-reduced-motion: no-preference)',()=>{
-      gsap.utils.toArray<HTMLElement>('[data-as-reveal]',el).forEach(item=>{
-        gsap.from(item,{y:45,opacity:0,duration:.9,ease:'power3.out',scrollTrigger:{trigger:item,start:'top 91%',once:true}});
+      const strategy=pin.querySelector('.as-scene-03');
+      const progress=pin.querySelector('.as-progress-fill');
+      const strategyStart=1.15;
+      const diagnosisStart=2.85;
+      const duration=4.15;
+
+      gsap.set([strategy,diagnosis],{yPercent:100});
+      gsap.from('.as-scene-01 .as-word',{yPercent:110,duration:.8,stagger:.11,ease:'power4.out',clearProps:'transform'});
+      const timeline=gsap.timeline({
+        defaults:{ease:'power2.inOut'},
+        onUpdate(this:gsap.core.Timeline){
+          const time=this.time();
+          setScene(time<strategyStart+.4?0:time<diagnosisStart+.4?1:2);
+        },
+        scrollTrigger:{
+          trigger:hero,pin,start:'top top',
+          end:()=>`+=${pin.clientHeight*(window.innerWidth<=760?2.2:2.7)}`,
+          scrub:.4,anticipatePin:1,invalidateOnRefresh:true,
+        },
       });
+      timeline
+        .to('.as-portal',{scale:1.65,rotation:32,duration:.9},.55)
+        .to('.as-scene-01 .as-scene-type',{y:-40,duration:.55},strategyStart)
+        .to(strategy,{yPercent:0,duration:.85},strategyStart)
+        .from('.as-scene-03 .as-word',{yPercent:90,stagger:.07,duration:.6},strategyStart+.18)
+        .from('.as-grid-mark',{rotation:-50,scale:.72,duration:.95},strategyStart+.15)
+        .to('.as-scene-03 .as-scene-type',{y:-40,duration:.55},diagnosisStart)
+        .to(diagnosis,{yPercent:0,duration:.85},diagnosisStart)
+        .from('.as-conversion-copy',{y:36,duration:.7},diagnosisStart+.12)
+        .from(diagnosisLink,{y:28,duration:.6},diagnosisStart+.35)
+        .to(progress,{scaleX:1,duration,ease:'none'},0);
+      heroTimeline.current=timeline;
+      setEnhanced(true);
+      const jumpFrame=location.hash==='#diagnosis'?requestAnimationFrame(()=>{
+        ScrollTrigger.refresh();
+        jumpToDiagnosis();
+      }):0;
+      return ()=>{
+        cancelAnimationFrame(jumpFrame);
+        heroTimeline.current=null;
+        delete hero.dataset.motion;
+        setEnhanced(false);
+        setScene(0);
+      };
     });
-    const hero = el.querySelector('.as-hero');
-    const diagnosisLink = el.querySelector('.as-conversion-cta');
-    const floatingTrigger = hero && diagnosisLink ? ScrollTrigger.create({
-      trigger: hero,
-      start: 'top -48px',
-      endTrigger: diagnosisLink,
-      end: 'top bottom',
-      refreshPriority: -1,
-      onToggle: ({isActive}) => setShowFloatingDiagnosis(isActive),
-      onRefresh: ({isActive}) => setShowFloatingDiagnosis(isActive),
-    }) : null;
-    return () => {
-      floatingTrigger?.kill();
+    const shortcut=ScrollTrigger.create({
+      trigger:hero,
+      start:'top -48px',
+      endTrigger:diagnosisLink,
+      end:()=>hero.dataset.motion==='on'?'max':'top bottom',
+      refreshPriority:-1,
+      onToggle:({isActive})=>setShowShortcut(isActive),
+      onRefresh:({isActive})=>setShowShortcut(isActive),
+    });
+    return ()=>{
+      shortcut.kill();
       media.revert();
     };
   },{scope:root});
-  return {root,scene,enhanced,tone,showFloatingDiagnosis};
+  return {root,scene,enhanced,jumpToDiagnosis,showFloatingDiagnosis:showShortcut&&(!enhanced||scene<2)};
 }
