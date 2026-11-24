@@ -1,5 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
+import {createClient} from '@supabase/supabase-js';
+import {createMemberSignupFlow} from '@/lib/member-signup-flow.mjs';
 import Link from 'next/link';
 import { BarChart3, ChevronRight, FileText, LogOut, UserRound } from 'lucide-react';
 import {memberBrowserClient,takeNaverProviderCallback} from '@/lib/member-browser-client';
@@ -33,6 +35,7 @@ const naverStorage=()=>{try{return window.sessionStorage}catch{return null}};
 
 export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const [api,setApi] = useState<EmailAuth|null>(null);
+  const [signupFlow,setSignupFlow] = useState<ReturnType<typeof createMemberSignupFlow>|null>(null);
   const [usernameApi,setUsernameApi]=useState<ReturnType<typeof createUsernameClient>|null>(null);
   const [social,setSocial] = useState<ReturnType<typeof createNaverAuth>|null>(null);
   const [consent,setConsent] = useState<ReturnType<typeof createMemberConsent>|null>(null);
@@ -80,6 +83,9 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     }
     const current = memberBrowserClient();
     if (!current) return;
+    const isolated=createClient(config.url,config.key,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+    const flow=createMemberSignupFlow({client:isolated,applicationAuth:current.auth});
+    setSignupFlow(flow);
     const usernameClient=process.env.NEXT_PUBLIC_MEMBER_USERNAME_ENABLED==='true'?createUsernameClient({url:config.url,key:config.key,auth:current.auth}):null;
     setUsernameApi(usernameClient);
     const email = createEmailAuthClient({auth:current.auth,trustedOrigin:window.location.origin,confirmationRedirectTo:redirectTo,recoveryRedirectTo:redirectTo,signupAllowed:MEMBER_INTAKE_REVIEWED && config.signup});
@@ -180,12 +186,13 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
     }
     if (consentStatus !== 'accepted') return <p role="alert">회원 이용 안내를 확인하지 못했습니다. 다시 로그인해 주세요.</p>;
   }
-  const signupConsent=intakeEnabled ? {
+  const signupConsent=intakeEnabled && signupFlow ? {
+    requestCode:signupFlow.requestCode, verifyCode:signupFlow.verifyCode, reset:signupFlow.reset,
     terms:{href:`${basePath}/terms/2026-11-23/`,version:MEMBER_TERMS_VERSION},
     privacy:{href:`${basePath}/privacy/2026-11-23/`,version:MEMBER_PRIVACY_VERSION},
     register:async (email:string,password:string,evidence:{termsVersion:string;privacyVersion:string;termsAccepted:true;privacyAcknowledged:true},draft:SignupDraft) => {
       if(evidence.termsAccepted!==true || evidence.privacyAcknowledged!==true || evidence.termsVersion!==MEMBER_TERMS_VERSION || evidence.privacyVersion!==MEMBER_PRIVACY_VERSION) return {ok:false,code:'invalid_input'};
-      return api.signUp(email,password,evidence,draft);
+      return signupFlow.complete(email,password,evidence,draft);
     },
   } : undefined;
   const go = async (action:'signIn'|'link') => { if(busyRef.current)return;busyRef.current=true;setBusy(true);setError('');try {if(action==='signIn'&&naverBoundary&&!writeNaverIntent(naverStorage(),mode==='signup'?'signup':'signin')){setError(naverErrorText.unavailable);return;}const result=await social[action]();if(!result.ok){clearNaverIntent(naverStorage());setError(naverErrorText[result.code] || naverErrorText.unavailable);}} finally {busyRef.current=false;setBusy(false);} };

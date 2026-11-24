@@ -19,6 +19,9 @@ type Mode = 'signup' | 'signin' | 'reset' | 'update' | 'resume' | 'verify';
 export type SignupConsent = {
   terms: { href: string; version: string };
   privacy: { href: string; version: string };
+  requestCode?: (email:string)=>Promise<Result>;
+  verifyCode?: (email:string,code:string)=>Promise<Result>;
+  reset?: ()=>Promise<void>;
   register: (email: string, password: string, evidence: { termsVersion: string; privacyVersion: string; termsAccepted: true; privacyAcknowledged: true },draft:SignupDraft) => Promise<Result>;
 };
 function validNotice(notice: {href:string;version:string}) {
@@ -33,6 +36,7 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
   const [code, setCode] = useState('');
   const [signupPending, setSignupPending] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
+  const [emailVerified, setEmailVerified] = useState(false);
   const [name,setName]=useState(''),[phone,setPhone]=useState(''),[company,setCompany]=useState('');
   const [age,setAge]=useState(false),[checked,setChecked]=useState(''),[availability,setAvailability]=useState('');
   const checkSeq=useRef(0);
@@ -45,7 +49,7 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false);
   useEffect(() => { if (!recovery) setMode(current => current === 'update' ? 'signin' : current); }, [recovery]);
-  const clear = (next: Mode) => { setMode(next); setMessage(''); setError(''); setPassword(''); setConfirmation(''); setTermsAccepted(false); setPrivacyAcknowledged(false); setSignupPending(false); setSignupEmail(''); setCode(''); };
+  const clear = (next: Mode) => { setMode(next); setMessage(''); setError(''); setPassword(''); setConfirmation(''); setTermsAccepted(false); setPrivacyAcknowledged(false); setSignupPending(false); setSignupEmail(''); setCode(''); setEmailVerified(false); void signupConsent?.reset?.(); };
   const execute = async (fn: () => Promise<Result>) => {
     if (busyRef.current) return;
     busyRef.current = true;
@@ -54,14 +58,18 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
       const result = await fn();
       const messages: Record<string, string> = {
         signup_requested: '요청을 처리했습니다. 가입 가능한 이메일이라면 인증번호가 발송됩니다. 이미 가입한 계정이라면 아이디로 로그인해 주세요.',
-        signup_code_resent: '요청을 처리했습니다. 이메일의 인증번호를 확인해 주세요.',
+        signup_code_resent: '인증번호를 요청했습니다. 이메일을 확인해 주세요.',
+        signup_completed: '회원가입이 완료되었습니다.',
         email_verified: '이메일 인증이 완료되었습니다.',
         signed_in: '로그인되었습니다.',
         signed_out: '로그아웃되었습니다.',
         reset_requested: '요청을 처리했습니다. 해당 계정이 있다면 이메일의 안내를 확인해 주세요.',
         password_updated: '비밀번호가 변경되었습니다.',
       };
-      if (result.ok && messages[result.code]) { setMessage(messages[result.code]); setPassword(''); setConfirmation(''); if (result.code === 'signup_requested') { setCode(''); setSignupEmail(email.trim()); setSignupPending(true); } }
+      if (result.ok && messages[result.code]) { setMessage(messages[result.code]); if (result.code === 'signup_code_resent' && mode === 'signup') { setSignupEmail(email.trim()); setSignupPending(true); setEmailVerified(false); setCode(''); } if (result.code === 'email_verified' && mode === 'signup') setEmailVerified(true); if (result.code === 'signup_completed' || mode !== 'signup') { setPassword(''); setConfirmation(''); } if (result.code === 'signup_requested') { setCode(''); setSignupEmail(email.trim()); setSignupPending(true); } }
+      else if (result.code === 'signup_unavailable') setError('가입할 수 없는 이메일입니다. 로그인하거나 다른 이메일을 사용해 주세요.');
+      else if (result.code === 'verification_required') setError('이메일 인증을 완료해 주세요.');
+      else if (result.code === 'username_taken') { setChecked(''); setError('이미 사용 중인 아이디입니다. 다시 확인해 주세요.'); }
       else if (result.code === 'invalid_code') setError('인증번호가 올바르지 않거나 만료되었습니다. 확인하거나 다시 발송해 주세요.');
       else if (result.code === 'email_rate_limited') setError('요청이 너무 잦습니다. 잠시 기다린 뒤 다시 시도해 주세요.');
       else if (result.code === 'invalid_input') setError('이메일과 비밀번호를 다시 확인해 주세요.');
@@ -74,7 +82,7 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (busyRef.current) return;
-    if (mode === 'signup' && signupPending) return;
+    if (mode === 'signup' && (!emailVerified || signupEmail.toLowerCase() !== email.trim().toLowerCase())) { setError('이메일 인증을 완료해 주세요.'); return; }
     if (mode === 'signup' && canSignup && signupConsent && termsAccepted && privacyAcknowledged) {
       if (!confirmation || password !== confirmation) { setError('비밀번호 확인이 일치하지 않습니다.'); return; }
       if(!age||!checkUsername||checked!==username.trim().toLowerCase()){setError('아이디 중복 확인과 나이 확인을 완료해 주세요.');return;}
@@ -96,33 +104,31 @@ export function EmailAuthForm({ auth, recovery = false, signedIn = false, initia
     {(!signedIn || recovery) && mode === 'resume' && <p>이메일 인증을 마쳤지만 가입을 완료하지 못한 경우에만 이용할 수 있습니다.</p>}
     {(!signedIn || recovery) && mode === 'signup' && canSignup && <p>가입 시 이용약관과 개인정보 처리방침을 확인해 주세요.</p>}
     {signedIn && !recovery ? <button type="button" disabled={busy} onClick={() => void execute(() => auth.signOut())}>로그아웃</button> : <form onSubmit={submit}>
-      {mode === 'signup' && <><label>아이디<input required minLength={4} maxLength={20} pattern="[A-Za-z0-9](?:[A-Za-z0-9_]|-){3,19}" autoComplete="username" value={username} onChange={event=>{checkSeq.current++;setUsername(event.target.value);setChecked('');setAvailability('')}} disabled={busy||signupPending}/></label><button type="button" disabled={busy||signupPending||!checkUsername} onClick={()=>{const candidate=username.trim().toLowerCase(),ticket=++checkSeq.current;setAvailability('확인 중입니다.');void checkUsername?.(candidate).then(result=>{if(ticket!==checkSeq.current)return;if(result.ok&&result.code==='available'){setChecked(candidate);setAvailability('사용 가능한 아이디입니다.')}else setAvailability(result.ok?'이미 사용 중인 아이디입니다.':'아이디를 확인하지 못했습니다.')}).catch(()=>{if(ticket===checkSeq.current)setAvailability('아이디를 확인하지 못했습니다.')})}}>아이디 중복 확인</button><p role="status">{availability}</p></>}
+      {mode === 'signup' && <><label>아이디<input required minLength={4} maxLength={20} pattern="[A-Za-z0-9](?:[A-Za-z0-9_]|-){3,19}" autoComplete="username" value={username} onChange={event=>{checkSeq.current++;setUsername(event.target.value);setChecked('');setAvailability('')}} disabled={busy}/></label><button type="button" disabled={busy||!checkUsername} onClick={()=>{const candidate=username.trim().toLowerCase(),ticket=++checkSeq.current;setAvailability('확인 중입니다.');void checkUsername?.(candidate).then(result=>{if(ticket!==checkSeq.current)return;if(result.ok&&result.code==='available'){setChecked(candidate);setAvailability('사용 가능한 아이디입니다.')}else setAvailability(result.ok?'이미 사용 중인 아이디입니다.':'아이디를 확인하지 못했습니다.')}).catch(()=>{if(ticket===checkSeq.current)setAvailability('아이디를 확인하지 못했습니다.')})}}>아이디 중복 확인</button><p role="status">{availability}</p></>}
       {mode === 'signin' ? <label>아이디<input required autoComplete="username" value={username} onChange={event=>setUsername(event.target.value)} disabled={busy}/></label> : mode !== 'update' && mode !== 'signup' && <label>이메일<input data-auth-edit="email-input" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} disabled={busy} /></label>}
       {mode === 'verify' && <label>인증번호<input required inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,10}" minLength={6} maxLength={10} value={code} onChange={event=>setCode(event.target.value)} disabled={busy}/></label>}
-      {mode !== 'reset' && mode !== 'verify' && <label>비밀번호<input data-auth-edit="password-input" type="password" autoComplete={mode === 'signin' || mode === 'resume' ? 'current-password' : 'new-password'} required minLength={8} value={password} onChange={event => setPassword(event.target.value)} disabled={busy || (mode === 'signup' && signupPending)} /></label>}
-      {mode === 'signup' && <label>비밀번호 재확인<input type="password" autoComplete="new-password" required minLength={8} value={confirmation} onChange={event => setConfirmation(event.target.value)} disabled={busy||signupPending} /></label>}
+      {mode !== 'reset' && mode !== 'verify' && <label>비밀번호<input data-auth-edit="password-input" type="password" autoComplete={mode === 'signin' || mode === 'resume' ? 'current-password' : 'new-password'} required minLength={8} value={password} onChange={event => setPassword(event.target.value)} disabled={busy} /></label>}
+      {mode === 'signup' && <label>비밀번호 재확인<input type="password" autoComplete="new-password" required minLength={8} value={confirmation} onChange={event => setConfirmation(event.target.value)} disabled={busy} /></label>}
       {mode === 'signup' && <>
-        <label>이름<input required maxLength={100} autoComplete="name" value={name} onChange={event=>setName(event.target.value)} disabled={busy||signupPending}/></label>
-        <label>이메일<input data-auth-edit="email-input" type="email" autoComplete="email" required value={email} onChange={event=>setEmail(event.target.value)} disabled={busy||signupPending}/></label>
-        <p>가입 정보를 모두 입력하고 동의한 뒤 인증번호를 요청해 주세요.</p>
-        {!signupPending && <button type="button" disabled={busy} onClick={event=>event.currentTarget.form?.requestSubmit()}>인증번호 받기</button>}
-        {!signupPending && <button type="button" disabled={busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())} onClick={()=>{setSignupEmail(email.trim());setCode('');setError('');setMessage('이메일로 받은 인증번호를 입력해 주세요.');setSignupPending(true)}}>이미 받은 인증번호 입력</button>}
-        <label>인증번호<input inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,10}" minLength={6} maxLength={10} value={code} onChange={event=>setCode(event.target.value.replace(/[^0-9]/g,''))} disabled={busy||!signupPending}/></label>
-        <button type="button" disabled={busy||!signupPending||!auth.verifySignupCode||!/^[0-9]{6,10}$/.test(code)} onClick={()=>void execute(()=>auth.verifySignupCode ? auth.verifySignupCode(signupEmail,code) : Promise.resolve({ok:false,code:'unavailable'}))}>인증번호 확인</button>
-        {signupPending && <button type="button" disabled={busy||!auth.resendSignupCode} onClick={()=>void execute(()=>auth.resendSignupCode ? auth.resendSignupCode(signupEmail) : Promise.resolve({ok:false,code:'unavailable'}))}>인증번호 다시 받기</button>}
-        <label>휴대폰 번호<input required type="tel" autoComplete="tel" value={phone} onChange={event=>setPhone(event.target.value)} disabled={busy||signupPending}/></label>
-        <label>업체명 (선택)<input maxLength={100} autoComplete="organization" value={company} onChange={event=>setCompany(event.target.value)} disabled={busy||signupPending}/></label>
-        <label><input type="checkbox" checked={age} onChange={event=>setAge(event.target.checked)} disabled={busy||signupPending}/> 만 14세 이상입니다.</label>
+        <label>이름<input required maxLength={100} autoComplete="name" value={name} onChange={event=>setName(event.target.value)} disabled={busy}/></label>
+        <label>이메일<input data-auth-edit="email-input" type="email" autoComplete="email" required value={email} onChange={event=>{setEmail(event.target.value);setSignupPending(false);setEmailVerified(false);setSignupEmail('');setCode('');if (signupPending || emailVerified) void signupConsent?.reset?.()}} disabled={busy}/></label>
+        <p>다른 정보를 입력하기 전에도 이메일 인증을 진행할 수 있습니다.</p>
+        <button type="button" disabled={busy || !signupConsent?.requestCode || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())} onClick={()=>void execute(()=>signupConsent!.requestCode!(email.trim()))}>{signupPending ? '인증번호 다시 받기' : '인증번호 받기'}</button>
+        <label>인증번호<input inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,10}" minLength={6} maxLength={10} value={code} onChange={event=>setCode(event.target.value.replace(/[^0-9]/g,''))} disabled={busy||!signupPending||emailVerified}/></label>
+        <button type="button" disabled={busy||!signupPending||emailVerified||!signupConsent?.verifyCode||!/^[0-9]{6,10}$/.test(code)} onClick={()=>void execute(()=>signupConsent!.verifyCode!(signupEmail,code))}>인증번호 확인</button>
+        {emailVerified && <p role="status">이메일 인증이 완료되었습니다.</p>}
+        <label>휴대폰 번호<input required type="tel" autoComplete="tel" value={phone} onChange={event=>setPhone(event.target.value)} disabled={busy}/></label>
+        <label>업체명 (선택)<input maxLength={100} autoComplete="organization" value={company} onChange={event=>setCompany(event.target.value)} disabled={busy}/></label>
+        <label><input type="checkbox" checked={age} onChange={event=>setAge(event.target.checked)} disabled={busy}/> 만 14세 이상입니다.</label>
       </>}
-      {mode === 'signup' && canSignup && signupConsent && <fieldset><legend>가입 안내 확인</legend><label><input type="checkbox" checked={termsAccepted && privacyAcknowledged} onChange={event => {setTermsAccepted(event.target.checked);setPrivacyAcknowledged(event.target.checked)}} disabled={busy||signupPending} /> 전체 선택</label><label><input type="checkbox" checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} required disabled={busy||signupPending} /> <a href={signupConsent.terms.href} target="_blank" rel="noopener noreferrer">이용약관</a>에 동의합니다.</label><label><input type="checkbox" checked={privacyAcknowledged} onChange={event => setPrivacyAcknowledged(event.target.checked)} required disabled={busy||signupPending} /> <a href={signupConsent.privacy.href} target="_blank" rel="noopener noreferrer">임시 개인정보 처리방침</a>을 확인했습니다.</label></fieldset>}
+      {mode === 'signup' && canSignup && signupConsent && <fieldset><legend>가입 안내 확인</legend><label><input type="checkbox" checked={termsAccepted && privacyAcknowledged} onChange={event => {setTermsAccepted(event.target.checked);setPrivacyAcknowledged(event.target.checked)}} disabled={busy} /> 전체 선택</label><label><input type="checkbox" checked={termsAccepted} onChange={event => setTermsAccepted(event.target.checked)} required disabled={busy} /> <a href={signupConsent.terms.href} target="_blank" rel="noopener noreferrer">이용약관</a>에 동의합니다. (필수)</label><label><input type="checkbox" checked={privacyAcknowledged} onChange={event => setPrivacyAcknowledged(event.target.checked)} required disabled={busy} /> <a href={signupConsent.privacy.href} target="_blank" rel="noopener noreferrer">임시 개인정보 처리방침</a>을 확인했습니다. (필수)</label></fieldset>}
       {mode === 'verify' && <button type="button" disabled={busy||!auth.resendSignupCode} onClick={()=>void execute(()=>auth.resendSignupCode ? auth.resendSignupCode(email.trim()) : Promise.resolve({ok:false,code:'unavailable'}))}>인증번호 다시 받기</button>}
-      <button data-auth-edit="submit-button" type="submit" disabled={busy || (mode === 'signin' && !usernameSignIn) || (mode === 'signup' && (signupPending || !canSignup || !termsAccepted || !privacyAcknowledged || !age || !checkUsername || checked!==username.trim().toLowerCase()))}>{busy ? '처리 중…' : heading}</button>
+      <button data-auth-edit="submit-button" type="submit" disabled={busy || (mode === 'signin' && !usernameSignIn) || (mode === 'signup' && (!emailVerified || !canSignup || !termsAccepted || !privacyAcknowledged || !age || !checkUsername || checked!==username.trim().toLowerCase()))}>{busy ? '처리 중…' : heading}</button>
     </form>}
     {message && <p role="status">{message}</p>}{error && <p role="alert">{error}</p>}
-    {!signedIn && !recovery && <nav aria-label="회원 인증 메뉴">
-      {mode === 'signup' && resumeSignup && <button type="button" disabled={busy} onClick={()=>clear('resume')}>가입 이어하기</button>}
+    {!signedIn && !recovery && mode !== 'signup' && <nav aria-label="회원 인증 메뉴">
       {mode !== 'signin' && <button type="button" disabled={busy} onClick={() => clear('signin')}>로그인</button>}
-      {canSignup && mode !== 'signup' && <button type="button" disabled={busy} onClick={() => clear('signup')}>회원가입</button>}
+      {canSignup && <button type="button" disabled={busy} onClick={() => clear('signup')}>회원가입</button>}
       {mode !== 'reset' && <button type="button" disabled={busy} onClick={() => clear('reset')}>비밀번호 재설정</button>}
     </nav>}
   </section>;

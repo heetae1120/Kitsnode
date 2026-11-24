@@ -1,0 +1,1 @@
+export function createMemberSignupFlow(options:{client:any;applicationAuth:any}): {requestCode(email:string):Promise<{ok:boolean;code:string}>;verifyCode(email:string,token:string):Promise<{ok:boolean;code:string}>;complete(email:string,password:string,evidence:any,draft:any):Promise<{ok:boolean;code:string}>;reset():Promise<void>};
