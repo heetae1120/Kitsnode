@@ -16,11 +16,13 @@ import type {AdConnectionTransport} from '@/lib/ad-connection-transport.mjs';
 const consentClient=createInviteConsentClient({enabled:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED==='true',version:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION,policyDigest:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST,policyUrl:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL,disclosureUrl:process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL});
 const proofVersion = process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION || '';
 const proofDigest = process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST || '';
-const inviteExtensionId = process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID || '';
-const directDiscoveryEnabled = process.env.NEXT_PUBLIC_AD_ACCOUNT_DISCOVERY_ENABLED === 'true' && /^[a-p]{32}$/.test(inviteExtensionId);
+const publishedExtensionId = process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID || '';
+const testExtensionId = process.env.NEXT_PUBLIC_AD_INVITE_TEST_EXTENSION_ID || '';
+const testModeConfigured = process.env.NEXT_PUBLIC_AD_INVITE_TEST_ENABLED === 'true' && /^[a-p]{32}$/.test(testExtensionId);
+const directDiscoveryEnabled = process.env.NEXT_PUBLIC_AD_ACCOUNT_DISCOVERY_ENABLED === 'true' && /^[a-p]{32}$/.test(publishedExtensionId);
 const extensionStoreUrl = 'https://chromewebstore.google.com/detail/ciohpfgnccmnpbldolbfediamifaiocf?hl=ko';
 // Incomplete build configuration must not expose a nonfunctional invitation flow.
-const proofEnabled = process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED === 'true' && Boolean(consentClient) && /^[a-p]{32}$/.test(inviteExtensionId);
+const publishedProofEnabled = process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED === 'true' && Boolean(consentClient) && /^[a-p]{32}$/.test(publishedExtensionId);
 
 type Connection = {requestId: string; adAccountId: string; status: string};
 const statusLabels: Record<string,string> = {
@@ -31,6 +33,9 @@ const statusLabels: Record<string,string> = {
 
 /** When no server transport is configured, no member data is submitted. */
 export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {transport?: AdConnectionTransport; onRefresh?: () => void; manualEntry?: boolean}) {
+  const [testMode,setTestMode]=useState(false);
+  const inviteExtensionId=testMode?testExtensionId:publishedExtensionId;
+  const proofEnabled=Boolean(consentClient)&&(testMode||publishedProofEnabled);
   const [currentUser,setCurrentUser] = useState<string|null>(null);
   const signedIn = Boolean(currentUser);
   const [checking,setChecking] = useState(true);
@@ -44,7 +49,7 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
   const [consentAccount,setConsentAccount]=useState('');
   const [consentAccepted,setConsentAccepted]=useState(false);
   const [naverPolicyAccepted,setNaverPolicyAccepted]=useState(false);
-  const [savedConsent,setSavedConsent]=useState<{consentId:string;accountId:string;userId:string}|null>(null);
+  const [savedConsent,setSavedConsent]=useState<{consentId:string;accountId:string;userId:string;expiresAt:number}|null>(null);
   const consentAccountRef=useRef('');
   const proofRef=useRef<AbortController|null>(null);
   const [consentBusy,setConsentBusy]=useState(false);
@@ -57,6 +62,17 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
   const userRef = useRef<string|null>(null);
   const activeRef = useRef<AbortController|null>(null);
   const authRef = useRef<ReturnType<typeof memberBrowserClient>>(null);
+
+  useEffect(()=>{
+    if(!testModeConfigured||manualEntry)return;
+    let active=true;
+    const runtime=(window as unknown as {chrome?:{runtime?:{sendMessage(id:string,message:Record<string,string>):Promise<unknown>}}}).chrome?.runtime;
+    if(!runtime?.sendMessage||!window.crypto?.randomUUID)return;
+    void runtime.sendMessage(testExtensionId,{type:'kitsnode.account.get.v1',nonce:window.crypto.randomUUID()})
+      .then(result=>{if(active&&result&&typeof result==='object'&&'status' in result&&result.status==='blocked')setTestMode(true);})
+      .catch(()=>{if(active)setTestMode(false);});
+    return ()=>{active=false;};
+  },[manualEntry]);
 
   useEffect(()=>{
     let active=true;
@@ -96,6 +112,12 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
     return ()=>{controller.abort();if(activeRef.current===controller)activeRef.current=null;};
   },[currentUser,transport,refreshKey]);
 
+  useEffect(()=>{
+    if(!savedConsent)return;
+    const timeout=window.setTimeout(()=>{setSavedConsent(null);setConsentMessage('연결을 시작하려면 동의를 다시 확인해 주세요.');},Math.max(0,savedConsent.expiresAt-Date.now()));
+    return ()=>window.clearTimeout(timeout);
+  },[savedConsent]);
+
   async function discoverAccount() {
     const owner=userRef.current,client=authRef.current;
     if(!(proofEnabled||directDiscoveryEnabled)||!owner||!client||!transport||openingExtension||busy)return;
@@ -116,8 +138,7 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
         const result=await runtime.sendMessage(inviteExtensionId,{type:'kitsnode.account.get.v1',nonce}) as {status?:string;accountId?:string};
         if(result?.status==='selected'&&/^[1-9]\d{0,15}$/.test(result.accountId||'')){
           setAccountId(result.accountId!);
-          if(proofEnabled)setExtensionMessage('선택한 광고계정을 확인한 뒤 계속해 주세요.');
-          else await registerDiscoveredAccount(result.accountId!);
+          await registerDiscoveredAccount(result.accountId!);
           return;
         }
         if(result?.status!=='selecting')throw Error('unavailable');
@@ -174,7 +195,7 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
     event.preventDefault();
     const owner=userRef.current, client=authRef.current, selected=consentAccount;
     if(!consentClient||!consentAccepted||(proofEnabled&&!naverPolicyAccepted)||consentBusy||openingExtension||!owner||!client||!connections.some(c=>c.adAccountId===selected&&c.status!=='disconnected'))return;
-    const controller=new AbortController();activeRef.current?.abort();activeRef.current=controller;setSavedConsent(null);setConsentBusy(true);setConsentMessage('');
+    const controller=new AbortController(),expiresAt=Date.now()+600000;activeRef.current?.abort();activeRef.current=controller;setSavedConsent(null);setConsentBusy(true);setConsentMessage('');
     try {const session=await client.auth.getSession();const token=session.data.session?.access_token;
       if(!token||session.data.session?.user.id!==owner||userRef.current!==owner||controller.signal.aborted)throw Error('session_changed');
       const recorded=await consentClient.record(token,selected,controller.signal);
@@ -184,13 +205,14 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
         const latest=await client.auth.getSession();
         if(!policyConfirmed||latest.data.session?.access_token!==token||latest.data.session?.user.id!==owner||controller.signal.aborted||consentAccountRef.current!==selected||userRef.current!==owner)throw Error('policy_unconfirmed');
       }
-      if(!controller.signal.aborted&&userRef.current===owner&&consentAccountRef.current===selected){setSavedConsent({consentId:recorded.consentId,accountId:selected,userId:owner});setConsentAccepted(false);setNaverPolicyAccepted(false);setConsentMessage(proofEnabled?'사전 동의를 저장했습니다. 10분 안에 확장프로그램으로 연결을 진행해 주세요. 초대는 아직 발송되지 않았습니다.':'사전 동의를 저장했습니다. 이 동의는 저장 후 10분간 유효하며, 만료되면 다시 저장해야 합니다. 확장프로그램 자동 초대는 아직 연결되지 않아 초대가 발송되지 않았습니다.');}
+      if(!controller.signal.aborted&&userRef.current===owner&&consentAccountRef.current===selected){setSavedConsent({consentId:recorded.consentId,accountId:selected,userId:owner,expiresAt});setConsentAccepted(false);setNaverPolicyAccepted(false);setConsentMessage(proofEnabled?'동의를 저장했습니다. 10분 안에 초대를 시작해 주세요. 초대는 아직 발송되지 않았습니다.':'사전 동의를 저장했습니다. 이 동의는 저장 후 10분간 유효하며, 만료되면 다시 저장해야 합니다. 확장프로그램 자동 초대는 아직 연결되지 않아 초대가 발송되지 않았습니다.');}
     }catch {if(!controller.signal.aborted&&userRef.current===owner)setConsentMessage(proofEnabled?'동의 및 네이버 정책 확인을 완료하지 못했습니다. 기존 동의는 저장되었을 수 있으며 초대는 발송되지 않았습니다. 로그인 상태를 확인한 뒤 다시 시도해 주세요.':'사전 동의를 저장하지 못했습니다. 로그인과 키츠노드 이용약관·개인정보 동의 상태를 확인한 뒤 다시 시도해 주세요.');}
     finally {if(activeRef.current===controller){activeRef.current=null;setConsentBusy(false);}}
   }
 
   async function startConsentedInvitation() {
     if(!proofEnabled || extensionLock.current || !savedConsent || openingExtension || !authRef.current || userRef.current!==savedConsent.userId || consentAccountRef.current!==savedConsent.accountId) return;
+    if(Date.now()>=savedConsent.expiresAt){setSavedConsent(null);setConsentMessage('연결을 시작하려면 동의를 다시 확인해 주세요.');return;}
     const {consentId,accountId,userId}=savedConsent, client=authRef.current;
     if(!connections.some(c=>c.adAccountId===accountId&&c.status!=='disconnected'))return;
     const controller=new AbortController();extensionLock.current=true;proofRef.current?.abort();proofRef.current=controller;setSavedConsent(null);setOpeningExtension(true);setExtensionMessage('확장프로그램과 광고계정을 확인하고 있습니다.');
@@ -235,19 +257,17 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
     finally {if(activeRef.current===controller){activeRef.current=null;lock.current=false;setBusy(false);}}
   }
 
-  const consentSection = <section className="ad-consent-section"><h3>{proofEnabled?'2. 광고계정 연결 사전 동의':'광고계정 연결 사전 동의'}</h3>
+  const consentSection = <section className="ad-consent-section"><h3>광고계정 연결 사전 동의</h3>
       <p>광고계정 연결 및 성과 정보 조회에 관한 내용입니다.</p>
       {consentClient&&signedIn&&connections.some(c=>c.status!=='disconnected')?<form onSubmit={recordConsent}>
-        <label htmlFor="consent-account">동의할 광고계정</label><select id="consent-account" value={consentAccount} onChange={e=>{proofRef.current?.abort();proofRef.current=null;setOpeningExtension(false);consentAccountRef.current=e.target.value;setConsentAccount(e.target.value);setSavedConsent(null);setConsentAccepted(false);setNaverPolicyAccepted(false);setConsentMessage('');setExtensionMessage('');}} disabled={consentBusy}><option value="">계정을 선택하세요</option>{[...new Set(connections.filter(c=>c.status!=='disconnected').map(c=>c.adAccountId))].map(id=><option key={id} value={id}>{id}</option>)}</select>
-        <p>사전 동의는 저장 후 10분간 유효합니다. 만료되면 다시 저장해 주세요. {proofEnabled?'동의 저장만으로 초대가 발송되지 않습니다.':'확장프로그램 자동 초대는 아직 연결되지 않아 동의 저장만으로 초대가 발송되지 않습니다.'}</p>
-        {proofEnabled&&/^[a-p]{32}$/.test(inviteExtensionId)&&<p><a className="store-text-link" href={`https://chromewebstore.google.com/detail/${inviteExtensionId}`} target="_blank" rel="noopener noreferrer">Chrome 웹 스토어에서 확장프로그램 설치 (새 창)</a></p>}
+        {proofEnabled?<p>선택한 광고계정: <strong>{consentAccount||'계정 확인 필요'}</strong></p>:<><label htmlFor="consent-account">동의할 광고계정</label><select id="consent-account" value={consentAccount} onChange={e=>{proofRef.current?.abort();proofRef.current=null;setOpeningExtension(false);consentAccountRef.current=e.target.value;setConsentAccount(e.target.value);setSavedConsent(null);setConsentAccepted(false);setNaverPolicyAccepted(false);setConsentMessage('');setExtensionMessage('');}} disabled={consentBusy}><option value="">계정을 선택하세요</option>{[...new Set(connections.filter(c=>c.status!=='disconnected').map(c=>c.adAccountId))].map(id=><option key={id} value={id}>{id}</option>)}</select></>}
+        <p>안전한 연결을 위해 동의 저장 후 10분 안에 시작해 주세요. {proofEnabled?'동의 저장만으로 초대가 발송되지 않습니다.':'확장프로그램 자동 초대는 아직 연결되지 않아 동의 저장만으로 초대가 발송되지 않습니다.'}</p>
         <p><button type="button" className="store-text-link" onClick={()=>setPolicyDocument({title:'키츠노드 광고계정 연결 및 데이터 분석 사전 동의',url:consentClient.disclosureUrl,kind:'disclosure'})}>키츠노드 사전 동의 내용 보기</button></p>
         <p><button type="button" className="store-text-link" onClick={()=>setPolicyDocument({title:'네이버 운영정책',url:consentClient.policyUrl,kind:'policy'})}>네이버 운영정책 보기</button></p>
         {proofEnabled&&<section aria-labelledby="naver-invite-policy-title"><h4 id="naver-invite-policy-title">네이버 회원 초대 정책</h4><p>네이버 회원 초대 화면에 표시되는 내용입니다. 변경되면 다시 확인이 필요합니다.</p><ol>{NAVER_INVITE_POLICY_ITEMS.map((item)=><li key={item}>{item}</li>)}</ol><label><input type="checkbox" checked={naverPolicyAccepted} onChange={e=>{setSavedConsent(null);setNaverPolicyAccepted(e.target.checked);}} disabled={!consentAccount||consentBusy||openingExtension}/> {NAVER_INVITE_POLICY_AGREEMENT}</label></section>}
         <label><input type="checkbox" checked={consentAccepted} onChange={e=>{setSavedConsent(null);setConsentAccepted(e.target.checked);}} disabled={!consentAccount||consentBusy||openingExtension}/> 선택한 계정의 키츠노드 사전 동의 내용을 확인하고 동의합니다.</label>
         <StoreButton type="submit" disabled={!consentAccepted||(proofEnabled&&!naverPolicyAccepted)||!consentAccount||consentBusy||openingExtension}>{consentBusy?'저장 중…':'사전 동의 저장'}</StoreButton>
         {consentMessage&&<p role="status">{consentMessage}</p>}
-        {proofEnabled&&/^[a-p]{32}$/.test(inviteExtensionId)&&<><StoreButton type="button" disabled={!savedConsent||openingExtension||consentBusy} onClick={()=>void startConsentedInvitation()}>{openingExtension?'확인 중…':'확장프로그램으로 연결 진행'}</StoreButton>{extensionMessage&&<p role="status">{extensionMessage}</p>}</>}
       </form>:<p>{consentClient && signedIn ? '연결할 광고계정을 확인한 뒤 사전 동의를 저장할 수 있습니다.' : '로그인과 광고계정 확인 후 사전 동의를 저장할 수 있습니다.'}</p>}
     </section>;
 
@@ -258,6 +278,7 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
     {message&&<p role="status">{message}</p>}<p><Link href="/store/ads/">광고계정 연결로 돌아가기</Link></p></StoreCard>;
   return <StoreCard aria-labelledby="ad-connection-panel-title">
     <h2 id="ad-connection-panel-title">네이버 광고계정 연결</h2><p>광고 성과 조회를 위해 광고계정을 연결해 주세요.</p>
+    {testMode&&<p className="ad-invitation-notice" role="status">설치된 0.3.1 시험본으로 연결합니다. 실제 초대가 발송될 수 있으니 기존 초대 상태를 확인해 주세요.</p>}
     <details className="ad-connection-compact"><summary><span><strong>광고계정 연결 확인</strong><small>{summary}</small></span><span>상태 확인</span></summary>
       {checking?<p>로그인 상태를 확인하고 있어요.</p>:!signedIn?<p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>로그인 후 연결하기</Link></p>:<>{active.length?<ul>{active.map(c=><li key={c.requestId}><span>계정 <strong>{c.adAccountId}</strong> · {statusLabels[c.status]||'확인 필요'}</span><button type="button" className="store-text-link" disabled={busy} onClick={()=>void disconnect(c)}>연결 해제</button></li>)}</ul>:<p>연결된 광고계정이 없습니다.</p>}{transport&&<StoreButton type="button" disabled={busy} onClick={()=>{setRefreshKey(v=>v+1);onRefresh?.();}}>상태 새로고침</StoreButton>}</>}
     </details>
@@ -266,7 +287,7 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
       {directDiscoveryEnabled?<><StoreButton type="button" disabled={!signedIn||!transport||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'광고계정 확인'}</StoreButton><p>확장프로그램이 선택한 계정의 ID를 확인합니다.</p></>:<p className="ad-invitation-notice">광고계정 자동 확인은 준비 중입니다. 그동안 <Link className="store-text-link" href="/store/ads/manual-request/">별도 화면에서 연결 확인을 요청</Link>해 주세요.</p>}{extensionMessage&&<p role="status">{extensionMessage}</p>}</details>
       <details className="ad-invitation-choice"><summary><span>2. 확장프로그램을 통한 초대</span><small>회원 ID 입력과 권한 선택을 돕습니다.</small></summary>
       <p>확장프로그램은 네이버 초대 과정에서 회원 ID와 권한을 일일이 입력하는 수고를 줄여 줍니다.</p>
-      {proofEnabled?<><p><strong>자동 진행:</strong> 사전 동의와 계정 선택 후 초대 정책 확인, kitsnode ID 입력, 운영 조회 권한 선택과 초대 발송을 진행합니다.</p><p><strong>직접 확인:</strong> 네이버 로그인과 광고계정 선택, 초대 발송 및 키츠노드의 수락 상태를 확인해 주세요.</p><StoreButton type="button" disabled={!signedIn||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'네이버 광고계정 선택'}</StoreButton>{accountId&&<div><p>선택한 광고 계정 ID: <strong>{accountId}</strong></p><StoreButton type="button" disabled={busy||openingExtension} onClick={()=>void registerDiscoveredAccount()}>{busy?'확인 중…':'이 계정으로 계속'}</StoreButton></div>}{consentSection}</>:<><p><strong>자동 진행:</strong> 네이버에서 확장프로그램의 자동 진행을 시작하면 kitsnode ID 입력, 운영 조회 권한 선택과 초대 발송을 시도합니다.</p><p><strong>직접 확인:</strong> 네이버 로그인, 광고계정 선택과 초대 정책 동의가 필요합니다. 발송 후 네이버에서 초대 상태를 확인해 주세요.</p><p className="ad-invitation-notice">현재 저장한 사전 동의는 확장프로그램과 연동되지 않습니다. 동의 저장만으로 초대가 발송되지 않습니다.</p><p><a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">Chrome 확장프로그램 설치 (새 창)</a></p>{signedIn&&/^[a-p]{32}$/.test(inviteExtensionId)&&<StoreButton type="button" disabled={openingExtension} onClick={()=>void openAdvertiserLogin()}>{openingExtension?'여는 중…':'확장프로그램으로 네이버애즈 열기'}</StoreButton>}{consentSection}</>}{extensionMessage&&<p role="status">{extensionMessage}</p>}</details>
+      {proofEnabled?<><ol><li><strong>확장프로그램 설치</strong><p>Chrome에 설치한 뒤 이 화면으로 돌아와 주세요.</p><p><a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">Chrome 확장프로그램 설치 (새 창)</a></p></li><li><strong>네이버 광고주 로그인 및 계정 선택</strong><p>네이버에 로그인하고 연결할 광고계정을 선택해 주세요. 이미 로그인했다면 계정을 선택해 주세요.</p><StoreButton type="button" disabled={!signedIn||!transport||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'네이버 광고주 로그인 및 계정 선택'}</StoreButton></li><li><strong>사전 동의 저장</strong>{consentSection}</li><li><strong>초대 진행</strong><p>동의 저장 후 확장프로그램으로 초대를 시작하고 네이버에서 발송 상태를 확인해 주세요.</p><StoreButton type="button" disabled={!savedConsent||openingExtension||consentBusy} onClick={()=>void startConsentedInvitation()}>{openingExtension?'확인 중…':'초대 진행'}</StoreButton></li></ol>{extensionMessage&&<p role="status">{extensionMessage}</p>}</>:<><ol><li><strong>확장프로그램 설치</strong><p>Chrome에 설치한 뒤 이 화면으로 돌아와 주세요.</p><p><a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">Chrome 확장프로그램 설치 (새 창)</a></p></li><li><strong>네이버 광고주 로그인 및 계정 선택</strong><p>네이버에 로그인하고 연결할 광고계정을 선택해 주세요. 이미 로그인했다면 계정을 선택해 주세요.</p>{signedIn&&/^[a-p]{32}$/.test(inviteExtensionId)?<StoreButton type="button" disabled={openingExtension} onClick={()=>void openAdvertiserLogin()}>{openingExtension?'여는 중…':'확장프로그램으로 네이버애즈 열기'}</StoreButton>:<p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>키츠노드 로그인 후 시작</Link></p>}</li><li><strong>네이버 초대 정책 확인</strong><p>네이버에서 표시되는 개인정보 제공 및 회원 초대 정책에 직접 동의해 주세요.</p></li><li><strong>확장프로그램으로 초대 진행</strong><p>확장프로그램의 자동 진행은 kitsnode ID 입력, 운영 조회 권한 선택과 초대 발송을 시도합니다. 네이버에서 발송 상태를 확인해 주세요.</p></li></ol><p className="ad-invitation-notice">현재 저장한 사전 동의는 확장프로그램과 연동되지 않습니다. 동의 저장만으로 초대가 발송되지 않습니다.</p>{consentSection}{extensionMessage&&<p role="status">{extensionMessage}</p>}</>}</details>
     </div><p className="ad-invitation-footer">초대 발송 후 키츠노드에서 초대를 확인하고 수락해야 광고계정 연결이 완료됩니다. 연결 완료 후 광고 데이터를 조회할 수 있습니다.</p></section>
     {message&&<p role="status" aria-live="polite">{message}</p>}<AdPolicyDialog document={policyDocument} onClose={()=>setPolicyDocument(null)}/>
   </StoreCard>;

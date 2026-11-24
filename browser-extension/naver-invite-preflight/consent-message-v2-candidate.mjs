@@ -19,6 +19,18 @@ export async function candidateWebMessageV2({chromeApi,message,sender,now=Date.n
    if(b)return same(b)?{status:'started'}:{status:'blocked'};
    const all=await chromeApi.storage.session.get(null);
    if(Object.entries(all).some(([key,r])=>key.startsWith('web_start_')&&r?.siteTabId===sender.tab.id&&r.expiresAt>nowMs))return {status:'blocked'};
+   const selectedKey=`selected_account_${sender.tab.id}`,selected=all[selectedKey];
+   if(selected?.siteTabId===sender.tab.id&&selected.accountId===message.accountId&&Number.isInteger(selected.naverTabId)&&Number.isSafeInteger(selected.expiresAt)&&nowMs<selected.expiresAt){
+    try{
+     const selectedTab=await chromeApi.tabs.get(selected.naverTabId),u=new URL(selectedTab.url);
+     if(u.origin==='https://ads.naver.com'&&!u.search&&!u.hash&&new RegExp(`^/manage/ad-accounts/${message.accountId}/(?:dashboard|all-campaigns|settings/billing/balance|settings/authorities/members/invited)$`).test(u.pathname)){
+      await chromeApi.storage.session.set({[web]:{siteTabId:sender.tab.id,naverTabId:selected.naverTabId,createdAt:nowMs,expiresAt:Math.min(selected.expiresAt,nowMs+600000),state:'account_routing',accountId:message.accountId,expectedAccountId:message.accountId,expectedConsentId:message.consentId,expectedConsentVersion:message.consentVersion,expectedConsentDigest:message.consentDigest,naverPolicyVersion:message.naverPolicyVersion,naverPolicyDigest:message.naverPolicyDigest}});
+      await chromeApi.storage.session.remove(selectedKey);
+      await chromeApi.tabs.update(selected.naverTabId,{url:`https://ads.naver.com/manage/ad-accounts/${message.accountId}/settings/authorities/members/invited`,active:true});
+      return {status:'started'};
+     }
+    }catch{await chromeApi.storage.session.remove(web);return {status:'unavailable'};}
+   }
    let tab;try{tab=await chromeApi.tabs.create({url:'https://ads.naver.com/settings/ad-account'});if(!Number.isInteger(tab?.id))return {status:'unavailable'};await chromeApi.storage.session.set({[web]:{siteTabId:sender.tab.id,naverTabId:tab.id,createdAt:nowMs,expiresAt:nowMs+600000,state:'login_opened',expectedAccountId:message.accountId,expectedConsentId:message.consentId,expectedConsentVersion:message.consentVersion,expectedConsentDigest:message.consentDigest,naverPolicyVersion:message.naverPolicyVersion,naverPolicyDigest:message.naverPolicyDigest}});return {status:'started'};}catch{if(Number.isInteger(tab?.id))try{await chromeApi.tabs.remove(tab.id)}catch{};return {status:'unavailable'};}
   }
   if(kind==='kitsnode.proof.prepare.v2'&&b&&['login_opened','account_routing'].includes(b.state)&&senderOk(sender,b,origin,path)&&nowMs>=b.createdAt&&nowMs<b.expiresAt&&b.expectedAccountId===message.accountId&&b.expectedConsentId===message.consentId&&b.expectedConsentVersion===message.consentVersion&&b.expectedConsentDigest===message.consentDigest&&b.naverPolicyVersion===message.naverPolicyVersion&&b.naverPolicyDigest===message.naverPolicyDigest)return {status:'selecting'};
