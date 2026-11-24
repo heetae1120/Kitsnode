@@ -20,7 +20,10 @@ test('manual invitation guidance and confirmed disconnect use the signed-in conn
  assert.equal(await page.getByRole('link',{name:'네이버애즈 열기 (새 창)'}).getAttribute('href'),'https://ads.naver.com/settings/ad-account');
  await page.getByText('연결 확인 대기',{exact:false}).waitFor();
  assert.ok(await page.getByText('kitsnode',{exact:true}).count()>=1);
- assert.equal(await page.getByText(/초대 발송과 담당자 수락은 직접 확인/).count(),1);
+ assert.equal(await page.getByText(/초대 발송과 담당자 수락은 직접 확인/).isVisible(),false);
+ await page.getByText('연결 도움말',{exact:true}).click();
+ assert.equal(await page.getByText(/초대 발송과 담당자 수락은 직접 확인/).isVisible(),true);
+ await page.getByText('Chrome 확장 프로그램으로 연결하기',{exact:true}).click();
  const extension=page.getByRole('button',{name:'확장 프로그램으로 네이버애즈 열기'});
  assert.equal(await extension.isDisabled(),true);
  await page.getByLabel('키츠노드에 운영 조회 권한을 초대하는 절차를 확인했습니다.').check();
@@ -55,7 +58,7 @@ test('consent form explains expiry and that saving does not send an invitation',
  const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
  const page=await browser.newPage({colorScheme:'dark'});let requests=0;
  await page.route('**/*',route=>{const url=new URL(route.request().url());if(url.origin===origin)return route.continue();if(url.hostname==='heetae1120.github.io')return route.fulfill({status:200,headers:{'access-control-allow-origin':'*'},contentType:'text/plain; charset=utf-8',body:'# 사전 동의 원문\n\n1. 광고계정 연결 안내'});if(url.hostname==='ads.naver.com')return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:'<p>원문 표시 확인</p>'});if(url.hostname==='bjpguxwqxlsteektkhwf.supabase.co'&&url.pathname.endsWith('/invite-consents')){requests++;return route.fulfill({status:201,contentType:'application/json',body:JSON.stringify({status:'recorded',consentId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'})});}return route.abort();});
- await page.goto(origin);await page.getByLabel('동의할 광고계정').selectOption('12345');
+ await page.goto(origin);await page.getByText('광고계정 연결 사전 동의',{exact:true}).click();await page.getByLabel('동의할 광고계정').selectOption('12345');
  await page.getByText(/저장 후 10분간 유효합니다/).waitFor();
  const disclosure=page.getByRole('button',{name:'키츠노드 사전 동의 내용 보기'});
  await disclosure.click();
@@ -90,7 +93,7 @@ test('consent-bound candidate displays the full Naver notice and requires both c
  const origin=`http://127.0.0.1:${server.address().port}`,browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH||'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
  const page=await browser.newPage();const calls=[];
  await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin===origin)return route.continue();if(u.hostname==='bjpguxwqxlsteektkhwf.supabase.co'){calls.push({path:u.pathname,body:route.request().postDataJSON()});return route.fulfill({status:200,contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(u.pathname.endsWith('/invite-consents')?{status:'recorded',consentId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'}:{status:'confirmed'})});}return route.abort();});
- await page.goto(origin);await page.getByLabel('동의할 광고계정').selectOption('12345');
+ await page.goto(origin);await page.getByText('광고계정 연결 사전 동의',{exact:true}).click();await page.getByLabel('동의할 광고계정').selectOption('12345');
  assert.equal(await page.getByRole('link',{name:'Chrome 웹 스토어에서 확장프로그램 설치 (새 창)'}).getAttribute('href'),`https://chromewebstore.google.com/detail/${'a'.repeat(32)}`);
  const policy=page.getByRole('region',{name:'네이버 회원 초대 정책'});assert.equal(await policy.locator('li').count(),4);
  const save=page.getByRole('button',{name:'사전 동의 저장'});assert.equal(await save.isDisabled(),true);
