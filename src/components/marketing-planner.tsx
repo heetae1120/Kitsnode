@@ -39,6 +39,7 @@ const empty:Draft={months:'',name:'',available:'',price:'',cost:'',quantity:'',f
 const sampleInput:MarketingPlanInput={price:30000,cost:12000,quantity:100,available:3000000,feePercent:5,logistics:3000,packaging:1000,returns:0,certification:0,fixed:0};
 const previewReport={name:'미리보기 예시',months:3,input:sampleInput,result:marketingPlan(sampleInput),examples:[]};
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
+const adKeywordCardTitle='광고·키워드';
 const enteredNumber=(value:string)=>value!==''&&Number.isFinite(Number(value))?Number(value):null;
 export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'starter'|'player';adCheckRoute?:boolean}){
  const [selectedMode,setSelectedMode]=useState<'starter'|'player'|null>(initialMode??null);
@@ -187,10 +188,10 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
    <div className="ds-choice-grid">
     <button type="button" className="ds-choice-card ds-starter" onClick={()=>chooseMode('starter')}><span className="ds-card-number">01 / 첫 판매 준비</span><span className="ds-choice-art ds-art-target" aria-hidden="true"><i/><b/></span><span className="ds-card-title">스타터</span><strong>판매가 처음이에요.</strong><span className="ds-card-description">판매 전에 필요한 금액과<br/>실제로 남는 이익을 확인하세요.</span><span className="ds-card-action">내 상품 진단하기 <ArrowUpRight size={25}/></span></button>
     <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-card-number">02 / 다음 성장 준비</span><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><strong>판매 경험이 있어요.</strong><span className="ds-card-description">상품의 수익 구조를 점검하고<br/>앞으로의 판매 방향을 함께 정리하세요.</span><span className="ds-card-action">현 상태 진단하기 <ArrowUpRight size={25}/></span></button>
-    <button type="button" className="ds-choice-card ds-shortcut-card" aria-label={AD_KEYWORD_LABEL} onClick={()=>openAdCheck()}>
+    <button type="button" className="ds-choice-card ds-shortcut-card" aria-label={adKeywordCardTitle} onClick={()=>openAdCheck()}>
      <span className="ds-card-number">검색량·클릭 비용</span>
      <span className="ds-choice-art ds-art-keyword" aria-hidden="true"><i/><i/><i/></span>
-     <span className="ds-card-title ds-ad-keyword-title">{AD_KEYWORD_LABEL}</span>
+     <span className="ds-card-title ds-ad-keyword-title">{adKeywordCardTitle}</span>
      <strong>검색 수요와 광고비를 함께 확인해요.</strong>
      <span className="ds-card-description">관련 검색어, PC·모바일 검색량과 클릭당 비용을 살펴보세요.</span>
      <span className="ds-card-action">광고·키워드 분석하기 <ArrowUpRight size={25}/></span>
