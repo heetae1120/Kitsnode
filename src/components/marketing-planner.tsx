@@ -163,10 +163,22 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
    <div className="ds-choice-grid">
     <button type="button" className="ds-choice-card ds-starter" onClick={()=>chooseMode('starter')}><span className="ds-card-number">01 / 첫 판매 준비</span><span className="ds-choice-art ds-art-target" aria-hidden="true"><i/><b/></span><span className="ds-card-title">스타터</span><strong>판매가 처음이에요.</strong><span className="ds-card-description">판매 전에 필요한 금액과<br/>실제로 남는 이익을 확인하세요.</span><span className="ds-card-action">내 상품 진단하기 <ArrowUpRight size={25}/></span></button>
     <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-card-number">02 / 다음 성장 준비</span><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><strong>판매 경험이 있어요.</strong><span className="ds-card-description">상품의 수익 구조를 점검하고<br/>앞으로의 판매 방향을 함께 정리하세요.</span><span className="ds-card-action">현 상태 진단하기 <ArrowUpRight size={25}/></span></button>
-   </div>
-   <div className="ds-choice-shortcuts" aria-label="진단 도구 바로가기">
-    <DiagnosisDownload libraryShortcut onLibraryOpenChange={setLibraryOpen}/>
-    <button type="button" className="mp-secondary" onClick={()=>{setAdCheck(true);requestAnimationFrame(()=>document.getElementById('ds-ad-keyword')?.focus());}}>광고 체크하기</button>
+    <button type="button" className="ds-choice-card ds-shortcut-card" aria-label="광고 체크하기" onClick={()=>{setAdCheck(true);requestAnimationFrame(()=>document.getElementById('ds-ad-keyword')?.focus());}}>
+     <span className="ds-card-number">키워드 광고 분석</span>
+     <span className="ds-choice-art ds-art-keyword" aria-hidden="true"><i/><i/><i/></span>
+     <span className="ds-card-title">광고 체크</span>
+     <strong>검색어와 클릭 비용을 확인해요.</strong>
+     <span className="ds-card-description">키워드를 입력해 CPC와 관련 검색어를 살펴보세요.</span>
+     <span className="ds-card-action">광고 체크하기 <ArrowUpRight size={25}/></span>
+    </button>
+    <DiagnosisDownload onLibraryOpenChange={setLibraryOpen} libraryTrigger={<>
+     <span className="ds-card-number">저장한 진단 결과</span>
+     <span className="ds-choice-art ds-art-library" aria-hidden="true"><i/><i/><i/></span>
+     <span className="ds-card-title">내 진단서</span>
+     <strong>저장한 진단을 다시 확인해요.</strong>
+     <span className="ds-card-description">지난 결과를 열고 진단서를 내려받으세요.</span>
+     <span className="ds-card-action">내 진단서 보러가기 <ArrowUpRight size={25}/></span>
+    </>}/>
    </div>
   </main>
  </div>;

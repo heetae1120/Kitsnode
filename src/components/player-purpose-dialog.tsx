@@ -4,8 +4,7 @@ import {ArrowRight,X} from 'lucide-react';
 import './player-purpose-dialog.css';
 
 const purposes=[
- {id:'agency',title:'대행사 변경을 검토하고 있어요',description:'키츠노드가 어떤 방식으로 일하는지 알아보고 싶어요.'},
- {id:'advertising',title:'지금 광고 운영을 점검하고 싶어요',description:'광고비 대비 수익과 운영 방향을 다시 살펴보고 싶어요.'},
+ {id:'advertising',title:'광고 운영과 대행사 변경을 점검하고 싶어요',description:'현재 광고의 수익을 살펴보고, 운영 방향과 대행사 변경을 함께 검토해요.'},
  {id:'rebranding',title:'브랜드의 새로운 방향을 찾고 있어요',description:'상품과 메시지를 재정비하고 리브랜딩을 고민하고 있어요.'},
 ] as const;
 export type PlayerPurpose=typeof purposes[number]['id'];

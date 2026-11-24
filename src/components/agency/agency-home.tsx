@@ -55,10 +55,8 @@ export function AgencyHome(){
         </div>
       </section>
     </main>
-    {showFloatingDiagnosis && (
-      <Link href={content.heroCta.href} className="as-button as-floating-diagnosis">
-        바로 진단하러 가기<ArrowUpRight size={20} aria-hidden="true"/>
-      </Link>
-    )}
+    <Link href={content.heroCta.href} className="as-button as-floating-diagnosis" hidden={!showFloatingDiagnosis}>
+      바로 진단하러 가기<ArrowUpRight size={20} aria-hidden="true"/>
+    </Link>
   </div>;
 }

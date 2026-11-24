@@ -21,7 +21,7 @@ body:has(.diagnosis-studio)>.kn-colophon{display:none}
 .profit-tool .mp-shell.diagnosis-studio .ds-choice h1{font-size:clamp(42px,6vw,90px);line-height:1.18;letter-spacing:-.055em;font-weight:800;margin:0;color:#f5f2eb}
 .profit-tool .mp-shell.diagnosis-studio .ds-choice h1 em{color:#ff5a1f;font-style:normal}
 .ds-choice-description{font-size:15px;line-height:1.9;color:#aaa7a0;margin:24px 0 40px}
-.ds-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.ds-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:1fr;gap:22px}
 .ds-choice-card{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:380px;padding:32px;background:#171717;color:#f5f2eb;border:1px solid #ffffff30;border-radius:0;font:inherit;cursor:pointer;transition:transform .25s,border-color .25s}
 .ds-choice-card:hover{transform:translateY(-6px);border-color:#ff5a1f}
 .ds-choice-card.ds-player{background:#ff5a1f;color:#0b0b0b;border-color:#ff5a1f}
@@ -29,7 +29,8 @@ body:has(.diagnosis-studio)>.kn-colophon{display:none}
 .ds-card-title{font-size:clamp(38px,4.3vw,64px);line-height:1.2;letter-spacing:-.055em;font-weight:800;position:relative;z-index:1}
 .ds-choice-card>strong{font-size:17px;margin:15px 0 10px;position:relative;z-index:1}
 .ds-card-description{font-size:13px;line-height:1.85;opacity:.75;position:relative;z-index:1}
-.ds-card-action{margin-top:32px;display:flex;align-items:center;justify-content:space-between;width:100%;border-top:1px solid currentColor;padding-top:20px;font-size:14px;font-weight:700;position:relative;z-index:1}
+.ds-card-action{margin-top:auto;display:flex;align-items:center;justify-content:space-between;width:100%;border-top:1px solid currentColor;padding-top:20px;font-size:14px;font-weight:700;position:relative;z-index:1}
+.ds-choice-card .ds-card-description{margin-bottom:32px}
 .ds-choice-art{position:absolute;right:32px;top:50px;width:clamp(90px,11vw,160px);aspect-ratio:1;transition:transform .65s cubic-bezier(.22,1,.36,1);pointer-events:none}
 .ds-choice-card:hover .ds-choice-art{transform:rotate(35deg) scale(1.06)}
 .ds-art-target{border-radius:50%;background:#ff5a1f;display:grid;place-items:center}
@@ -563,9 +564,20 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-key-date.is-recommended
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-key-date.is-deadline{border:2px solid #ff6868!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story .mp-keyword-candidates>li>.mp-keyword-order{display:block;width:auto;height:auto;min-width:0;padding:0;margin:0 0 20px;border:0!important;border-radius:0;background:transparent!important;box-shadow:none!important;color:#ff5a1f!important;font-size:clamp(36px,3.5vw,48px);font-weight:800;line-height:1;letter-spacing:-.045em}
 /* Diagnosis shortcuts and the persistent starter summary. */
-html body .profit-tool .diagnosis-studio .ds-choice-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:20px}
-html body .profit-tool .diagnosis-studio .ds-choice-shortcuts>button{display:flex;justify-content:flex-start;align-items:center;min-height:64px;padding:16px 24px;background:#171717;border:1px solid #454545;color:#f5f2eb;font-size:16px}
-html body .profit-tool .diagnosis-studio .ds-choice-shortcuts>button:hover{border-color:#ff5a1f}
+.ds-art-keyword{box-sizing:border-box;display:flex;align-items:flex-end;justify-content:center;gap:9%;padding:clamp(15px,2.2vw,30px);border:1px solid #ff5a1f70;border-radius:50%;background:#ff5a1f12}
+.ds-art-keyword>i{width:22%;height:40%;background:#ff5a1f;transform-origin:bottom;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+.ds-art-keyword>i:nth-child(2){height:64%;transition-delay:.045s}
+.ds-art-keyword>i:last-child{height:88%;transition-delay:.09s}
+.ds-art-library>i{position:absolute;inset:13% 22%;border:2px solid #ff5a1f;border-radius:8px;background:#171717;transform:rotate(-20deg) translateX(-20%);transition:transform .55s cubic-bezier(.22,1,.36,1)}
+.ds-art-library>i:nth-child(2){transform:rotate(20deg) translateX(20%)}
+.ds-art-library>i:last-child{background:#ff5a1f;transform:none}
+.ds-art-library>i:last-child::after{content:'';position:absolute;left:20%;right:20%;top:36%;height:21%;border-block:3px solid #0b0b0b}
+@media(prefers-reduced-motion:no-preference){
+ .ds-shortcut-card:is(:hover,:focus-visible) .ds-choice-art{transform:translateY(-5px) scale(1.04)}
+ .ds-shortcut-card:is(:hover,:focus-visible) .ds-art-keyword>i{transform:scaleY(1.25)}
+ .ds-shortcut-card:is(:hover,:focus-visible) .ds-art-library>i:first-child{transform:rotate(-30deg) translateX(-34%)}
+ .ds-shortcut-card:is(:hover,:focus-visible) .ds-art-library>i:nth-child(2){transform:rotate(30deg) translateX(34%)}
+}
 .ds-library-dialog{max-height:85vh;overflow:auto}
 .ds-library-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
 .ds-library-links>a{display:inline-flex;align-items:center;justify-content:center;padding:12px 20px;text-decoration:none}
@@ -585,6 +597,4 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow[style] :is(.mp-workspa
  html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary .mp-live-values{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px}
  html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary .mp-live-values>span{grid-column:auto;font-size:13px;padding:7px 4px}
  html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary .mp-live-values b{font-size:21px;margin-top:3px}
- html body .profit-tool .diagnosis-studio .ds-choice-shortcuts{gap:10px}
- html body .profit-tool .diagnosis-studio .ds-choice-shortcuts>button{font-size:14px;padding:12px}
 }

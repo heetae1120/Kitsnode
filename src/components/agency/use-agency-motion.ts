@@ -13,6 +13,7 @@ export function useAgencyMotion(){
   const [scene,setScene]=useState(0);
   const [enhanced,setEnhanced]=useState(false);
   const [showShortcut,setShowShortcut]=useState(false);
+  const [finalInView,setFinalInView]=useState(false);
 
   function jumpToDiagnosis(){
     const timeline=heroTimeline.current;
@@ -41,7 +42,8 @@ export function useAgencyMotion(){
     const pin=hero?.querySelector<HTMLElement>('.as-pin');
     const diagnosis=pin?.querySelector<HTMLElement>('#diagnosis');
     const diagnosisLink=diagnosis?.querySelector('.as-conversion-cta');
-    if(!hero||!pin||!diagnosis||!diagnosisLink)return;
+    const shortcut=el?.querySelector('.as-floating-diagnosis');
+    if(!hero||!pin||!diagnosis||!diagnosisLink||!shortcut)return;
 
     const media=gsap.matchMedia();
     media.add('(prefers-reduced-motion: no-preference)',()=>{
@@ -72,8 +74,10 @@ export function useAgencyMotion(){
         .to(strategy,{yPercent:0,duration:.85},strategyStart)
         .from('.as-scene-03 .as-word',{yPercent:90,stagger:.07,duration:.6},strategyStart+.18)
         .from('.as-grid-mark',{rotation:-50,scale:.72,duration:.95},strategyStart+.15)
-        .to('.as-scene-03 .as-scene-type',{y:-40,duration:.55},diagnosisStart)
+        .to(strategy,{yPercent:-100,duration:.85},diagnosisStart)
         .to(diagnosis,{yPercent:0,duration:.85},diagnosisStart)
+        .to(shortcut,{y:()=>-pin.clientHeight,duration:.85},diagnosisStart)
+        .set(shortcut,{autoAlpha:0},diagnosisStart+.85)
         .from('.as-conversion-copy',{y:36,duration:.7},diagnosisStart+.12)
         .from(diagnosisLink,{y:28,duration:.6},diagnosisStart+.35)
         .to(progress,{scaleX:1,duration,ease:'none'},0);
@@ -94,10 +98,13 @@ export function useAgencyMotion(){
     const syncShortcut=()=>setShowShortcut(window.scrollY>=48);
     window.addEventListener('scroll',syncShortcut,{passive:true});
     syncShortcut();
+    const observer=new IntersectionObserver(([entry])=>setFinalInView(entry.isIntersecting),{threshold:.1});
+    observer.observe(diagnosisLink);
     return ()=>{
+      observer.disconnect();
       window.removeEventListener('scroll',syncShortcut);
       media.revert();
     };
   },{scope:root});
-  return {root,scene,enhanced,jumpToDiagnosis,showFloatingDiagnosis:showShortcut};
+  return {root,scene,enhanced,jumpToDiagnosis,showFloatingDiagnosis:showShortcut&&(enhanced||!finalInView)};
 }
