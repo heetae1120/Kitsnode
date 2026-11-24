@@ -55,12 +55,12 @@ test("store navigation does not enter the editor tool allowlist", () => {
   assert.deepEqual(storeLinks.map(item => item.href), ["/store/", "/store/ads/", "/store/sales/"]);
   assert.ok(toolLinks.every(item => item.href.startsWith("/tools/")));
 });
-test("public tool headers share the hero categories and retain the advertising account entry", () => {
+test("public tool headers share the hero categories and omit the member-only advertising route", () => {
   for (const file of ["tools-header.tsx", "agency/agency-home.tsx", "diagnosis-header.tsx"]) {
     assert.match(readFileSync("src/components/" + file, "utf8"), /<PublicCategories\b/);
   }
   const categories = readFileSync("src/components/public-categories.tsx", "utf8");
-  assert.match(categories, /href:'\/store\/ads\/'/);
+  assert.doesNotMatch(categories, /href:'\/store\/ads\/'/);
   assert.doesNotMatch(categories, /href:'\/tools\/survey\/'/);
 });
 test("member pages cannot accept credentials or fabricate authentication", () => {

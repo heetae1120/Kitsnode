@@ -5,14 +5,14 @@ export const AD_CHECK_HREF='/tools/?view=ad-check';
 export const SURVEY_HREF='/tools/about/#survey';
 const links=[
  {id:'profit',href:'/tools/',label:'상품 진단'},
- {id:'ads',href:'/store/ads/',label:'광고 분석'},
  {id:'keywords',href:AD_CHECK_HREF,label:AD_KEYWORD_LABEL},
  {id:'about',href:'/tools/about/',label:'소개'},
 ] as const;
 
 export function PublicCategories({active}:{active?:string}){
+ const visibleLinks=active==='ads'?links.filter(link=>link.id!=='keywords'):links;
  return <nav className="public-categories" aria-label="도구 메뉴">
-  {links.map(link=><Link key={link.id} href={link.href} aria-current={active===link.id?'page':undefined}>{link.label}</Link>)}
+  {visibleLinks.map(link=><Link key={link.id} href={link.href} aria-current={active===link.id?'page':undefined}>{link.label}</Link>)}
  </nav>;
 }
 
