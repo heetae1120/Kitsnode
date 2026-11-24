@@ -18,8 +18,13 @@ function SceneWords({lines,first=false}:{lines:readonly string[];first?:boolean}
   const words=lines.map((line,i)=><span className="as-mask" key={line}>{line.split(' ').map((word,j)=><span className="as-token-mask" key={`${line}-${j}`}><span className="as-word" data-line={i}>{word}</span>{j<line.split(' ').length-1?'\u00a0':null}</span>)}</span>);
   return first?<h1 className="as-display as-refined-display">{words}</h1>:<h2 className="as-display as-refined-display">{words}</h2>;
 }
+function DiagnosisShortcut({floating=false,hidden=false}:{floating?:boolean;hidden?:boolean}){
+  return <Link href={content.heroCta.href} className={`as-button as-diagnosis-shortcut${floating?' as-floating-diagnosis':''}`} hidden={hidden}>
+    바로 진단하러 가기<ArrowUpRight size={20} aria-hidden="true"/>
+  </Link>;
+}
 export function AgencyHome(){
-  const {root,scene,enhanced,showFloatingDiagnosis,jumpToDiagnosis}=useAgencyMotion();
+  const {root,scene,enhanced,shortcutDocked,showFloatingDiagnosis,jumpToDiagnosis}=useAgencyMotion();
   return <div className="agency-site as-korean-site as-diagnosis-landing" id="top" ref={root}>
     <a className="as-skip" href="#diagnosis" onClick={event=>{if(jumpToDiagnosis())event.preventDefault();}}>본문으로 건너뛰기</a>
     <header className="as-header">
@@ -38,6 +43,7 @@ export function AgencyHome(){
             <div className="as-scene-type"><SceneWords lines={item.lines} first={i===0}/></div>
             {i===1&&<div className="as-strategy-keywords">{content.diagnosisKeywords.map(keyword=><span key={keyword}>{keyword}</span>)}</div>}
             <div className="as-scene-copy as-refined-copy"><h3 className="as-korean-headline">{item.korean.map(line=><span key={line}>{line}</span>)}</h3><p className="as-service-description">{item.description}</p></div>
+            {i===1&&<DiagnosisShortcut hidden={enhanced&&!shortcutDocked}/>}
           </section>)}
           <section id="diagnosis" className="as-scene as-conversion as-section" aria-labelledby="as-conversion-title" aria-hidden={enhanced?scene!==2:undefined} inert={enhanced&&scene!==2}>
             <div className="as-conversion-copy">
@@ -55,8 +61,6 @@ export function AgencyHome(){
         </div>
       </section>
     </main>
-    <Link href={content.heroCta.href} className="as-button as-floating-diagnosis" hidden={!showFloatingDiagnosis}>
-      바로 진단하러 가기<ArrowUpRight size={20} aria-hidden="true"/>
-    </Link>
+    <DiagnosisShortcut floating hidden={!showFloatingDiagnosis}/>
   </div>;
 }

@@ -13,7 +13,7 @@ export function useAgencyMotion(){
   const [scene,setScene]=useState(0);
   const [enhanced,setEnhanced]=useState(false);
   const [showShortcut,setShowShortcut]=useState(false);
-  const [finalInView,setFinalInView]=useState(false);
+  const [shortcutDocked,setShortcutDocked]=useState(false);
 
   function jumpToDiagnosis(){
     const timeline=heroTimeline.current;
@@ -42,8 +42,7 @@ export function useAgencyMotion(){
     const pin=hero?.querySelector<HTMLElement>('.as-pin');
     const diagnosis=pin?.querySelector<HTMLElement>('#diagnosis');
     const diagnosisLink=diagnosis?.querySelector('.as-conversion-cta');
-    const shortcut=el?.querySelector('.as-floating-diagnosis');
-    if(!hero||!pin||!diagnosis||!diagnosisLink||!shortcut)return;
+    if(!hero||!pin||!diagnosis||!diagnosisLink)return;
 
     const media=gsap.matchMedia();
     media.add('(prefers-reduced-motion: no-preference)',()=>{
@@ -51,6 +50,7 @@ export function useAgencyMotion(){
       const strategy=pin.querySelector('.as-scene-03');
       const progress=pin.querySelector('.as-progress-fill');
       const strategyStart=1.15;
+      const sceneTransition=.85;
       const diagnosisStart=2.85;
       const duration=4.15;
 
@@ -61,6 +61,7 @@ export function useAgencyMotion(){
         onUpdate(this:gsap.core.Timeline){
           const time=this.time();
           setScene(time<strategyStart+.4?0:time<diagnosisStart+.4?1:2);
+          setShortcutDocked(time>=strategyStart+sceneTransition);
         },
         scrollTrigger:{
           trigger:hero,pin,start:'top top',
@@ -71,13 +72,11 @@ export function useAgencyMotion(){
       timeline
         .to('.as-portal',{scale:1.65,rotation:32,duration:.9},.55)
         .to('.as-scene-01 .as-scene-type',{y:-40,duration:.55},strategyStart)
-        .to(strategy,{yPercent:0,duration:.85},strategyStart)
+        .to(strategy,{yPercent:0,duration:sceneTransition},strategyStart)
         .from('.as-scene-03 .as-word',{yPercent:90,stagger:.07,duration:.6},strategyStart+.18)
         .from('.as-grid-mark',{rotation:-50,scale:.72,duration:.95},strategyStart+.15)
-        .to(strategy,{yPercent:-100,duration:.85},diagnosisStart)
-        .to(diagnosis,{yPercent:0,duration:.85},diagnosisStart)
-        .to(shortcut,{y:()=>-pin.clientHeight,duration:.85},diagnosisStart)
-        .set(shortcut,{autoAlpha:0},diagnosisStart+.85)
+        .to(strategy,{yPercent:-100,duration:sceneTransition},diagnosisStart)
+        .to(diagnosis,{yPercent:0,duration:sceneTransition},diagnosisStart)
         .from('.as-conversion-copy',{y:36,duration:.7},diagnosisStart+.12)
         .from(diagnosisLink,{y:28,duration:.6},diagnosisStart+.35)
         .to(progress,{scaleX:1,duration,ease:'none'},0);
@@ -92,19 +91,17 @@ export function useAgencyMotion(){
         heroTimeline.current=null;
         delete hero.dataset.motion;
         setEnhanced(false);
+        setShortcutDocked(false);
         setScene(0);
       };
     });
     const syncShortcut=()=>setShowShortcut(window.scrollY>=48);
     window.addEventListener('scroll',syncShortcut,{passive:true});
     syncShortcut();
-    const observer=new IntersectionObserver(([entry])=>setFinalInView(entry.isIntersecting),{threshold:.1});
-    observer.observe(diagnosisLink);
     return ()=>{
-      observer.disconnect();
       window.removeEventListener('scroll',syncShortcut);
       media.revert();
     };
   },{scope:root});
-  return {root,scene,enhanced,jumpToDiagnosis,showFloatingDiagnosis:showShortcut&&(enhanced||!finalInView)};
+  return {root,scene,enhanced,shortcutDocked,jumpToDiagnosis,showFloatingDiagnosis:enhanced&&showShortcut&&!shortcutDocked};
 }

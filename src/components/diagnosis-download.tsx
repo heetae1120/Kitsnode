@@ -18,11 +18,17 @@ export function DiagnosisDownload({report,trailingAction,libraryTrigger,onLibrar
  if(!report&&!signedIn&&!libraryTrigger)return null;
  const savedList=<div><h3>내 진단서 · 최대 3개</h3>{saved.length===0&&<p>저장한 진단서가 없습니다.</p>}<ul>{saved.map(record=><li key={record.id}><span>{record.name} · {new Date(record.createdAt).toLocaleDateString('ko-KR')}</span><button disabled={busy} onClick={()=>void run(()=>downloadDiagnosis(record))}>PDF 다운로드</button><button disabled={busy} onClick={()=>void run(()=>update(record.id))}>삭제</button></li>)}</ul></div>;
  if(libraryTrigger)return <>
-  <button type="button" className="ds-choice-card ds-shortcut-card" aria-label="내 진단서 보러가기" onClick={()=>{library.current?.showModal();onLibraryOpenChange?.(true);}}>{libraryTrigger}</button>
-  <dialog className="mp-signup-dialog ds-library-dialog" ref={library} aria-labelledby="ds-library-title" onClose={()=>onLibraryOpenChange?.(false)}>
+  <button type="button" className="ds-choice-card ds-shortcut-card" aria-label="내 진단서 보러가기" aria-haspopup="dialog" onClick={()=>{library.current?.showModal();onLibraryOpenChange?.(true);}}>{libraryTrigger}</button>
+  <dialog className="mp-signup-dialog ds-library-dialog" ref={library} aria-labelledby="ds-library-title" aria-describedby={signedIn?undefined:'ds-library-auth-description'} onClose={()=>onLibraryOpenChange?.(false)}>
    <button type="button" className="mp-signup-close" aria-label="닫기" data-diagnosis-back onClick={()=>library.current?.close()}>×</button>
-   <h2 id="ds-library-title">{signedIn?'내 진단서':'회원가입하고 내 진단서를 확인하세요'}</h2>
-   {signedIn?savedList:<div className="ds-library-links"><Link className="mp-primary" href="/store/signup/" onClick={saveMemberReturn}>회원가입</Link><Link className="mp-secondary" href="/store/login/" onClick={saveMemberReturn}>로그인</Link></div>}
+   <h2 id="ds-library-title">{signedIn?'내 진단서':'로그인 또는 회원가입'}</h2>
+   {signedIn?savedList:<>
+    <p id="ds-library-auth-description">저장한 진단서를 보려면 로그인해 주세요.</p>
+    <div className="ds-library-links">
+     <Link className="mp-primary" href="/store/login/" onClick={saveMemberReturn}>로그인</Link>
+     <Link className="mp-secondary" href="/store/signup/" onClick={saveMemberReturn}>회원가입</Link>
+    </div>
+   </>}
    {message&&<p role="status">{message}</p>}
   </dialog>
  </>;
