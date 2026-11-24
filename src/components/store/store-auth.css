@@ -63,3 +63,23 @@
 .member-panel .member-welcome button{margin-top:12px;color:#c5c1b9}
 .member-panel .member-diagnoses h3,.member-panel .member-naver-card h2{margin:0 0 12px;font-size:18px}
 @media(max-width:370px){.member-welcome,.member-diagnoses,.member-naver-card{padding:16px}}
+.member-panel .member-account-title{margin:0 0 22px;font-size:26px}
+.member-profile{display:flex;align-items:center;gap:14px;padding:20px;border:1px solid #454545;border-radius:14px;background:#191919}
+.member-profile__avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#321b12;color:#ff8052}
+.member-profile__info{min-width:0;flex:1;overflow-wrap:anywhere}
+.member-profile__info h3{margin:0;font-size:18px;line-height:1.4}
+.member-panel .member-profile__info p{margin:3px 0 0;font-size:12px;color:#aaa7a0}
+.member-profile__status{flex:none;color:#a8dab7;font-size:11px;font-weight:700}
+.member-menu{margin-top:32px}
+.member-menu>h3{margin:0 0 10px;color:#aaa7a0;font-size:12px;font-weight:700}
+.member-panel .member-menu .member-menu__row{display:flex;align-items:center;gap:13px;width:100%;min-height:62px;padding:10px 2px;border:0;border-bottom:1px solid #353535;background:transparent;color:#f5f2eb;font:inherit;font-size:15px;font-weight:600;text-align:left;text-decoration:none;cursor:pointer}
+.member-menu__row:hover{color:#ff8052!important}
+.member-menu__row>svg:last-child{color:#8d8b85;flex:none}
+.member-menu__icon{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;background:#252525;color:#ff8052}
+.member-menu__icon--naver{background:#123b25;color:#55df8c;font-weight:800}
+.member-menu__label{flex:1;min-width:0}
+.member-menu__meta{color:#aaa7a0;font-size:12px;font-weight:500}
+.member-menu__details summary{list-style:none}.member-menu__details summary::-webkit-details-marker{display:none}.member-menu__details[open] summary>svg:last-child{transform:rotate(90deg)}
+.member-menu__expanded{padding:12px 4px 18px}.member-menu__expanded .ds-diagnosis-download h3{font-size:15px}.member-menu__expanded .ds-diagnosis-download ul{padding-left:20px}.member-menu__expanded .ds-diagnosis-download button{margin:4px 8px 4px 0}
+.member-menu>section[aria-label="회원 탈퇴"]{margin-top:20px}.member-menu>section[aria-label="회원 탈퇴"] h2{font-size:14px}
+@media(max-width:370px){.member-profile{padding:16px;gap:10px}.member-profile__status{font-size:10px}}

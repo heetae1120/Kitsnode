@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, BarChart3, UserRound } from 'lucide-react';
+import { BarChart3, ChevronRight, FileText, LogOut, UserRound } from 'lucide-react';
 import {memberBrowserClient,takeNaverProviderCallback} from '@/lib/member-browser-client';
 import {takeMemberReturn} from '@/lib/member-return';
 import { MEMBER_INTAKE_REVIEWED, canUseMemberNaver, readMemberAuthConfig, memberRedirect } from '@/lib/member-auth-config.mjs';
@@ -19,7 +19,6 @@ import { MemberNaverError } from './member-naver-error';
 import { MemberEmailProfile } from './member-email-profile';
 import {createUsernameClient} from '@/lib/member-username-client.mjs';
 import {createNaverAgreementBridge} from '@/lib/member-naver-agreement.mjs';
-import naverStyles from './naver-login.module.css';
 
 const naverErrorText: Record<string,string> = {
   identity_conflict:'이미 다른 계정에 연결된 네이버 계정입니다. 기존 연결을 확인해 주세요.',
@@ -41,6 +40,7 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   const [signedIn,setSignedIn] = useState(false);
   const [accountEmail,setAccountEmail] = useState<string|null>(null);
   const [accountName,setAccountName] = useState<string|null>(null);
+  const [diagnosisCount,setDiagnosisCount] = useState<number|null>(null);
   const [signOutError,setSignOutError] = useState('');
   const [naverIdentity,setNaverIdentity] = useState({linked:false,canLinkEmail:false});
   const [profileStatus,setProfileStatus]=useState<'checking'|'pending'|'ready'|'error'>('checking');
@@ -190,16 +190,13 @@ export function MemberAuthPrep({mode}:{mode:'login'|'signup'}) {
   return <section className={signedIn && !recovery ? "member-signed-in" : undefined}>
     {withdrawCompleted && <p role="status">회원 탈퇴가 완료되었습니다. 다시 이용하려면 회원가입해 주세요.</p>}
     {(!signedIn || recovery) && <EmailAuthForm key={recovery?'recovery':'normal'} auth={api} signedIn={signedIn} recovery={recovery} initialMode={mode==='signup'?'signup':'signin'} allowSignup={intakeEnabled} signupConsent={signupConsent} usernameSignIn={usernameApi?.signIn} resumeSignup={usernameApi?.resumeSignup} checkUsername={usernameApi?.checkUsername}/>}
-    {signedIn && !recovery && <section className="member-welcome" aria-label="로그인 계정"><div className="member-welcome__icon"><UserRound size={24} aria-hidden="true"/></div><div className="member-welcome__content"><h2>안녕하세요, {accountName || (accountEmail ? accountEmail.split('@')[0] : '회원')}님 👋</h2><p className="member-welcome__status">● 로그인 중</p><p className="member-welcome__email">{accountEmail || '이메일 정보 없음'}</p><button type="button" onClick={()=>{setSignOutError('');void api.signOut().then(result=>{if(!result.ok)setSignOutError('로그아웃하지 못했습니다. 다시 시도해 주세요.')}).catch(()=>setSignOutError('로그아웃하지 못했습니다. 다시 시도해 주세요.'))}}>로그아웃</button>{signOutError && <p role="alert">{signOutError}</p>}</div></section>}
+    {signedIn && !recovery && <><h2 className="member-account-title">내 계정</h2><section className="member-profile" aria-label="로그인 계정"><div className="member-profile__avatar"><UserRound size={24} aria-hidden="true"/></div><div className="member-profile__info"><h3>{accountName || (accountEmail ? accountEmail.split('@')[0] : '회원')}님</h3><p>{accountEmail || '이메일 정보 없음'}</p></div><span className="member-profile__status">● 로그인 중</span></section></>}
     {process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true' && signedIn && !recovery && memberUserId && consentStatus==='accepted' && profileStatus==='pending' && <MemberEmailProfile key={`profile-${memberUserId}`} client={memberBrowserClient()!} userId={memberUserId} checkUsername={usernameApi?.checkUsername} onComplete={()=>{if(memberUserIdRef.current===memberUserId){setProfileCompleted(true);setProfileStatus('ready')}}}/>}
-    {signedIn && !recovery && <><section className="member-ads-entry" aria-labelledby="signed-in-ads-title"><div className="member-ads-entry__icon"><BarChart3 size={24} aria-hidden="true" /></div><div className="member-ads-entry__content"><h2 id="signed-in-ads-title">광고 성과 분석</h2><p>광고 성과를 확인하고 개선점을 찾아보세요.</p><Link className="member-ads-entry__link" href="/store/ads/">분석 시작하기 <ArrowRight size={17} aria-hidden="true" /></Link></div></section></>}
+    {signedIn && !recovery && <section className="member-menu" aria-labelledby="member-activity-title"><h3 id="member-activity-title">내 활동</h3><Link className="member-menu__row" href="/store/ads/"><span className="member-menu__icon"><BarChart3 size={20} aria-hidden="true"/></span><span className="member-menu__label">광고 성과 분석</span><ChevronRight size={19} aria-hidden="true"/></Link><details className="member-menu__details"><summary className="member-menu__row"><span className="member-menu__icon"><FileText size={20} aria-hidden="true"/></span><span className="member-menu__label">내 진단서</span><span className="member-menu__meta">{diagnosisCount === null ? '' : `${diagnosisCount} / 3`}</span><ChevronRight size={19} aria-hidden="true"/></summary><div className="member-menu__expanded"><DiagnosisDownload key={memberUserId} onCountChange={setDiagnosisCount}/></div></details></section>}
     {profileCompleted && signedIn && <p role="status">회원가입이 완료되었습니다.</p>}
     {process.env.NEXT_PUBLIC_MEMBER_EMAIL_PROFILE_ENABLED==='true' && signedIn && profileStatus==='error' && <p role="alert">회원가입 완료 상태를 확인하지 못했습니다. 다시 로그인해 주세요.</p>}
-    {withdrawAvailable && signedIn && !recovery && memberUserId && <MemberSelfWithdraw key={memberUserId} withdraw={()=>requestSelfWithdrawal(memberBrowserClient(),memberUserId,()=>setWithdrawCompleted(true))}/>}
     {canUseMemberNaver(config) && !signedIn && <MemberNaverSignIn basePath={basePath} busy={busy} signIn={()=>void go('signIn')}/>}
-    {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.canLinkEmail && !naverIdentity.linked && <section className="member-naver-card"><h2>연결된 계정</h2><button type="button" className={naverStyles.linkButton} disabled={busy} onClick={()=>void go('link')}><img src={`${basePath}/naver-login/icon.png`} alt="" width="48" height="48" /><span>네이버 계정 연결</span></button><p>현재 이메일 계정에 네이버 계정을 연결합니다.</p></section>}
-    {canUseMemberNaver(config) && config.link && signedIn && !recovery && naverIdentity.linked && <section className="member-naver-card"><h2>연결된 계정</h2><p>네이버 계정이 연결되어 있습니다.</p></section>}
-    {signedIn && !recovery && <section className="member-diagnoses" aria-label="내 진단서"><DiagnosisDownload key={memberUserId}/></section>}
+    {signedIn && !recovery && <section className="member-menu" aria-labelledby="member-settings-title"><h3 id="member-settings-title">계정 관리</h3>{canUseMemberNaver(config) && config.link && naverIdentity.canLinkEmail && !naverIdentity.linked && <button type="button" className="member-menu__row" disabled={busy} onClick={()=>void go('link')}><span className="member-menu__icon member-menu__icon--naver">N</span><span className="member-menu__label">네이버 계정 연결</span><ChevronRight size={19} aria-hidden="true"/></button>}{canUseMemberNaver(config) && config.link && naverIdentity.linked && <div className="member-menu__row"><span className="member-menu__icon member-menu__icon--naver">N</span><span className="member-menu__label">네이버 계정</span><span className="member-menu__meta">연결됨</span></div>}<button type="button" className="member-menu__row" onClick={()=>{setSignOutError('');void api.signOut().then(result=>{if(!result.ok)setSignOutError('로그아웃하지 못했습니다. 다시 시도해 주세요.')}).catch(()=>setSignOutError('로그아웃하지 못했습니다. 다시 시도해 주세요.'))}}><span className="member-menu__icon"><LogOut size={20} aria-hidden="true"/></span><span className="member-menu__label">로그아웃</span><ChevronRight size={19} aria-hidden="true"/></button>{signOutError && <p role="alert">{signOutError}</p>}{withdrawAvailable && memberUserId && <MemberSelfWithdraw key={memberUserId} withdraw={()=>requestSelfWithdrawal(memberBrowserClient(),memberUserId,()=>setWithdrawCompleted(true))}/>}</section>}
     {error && <MemberNaverError message={error} conflict={error===naverErrorText.identity_conflict} signupRequired={error===naverErrorText.signup_required} basePath={basePath}/>}
   </section>;
 }
