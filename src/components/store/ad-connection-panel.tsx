@@ -158,6 +158,7 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
       if(result?.status!=='pending_review') throw new Error('invalid_response');
       setRefreshKey(previous=>previous+1);
       setMessage('연결 확인을 요청했습니다. 담당자가 광고 계정 접근 권한을 확인한 뒤 연결됩니다.');
+      onRefresh?.();
     } catch {if(!controller.signal.aborted && userRef.current===userId)setMessage('요청 결과를 확인하지 못했습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.');}
     finally {if(activeRef.current===controller){activeRef.current=null;lock.current=false;setBusy(false);}}
   }
@@ -222,6 +223,7 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
       if(controller.signal.aborted || userRef.current!==userId) return;
       setConnections(previous=>previous.map(item=>item.requestId===connection.requestId ? {...item,status:'disconnected'} : item));
       setMessage('키츠노드 연결을 해제했습니다. 네이버에서 부여한 권한은 광고주가 직접 해제해 주세요.');
+      onRefresh?.();
     } catch {if(!controller.signal.aborted && userRef.current===userId)setMessage('해제 결과를 확인하지 못했습니다. 연결 상태를 다시 확인해 주세요.');}
     finally {if(activeRef.current===controller){activeRef.current=null;lock.current=false;setBusy(false);}}
   }

@@ -3,20 +3,33 @@ import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
+import {readFileSync} from 'node:fs';
 import {build} from 'esbuild';
 const require=createRequire(import.meta.url), playwrightPath=process.env.KITS_PLAYWRIGHT_PATH;
 const path=name=>fileURLToPath(new URL(name,import.meta.url));
 test('requires login and separates unverified from connected ad accounts', {skip:!playwrightPath,timeout:30000},async t=>{
  const {chromium}=require(playwrightPath);
  const built=await build({entryPoints:[path('./fixtures/advertiser-analysis-browser.tsx')],bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',logLevel:'silent',define:{'process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED':'"false"','process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED':'"false"','process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION':'""','process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST':'""','process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL':'""','process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL':'""','process.env.NEXT_PUBLIC_AD_ANALYSIS_PERFORMANCE_READY':'"false"','process.env.NEXT_PUBLIC_AD_CONNECTION_ENABLED':'"true"','process.env.NEXT_PUBLIC_AD_PERFORMANCE_ENABLED':'"false"','process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID':'""','process.env.NEXT_PUBLIC_BASE_PATH':'""'},alias:{'@/lib/member-browser-client':path('./fixtures/ad-connection-auth-stub.ts'),'next/link':path('./fixtures/ad-connection-link-stub.tsx'),'@/lib/member-return':path('../src/lib/member-return.ts'),'@/lib/ad-connection-transport.mjs':path('../src/lib/ad-connection-transport.mjs'),'@/lib/naver-invite-extension.mjs':path('../src/lib/naver-invite-extension.mjs'),'@/lib/ad-performance-client.mjs':path('../src/lib/ad-performance-client.mjs'),'@/lib/shopping-preview-client.mjs':path('../src/lib/shopping-preview-client.mjs')}});
- const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}res.writeHead(200,{'content-type':'text/html; charset=utf-8'});res.end('<!doctype html><html lang="ko"><div id="root"></div><script src="/app.js"></script></html>');});
+ const server=createServer((req,res)=>{if(req.url==='/app.js'){res.writeHead(200,{'content-type':'application/javascript'});return res.end(built.outputFiles[0].text);}if(req.url==='/style.css'){res.writeHead(200,{'content-type':'text/css'});return res.end(readFileSync(path('../src/components/store/advertiser-analysis.css')))}res.writeHead(200,{'content-type':'text/html; charset=utf-8'});res.end('<!doctype html><html lang="ko"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*,*:before,*:after{box-sizing:border-box}body{margin:0}</style><link rel="stylesheet" href="/style.css"><div class="store-theme"><div id="root"></div></div><script src="/app.js"></script></html>');});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve)}));
  const origin=`http://127.0.0.1:${server.address().port}`, browser=await chromium.launch({headless:true,executablePath:process.env.KITS_CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'});t.after(()=>browser.close());
- const page=await browser.newPage();page.setDefaultTimeout(4000);page.on('pageerror',e=>console.error(e));let connected=false;
- await page.route('**/*',route=>{const url=new URL(route.request().url());if(url.origin===origin)return route.continue();if(url.hostname==='bjpguxwqxlsteektkhwf.supabase.co')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({connections:connected?[{requestId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',adAccountId:'12345',status:'read_connected'}]:[]})});return route.abort();});
+ const page=await browser.newPage();page.setDefaultTimeout(4000);page.on('pageerror',e=>console.error(e));let connected=false,pending=false;
+ await page.route('**/*',route=>{const url=new URL(route.request().url());if(url.origin===origin)return route.continue();if(url.hostname==='bjpguxwqxlsteektkhwf.supabase.co')return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({connections:connected||pending?[{requestId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',adAccountId:'12345',status:connected?'read_connected':'pending_review'}]:[]})});return route.abort();});
  await page.goto(origin+'/?signedout');await page.getByText('로그인 후 이용할 수 있어요').waitFor();assert.equal(await page.getByText('광고계정 연결 관리').count(),0);
  await page.goto(origin+'/');await page.getByText('광고계정 연결부터 시작하세요').waitFor();assert.equal(await page.getByText('광고계정 연결됨').count(),0);
- connected=true;await page.getByRole('button',{name:'연결 상태 새로고침'}).first().click();await page.getByText('광고계정 연결됨').waitFor();await page.getByText('성과 조회 기능을 준비하고 있습니다.').waitFor();
+ const first=page.locator('.ad-analysis-step').nth(0),second=page.locator('.ad-analysis-step').nth(1);
+ assert.equal(await first.getAttribute('aria-current'),'step');
+ for(const width of [375,1280]){await page.setViewportSize({width,height:900});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);}
+ await second.click();await page.getByRole('heading',{name:'광고계정 연결 후 분석할 수 있어요'}).waitFor();
+ assert.equal(await page.getByRole('heading',{name:'내 광고 성과'}).count(),0);
+ await page.getByRole('button',{name:'광고계정 연결로 이동'}).click();
+ pending=true;await page.getByRole('button',{name:'연결 상태 새로고침'}).click();await page.getByRole('heading',{name:'광고계정 연결을 확인하고 있어요'}).waitFor();
+ await second.click();await page.getByText('연결 확인이 완료되면 광고 성과를 조회할 수 있습니다.').waitFor();await page.getByRole('button',{name:'광고계정 연결로 이동'}).click();
+ connected=true;await page.getByRole('button',{name:'연결 상태 새로고침'}).click();
+ await page.getByRole('heading',{name:'광고계정 연결됨'}).waitFor();await page.getByText('성과 조회 기능을 준비하고 있습니다.').waitFor();
+ assert.equal(await second.getAttribute('aria-current'),'step');
+ await page.getByRole('button',{name:'계정 관리'}).click();await page.getByRole('heading',{name:'네이버 광고 계정 연결'}).waitFor();
+ await page.getByRole('button',{name:'광고 분석으로 이동'}).click();await page.getByText('성과 조회 기능을 준비하고 있습니다.').waitFor();
 });
 
 test('shows verified performance tools only for a connected signed-in member when both flags are enabled', {skip:!playwrightPath,timeout:30000},async t=>{
@@ -29,5 +42,8 @@ test('shows verified performance tools only for a connected signed-in member whe
  await page.route('**/*',route=>{const url=new URL(route.request().url());if(url.origin===origin)return route.continue();if(url.hostname==='bjpguxwqxlsteektkhwf.supabase.co'){const data=url.pathname.endsWith('/shopping-catalog')?{items:[]}:{connections:[{requestId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',adAccountId:'12345',status:'read_connected'}]};return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(data)});}return route.abort();});
  await page.goto(origin+'/?signedout');await page.getByText('로그인 후 이용할 수 있어요').waitFor();assert.equal(await page.getByRole('heading',{name:'내 광고 성과'}).count(),0);
  await page.goto(origin+'/');await page.getByText('연결한 광고계정의 성과를 조회할 수 있습니다.').waitFor();await page.getByRole('heading',{name:'내 광고 성과'}).waitFor();
+ assert.equal(await page.locator('.ad-analysis-step').nth(1).getAttribute('aria-current'),'step');
+ await page.getByRole('button',{name:'계정 관리'}).click();await page.getByRole('heading',{name:'네이버 광고 계정 연결'}).waitFor();
+ await page.getByRole('button',{name:'광고 분석으로 이동'}).click();await page.getByRole('heading',{name:'내 광고 성과'}).waitFor();
  assert.equal(await page.getByText('성과 조회 기능을 준비하고 있습니다.').count(),0);
 });

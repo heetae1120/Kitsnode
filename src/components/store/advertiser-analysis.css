@@ -63,3 +63,18 @@
  .ad-analysis-connection > summary { padding:20px; }.ad-analysis-connection-content { padding:0 20px 20px; }.ad-analysis-empty { min-height:190px; padding:20px; }
 }
 @media(max-width:390px) { .ad-analysis-main { padding-left:16px; padding-right:16px; }.ad-analysis-status-copy { gap:12px; }.ad-analysis-footer a { margin-left:0; } }
+.ad-analysis-steps { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:24px; }
+.ad-analysis-step { display:flex; align-items:center; gap:16px; min-width:0; padding:20px; border:1px solid #353535; background:#111; color:#f5f2eb; text-align:left; cursor:pointer; }
+.ad-analysis-step:hover { border-color:#9a5a40; }
+.ad-analysis-step[aria-current="step"] { border-color:#ff6a32; background:#21140f; }
+.ad-analysis-step:focus-visible { outline:2px solid #ff9a72; outline-offset:3px; }
+.ad-analysis-step-number { display:grid; place-items:center; flex:none; width:40px; height:40px; border:1px solid #66534a; border-radius:50%; color:#ff9a72; font-weight:750; }
+.ad-analysis-step[aria-current="step"] .ad-analysis-step-number { color:#111; background:#ff6a32; border-color:#ff6a32; }
+.ad-analysis-step small,.ad-analysis-step strong,.ad-analysis-step em { display:block; }
+.ad-analysis-step small { color:#ff9a72; font-size:10px; font-weight:700; letter-spacing:.1em; }
+.ad-analysis-step strong { margin:4px 0; font-size:16px; line-height:1.3; }
+.ad-analysis-step em { color:#bcb8b1; font-size:12px; font-style:normal; }
+.ad-analysis-step-panel[hidden] { display:none; }
+.ad-analysis-step-panel .ad-analysis-connection-content { margin-top:16px; padding:0; }
+.store-theme .ad-analysis-step-panel .ad-analysis-connection-content > .store-card { border:1px solid #353535; padding:clamp(20px,3vw,32px); }
+@media(max-width:600px) { .ad-analysis-steps { gap:8px; } .ad-analysis-step { gap:9px; padding:14px 10px; } .ad-analysis-step-number { width:32px; height:32px; } .ad-analysis-step strong { font-size:13px; word-break:keep-all; } .ad-analysis-step em { font-size:11px; } }
