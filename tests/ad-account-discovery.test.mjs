@@ -5,11 +5,18 @@ import {routeSelectedAdvertiserTab} from '../browser-extension/naver-invite-pref
 const nonce='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 function fixture(){
  const state={},tabs=new Map();let next=10;
- const chromeApi={storage:{session:{async get(key){if(key===null)return {...state};return {[key]:state[key]};},async set(values){Object.assign(state,values)},async remove(key){delete state[key]}}},tabs:{async create({url}){const tab={id:next++,url};tabs.set(tab.id,tab);return tab},async get(id){if(!tabs.has(id))throw Error('closed');return tabs.get(id)},async query(){return [...tabs.values()]},async update(id,changes){Object.assign(tabs.get(id),changes)}}};
+ const chromeApi={storage:{session:{async get(key){if(key===null)return {...state};return {[key]:state[key]};},async set(values){Object.assign(state,values)},async remove(key){for(const item of Array.isArray(key)?key:[key])delete state[item]}}},tabs:{async create({url}){const tab={id:next++,url};tabs.set(tab.id,tab);return tab},async get(id){if(!tabs.has(id))throw Error('closed');return tabs.get(id)},async query(){return [...tabs.values()]},async update(id,changes){Object.assign(tabs.get(id),changes)}}};
  const sender={tab:{id:5},frameId:0,url:'https://heetae1120.github.io/Kitsnode/store/ads/'};
  const call=(type,s=sender,n=nonce)=>accountDiscovery({chromeApi,message:{type,nonce:n},sender:s,now:()=>1000});
  return {call,tabs,state,sender,chromeApi};
 }
+test('restarting account discovery replaces an unfinished attempt for the same page',async()=>{
+ const f=fixture(), second='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ assert.deepEqual(await f.call('kitsnode.account.start.v1'),{status:'started'});
+ assert.deepEqual(await f.call('kitsnode.account.start.v1',f.sender,second),{status:'started'});
+ assert.deepEqual(await f.call('kitsnode.account.get.v1'),{status:'blocked'});
+ assert.deepEqual(await f.call('kitsnode.account.get.v1',f.sender,second),{status:'selecting'});
+});
 test('reads only the account selected in the extension-created Naver tab',async()=>{
  const f=fixture();assert.deepEqual(await f.call('kitsnode.account.start.v1'),{status:'started'});
  assert.deepEqual(await f.call('kitsnode.account.get.v1'),{status:'selecting'});

@@ -6,7 +6,10 @@ export async function accountDiscovery({chromeApi,message,sender,now=Date.now}={
  try{
   if(message.type==='kitsnode.account.start.v1'){
    const all=await chromeApi.storage.session.get(null),stamp=now();
-   if(Object.entries(all).some(([k,v])=>k.startsWith('account_discovery_')&&v?.siteTabId===sender.tab.id&&v.expiresAt>stamp))return {status:'blocked'};
+   // A previous attempt may have lost its page session or its Naver tab.
+   // Starting again replaces only that page's unfinished discovery, never an invitation.
+   const previous=Object.entries(all).filter(([k,v])=>k.startsWith('account_discovery_')&&v?.siteTabId===sender.tab.id).map(([k])=>k);
+   if(previous.length)await chromeApi.storage.session.remove(previous);
    await chromeApi.storage.session.remove(`selected_account_${sender.tab.id}`);
    const tab=await chromeApi.tabs.create({url:'https://ads.naver.com/settings/ad-account'});
    if(!Number.isInteger(tab?.id))return {status:'blocked'};
