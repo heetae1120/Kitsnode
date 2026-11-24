@@ -16,6 +16,7 @@ import {marketingPlan,salesFundedMarketingPlan,type MarketingPlanInput} from '@/
 import {ReorderTimeline,type ReorderDates} from './reorder-timeline';
 import {GoalInvitation} from './goal-invitation';
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
+const reportTitles=['금액정리','재고 스케줄러','판매 목표'];
 
 function ProfitComparison({before,after,extraCosts}:{before:number;after:number;extraCosts:number}){
  const minimum=Math.min(0,before,after);
@@ -56,9 +57,9 @@ export function BeginnerProfitReport({initialPage=0,name,months,input,onEdit,onM
  const problem=unitProfit<=0?'판매가보다 비용이 커요. 가격과 비용을 먼저 바꿔보세요.':r.profitRoom<0?'모두 팔아도 비용을 다 돌려받기 어려워요.':'지금은 마케팅비용으로 남는 금액이 없어요.';
  return <ReportEvidenceContext.Provider value={updateEvidence}><ReportPriorityContext.Provider value={setDiagnostic}><article className="mp-story">
   <ProfitReportPages productName={name} initialPage={initialPage} beforeKeywords={beforeMonths} actions={<div className="ds-report-download-stack"><DiagnosisDownload trailingAction={<button type="button" className="mp-primary mp-more-considerations" onClick={onMoreCosts}>이 외에도 고려해야 할 것들 보러가기<ArrowRight size={16}/></button>} report={{name,months,analysis:evidence,price:input.price,quantity:input.quantity,sales:r.sales,costs:r.reserved,profit:r.profitRoom,margin:unitProfit,marketing:r.marketing,breakEven:r.breakEvenUnits,priority:priority.title,action:priority.action,examples:exampleFields.length>0}}/></div>} overview={<>
-  <section id="report-funds" aria-label="총매출과 비용">
-   <div className="ds-open-report"><div className="ds-result-heading"><h1>재고 스케줄러</h1><p>입력한 판매 조건과 비용을 바탕으로 계산한 결과를 확인해보세요.</p></div>
-    <ReportTabletSlides beforeNext={beforeMonths} onBack={onEdit}><div className="mp-tablet-budget"><dl className="mp-plan-recap" aria-label="판매 계획 합계"><div><dt>총 판매금액</dt><dd>{money(r.sales)}</dd><small>판매가 {money(input.price)} × {input.quantity.toLocaleString('ko-KR')}개</small></div><div><dt>총 상품 원가</dt><dd>{money(stockCost)}</dd><small>원가 {money(input.cost)} × {input.quantity.toLocaleString('ko-KR')}개</small></div><div><dt>판매 목표</dt><dd>{input.quantity.toLocaleString('ko-KR')}개</dd><small>{months>0?`${months}개월 안에 전부 판매`:'계획 수량 전량 판매 기준'}</small></div></dl>
+  <section id="report-funds" aria-label="금액 정리와 재고 계획">
+   <div className="ds-open-report">
+    <ReportTabletSlides beforeNext={beforeMonths} onBack={onEdit} heading={page=><div className="ds-result-heading"><h1>{reportTitles[page]}</h1>{page===0&&<p>입력한 판매 조건과 비용을 바탕으로 계산한 결과를 확인해보세요.</p>}</div>}><div className="mp-tablet-budget"><dl className="mp-plan-recap" aria-label="판매 계획 합계"><div><dt>총 판매금액</dt><dd>{money(r.sales)}</dd><small>판매가 {money(input.price)} × {input.quantity.toLocaleString('ko-KR')}개</small></div><div><dt>부가비용 포함 총원가</dt><dd>{money(r.reserved)}</dd><small>상품 원가 {money(stockCost)} + 부가비용 {money(extraCosts)}</small></div><div><dt>판매 목표</dt><dd>{input.quantity.toLocaleString('ko-KR')}개</dd><small>{months>0?`${months}개월 안에 전부 판매`:'계획 수량 전량 판매 기준'}</small></div></dl>
      <section className="mp-profit-reality" aria-label="비용을 빼기 전후 전체 이익"><ProfitComparison before={expectedProfit} after={r.profitRoom} extraCosts={extraCosts}/><details className="mp-profit-deductions mp-story-details"><summary>판매 수수료·세부 비용 보기</summary><dl className="mp-breakdown">{([['판매 수수료',r.fee*input.quantity],['배송·물류비',input.logistics*input.quantity],['포장·기타 비용',input.packaging*input.quantity],['반품 예상 비용',input.returns*input.quantity],...(input.fixed>0?[['상세페이지 및 썸네일 비용',input.fixed]]:[]),...(input.certification>0?[['인증 비용',input.certification]]:[])] as [string,number][]).map(([label,value])=><div key={label}><dt>{label}</dt><dd>{money(value)}</dd></div>)}<div className="mp-extra-total"><dt>추가로 빠지는 비용</dt><dd>{money(extraCosts)}</dd></div></dl></details><p className="mp-story-caption">계획 수량 전량 판매 기준이며, 마케팅비용과 미입력 비용은 아직 빼지 않았어요.</p></section>
 
     </div>

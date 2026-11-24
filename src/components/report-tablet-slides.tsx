@@ -3,7 +3,7 @@ import {Children,useRef,useState,type ReactNode} from "react";
 import {AnimatePresence,motion,useReducedMotion} from "framer-motion";
 import {ArrowLeft,ArrowRight} from "lucide-react";
 import '@/app/tools/report-motion.css';
-export function ReportTabletSlides({children,beforeNext,onBack}:{children:ReactNode;beforeNext?:(proceed:()=>void)=>void;onBack:()=>void}){
+export function ReportTabletSlides({children,heading,beforeNext,onBack}:{children:ReactNode;heading:(page:number)=>ReactNode;beforeNext?:(proceed:()=>void)=>void;onBack:()=>void}){
  const slides=Children.toArray(children),[page,setPage]=useState(0),[direction,setDirection]=useState(1);
  const root=useRef<HTMLDivElement>(null),screen=useRef<HTMLDivElement>(null);
  const reduced=useReducedMotion(),last=page===slides.length-1;
@@ -16,6 +16,7 @@ export function ReportTabletSlides({children,beforeNext,onBack}:{children:ReactN
  }
  function next(){if(page===0&&beforeNext){beforeNext(()=>move(1));return;}if(last)finish();else move(page+1);}
  return <div className="kn-tablet-slides ds-report-chapters" ref={root}>
+  {heading(page)}
   <div ref={screen} className="kn-tablet-slide-screen" role="region" aria-label={"수익 보고서 "+(page+1)+" / "+slides.length} tabIndex={0}>
    <AnimatePresence mode="wait" initial={false} custom={direction}>
     <motion.div key={page} custom={direction} initial="enter" animate="visible" exit="exit"
