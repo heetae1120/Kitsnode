@@ -1,43 +1,36 @@
 "use client";
-import {useEffect,useId,useRef,type CSSProperties} from 'react';
-import {motion,useInView,useReducedMotion} from 'framer-motion';
-import {goalMotionFrame} from '@/lib/goal-motion';
-import './goal-invitation.css';
+import {useEffect,useRef} from 'react';
+import {useInView,useReducedMotion} from 'framer-motion';
+import {GOAL_COUNT_END,GOAL_COUNT_START,goalMotionFrame} from '@/lib/goal-motion';
 
 const format=(value:number)=>value.toLocaleString('ko-KR');
 
-export function GoalInvitation({months,profit}:{months:number;profit:number}){
- const root=useRef<HTMLElement>(null),monthNumber=useRef<HTMLSpanElement>(null),amountNumber=useRef<HTMLSpanElement>(null);
- const id=useId(),reduced=useReducedMotion();
+export function GoalInvitation({months,profit,quantity}:{months:number;profit:number;quantity:number}){
+ const root=useRef<HTMLElement>(null),amountNumber=useRef<HTMLSpanElement>(null);
+ const reduced=useReducedMotion();
  const entered=useInView(root,{once:true,amount:.3});
  const amount=Math.abs(profit);
  const {target,targetMonths}=goalMotionFrame(0,months,amount);
- const outcome=profit<0?'의 손실이 예상돼요.':'의 이익이 예상돼요.';
- const question='이렇게 판매할 수 있을지 이제 알아볼까요?';
+ const outcome=profit<0?'예상 손실':profit>0?'예상 이익':'예상 손익';
  useEffect(()=>{
   if(!entered||reduced)return;
   const start=performance.now();let frame=0;
   const tick=(now:number)=>{
-   const state=goalMotionFrame(now-start,months,amount);
-   if(monthNumber.current)monthNumber.current.textContent=format(state.months);
+   const progress=Math.max(0,Math.min((now-start)/360,1));
+   const state=goalMotionFrame(GOAL_COUNT_START+progress*(GOAL_COUNT_END-GOAL_COUNT_START),months,amount);
    if(amountNumber.current)amountNumber.current.textContent=format(state.count);
-   if(root.current)root.current.dataset.phase=state.phase;
    if(!state.complete)frame=requestAnimationFrame(tick);
   };
   frame=requestAnimationFrame(tick);
   return()=>cancelAnimationFrame(frame);
  },[entered,reduced,months,amount]);
- return <section ref={root} id="report-budget" className="mp-story-chapter mp-goal-invitation ds-goal-impact ds-goal-countup" aria-labelledby={id} data-phase={reduced?'complete':'ready'} style={{'--goal-digits':Math.max(format(target).length+1,8)} as CSSProperties}>
-  <h2 id={id} className="ds-sr-only">{targetMonths}개월 동안 {format(target)}원{outcome} {question}</h2>
-  <svg className="ds-goal-growth" viewBox="0 0 1000 560" preserveAspectRatio="none" aria-hidden="true">
-   <defs><linearGradient id={id+'-growth'} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="currentColor" stopOpacity=".16"/><stop offset="100%" stopColor="currentColor" stopOpacity="0"/></linearGradient></defs>
-   <path d="M40 510L125 480L210 425L295 450L380 360L465 395L550 300L635 330L720 225L805 245L880 155L960 40V560H40Z" fill={'url(#'+id+'-growth)'} stroke="none"/>
-   <motion.path className="ds-growth-line" d="M40 510L125 480L210 425L295 450L380 360L465 395L550 300L635 330L720 225L805 245L880 155L960 40" initial={reduced?false:{pathLength:0}} animate={{pathLength:entered?1:0}} transition={{duration:reduced?0:2.4,ease:[.22,1,.36,1]}}/>
-  </svg>
-  <div className="ds-goal-impact-copy" aria-hidden="true">
-   <p>당신은 <em><span className="ds-goal-number"><span className="ds-goal-number-space">{format(targetMonths)}</span><span ref={monthNumber} data-goal-months>{reduced?format(targetMonths):'0'}</span></span>개월</em> 동안</p>
-   <h2><strong><span className="ds-goal-number"><span className="ds-goal-number-space">{format(target)}</span><span ref={amountNumber} data-goal-amount>{reduced?format(target):'0'}</span></span><small>원</small></strong><span>{outcome}</span></h2>
-   <p className="ds-goal-question"><strong>{question}</strong></p>
-  </div>
+ return <section ref={root} id="report-budget" className="sd-result-lead sd-goal-summary" aria-label="판매 목표와 예상 손익">
+  <p>{format(targetMonths)}개월 안에 {format(quantity)}개를 모두 판매할 경우</p>
+  <h2>{outcome} · 광고비 반영 전</h2>
+  <strong className={profit<0?'is-loss':undefined}>
+   <span className="ds-sr-only">{format(target)}원</span>
+   <span aria-hidden="true"><span ref={amountNumber} data-goal-amount>{format(target)}</span>원</span>
+  </strong>
+  <small>전량 판매를 가정한 금액이에요. 실제 판매량은 상품의 검색 수요와 구매 전환에 따라 달라져요.</small>
  </section>;
 }

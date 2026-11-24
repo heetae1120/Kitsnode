@@ -42,7 +42,7 @@ export function useDiagnosisInputGuide(root:RefObject<HTMLDivElement|null>,enabl
     if(!unanswered)return;
     active.dataset.guideIdle='true';
     const hasExample=!!active.querySelector('[data-guide-example],.mp-quick-costs button:first-child');
-    setMessage(hasExample?`${label}을 모르겠다면, 주황색 ‘참고값 넣기’를 눌러 입력하세요. 참고값은 실제 비용과 다를 수 있어요.`:`${label}을 입력해 주세요. 입력하면 다음 빈칸을 안내합니다.`);
+    setMessage(hasExample?`‘${label}’ 금액을 모르겠다면 참고값을 넣어 보세요.`:`‘${label}’ 항목을 입력해 주세요.`);
    },5000);
   }
   const queue=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>update());};

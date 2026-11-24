@@ -98,13 +98,12 @@ export function ReorderCalendar({schedule,quantity,controls,statusId,invalidMess
  const metrics=schedule?[
   {label:'예상 입고일',value:schedule.arrival?formatDate(schedule.arrival):'—',date:schedule.arrival},
   {label:'입고 소요 기간',value:schedule.leadDays+'일'},
-  {label:'입고 시 잔여 재고 일수',value:days===null?'—':Math.max(0,days)+'일'},
-  {label:'입고 시 잔여 재고 수량',value:arrivalDay===null?'—':formatStock(stockAtDay(quantity,schedule.duration,arrivalDay))},
+  {label:'입고 시 남은 판매일',value:days===null?'—':Math.max(0,days)+'일'},
+  {label:'입고 시 남은 재고',value:arrivalDay===null?'—':formatStock(stockAtDay(quantity,schedule.duration,arrivalDay))},
  ]:[];
  return <section className="ds-reorder-dashboard" data-risk={state} aria-labelledby={id}>
   <header className="ds-reorder-dashboard-heading">
-   <h3 id={id}>재발주 일정, 한눈에 보기</h3>
-   <p>재고가 소진되기 전에 다음 입고를 준비하세요.</p>
+   <h3 id={id} className="ds-sr-only">재발주 일정표</h3>
   </header>
   {schedule&&<div className="ds-reorder-headline">
    <div><span>재발주 권장일</span><time key={schedule.recommended} dateTime={schedule.recommended}>{formatDate(schedule.recommended)}</time></div>

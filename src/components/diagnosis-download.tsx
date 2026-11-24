@@ -18,7 +18,7 @@ export function DiagnosisDownload({report,trailingAction,libraryTrigger,onLibrar
  if(!report&&!signedIn&&!libraryTrigger)return null;
  const savedList=<div><h3>내 진단서 · 최대 3개</h3>{saved.length===0&&<p>저장한 진단서가 없습니다.</p>}<ul>{saved.map(record=><li key={record.id}><span>{record.name} · {new Date(record.createdAt).toLocaleDateString('ko-KR')}</span><button disabled={busy} onClick={()=>void run(()=>downloadDiagnosis(record))}>PDF 다운로드</button><button disabled={busy} onClick={()=>void run(()=>update(record.id))}>삭제</button></li>)}</ul></div>;
  if(libraryTrigger)return <>
-  <button type="button" className="ds-choice-card ds-shortcut-card" aria-label="내 진단서 보러가기" aria-haspopup="dialog" onClick={()=>{library.current?.showModal();onLibraryOpenChange?.(true);}}>{libraryTrigger}</button>
+  <button type="button" className="ds-choice-card ds-shortcut-card" aria-label="저장한 진단서 보기" aria-haspopup="dialog" onClick={()=>{library.current?.showModal();onLibraryOpenChange?.(true);}}>{libraryTrigger}</button>
   <dialog className="mp-signup-dialog ds-library-dialog" ref={library} aria-labelledby="ds-library-title" aria-describedby={signedIn?undefined:'ds-library-auth-description'} onClose={()=>onLibraryOpenChange?.(false)}>
    <button type="button" className="mp-signup-close" aria-label="닫기" data-diagnosis-back onClick={()=>library.current?.close()}>×</button>
    <h2 id="ds-library-title">{signedIn?'내 진단서':'로그인 또는 회원가입'}</h2>
@@ -32,5 +32,5 @@ export function DiagnosisDownload({report,trailingAction,libraryTrigger,onLibrar
    {message&&<p role="status">{message}</p>}
   </dialog>
  </>;
- return <section className="ds-diagnosis-download" aria-label="진단서 다운로드 및 보관">{report&&<div className="mp-actions"><button className="mp-primary" disabled={busy||collecting} onClick={()=>void run(()=>downloadDiagnosis(current()))}>{collecting?'광고 상품 분석 중…':'진단서 다운로드 받기'}</button>{signedIn?<button className="mp-secondary" disabled={busy||collecting} onClick={()=>void run(()=>update())}>진단서 저장하기</button>:<Link className="mp-secondary" href="/store/login/" onClick={saveMemberReturn} aria-label="로그인하고 진단서 저장하기">진단서 저장하기</Link>}{trailingAction}</div>}{message&&<p role="status">{message}</p>}{signedIn&&savedList}</section>;
+ return <section className="ds-diagnosis-download" aria-label="진단서 다운로드 및 보관">{report&&<div className="mp-actions"><button className="mp-primary" disabled={busy||collecting} onClick={()=>void run(()=>downloadDiagnosis(current()))}>{collecting?'분석 중…':busy?'진단서 처리 중…':'진단서 다운로드'}</button>{signedIn?<button className="mp-secondary" disabled={busy||collecting} onClick={()=>void run(()=>update())}>진단서 저장</button>:<Link className="mp-secondary" href="/store/login/" onClick={saveMemberReturn} aria-label="로그인 후 진단서 저장">진단서 저장</Link>}{trailingAction}</div>}{message&&<p role="status">{message}</p>}{signedIn&&savedList}</section>;
 }
