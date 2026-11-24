@@ -17,6 +17,7 @@ const consentClient=createInviteConsentClient({enabled:process.env.NEXT_PUBLIC_A
 const proofVersion = process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION || '';
 const proofDigest = process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST || '';
 const inviteExtensionId = process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID || '';
+const extensionStoreUrl = 'https://chromewebstore.google.com/detail/ciohpfgnccmnpbldolbfediamifaiocf?hl=ko';
 // Incomplete build configuration must not expose a nonfunctional invitation flow.
 const proofEnabled = process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED === 'true' && Boolean(consentClient) && /^[a-p]{32}$/.test(inviteExtensionId);
 
@@ -184,6 +185,29 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
     <p>키츠노드는 광고와 성과 정보 조회를 위해 운영 조회 권한을 요청합니다. 네이버 비밀번호나 API 키를 키츠노드에 입력하지 마세요.</p>
     <p>네이버애즈의 광고 계정 ID를 입력해 주세요. 검색광고 API의 고객 ID는 별도로 확인합니다.</p>
     <p>광고주가 네이버애즈에 직접 로그인해 초대해 주세요. 키츠노드 회원 로그인과 네이버 광고주 로그인은 별개입니다.</p>
+    <section className="ad-invite-methods" aria-labelledby="invite-method-title">
+      <h3 id="invite-method-title">광고 계정 연결 방법을 선택하세요</h3>
+      <p>두 방법 중 편한 방법으로 초대한 뒤 아래에서 연결 확인을 요청해 주세요.</p>
+      <details className="ad-invite-method">
+        <summary>Chrome 확장 프로그램으로 연결하기</summary>
+        <ol className="list-decimal space-y-2 pl-5">
+          <li>Chrome에서 키츠노드 확장 프로그램을 설치합니다. <a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">Chrome 웹 스토어에서 설치 (새 창)</a></li>
+          <li>네이버애즈에 광고주 계정으로 로그인하고 연결할 광고 계정을 확인합니다.</li>
+          <li>확장 프로그램을 열어 안내에 따라 회원 초대를 진행합니다. 초대 대상이 <strong>kitsnode</strong>이고 권한이 <strong>운영 조회</strong>인지, 네이버의 정책 내용과 함께 직접 확인해 주세요. 다른 권한이 표시되면 초대하지 말고 직접 초대 방법을 이용해 주세요.</li>
+          <li>네이버애즈에서 초대 발송 상태를 확인한 뒤 이 화면에서 광고 계정 ID를 입력하고 연결 확인을 요청합니다.</li>
+        </ol>
+        <p className="store-caption">설치 또는 진행이 어렵다면 아래 직접 연결 방법을 이용해 주세요. 초대 발송과 연결 완료는 별도 단계입니다.</p>
+      </details>
+      <details className="ad-invite-method">
+        <summary>네이버애즈에서 직접 초대하기</summary>
+        <ol className="list-decimal space-y-2 pl-5">
+          <li><a className="store-text-link" href="https://ads.naver.com/settings/ad-account" target="_blank" rel="noopener noreferrer">네이버애즈 열기 (새 창)</a>를 눌러 광고주 계정으로 로그인합니다.</li>
+          <li>연결할 광고 계정의 권한 관리에서 회원 초대를 선택합니다.</li>
+          <li>회원 ID <strong>kitsnode</strong>를 입력하고 <strong>운영 조회</strong> 권한을 선택한 뒤 네이버 정책을 확인하고 초대합니다.</li>
+          <li>아래에서 광고 계정 ID를 입력해 연결 확인을 요청합니다.</li>
+        </ol>
+      </details>
+    </section>
     <section aria-labelledby="invite-consent-title"><h3 id="invite-consent-title">광고계정 연결 사전 동의</h3>
       <p>광고 분석을 위해 연결할 광고계정에 관해 다음 절차를 안내합니다.</p>
       <ul className="store-list"><li>Chrome 확장프로그램을 이용한 네이버 광고계정 연결</li><li>네이버의 개인정보 제공 및 회원 초대 정책 동의</li><li>회원 ID <strong>kitsnode</strong> 초대와 <strong>운영 조회</strong> 권한 선택</li><li>연결된 계정의 광고와 성과 정보 조회</li></ul>
@@ -208,13 +232,7 @@ export function AdConnectionPanel({transport}: {transport?: AdConnectionTranspor
       <p className="store-caption">초대가 자동으로 완료되거나 담당자가 수락된 것은 아닙니다. 네이버에서 진행 상태를 확인해 주세요.</p>
       {extensionMessage && <p role="status" aria-live="polite">{extensionMessage}</p>}
     </div>}
-    <h3>직접 연결하기</h3>
-    <ol className="list-decimal space-y-2 pl-5">
-      <li><a className="store-text-link" href="https://ads.naver.com/settings/ad-account" target="_blank" rel="noopener noreferrer">네이버애즈 열기 (새 창)</a>를 눌러 광고주 계정으로 로그인합니다.</li>
-      <li>연결할 광고 계정의 권한 관리에서 회원 초대를 선택합니다.</li>
-      <li>회원 ID <strong>kitsnode</strong>를 운영 조회 권한으로 초대한 뒤 이 화면으로 돌아옵니다.</li>
-      <li>아래에서 광고 계정 ID를 입력해 연결 확인을 요청합니다. 담당자가 계정 관계와 권한을 확인한 뒤 연결합니다.</li>
-    </ol>
+    <h3>초대 후 연결 확인 요청</h3>
     <p className="store-caption">초대 발송과 담당자 수락은 직접 확인이 필요합니다. 관리계정만으로 연결된 광고 계정은 현재 자동으로 확인할 수 없습니다.</p>
     <p>부여한 권한의 범위는 네이버에서 확인해 주세요. 자동 입찰은 현재 안전 검증을 위해 중단되어 있습니다.</p>
     {checking ? <p role="status">로그인 상태를 확인하고 있어요.</p> : !signedIn ? <p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>로그인 후 연결하기</Link></p> : <form onSubmit={submit}>

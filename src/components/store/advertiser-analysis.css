@@ -42,6 +42,11 @@
 .ad-analysis-connection > summary > svg { color:#aaa7a0; transition:transform .16s ease; }
 .ad-analysis-connection[open] > summary > svg { transform:rotate(180deg); }
 .ad-analysis-connection-content { padding:0 24px 24px; }
+.ad-invite-methods { margin:24px 0; }
+.ad-invite-method { margin:10px 0; padding:16px; border:1px solid #454545; background:#181818; }
+.ad-invite-method summary { cursor:pointer; font-weight:700; }
+.ad-invite-method ol { margin:16px 0; }
+.ad-invite-method li + li { margin-top:10px; }
 .store-theme .ad-analysis-connection-content > .store-card { border:0; border-top:1px solid #353535; padding:24px 0 0; }
 .ad-analysis-connection-content :is(input:not([type=checkbox]),select) { width:100%; max-width:420px; min-height:48px; padding:10px 14px; border:1px solid #666; border-radius:0; background:#171717; color:#f5f2eb; font:inherit; }
 .ad-analysis-connection-content form { display:grid; gap:12px; margin:20px 0; }

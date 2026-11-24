@@ -11,7 +11,7 @@ import { BrandWordmark } from "./brand-wordmark";
 const groups: {id:"store"|"ads";label:string;ids:string[]}[] = [];
 
 const liquidItems: LiquidNavItem[] = [
-  {label:"상품 진단",fx:"glow"}, {label:"검색어 찾기",fx:"spin"},
+  {label:"상품 진단",fx:"glow"}, {label:"광고 분석",fx:"pop"}, {label:"검색어 찾기",fx:"spin"},
   {label:"설문",fx:"pop"}, {label:"소개",fx:"wave"},
 
 ];
@@ -49,15 +49,16 @@ export const ToolsHeader = memo(function ToolsHeader({ active }: { active: ToolI
       document.removeEventListener("keydown", escape);
     };
   }, [group, open]);
-  const selected = group ? (group === "store" ? 4 : 5) : ["profit","keywords","survey","about"].indexOf(active);
-  const liquidActive = selected >= 0 ? selected : groups.findIndex(item => item.ids.some(id => id === active)) >= 0 ? 4 + groups.findIndex(item => item.ids.some(id => id === active)) : -1;
+  const selected = group ? (group === "store" ? 5 : 6) : ["profit","ads","keywords","survey","about"].indexOf(active);
+  const liquidActive = selected >= 0 ? selected : groups.findIndex(item => item.ids.some(id => id === active)) >= 0 ? 5 + groups.findIndex(item => item.ids.some(id => id === active)) : -1;
   return (
     <header ref={header} className="tool-topbar expanded-tools">
       <Link className="tool-brand" href="/tools/start/" aria-label="KITSNODE 도구 메인으로" aria-current={active === "start" ? "page" : undefined} onClick={close}>
         <BrandWordmark/>
       </Link>
       <LiquidNavbar renderMode="css" id="tools-navigation" motionKey="tools" ariaLabel="도구 메뉴" items={liquidItems} active={liquidActive} compact={false} sound={false} className={open ? "tool-nav open" : "tool-nav"}>
-        {["profit", "keywords"].map((id) => {
+        {["profit", "ads", "keywords"].map((id) => {
+          if (id === "ads") return <Link key="ads" className="nimbus-item" href="/store/ads/" onClick={close}><span className="nv-ico"><MenuMotion kind="ads" /></span><span className="tool-nav-label">광고 분석</span></Link>;
           const tool = toolLinks.find((item) => item.id === id)!;
           return (
             <Link
