@@ -509,7 +509,8 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard 
 @keyframes ds-reorder-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes ds-reorder-number{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:800px){
- .ds-reorder-axis{display:none}
+ .ds-reorder-axis{height:6px;margin:16px 2px 0}
+ .ds-reorder-axis :is(.ds-reorder-point,.ds-reorder-stem){display:none}
  .ds-reorder-events{grid-auto-flow:row;grid-auto-columns:initial;gap:0;margin:14px 0 0;padding-inline-start:8px;border-inline-start:1px solid #444}
  .ds-reorder-events button{min-height:44px;align-items:center;padding-inline:2px 4px}
  .ds-reorder-events button>span{display:flex;flex:1;justify-content:space-between;flex-wrap:wrap;gap:2px 8px}
