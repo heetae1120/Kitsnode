@@ -41,7 +41,6 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
   const [requestFeedback,setRequestFeedback] = useState<{tone:'success'|'info'|'error';text:string}|null>(null);
   const [busy,setBusy] = useState(false);
   const [refreshKey,setRefreshKey] = useState(0);
-  const [inviteConsent,setInviteConsent] = useState(false);
   const [consentAccount,setConsentAccount]=useState('');
   const [consentAccepted,setConsentAccepted]=useState(false);
   const [naverPolicyAccepted,setNaverPolicyAccepted]=useState(false);
@@ -69,7 +68,7 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
       authVersion++;
       if(userRef.current!==userId){
         activeRef.current?.abort(); activeRef.current=null; proofRef.current?.abort(); proofRef.current=null; consentAccountRef.current=''; setSavedConsent(null);
-        lock.current=false;setBusy(false);setConnections([]);setConnectionsLoaded(false);setMessage('');setAccountId('');setInviteConsent(false);setExtensionMessage('');setConsentAccount('');setConsentAccepted(false);setNaverPolicyAccepted(false);setConsentBusy(false);setConsentMessage('');
+        lock.current=false;setBusy(false);setConnections([]);setConnectionsLoaded(false);setMessage('');setAccountId('');setExtensionMessage('');setConsentAccount('');setConsentAccepted(false);setNaverPolicyAccepted(false);setConsentBusy(false);setConsentMessage('');
         userRef.current=userId;
       }
       setCurrentUser(userId);setChecking(false);
@@ -204,13 +203,13 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
   }
 
   async function openAdvertiserLogin() {
-    if(extensionLock.current || !signedIn || !inviteConsent) return;
+    if(extensionLock.current || !signedIn) return;
     const owner=userRef.current,client=authRef.current;
     if(!owner || !client) return;
     extensionLock.current=true;setOpeningExtension(true);setExtensionMessage('');
     try {
       const browser=window as unknown as {chrome?: {runtime?: {sendMessage(extensionId:string,message:{type:string;nonce:string}):Promise<unknown>}}};
-      const result=await startAdvertiserLoginForMember({getSession:()=>client.auth.getSession(),currentUserId:owner,isCurrent:id=>userRef.current===id,extensionId:inviteExtensionId,runtime:browser.chrome?.runtime,crypto:window.crypto,consent:inviteConsent});
+      const result=await startAdvertiserLoginForMember({getSession:()=>client.auth.getSession(),currentUserId:owner,isCurrent:id=>userRef.current===id,extensionId:inviteExtensionId,runtime:browser.chrome?.runtime,crypto:window.crypto,consent:true});
       if(userRef.current!==owner) return;
       setExtensionMessage(result.status==='opened' ? '네이버애즈를 열었습니다. 광고주 계정으로 로그인하고 초대 진행 상태를 직접 확인해 주세요.' : '확장 프로그램을 열지 못했습니다. 아래 수동 연결 안내를 이용해 주세요.');
     } catch {if(userRef.current===owner)setExtensionMessage('확장 프로그램을 열지 못했습니다. 아래 수동 연결 안내를 이용해 주세요.');}
@@ -266,7 +265,8 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
       <details className="ad-invitation-choice"><summary><span>1. 수동 초대</span><small>네이버에서 직접 kitsnode를 초대합니다.</small></summary><ol><li>네이버애즈에 로그인하고 광고계정을 선택합니다.</li><li>권한 관리에서 <strong>kitsnode</strong>를 <strong>운영 조회</strong> 권한으로 초대합니다.</li><li>키츠노드 측 초대 확인과 수락을 기다려 주세요.</li></ol><p><a className="store-text-link" href="https://ads.naver.com/settings/ad-account" target="_blank" rel="noopener noreferrer">네이버애즈 열기 (새 창)</a></p>
       {directDiscoveryEnabled?<><StoreButton type="button" disabled={!signedIn||!transport||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'광고계정 확인'}</StoreButton><p>확장프로그램이 선택한 계정의 ID를 확인합니다.</p></>:<p className="ad-invitation-notice">광고계정 자동 확인은 준비 중입니다. 그동안 <Link className="store-text-link" href="/store/ads/manual-request/">별도 화면에서 연결 확인을 요청</Link>해 주세요.</p>}{extensionMessage&&<p role="status">{extensionMessage}</p>}</details>
       <details className="ad-invitation-choice"><summary><span>2. 확장프로그램을 통한 초대</span><small>회원 ID 입력과 권한 선택을 돕습니다.</small></summary>
-      {proofEnabled?<><p>사전 동의 후 네이버에서 광고계정을 선택해 주세요.</p><StoreButton type="button" disabled={!signedIn||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'네이버 광고계정 선택'}</StoreButton>{accountId&&<div><p>선택한 광고 계정 ID: <strong>{accountId}</strong></p><StoreButton type="button" disabled={busy||openingExtension} onClick={()=>void registerDiscoveredAccount()}>{busy?'확인 중…':'이 계정으로 계속'}</StoreButton></div>}{consentSection}</>:<><p>Chrome에서 <a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">확장프로그램을 설치</a>하고 광고계정을 선택해 주세요. 네이버 초대 정책은 직접 동의해야 합니다.</p><p className="ad-invitation-notice">저장한 사전 동의와 자동 초대의 연동은 준비 중입니다.</p>{signedIn&&/^[a-p]{32}$/.test(inviteExtensionId)&&<><label><input type="checkbox" checked={inviteConsent} disabled={openingExtension} onChange={e=>setInviteConsent(e.target.checked)}/> 키츠노드에 운영 조회 권한을 초대하는 절차를 확인했습니다.</label><StoreButton type="button" disabled={openingExtension||!inviteConsent} onClick={()=>void openAdvertiserLogin()}>{openingExtension?'여는 중…':'확장프로그램으로 네이버애즈 열기'}</StoreButton></>}{consentSection}</>}{extensionMessage&&<p role="status">{extensionMessage}</p>}</details>
+      <p>확장프로그램은 네이버 초대 과정에서 회원 ID와 권한을 일일이 입력하는 수고를 줄여 줍니다.</p>
+      {proofEnabled?<><p><strong>자동 진행:</strong> 사전 동의와 계정 선택 후 초대 정책 확인, kitsnode ID 입력, 운영 조회 권한 선택과 초대 발송을 진행합니다.</p><p><strong>직접 확인:</strong> 네이버 로그인과 광고계정 선택, 초대 발송 및 키츠노드의 수락 상태를 확인해 주세요.</p><StoreButton type="button" disabled={!signedIn||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'네이버 광고계정 선택'}</StoreButton>{accountId&&<div><p>선택한 광고 계정 ID: <strong>{accountId}</strong></p><StoreButton type="button" disabled={busy||openingExtension} onClick={()=>void registerDiscoveredAccount()}>{busy?'확인 중…':'이 계정으로 계속'}</StoreButton></div>}{consentSection}</>:<><p><strong>자동 진행:</strong> 네이버에서 확장프로그램의 자동 진행을 시작하면 kitsnode ID 입력, 운영 조회 권한 선택과 초대 발송을 시도합니다.</p><p><strong>직접 확인:</strong> 네이버 로그인, 광고계정 선택과 초대 정책 동의가 필요합니다. 발송 후 네이버에서 초대 상태를 확인해 주세요.</p><p className="ad-invitation-notice">현재 저장한 사전 동의는 확장프로그램과 연동되지 않습니다. 동의 저장만으로 초대가 발송되지 않습니다.</p><p><a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">Chrome 확장프로그램 설치 (새 창)</a></p>{signedIn&&/^[a-p]{32}$/.test(inviteExtensionId)&&<StoreButton type="button" disabled={openingExtension} onClick={()=>void openAdvertiserLogin()}>{openingExtension?'여는 중…':'확장프로그램으로 네이버애즈 열기'}</StoreButton>}{consentSection}</>}{extensionMessage&&<p role="status">{extensionMessage}</p>}</details>
     </div><p className="ad-invitation-footer">초대 발송 후 키츠노드에서 초대를 확인하고 수락해야 광고계정 연결이 완료됩니다. 연결 완료 후 광고 데이터를 조회할 수 있습니다.</p></section>
     {message&&<p role="status" aria-live="polite">{message}</p>}<AdPolicyDialog document={policyDocument} onClose={()=>setPolicyDocument(null)}/>
   </StoreCard>;

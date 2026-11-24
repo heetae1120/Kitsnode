@@ -22,7 +22,9 @@ test('connection screen separates invitation methods and shows only verified sta
  await page.getByText('1. 수동 초대',{exact:true}).click();
  assert.equal(await page.getByRole('link',{name:'별도 화면에서 연결 확인을 요청'}).isVisible(),true);
  await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();
- assert.equal(await page.getByText(/사전 동의와 자동 초대의 연동은 준비 중/).isVisible(),true);
+ assert.equal(await page.getByText(/현재 저장한 사전 동의는 확장프로그램과 연동되지 않습니다/).isVisible(),true);
+ assert.equal(await page.getByRole('button',{name:'확장프로그램으로 네이버애즈 열기'}).isEnabled(),true);
+ assert.equal(await page.getByLabel('키츠노드에 운영 조회 권한을 초대하는 절차를 확인했습니다.').count(),0);
  await page.goto(origin+'/?manual&empty');
  await page.getByLabel('광고 계정 ID').fill('67890');
  await page.getByRole('button',{name:'연결 확인 요청'}).click();
