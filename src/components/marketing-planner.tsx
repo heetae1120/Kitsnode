@@ -1,10 +1,9 @@
 "use client";
-import {BrandWordmark} from './brand-wordmark';
+import {DiagnosisHeader} from './diagnosis-header';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import {AnimatePresence,motion,useReducedMotion} from 'framer-motion';
 import { useDraftPreviewStage } from '@/lib/draft-preview-stage';
 import Link from 'next/link';
-import {saveMemberReturn} from '@/lib/member-return';
 import {ArrowRight,ArrowUpRight,Check,TriangleAlert} from 'lucide-react';
 import {FormattedNumberInput} from './formatted-number-input';
 import {SellingPreparation} from './selling-preparation';
@@ -259,8 +258,4 @@ export function MarketingPlanner({mode:initialMode}:{mode?:'starter'|'player'}){
   </main>
   <dialog ref={goalDialog} className="mp-goal-dialog ds-goal-overlay" aria-labelledby="mp-goal-title" onClose={()=>setGoalOpen(false)} onClick={event=>{if(event.target===event.currentTarget)goalDialog.current?.close();}}><AnimatePresence>{goalOpen&&<motion.form key="goal" initial={reducedMotion?false:{opacity:0,y:36,scale:.97}} animate={{opacity:1,y:0,scale:1}} transition={{duration:reducedMotion?0:.45,ease:[.22,1,.36,1]}} onSubmit={confirmMonths} noValidate><h2 id="mp-goal-title">{report&&<><strong className="ds-goal-quantity">{report.input.quantity.toLocaleString('ko-KR')}개</strong>를<br/></>}몇 개월 동안 판매할 계획인가요?</h2><label htmlFor="mp-months" className="ds-sr-only">목표 판매 개월</label><div className="mp-input-wrap"><FormattedNumberInput id="mp-months" value={draft.months} onValueChange={value=>update('months',value)} placeholder="개월 입력"/><span>개월</span></div>{error&&<p className="mp-error" role="alert">{error}</p>}<button type="submit" className="mp-primary">판매 계획 이어보기 <ArrowRight size={20}/></button></motion.form>}</AnimatePresence></dialog>
  </div>;
-}
-
-function DiagnosisHeader({mode,onChoose}:{mode?:'starter'|'player';onChoose?:()=>void}){
- return <header className="ds-header"><Link href="/tools/start/" className="ds-wordmark" aria-label="키츠노드 홈"><BrandWordmark/></Link><span className="ds-header-note">감이 아닌 숫자로,<br/>다음 판매를 준비합니다.</span><nav aria-label="진단 메뉴">{mode&&<><span className="ds-mode-label">{mode==='starter'?'스타터':'플레이어'}</span><button type="button" onClick={onChoose}>유형 바꾸기 <ArrowUpRight size={16}/></button></>}<Link href="/tools/start/">홈으로 <ArrowUpRight size={16}/></Link><Link href="/store/login/" className="ds-header-login" onClick={saveMemberReturn}>로그인하기</Link></nav></header>;
 }
