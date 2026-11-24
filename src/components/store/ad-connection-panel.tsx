@@ -17,6 +17,7 @@ const consentClient=createInviteConsentClient({enabled:process.env.NEXT_PUBLIC_A
 const proofVersion = process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION || '';
 const proofDigest = process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST || '';
 const inviteExtensionId = process.env.NEXT_PUBLIC_NAVER_INVITE_EXTENSION_ID || '';
+const directDiscoveryEnabled = process.env.NEXT_PUBLIC_AD_ACCOUNT_DISCOVERY_ENABLED === 'true' && /^[a-p]{32}$/.test(inviteExtensionId);
 const extensionStoreUrl = 'https://chromewebstore.google.com/detail/ciohpfgnccmnpbldolbfediamifaiocf?hl=ko';
 // Incomplete build configuration must not expose a nonfunctional invitation flow.
 const proofEnabled = process.env.NEXT_PUBLIC_AD_INVITE_PROOF_ENABLED === 'true' && Boolean(consentClient) && /^[a-p]{32}$/.test(inviteExtensionId);
@@ -98,7 +99,7 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
 
   async function discoverAccount() {
     const owner=userRef.current,client=authRef.current;
-    if(!proofEnabled||!owner||!client||!transport||openingExtension||busy)return;
+    if(!(proofEnabled||directDiscoveryEnabled)||!owner||!client||!transport||openingExtension||busy)return;
     const runtime=(window as unknown as {chrome?:{runtime?:{sendMessage(id:string,message:Record<string,string>):Promise<unknown>}}}).chrome?.runtime;
     if(!runtime?.sendMessage){setExtensionMessage('확장 프로그램을 설치하거나 최신 버전으로 업데이트해 주세요.');return;}
     const controller=new AbortController();proofRef.current?.abort();proofRef.current=controller;
@@ -115,7 +116,10 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
         if(current.data.session?.access_token!==token||current.data.session.user.id!==owner)throw Error('session_changed');
         const result=await runtime.sendMessage(inviteExtensionId,{type:'kitsnode.account.get.v1',nonce}) as {status?:string;accountId?:string};
         if(result?.status==='selected'&&/^[1-9]\d{0,15}$/.test(result.accountId||'')){
-          setAccountId(result.accountId!);setExtensionMessage('선택한 광고계정을 확인한 뒤 계속해 주세요.');return;
+          setAccountId(result.accountId!);
+          if(proofEnabled)setExtensionMessage('선택한 광고계정을 확인한 뒤 계속해 주세요.');
+          else await registerDiscoveredAccount(result.accountId!);
+          return;
         }
         if(result?.status!=='selecting')throw Error('unavailable');
       }
@@ -124,9 +128,9 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
     finally{if(proofRef.current===controller){proofRef.current=null;setOpeningExtension(false);}}
   }
 
-  async function registerDiscoveredAccount() {
-    const owner=userRef.current,client=authRef.current,selected=accountId;
-    if(!proofEnabled||!owner||!client||!transport||busy||openingExtension||!/^[1-9]\d{0,15}$/.test(selected))return;
+  async function registerDiscoveredAccount(discoveredId?:string) {
+    const owner=userRef.current,client=authRef.current,selected=discoveredId||accountId;
+    if(!(proofEnabled||directDiscoveryEnabled)||!owner||!client||!transport||busy||(openingExtension&&!discoveredId)||!/^[1-9]\d{0,15}$/.test(selected))return;
     const controller=new AbortController();activeRef.current?.abort();activeRef.current=controller;setBusy(true);setMessage('');
     try{
       const session=await client.auth.getSession(),token=session.data.session?.access_token;
@@ -138,8 +142,8 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
         list=await transport.list(token,controller.signal);
       }
       if(controller.signal.aborted||userRef.current!==owner||!list.connections.some(c=>c.adAccountId===selected&&c.status!=='disconnected'))throw Error('invalid_response');
-      setConnections(list.connections);consentAccountRef.current=selected;setConsentAccount(selected);setConsentAccepted(false);setNaverPolicyAccepted(false);setSavedConsent(null);setMessage('광고계정을 확인했습니다. 사전 동의를 진행해 주세요.');
-    }catch{if(!controller.signal.aborted&&userRef.current===owner)setMessage('광고계정을 등록하지 못했습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.');}
+      setConnections(list.connections);consentAccountRef.current=selected;setConsentAccount(selected);setConsentAccepted(false);setNaverPolicyAccepted(false);setSavedConsent(null);setMessage(proofEnabled?'광고계정을 확인했습니다. 사전 동의를 진행해 주세요.':'광고계정을 등록했습니다. 초대 수락과 연결 확인은 별도로 진행됩니다.');setExtensionMessage('');onRefresh?.();
+    }catch{if(!controller.signal.aborted&&userRef.current===owner){setMessage('광고계정을 등록하지 못했습니다. 연결 상태를 확인한 뒤 다시 시도해 주세요.');setExtensionMessage('광고계정 등록에 실패했습니다.');}}
     finally{if(activeRef.current===controller){activeRef.current=null;setBusy(false);}}
   }
 
@@ -282,7 +286,7 @@ export function AdConnectionPanel({transport,onRefresh}: {transport?: AdConnecti
     {proofEnabled && <section><h3>1. 광고계정 선택</h3><p>네이버애즈에서 연결할 광고계정을 선택해 주세요. <a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">확장 프로그램 설치 또는 업데이트</a></p>{!signedIn&&<p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>로그인 후 연결하기</Link></p>}<StoreButton type="button" disabled={!signedIn||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'네이버 광고계정 선택'}</StoreButton>{extensionMessage&&<p role="status">{extensionMessage}</p>}{accountId&&<div><p>선택한 광고 계정 ID: <strong>{accountId}</strong></p><StoreButton type="button" disabled={busy||openingExtension} onClick={()=>void registerDiscoveredAccount()}>{busy?'확인 중…':'이 계정으로 계속'}</StoreButton></div>}</section>}
     {proofEnabled && <div className="ad-invite-method">{consentSection}</div>}
     <AdPolicyDialog document={policyDocument} onClose={()=>setPolicyDocument(null)}/>
-    {!proofEnabled && <><h3>초대 후 연결 확인 요청</h3>
+    {!proofEnabled && <>{directDiscoveryEnabled && <section><h3>직접 초대한 광고계정 연결</h3><p>네이버에서 초대한 광고계정을 선택하면 ID를 자동으로 확인하고 연결 요청을 등록합니다. 초대 수락과 연결 확인은 별도 단계입니다.</p><StoreButton type="button" disabled={!signedIn||!transport||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'네이버 광고계정 선택'}</StoreButton>{extensionMessage&&<p role="status">{extensionMessage}</p>}</section>}<h3>초대 후 연결 확인 요청</h3>
     {checking ? <p role="status">로그인 상태를 확인하고 있어요.</p> : !signedIn ? <p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>로그인 후 연결하기</Link></p> : <form onSubmit={submit}>
       <label htmlFor="naver-ad-account-id">광고 계정 ID</label>{' '}
       <input id="naver-ad-account-id" inputMode="numeric" autoComplete="off" maxLength={16} value={accountId} onChange={e=>{setAccountId(e.target.value);setRequestFeedback(null);}} disabled={!transport || busy} aria-describedby="ad-account-hint" placeholder="예: 1234567" />
