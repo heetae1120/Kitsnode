@@ -1,6 +1,6 @@
 "use client";
 import {useRef,useState,type ReactNode} from 'react';
-import {AdvertisingDiagnosisIntro} from './advertising-diagnosis-intro';
+import {AdvertisingDiagnosisIntro,AdvertisingReviewGuide} from './advertising-diagnosis-intro';
 
 type Props={
  productName:string;
@@ -8,25 +8,28 @@ type Props={
  initialAdIntro?:boolean;
  onAdCheck:()=>void;
  introActions?:ReactNode;
- overview:(showAdIntro:()=>void)=>ReactNode;
+ overview:(showAdGuide:()=>void)=>ReactNode;
 };
 
+type ReportPage='overview'|'guide'|'intro';
 export function ProfitReportPages({productName,months,initialAdIntro=false,onAdCheck,introActions,overview}:Props){
- const [introOpen,setIntroOpen]=useState(initialAdIntro);
+ const [page,setPage]=useState<ReportPage>(initialAdIntro?'intro':'overview');
  const report=useRef<HTMLDivElement>(null);
- function showPage(showIntro:boolean){
-  setIntroOpen(showIntro);
+ function showPage(next:ReportPage){
+  setPage(next);
   requestAnimationFrame(()=>{
-   report.current?.focus({preventScroll:true});
+   const heading=report.current?.querySelector<HTMLElement>(':scope > section h2');
+   (heading??report.current)?.focus({preventScroll:true});
    report.current?.scrollIntoView({behavior:'instant',block:'start'});
   });
  }
  return <div className="mp-report-pages" ref={report} tabIndex={-1}>
-  {introOpen&&<>
-   <AdvertisingDiagnosisIntro productName={productName} months={months} onBack={()=>showPage(false)} onContinue={onAdCheck}/>
+  {page==='guide'&&<AdvertisingReviewGuide months={months} onBack={()=>showPage('overview')} onContinue={()=>showPage('intro')}/>}
+  {page==='intro'&&<>
+   <AdvertisingDiagnosisIntro productName={productName} onBack={()=>showPage('guide')} onContinue={onAdCheck}/>
    {introActions}
   </>}
-  <div hidden={introOpen} inert={introOpen}>{overview(()=>showPage(true))}</div>
+  <div hidden={page!=='overview'} inert={page!=='overview'}>{overview(()=>showPage('guide'))}</div>
  </div>;
 }
 

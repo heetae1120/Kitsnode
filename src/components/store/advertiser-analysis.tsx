@@ -8,6 +8,7 @@ import {createAdConnectionTransport} from '@/lib/ad-connection-transport.mjs';
 import {AdConnectionPanel} from './ad-connection-panel';
 import {AdPerformancePanel} from './ad-performance-panel';
 import {StoreBadge, StoreButton, StoreCard} from './store-ui';
+import {BrandHomeLink} from '../brand-wordmark';
 import {ArrowLeft, ArrowRight, Check, LockKeyhole, RefreshCw} from 'lucide-react';
 
 const transport=createAdConnectionTransport({enabled:process.env.NEXT_PUBLIC_AD_CONNECTION_ENABLED==='true'});
@@ -44,7 +45,7 @@ export function AdvertiserAnalysis(){
  const displayState:State=state==='not-connected'&&manualPending?'pending':state;
  return <div className="ad-analysis">
   <a className="ad-analysis-skip" href="#ad-analysis-main">본문으로 바로가기</a>
-  <header className="ad-analysis-header"><Link href="/tools/start/" className="ad-analysis-brand" aria-label="키츠노드 홈">kitsnode<span>®</span></Link><Link href="/tools/start/" className="ad-analysis-back"><ArrowLeft size={15} aria-hidden="true"/>홈으로 돌아가기</Link></header>
+  <header className="ad-analysis-header"><BrandHomeLink className="ad-analysis-brand"/><Link href="/" className="ad-analysis-back"><ArrowLeft size={15} aria-hidden="true"/>홈으로 돌아가기</Link></header>
   <main id="ad-analysis-main" className="ad-analysis-main" tabIndex={-1}>
    <div className="ad-analysis-intro"><div><p className="ad-analysis-eyebrow">KITSNODE / AD ANALYTICS</p><h1>광고 데이터 분석</h1><p className="ad-analysis-lead">연결한 광고계정의 상태와 성과를 한곳에서 확인하세요.</p></div><span className="ad-analysis-intro-tag">AD ACCOUNT <span aria-hidden="true">↗</span></span></div>
    {displayState==='loading'?<StoreCard className="ad-analysis-notice"><p role="status">계정과 연결 상태를 확인하고 있습니다.</p></StoreCard>:displayState==='signed-out'?<StoreCard className="ad-analysis-login"><div className="ad-analysis-icon"><LockKeyhole size={23} aria-hidden="true"/></div><div><StoreBadge>회원 전용</StoreBadge><h2>로그인 후 이용할 수 있어요</h2><p>키츠노드 회원 또는 네이버 로그인 계정으로 로그인해 주세요.</p><div className="store-actions"><Link className="store-button" href="/store/login/" onClick={saveMemberReturn}>로그인 <ArrowRight size={16} aria-hidden="true"/></Link><Link className="store-button store-button--secondary" href="/store/signup/" onClick={saveMemberReturn}>회원가입</Link></div></div></StoreCard>:<>

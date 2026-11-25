@@ -20,7 +20,7 @@ export function AgencyHome(){
   return <div className="agency-site" id="top">
     <a className="as-skip" href="#main-content" onClick={()=>{if(scene===0)showScene(1);}}>본문으로 건너뛰기</a>
     <header className="as-header">
-      <Link href="/" className="as-wordmark" aria-label="kitsnode 홈" onClick={()=>showScene(0)}><BrandWordmark/></Link>
+      <Link href="/" className="as-wordmark" aria-label="키츠노드 홈" onClick={()=>showScene(0)}><BrandWordmark/></Link>
       <PublicCategories/>
       <MemberMenu/>
     </header>

@@ -1,3 +1,17 @@
+.ds-ad-review-guide{padding:clamp(22px,5vw,64px);border:1px solid #383838;background:#121212}
+.ds-ad-review-guide header{max-width:760px}
+.ds-ad-review-guide h2{margin:0;font-size:clamp(30px,4.3vw,60px);line-height:1.18;letter-spacing:-.05em}
+.ds-ad-review-guide h2 em{color:#ff5a1f;font-style:normal}
+.ds-ad-review-guide h2:focus{outline:none}
+.ds-ad-review-guide header p,.ds-ad-review-guide dd,.ds-ad-review-guide .ds-ad-review-note{color:#c4c0b9;line-height:1.65}
+.ds-ad-review-guide dl{margin:28px 0 20px;border-block:1px solid #383838}
+.ds-ad-review-guide dl>div{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:12px 24px;padding:18px 0}
+.ds-ad-review-guide dl>div+div{border-top:1px solid #383838}
+.ds-ad-review-guide dt{font-weight:750}
+.ds-ad-review-guide dd{margin:0}
+.ds-ad-review-guide .ds-ad-review-note{margin:0;padding-inline-start:14px;border-inline-start:2px solid #ff5a1f}
+@media(max-width:650px){.ds-ad-review-guide dl>div{grid-template-columns:1fr;gap:5px}.ds-ad-review-guide .ds-ad-intro-actions{gap:8px}}
+
 .ds-ad-intro{position:relative;isolation:isolate;overflow:hidden;min-height:690px;padding:90px 48px 80px;background:#0b0b0b;scroll-margin-top:100px}
 .ds-ad-intro-copy{position:relative;z-index:2;max-width:1000px}
 .ds-ad-intro-eyebrow{display:block;color:#ff5a1f!important;font-size:12px;letter-spacing:.13em;font-weight:700;margin-bottom:26px}

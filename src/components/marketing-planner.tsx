@@ -19,7 +19,6 @@ import {plannerMarketFees} from '@/lib/planner-market-fees';
 import {plannerLiveCosts} from '@/lib/planner-live-costs';
 import {useDiagnosisInputGuide} from './use-diagnosis-input-guide';
 import {PlayerIntroduction} from './player-introduction';
-import {PlayerPurposeDialog,type PlayerPurpose} from './player-purpose-dialog';
 import '@/app/tools/marketing-planner.css';
 import '@/app/tools/diagnosis-studio.css';
 import '@/app/tools/selling-diagnosis.css';
@@ -47,7 +46,6 @@ const enteredNumber=(value:string)=>value!==''&&Number.isFinite(Number(value))?N
 export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'starter'|'player';adCheckRoute?:boolean}){
  const [selectedMode,setSelectedMode]=useState<'starter'|'player'|null>(initialMode??null);
  const [showPlayerIntro,setShowPlayerIntro]=useState(initialMode==='player');
- const [playerPurpose,setPlayerPurpose]=useState<PlayerPurpose|null>(null);
  const [libraryOpen,setLibraryOpen]=useState(false);
  const [adCheck,setAdCheck]=useState(false);
  const showAdCheck=adCheck||adCheckRoute;
@@ -106,7 +104,7 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
  function inputStatus(field:keyof Draft){
   const help=field==='name'||field==='months'?'':`mp-help-${field}`;
   const errorId=invalidField===field?(field==='months'?'mp-month-error':'mp-form-error'):'';
-  return {'aria-invalid':invalidField===field||undefined,'aria-describedby':[help,field==='quantity'?'mp-quantity-capacity':'',field==='creativeCost'?'mp-creative-unit':'',errorId].filter(Boolean).join(' ')||undefined};
+  return {'aria-invalid':invalidField===field||undefined,'aria-describedby':[help,field==='quantity'?'mp-quantity-capacity':'',field==='creativeCost'||field==='certification'? `mp-unit-${field}` :'',errorId].filter(Boolean).join(' ')||undefined};
  }
  function submit(event:FormEvent){
   event.preventDefault();
@@ -145,12 +143,11 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
   goalDialog.current?.close();setGoalOpen(false);proceed?.();
  }
  function chooseMode(next:'starter'|'player'){
-  setPlayerPurpose(null);
   setSelectedMode(next);setShowPlayerIntro(next==='player');setDraft(empty);setStep(1);setMarket('');setReport(null);setExampleFields([]);setError('');setInvalidField(null);
   requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});
  }
  function backToChoice(){
-  setSelectedMode(null);setShowPlayerIntro(false);setPlayerPurpose(null);
+  setSelectedMode(null);setShowPlayerIntro(false);
   requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});
  }
  function openAdCheck(productName?:string){
@@ -184,7 +181,6 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
    else closeAdCheck();
    return;
   }
-  if(showPlayerIntro&&playerPurpose){setPlayerPurpose(null);return;}
   if(step>1){move(step-1);return;}
   if(selectedMode==='player'&&!showPlayerIntro){setShowPlayerIntro(true);return;}
   backToChoice();
@@ -226,7 +222,7 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
    <h1 id="ds-choice-title" ref={choiceHeading} tabIndex={-1}>판매 진단 유형 선택</h1>
    <div className="ds-choice-grid">
     <button type="button" className="ds-choice-card ds-starter" onClick={()=>chooseMode('starter')}><span className="ds-choice-art ds-art-target" aria-hidden="true"><i/><b/></span><span className="ds-card-title">스타터</span><span className="ds-card-description">첫 판매에 필요한 예산과 예상 이익을 계산해요.</span><span className="ds-card-action">첫 판매 준비 <ArrowUpRight size={25}/></span></button>
-    <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><span className="ds-card-description">판매 중인 상품의 비용과 이익을 점검해요.</span><span className="ds-card-action">현재 판매 점검 <ArrowUpRight size={25}/></span></button>
+    <button type="button" className="ds-choice-card ds-player" onClick={()=>chooseMode('player')}><span className="ds-choice-art ds-art-star" aria-hidden="true">{[0,45,90,135].map(angle=><i key={angle} style={{transform:`rotate(${angle}deg)`}}/>)}</span><span className="ds-card-title">플레이어</span><span className="ds-card-description">상위노출과 ROAS, 내 판매에는 무엇이 남았을까요?</span><span className="ds-card-action">광고 성과 다시 보기 <ArrowUpRight size={25}/></span></button>
     <button type="button" className="ds-choice-card ds-shortcut-card" aria-label={adKeywordCardTitle} onClick={()=>openAdCheck()}>
      <span className="ds-choice-art ds-art-keyword" aria-hidden="true"><i/><i/><i/></span>
      <span className="ds-card-title ds-ad-keyword-title">{adKeywordCardTitle}</span>
@@ -243,7 +239,7 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
   </main>
  </div>;
  if(selectedMode==='player'&&showPlayerIntro&&!previewStage){
-  return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow selling-diagnosis"><DiagnosisHeader mode="player" onChoose={backToChoice}/>{playerPurpose?<PlayerIntroduction onStart={()=>{setShowPlayerIntro(false);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>:<PlayerPurposeDialog onSelect={setPlayerPurpose} onBack={backToChoice}/>}</div>;
+  return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow selling-diagnosis"><DiagnosisHeader mode="player" onChoose={backToChoice}/><PlayerIntroduction onStart={()=>{setShowPlayerIntro(false);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/></div>;
  }
  const completedReport=step>=3?report:null;
  const summaryInput=completedReport?.input;
@@ -288,8 +284,11 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
       {(step===1?basics:extras).map(([key,label,unit])=><div className={`mp-field ${key==='feePercent'?'mp-fee-field':''}`} key={key} data-guide-field={key==='feePercent'?'판매 수수료':undefined} data-guide-complete={key==='feePercent'?Boolean(market&&draft.feePercent!==''):undefined}>
        <div className="mp-field-label"><label htmlFor={`mp-${key}`}>{label}</label><PlannerCostHelp field={key} label={label}/></div>
        {key==='feePercent'&&<div className="mp-fee-control"><div className="mp-market-options" role="group" aria-label="판매 플랫폼" aria-describedby={invalidField==='market'?'mp-form-error':undefined}>{plannerMarketFees.map(item=><button type="button" key={item.id} aria-pressed={market===item.id} onClick={()=>{setMarket(item.id);update('feePercent',item.rate);setExampleFields(keys=>[...new Set([...keys,'feePercent'])]);}}><span className={`mp-market-icon mp-market-${item.id}`} aria-hidden="true">{item.id==='coupang'?<img src={(process.env.NEXT_PUBLIC_BASE_PATH||'')+'/brand/coupang-official.jpg'} width={72} height={72} alt=""/>:item.mark}</span><b>{item.name}</b></button>)}<button type="button" aria-pressed={market==='other'} onClick={()=>{setMarket('other');update('feePercent','');}}><span className="mp-market-icon" aria-hidden="true">+</span><b>그 외</b></button></div><div className="mp-input-wrap"><FormattedNumberInput id="mp-feePercent" required {...inputStatus('feePercent')} value={draft.feePercent} readOnly={market!=='other'} onValueChange={value=>update('feePercent',value)} placeholder="수수료"/><span>%</span></div></div>}
-       {key!=='feePercent'&&key!=='creativeCost'&&<div className="mp-input-wrap"><FormattedNumberInput id={`mp-${key}`} required {...inputStatus(key)} value={draft[key]} onValueChange={value=>update(key,value)} placeholder={key==='quantity'?'수량 입력':unit==='%'?'비율 입력':'금액 입력'}/><span>{unit}</span></div>}
-       {key==='creativeCost'&&<div className="mp-creative-input-row"><div className="mp-input-wrap"><FormattedNumberInput id="mp-creativeCost" required {...inputStatus('creativeCost')} value={draft.creativeCost} onValueChange={value=>update('creativeCost',value)} placeholder="총 제작비 입력"/><span>원</span></div><output id="mp-creative-unit" aria-live="polite"><span>상품 1개당 제작비</span><b>{draft.creativeCost!==''&&Number(draft.quantity)>0?money(Number(draft.creativeCost)/Number(draft.quantity)):'—'}<small> / 개</small></b></output></div>}
+       {key!=='feePercent'&&key!=='creativeCost'&&key!=='certification'&&<div className="mp-input-wrap"><FormattedNumberInput id={`mp-${key}`} required {...inputStatus(key)} value={draft[key]} onValueChange={value=>update(key,value)} placeholder={key==='quantity'?'수량 입력':unit==='%'?'비율 입력':'금액 입력'}/><span>{unit}</span></div>}
+       {(key==='creativeCost'||key==='certification')&&<div className="mp-creative-input-row">
+        <div className="mp-input-wrap"><FormattedNumberInput id={`mp-${key}`} required {...inputStatus(key)} value={draft[key]} onValueChange={value=>update(key,value)} placeholder={key==='creativeCost'?'총 제작비 입력':'총 인증비 입력'}/><span>원</span></div>
+        <output id={`mp-unit-${key}`} htmlFor={`mp-${key} mp-quantity`} aria-live="polite"><span>상품 1개당 {key==='creativeCost'?'제작비':'인증비'}</span><b>{draft[key]!==''&&Number(draft.quantity)>0?money(Number(draft[key])/Number(draft.quantity)):'—'}<small> / 개</small></b></output>
+       </div>}
        {key==='quantity'&&<p id="mp-quantity-capacity" className="mp-quantity-capacity" aria-live="polite">{purchaseCapacity!==null?<>예산으로 최대 <b>{purchaseCapacity.toLocaleString('ko-KR')}개</b> 구매 가능<small>상품 원가만 반영</small></>:draft.cost!==''&&Number(draft.cost)===0?'원가가 0원이면 구매 가능 수량을 계산할 수 없어요.':null}</p>}
        {key==='returnRate'&&Number(draft.returnRate)>0&&<div className="mp-field sd-return-handling"><div className="mp-field-label"><label htmlFor="mp-returnHandling">반품 한 건 처리비</label><PlannerCostHelp field="returnHandling" label="반품 한 건 처리비"/></div><div className="mp-input-wrap"><FormattedNumberInput {...inputStatus('returnHandling')} id="mp-returnHandling" required value={draft.returnHandling} onValueChange={value=>update('returnHandling',value)} placeholder="처리비 입력"/><span>원/건</span></div><p>개당 반품 비용: {returnCostMissing?'처리비 입력 필요':live?money(live.returns):'—'}</p></div>}
       </div>)}

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AboutGalleryHero } from "@/components/about-gallery-hero";
 import "./about-gallery.css";
 import { ToolsHeader } from "@/components/tools-header";
-import { BrandWordmark } from "@/components/brand-wordmark";
+import { BrandHomeLink } from "@/components/brand-wordmark";
 import { StoreSurvey } from "@/components/store-survey";
 import { AD_CHECK_HREF } from "@/components/public-categories";
 import "../finance-bento.css";
@@ -13,7 +13,7 @@ import "../survey/survey.css";
 export const metadata: Metadata = {
   title: "소개 | KITSNODE",
   description:
-    "광고비와 이익을 함께 보고 브랜드를 키웁니다. 브랜드을 처음부터 키워온 팀입니다.",
+    "광고비와 이익을 함께 보고 브랜드를 키웁니다. 브랜드를 처음부터 키워온 팀입니다.",
 };
 
 export default function AboutPage() {
@@ -23,44 +23,44 @@ export default function AboutPage() {
       <main className="kp-main">
         <AboutGalleryHero />
 
-        <section className="kp-section" aria-labelledby="kp-problem-title">
+        <section className="kp-section" id="kp-approach" aria-labelledby="kp-problem-title">
           <div className="kp-wrap">
-            <h2 id="kp-problem-title">광고 매출만 보고 있나요?</h2>
+            <h2 id="kp-problem-title">주문 한 건에 남는 돈부터 봅니다.</h2>
             <p className="kp-lede">
-              매출이 늘어도 이익이 없을 수 있어요. 고객이 다시 찾는지도 함께 봅니다.
+              판매가에서 원가, 수수료, 배송·반품비와 광고비를 빼면 주문 한 건의 이익이 보입니다. 이 금액을 기준으로 광고 예산을 판단해요.
             </p>
             <div className="kp-contrast">
               <div>
-                <h3>대행사가 보여주는 것</h3>
+                <h3>보고서에서 보는 숫자</h3>
                 <ul>
                   <li>
-                    <s>검색 노출 점수</s>
-                    <small>상품명과 태그를 다듬은 점수표</small>
+                    상위노출
+                    <small>어떤 검색어에서 상품이 보였는지</small>
                   </li>
                   <li>
-                    <s>광고 매출 보고서</s>
-                    <small>광고비 안에서만 계산된 효율</small>
+                    ROAS
+                    <small>광고비 대비 광고에 집계된 매출</small>
                   </li>
                   <li>
-                    <s>광고로 끌어올린 순위</s>
-                    <small>광고비가 멈추면 함께 내려가는 자리</small>
+                    매출 상승
+                    <small>판매로 들어온 금액의 변화</small>
                   </li>
                 </ul>
               </div>
               <div>
-                <h3>우리가 먼저 만드는 것</h3>
+                <h3>키츠노드가 함께 보는 숫자</h3>
                 <ul>
                   <li>
-                    꾸준히 팔 수 있는 기반
-                    <small>상품·가격·설명·리뷰를 함께 다듬습니다</small>
+                    광고 없이 찾아온 고객
+                    <small>자연 검색으로 들어오는 상품과 검색어를 봅니다</small>
                   </li>
                   <li>
-                    광고 없이도 이어지는 판매 흐름
-                    <small>다시 찾고, 다시 사는 고객이 남는 스토어</small>
+                    주문 한 건의 이익
+                    <small>판매 비용과 광고비를 빼고 실제로 남는 돈을 계산합니다</small>
                   </li>
                   <li>
-                    대표님이 직접 판단할 수 있는 숫자
-                    <small>남는 돈과 검색 수요를 직접 확인하는 기준</small>
+                    매출이 늘 때의 이익
+                    <small>판매가 늘면서 총이익도 함께 커지는지 확인합니다</small>
                   </li>
                 </ul>
               </div>
@@ -71,24 +71,23 @@ export default function AboutPage() {
         <section className="kp-tired" aria-labelledby="kp-tired-title">
           <div className="kp-wrap kp-section">
             <div>
-              <h2 id="kp-tired-title">이런 순위 변동에 지치셨다면</h2>
+              <h2 id="kp-tired-title">진단한 숫자로 판매를 다듬습니다.</h2>
               <p className="kp-lede">
-                광고로 잠깐 올랐다가 꺼지는 순위는 브랜드에 아무것도 남기지
-                않습니다.
+                이익이 줄어드는 지점을 찾으면 가격, 비용, 상품 설명 중 어디부터 손볼지 정할 수 있습니다.
               </p>
             </div>
             <ul className="kp-tired-list">
               <li>
-                켜면 오르고, 끄면 떨어지는 순위
-                <span>광고비가 멈추는 순간 다시 처음으로 돌아갑니다.</span>
+                가격과 비용 점검
+                <span>상품별 손익을 보고 조정할 수 있는 비용부터 찾습니다.</span>
               </li>
               <li>
-                좋아진 숫자는 많은데 남는 매출이 없는 리포트
-                <span>보고서의 성과와 통장의 성과가 다릅니다.</span>
+                검색과 상품 페이지 점검
+                <span>고객이 쓰는 검색어와 상품 페이지가 구매에 필요한 정보를 주는지 확인합니다.</span>
               </li>
               <li>
-                다음 달에도 같은 광고비를 써야 하는 구조
-                <span>운영의 주도권이 광고에 묶여 있습니다.</span>
+                집행 여부 판단
+                <span>예상 광고비가 주문당 이익 범위 안에 들어오는지 비교합니다.</span>
               </li>
             </ul>
           </div>
@@ -184,7 +183,7 @@ export default function AboutPage() {
         <div className="kp-plate kp-close">
           <div className="kp-wrap">
             <footer className="kp-footer">
-              <strong className="kn-wordmark"><BrandWordmark/></strong>
+              <BrandHomeLink className="kn-wordmark"/>
               <span>고객이 다시 찾는 브랜드를 만듭니다</span>
             </footer>
           </div>

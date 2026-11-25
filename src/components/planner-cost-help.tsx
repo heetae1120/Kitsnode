@@ -1,13 +1,14 @@
 "use client";
 import {useId,useState} from 'react';
 import {CircleAlert} from 'lucide-react';
+import {plannerMarketFees} from '@/lib/planner-market-fees';
 
 const hints:Record<string,{text:string;links?:[string,string][]}>={
  available:{text:'상품 구매, 배송, 홍보에 지금 쓸 수 있는 금액을 입력하세요.'},
  price:{text:'상품 1개를 얼마에 팔고 싶은지 입력하세요.'},
  cost:{text:'상품 1개를 매입하는 데 드는 비용을 입력하세요.'},
  quantity:{text:'판매할 총 수량을 입력하세요.'},
- feePercent:{text:'플랫폼을 선택하면 참고 수수료가 적용돼요. 실제 요율은 ‘그 외’에서 입력할 수 있어요. 쿠팡윙은 상품별 4~10.9%, 로켓그로스도 판매수수료는 같아요. 물류비·월 이용료·추가 요금은 별도예요. 2026.11.10 확인.',links:[['네이버','https://help.sell.smartstore.naver.com/faq/content.help?faqId=15759'],['쿠팡윙','https://marketplace.coupang.com/information-center/almyeon-alsurog-deo-joheun-kupang-susuryo-2']]},
+ feePercent:{text:'플랫폼을 선택하면 계산용 참고값이 적용돼요. 실제 요율을 알고 있다면 ‘그 외’에서 직접 입력하세요.',links:[...plannerMarketFees.map(({name,source}):[string,string]=>[name+' 판매 수수료',source]),['네이버 Npay 등급별 수수료','https://help.sell.smartstore.naver.com/faq/content.help?faqId=3713']]},
  logistics:{text:'부담하는 입고·보관·배송비를 상품 1개 기준으로 합산하세요. 참고값은 3,000원이에요.'},
  packaging:{text:'박스, 완충재, 사은품 등을 상품 1개 기준으로 합산하세요. 참고값은 1,000원이에요.'},
  creativeCost:{text:'상세페이지와 썸네일 제작에 쓴 전체 금액이에요. 상품 1개당 이익은 총 제작비를 판매 수량으로 나눠 계산해요.'},
@@ -17,9 +18,10 @@ const hints:Record<string,{text:string;links?:[string,string][]}>={
 };
 export function PlannerCostHelp({field,label}:{field:string;label:string}){
  const [open,setOpen]=useState(false);const id=useId();const hint=hints[field];if(!hint)return null;
+ const feeDetails=field==='feePercent'?plannerMarketFees.map(({name,rate,basis})=>`${name} ${rate}%. ${basis}`):[];
  return <span className="mp-field-help" onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)} onFocus={()=>setOpen(true)} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget as Node|null))setOpen(false);}} onKeyDown={e=>{if(e.key==='Escape')setOpen(false);}}>
-   <span id={`mp-help-${field}`} className="ds-sr-only">{hint.text}</span>
+   <span id={`mp-help-${field}`} className="ds-sr-only">{[...feeDetails,hint.text].join(' ')}</span>
    <button type="button" tabIndex={-1} className="mp-hint-button" aria-label={`${label} 입력 안내`} aria-expanded={open} aria-controls={id} onClick={()=>setOpen(true)}><CircleAlert size={16}/></button>
-   {open&&<span id={id} role="note" className="mp-help-content"><b>{label}</b><span>{hint.text}</span>{hint.links&&<span className="mp-help-links">{hint.links.map(([text,href])=><a key={href} tabIndex={-1} href={href} target="_blank" rel="noreferrer">{text} ↗</a>)}</span>}</span>}
+   {open&&<span id={id} role="note" className="mp-help-content"><b>{label}</b>{feeDetails.map(detail=><span className="mp-help-fee-basis" key={detail}>{detail}</span>)}<span>{hint.text}</span>{hint.links&&<span className="mp-help-links">{hint.links.map(([text,href])=><a key={href} tabIndex={-1} href={href} target="_blank" rel="noreferrer">{text} ↗</a>)}</span>}</span>}
  </span>;
 }
