@@ -22,6 +22,7 @@ test('reads only the account selected in the extension-created Naver tab',async(
  assert.deepEqual(await f.call('kitsnode.account.get.v1'),{status:'selecting'});
  f.tabs.get(10).url='https://ads.naver.com/manage/ad-accounts/12345/dashboard';
  assert.deepEqual(await f.call('kitsnode.account.get.v1'),{status:'selected',accountId:'12345'});
+ assert.equal(f.tabs.get(10).url,'https://ads.naver.com/manage/ad-accounts/12345/settings/authorities/members/invited');
  assert.deepEqual(await f.call('kitsnode.account.get.v1'),{status:'blocked'});
 });
 test('reads a unique account opened in a child tab and rejects ambiguous choices',async()=>{
@@ -29,6 +30,7 @@ test('reads a unique account opened in a child tab and rejects ambiguous choices
  f.tabs.set(11,{id:11,openerTabId:10,url:'https://ads.naver.com/manage/ad-accounts/12345/dashboard'});
  f.tabs.set(12,{id:12,openerTabId:99,url:'https://ads.naver.com/manage/ad-accounts/777/dashboard'});
  assert.deepEqual(await f.call('kitsnode.account.get.v1'),{status:'selected',accountId:'12345'});
+ assert.equal(f.tabs.get(11).url,'https://ads.naver.com/manage/ad-accounts/12345/settings/authorities/members/invited');
  const g=fixture();await g.call('kitsnode.account.start.v1');
  g.tabs.set(11,{id:11,openerTabId:10,url:'https://ads.naver.com/manage/ad-accounts/12345/dashboard'});
  g.tabs.set(12,{id:12,openerTabId:10,url:'https://ads.naver.com/manage/ad-accounts/67890/dashboard'});

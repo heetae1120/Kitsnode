@@ -128,7 +128,13 @@ document.querySelector('#auto').addEventListener('click',async()=>{
   }catch{status.textContent='자동 진행을 시작하지 못했습니다.';}finally{button.disabled=false;}
 });
 document.querySelector('#open').addEventListener('click', async () => {
-  try { await chrome.tabs.create({url:'https://ads.naver.com/settings/ad-account'}); status.textContent='네이버애즈에서 직접 로그인하고 연결할 광고 계정을 선택해 주세요.'; }
+  try {
+    const tabs=await chrome.tabs.query({active:true,currentWindow:true});
+    let accountId;
+    try { const u=new URL(tabs.length===1?tabs[0].url:''); if(u.origin==='https://ads.naver.com'&&!u.search&&!u.hash) accountId=u.pathname.match(/^\/manage\/ad-accounts\/([1-9][0-9]{0,15})(?:\/|$)/)?.[1]; } catch {}
+    await chrome.tabs.create({url:accountId?`https://ads.naver.com/manage/ad-accounts/${accountId}/settings/authorities/members/invited`:'https://ads.naver.com/settings/ad-account'});
+    status.textContent=accountId?'선택한 광고계정의 회원 관리 화면을 열었습니다.':'네이버애즈에서 로그인하고 광고계정을 선택한 뒤 권한 관리 → 회원 관리로 이동해 주세요.';
+  }
   catch { status.textContent = '네이버 애즈를 열지 못했습니다.'; }
 });
 document.querySelector('#lookup').addEventListener('click', async()=>{

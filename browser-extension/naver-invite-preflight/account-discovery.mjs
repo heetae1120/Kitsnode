@@ -22,6 +22,7 @@ export async function accountDiscovery({chromeApi,message,sender,now=Date.now}={
   const candidates=[parent,...(await chromeApi.tabs.query({})).filter(tab=>tab.openerTabId===parent.id)];
   const accounts=candidates.flatMap(tab=>{try{const u=new URL(tab.url);if(u.origin!=='https://ads.naver.com'||u.search||u.hash||!Number.isInteger(tab.id))return [];const match=u.pathname.match(/^\/manage\/ad-accounts\/([1-9][0-9]{0,15})\/(?:dashboard|all-campaigns|settings\/billing\/balance|settings\/authorities\/members\/invited)$/);return match?[{accountId:match[1],tabId:tab.id}]:[]}catch{return []}});
   if(accounts.length!==1)return {status:'selecting'};
+  await chromeApi.tabs.update(accounts[0].tabId,{url:`https://ads.naver.com/manage/ad-accounts/${accounts[0].accountId}/settings/authorities/members/invited`});
   await chromeApi.storage.session.set({[`selected_account_${sender.tab.id}`]:{siteTabId:sender.tab.id,naverTabId:accounts[0].tabId,accountId:accounts[0].accountId,expiresAt:record.expiresAt}});
   await chromeApi.storage.session.remove(key);
   return {status:'selected',accountId:accounts[0].accountId};
