@@ -72,7 +72,7 @@ test("member pages cannot accept credentials or fabricate authentication", () =>
   assert.match(pages, /StoreButton disabled aria-describedby="account-unavailable"/);
   assert.match(pages, /<AdConnectionPanel transport=\{adConnectionTransport\} \/>/);
   const connection = readFileSync("src/components/store/ad-connection-panel.tsx", "utf8");
-  assert.match(connection, /disabled=\{!signedIn\|\|!transport\|\|openingExtension\|\|busy\}/);
+  assert.match(connection, /id="invite-ad-account-id"/);
   assert.doesNotMatch(connection, /type="password"/);
   assert.match(pages, /href="\/store\/ads\/example\/"/);
   assert.match(pages, /<dd>—<span>/);

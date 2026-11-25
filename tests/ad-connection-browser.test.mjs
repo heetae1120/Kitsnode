@@ -34,13 +34,12 @@ test('connection screen separates invitation methods and shows only verified sta
  await page.goto(origin);await page.getByText(/계정 12345 · 연결 확인 대기/).first().waitFor();
  assert.equal(await page.getByLabel('광고 계정 ID').count(),0);
  assert.equal(await page.getByText(/키츠노드에서 초대를 확인하고 수락해야/).isVisible(),true);
- await page.getByText('1. 수동 초대',{exact:true}).click();
  assert.equal(await page.getByRole('link',{name:'계정 12345 회원 관리 열기 (새 창)'}).getAttribute('href'),'https://ads.naver.com/manage/ad-accounts/12345/settings/authorities/members/invited');
- assert.equal(await page.getByRole('link',{name:'별도 화면에서 연결 확인을 요청'}).isVisible(),true);
- await page.getByText('2. 확장프로그램을 통한 초대',{exact:true}).click();
- assert.equal(await page.getByText(/현재 저장한 사전 동의는 확장프로그램과 연동되지 않습니다/).isVisible(),true);
- assert.equal(await page.getByRole('button',{name:'확장프로그램으로 네이버 광고주 로그인'}).isEnabled(),true);
- assert.equal(await page.getByLabel('키츠노드에 운영 조회 권한을 초대하는 절차를 확인했습니다.').count(),0);
+ assert.equal(await page.getByText('확장프로그램을 통한 초대').count(),0);
+ await page.getByLabel('광고계정 ID',{exact:true}).fill('67890');
+ assert.equal(await page.getByRole('link',{name:'네이버애즈 회원 관리 열기 (새 창)'}).getAttribute('href'),'https://ads.naver.com/manage/ad-accounts/67890/settings/authorities/members/invited');
+ await page.getByLabel('광고계정 ID',{exact:true}).fill('abc');
+ assert.equal(await page.getByRole('link',{name:'네이버애즈 회원 관리 열기 (새 창)'}).count(),0);
  await page.goto(origin+'/?manual&empty');
  await page.getByLabel('광고 계정 ID').fill('67890');
  await page.getByRole('button',{name:'연결 확인 요청'}).click();

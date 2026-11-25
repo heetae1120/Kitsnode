@@ -40,6 +40,7 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
   const signedIn = Boolean(currentUser);
   const [checking,setChecking] = useState(true);
   const [accountId,setAccountId] = useState('');
+  const [inviteAccountId,setInviteAccountId] = useState('');
   const [connections,setConnections] = useState<Connection[]>([]);
   const [connectionsLoaded,setConnectionsLoaded] = useState(false);
   const [message,setMessage] = useState('');
@@ -63,17 +64,6 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
   const userRef = useRef<string|null>(null);
   const activeRef = useRef<AbortController|null>(null);
   const authRef = useRef<ReturnType<typeof memberBrowserClient>>(null);
-
-  useEffect(()=>{
-    if(!testModeConfigured||manualEntry)return;
-    let active=true;
-    const runtime=(window as unknown as {chrome?:{runtime?:{sendMessage(id:string,message:Record<string,string>):Promise<unknown>}}}).chrome?.runtime;
-    if(!runtime?.sendMessage||!window.crypto?.randomUUID)return;
-    void runtime.sendMessage(testExtensionId,{type:'kitsnode.account.get.v1',nonce:window.crypto.randomUUID()})
-      .then(result=>{if(active&&result&&typeof result==='object'&&'status' in result&&result.status==='blocked')setTestMode(true);})
-      .catch(()=>{if(active)setTestMode(false);});
-    return ()=>{active=false;};
-  },[manualEntry]);
 
   useEffect(()=>{
     let active=true;
@@ -283,16 +273,17 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
     {message&&<p role="status">{message}</p>}<p><Link href="/store/ads/">광고계정 연결로 돌아가기</Link></p></StoreCard>;
   return <StoreCard aria-labelledby="ad-connection-panel-title">
     <h2 id="ad-connection-panel-title">네이버 광고계정 연결</h2><p>광고 성과 조회를 위해 광고계정을 연결해 주세요.</p>
-    {testMode&&<p className="ad-invitation-notice" role="status">설치된 0.3.1 시험본으로 연결합니다. 실제 초대가 발송될 수 있으니 기존 초대 상태를 확인해 주세요.</p>}
     <details className="ad-connection-compact"><summary><span><strong>광고계정 연결 확인</strong><small>{summary}</small></span><span>상태 확인</span></summary>
       {checking?<p>로그인 상태를 확인하고 있어요.</p>:!signedIn?<p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>로그인 후 연결하기</Link></p>:<>{active.length?<ul>{active.map(c=><li key={c.requestId}><span>계정 <strong>{c.adAccountId}</strong> · {statusLabels[c.status]||'확인 필요'}</span><button type="button" className="store-text-link" disabled={busy} onClick={()=>void disconnect(c)}>연결 해제</button></li>)}</ul>:<p>연결된 광고계정이 없습니다.</p>}{transport&&<StoreButton type="button" disabled={busy} onClick={()=>{setRefreshKey(v=>v+1);onRefresh?.();}}>상태 새로고침</StoreButton>}</>}
     </details>
-    <section className="ad-invitation-options" aria-labelledby="ad-invitation-title"><h3 id="ad-invitation-title">광고주 계정 초대 방법</h3><p>원하는 방법을 선택해 주세요.</p><div className="ad-invitation-grid">
-      <details className="ad-invitation-choice"><summary><span>1. 수동 초대</span><small>네이버에서 직접 kitsnode를 초대합니다.</small></summary><ol><li>네이버애즈에 로그인하고 광고계정을 선택합니다.</li><li>권한 관리에서 <strong>kitsnode</strong>를 <strong>운영 조회</strong> 권한으로 초대합니다.</li><li>키츠노드 측 초대 확인과 수락을 기다려 주세요.</li></ol>{active.length?active.map(c=><p key={c.requestId}><a className="store-text-link" href={`https://ads.naver.com/manage/ad-accounts/${c.adAccountId}/settings/authorities/members/invited`} target="_blank" rel="noopener noreferrer">계정 {c.adAccountId} 회원 관리 열기 (새 창)</a></p>):<p><a className="store-text-link" href="https://ads.naver.com/settings/ad-account" target="_blank" rel="noopener noreferrer">네이버애즈 열기 (새 창)</a> · 계정 선택 후 설정 → 권한 관리 → 회원 관리로 이동해 주세요.</p>}
-      {directDiscoveryEnabled?<><StoreButton type="button" disabled={!signedIn||!transport||openingExtension||busy} onClick={()=>void discoverAccount()}>{openingExtension?'계정 확인 중…':'광고계정 확인'}</StoreButton><p>확장프로그램이 선택한 계정의 ID를 확인합니다.</p></>:<p className="ad-invitation-notice">광고계정 자동 확인은 준비 중입니다. 그동안 <Link className="store-text-link" href="/store/ads/manual-request/">별도 화면에서 연결 확인을 요청</Link>해 주세요.</p>}{extensionMessage&&<p role="status">{extensionMessage}</p>}</details>
-      <details className="ad-invitation-choice"><summary><span>2. 확장프로그램을 통한 초대</span><small>회원 ID 입력과 권한 선택을 돕습니다.</small></summary>
-      {proofEnabled?<><ol><li><strong>확장프로그램 설치</strong>{testMode?<p>0.3.1 시험본 설치가 확인되었습니다.</p>:<><p>Chrome에 설치한 뒤 이 화면으로 돌아와 주세요.</p><p><a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">Chrome 확장프로그램 설치 (새 창)</a></p></>}</li><li><strong>네이버 광고주 로그인</strong><p>확장프로그램이 새 네이버애즈 탭을 엽니다. 광고주 계정으로 로그인해 주세요. 이미 로그인되어 있으면 계정 목록이 열립니다.</p><StoreButton type="button" disabled={!signedIn||!transport||openingExtension||busy} onClick={()=>void discoverAccount()}>{discovering?'광고계정 선택 대기 중…':'확장프로그램으로 네이버 광고주 로그인'}</StoreButton></li><li><strong>광고계정 선택</strong><p>방금 열린 네이버 탭의 광고계정 목록에서 연결할 계정의 <strong>바로가기</strong>를 누른 뒤 이 화면으로 돌아와 주세요. 이전에 열어 둔 탭은 인식되지 않습니다.</p>{discovering&&<button type="button" className="store-text-link" onClick={cancelAccountDiscovery}>계정 확인 중단하고 다시 시작</button>}</li><li><strong>사전 동의 저장</strong>{consentSection}</li><li><strong>초대 진행</strong><p>동의 저장 후 확장프로그램으로 초대를 시작하고 네이버에서 발송 상태를 확인해 주세요.</p><StoreButton type="button" disabled={!savedConsent||openingExtension||consentBusy} onClick={()=>void startConsentedInvitation()}>{openingExtension?'확인 중…':'초대 진행'}</StoreButton></li></ol>{extensionMessage&&<p role="status">{extensionMessage}</p>}</>:<><ol><li><strong>확장프로그램 설치</strong><p>Chrome에 설치한 뒤 이 화면으로 돌아와 주세요.</p><p><a className="store-text-link" href={extensionStoreUrl} target="_blank" rel="noopener noreferrer">Chrome 확장프로그램 설치 (새 창)</a></p></li><li><strong>네이버 광고주 로그인</strong><p>확장프로그램이 네이버애즈를 엽니다. 광고주 계정으로 로그인해 주세요. 이미 로그인되어 있으면 계정 목록이 바로 열립니다.</p><p>로그인 후 연결할 광고계정을 선택해 주세요.</p>{signedIn&&/^[a-p]{32}$/.test(inviteExtensionId)?<StoreButton type="button" disabled={openingExtension} onClick={()=>void openAdvertiserLogin()}>{openingExtension?'여는 중…':'확장프로그램으로 네이버 광고주 로그인'}</StoreButton>:<p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>키츠노드 로그인 후 시작</Link></p>}</li><li><strong>네이버 초대 정책 확인</strong><p>네이버에서 표시되는 개인정보 제공 및 회원 초대 정책에 직접 동의해 주세요.</p></li><li><strong>확장프로그램으로 초대 진행</strong><p>확장프로그램의 자동 진행은 kitsnode ID 입력, 운영 조회 권한 선택과 초대 발송을 시도합니다. 네이버에서 발송 상태를 확인해 주세요.</p></li></ol><p className="ad-invitation-notice">현재 저장한 사전 동의는 확장프로그램과 연동되지 않습니다. 동의 저장만으로 초대가 발송되지 않습니다.</p>{consentSection}{extensionMessage&&<p role="status">{extensionMessage}</p>}</>}</details>
-    </div><p className="ad-invitation-footer">초대 발송 후 키츠노드에서 초대를 확인하고 수락해야 광고계정 연결이 완료됩니다. 연결 완료 후 광고 데이터를 조회할 수 있습니다.</p></section>
+    <section className="ad-invitation-options" aria-labelledby="ad-invitation-title"><h3 id="ad-invitation-title">광고주 계정 초대</h3>
+      <ol><li>광고계정의 회원 관리 화면을 엽니다.</li><li><strong>회원 초대</strong>를 눌러 <strong>kitsnode</strong>를 <strong>운영 조회</strong> 권한으로 초대합니다.</li><li>키츠노드 측 초대 확인과 수락을 기다려 주세요.</li></ol>
+      {active.map(c=><p key={c.requestId}><a className="store-text-link" href={`https://ads.naver.com/manage/ad-accounts/${c.adAccountId}/settings/authorities/members/invited`} target="_blank" rel="noopener noreferrer">계정 {c.adAccountId} 회원 관리 열기 (새 창)</a></p>)}
+      <label htmlFor="invite-ad-account-id">광고계정 ID</label><input id="invite-ad-account-id" inputMode="numeric" autoComplete="off" maxLength={16} value={inviteAccountId} onChange={e=>setInviteAccountId(e.target.value)} placeholder="예: 1234567"/>
+      <p>네이버애즈에서 광고계정을 선택했을 때 주소의 /ad-accounts/ 뒤에 표시되는 숫자를 입력해 주세요.</p>
+      {/^[1-9]\d{0,15}$/.test(inviteAccountId)?<p><a className="store-text-link" href={`https://ads.naver.com/manage/ad-accounts/${inviteAccountId}/settings/authorities/members/invited`} target="_blank" rel="noopener noreferrer">네이버애즈 회원 관리 열기 (새 창)</a></p>:<p>광고계정 ID를 입력하면 회원 관리 화면을 열 수 있습니다.</p>}
+      <p><Link className="store-text-link" href="/store/ads/manual-request/">광고계정 연결 확인 요청</Link></p>
+      <p className="ad-invitation-footer">초대 발송 후 키츠노드에서 초대를 확인하고 수락해야 광고계정 연결이 완료됩니다. 연결 완료 후 광고 데이터를 조회할 수 있습니다.</p></section>
     {message&&<p role="status" aria-live="polite">{message}</p>}<AdPolicyDialog document={policyDocument} onClose={()=>setPolicyDocument(null)}/>
   </StoreCard>;
 }
