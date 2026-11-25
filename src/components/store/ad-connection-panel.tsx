@@ -12,6 +12,7 @@ import {NAVER_INVITE_POLICY_ITEMS,NAVER_INVITE_POLICY_AGREEMENT} from '@/lib/nav
 import {StoreButton, StoreCard} from './store-ui';
 import {AdPolicyDialog, type PolicyDocument} from './ad-policy-dialog';
 import type {AdConnectionTransport} from '@/lib/ad-connection-transport.mjs';
+import {ManualInviteRequest} from './manual-invite-request';
 
 const consentClient=createInviteConsentClient({enabled:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_ENABLED==='true',version:process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION,policyDigest:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_DIGEST,policyUrl:process.env.NEXT_PUBLIC_AD_INVITE_POLICY_URL,disclosureUrl:process.env.NEXT_PUBLIC_AD_INVITE_DISCLOSURE_URL});
 const proofVersion = process.env.NEXT_PUBLIC_AD_INVITE_CONSENT_VERSION || '';
@@ -32,7 +33,7 @@ const statusLabels: Record<string,string> = {
 };
 
 /** When no server transport is configured, no member data is submitted. */
-export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {transport?: AdConnectionTransport; onRefresh?: () => void; manualEntry?: boolean}) {
+export function AdConnectionPanel({transport,onRefresh,onManualStatusChange,manualEntry=false}: {transport?: AdConnectionTransport; onRefresh?: () => void; onManualStatusChange?: (status:'none'|'pending_review'|'matched'|null)=>void; manualEntry?: boolean}) {
   const [testMode,setTestMode]=useState(false);
   const inviteExtensionId=testMode?testExtensionId:publishedExtensionId;
   const proofEnabled=Boolean(consentClient)&&(testMode||publishedProofEnabled);
@@ -286,6 +287,7 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
         <li>권한을 <strong>운영 조회</strong>로 선택하고 초대를 완료합니다. <strong>초대 중인 회원</strong>에서 발송 여부를 확인해 주세요.</li>
       </ol>
       {active.map(c=><p key={c.requestId}><a className="store-text-link" href={`https://ads.naver.com/manage/ad-accounts/${c.adAccountId}/settings/authorities/members/invited`} target="_blank" rel="noopener noreferrer">등록된 계정 {c.adAccountId} 회원 관리 바로가기 (새 창)</a></p>)}
+      <ManualInviteRequest userId={currentUser} refreshKey={refreshKey} onRefresh={onRefresh} onStatusChange={onManualStatusChange}/>
       <p className="ad-invitation-footer">초대 발송 후 키츠노드에서 초대를 확인하고 수락해야 광고계정 연결이 완료됩니다. 연결 완료 후 광고 데이터를 조회할 수 있습니다.</p></section>
     {message&&<p role="status" aria-live="polite">{message}</p>}<AdPolicyDialog document={policyDocument} onClose={()=>setPolicyDocument(null)}/>
   </StoreCard>;

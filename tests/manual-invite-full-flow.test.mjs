@@ -1,0 +1,26 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {createManualInviteApp} from '../supabase/functions/kitsnode-ad-api/src/manual-invite-app.mjs';
+import {createConnectionService} from '../supabase/functions/kitsnode-ad-api/src/connection-service.mjs';
+import {createPerformanceService} from '../supabase/functions/kitsnode-ad-api/src/performance-service.mjs';
+const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',op='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',other='cccccccc-cccc-4ccc-8ccc-cccccccccccc',sid='11111111-1111-4111-8111-111111111111',request='22222222-2222-4222-8222-222222222222',connection='33333333-3333-4333-8333-333333333333',evidence='44444444-4444-4444-8444-444444444444';
+const origin='https://heetae1120.github.io';
+test('customer request → operator match → independently reviewed approval → own simulated performance',async()=>{
+ const actors={customer:{id:user,sessionId:sid},operator:{id:op,sessionId:sid},other:{id:other,sessionId:sid}};let seq=0,manual=null,row=null,access=false;
+ const resolveAccount=async a=>access?{ok:true,adAccountId:a,customerId:'45678',role:'READ_ONLY'}:{ok:false};
+ const store={create:async(id,u)=>{manual??={id,user:u,status:'pending_review'};return manual.status},status:async u=>manual?.user===u?manual.status:'none',queue:async()=>manual?.status==='pending_review'?[{request_id:manual.id,user_id:manual.user,created_at:'2026-11-25T00:00:00Z'}]:[],attach:async(req,cid,reviewer,_session,ad)=>{if(manual?.id!==req||manual.status!=='pending_review'||reviewer!==op)return null;row={requestId:cid,userId:manual.user,adAccountId:ad,status:'pending_review',revision:0};manual.status='matched';return cid}};
+ const app=createManualInviteApp({verifySession:async t=>actors[t],memberAllowed:async()=>true,verifyOperator:async u=>u===op,allowRequest:async()=>true,resolveAccount,store,createId:()=>seq++===0?request:connection});
+ const call=async(path,token,body)=>{const res=await app.handler(new Request('https://fixture.invalid/api/'+path,{method:'POST',headers:{origin,authorization:`Bearer ${token}`,'content-type':'application/json'},body:JSON.stringify(body)}));return {status:res.status,data:await res.json()}};
+ assert.deepEqual((await call('manual-invite-requests','customer',{})).data,{status:'pending_review'});
+ const selection={action:'attach',requestId:request,adAccountId:'12345',confirmed:true};
+ assert.equal((await call('manual-invite-reviews','operator',selection)).status,422);assert.equal(row,null);
+ access=true;assert.deepEqual((await call('manual-invite-reviews','operator',selection)).data,{status:'matched',connectionId:connection});assert.equal(row.status,'pending_review');
+ const conStore={createPending:async()=>false,getOwned:async()=>null,getForReview:async()=>row,disconnectOwned:async()=>false,approvePending:async a=>{if(a.requestId!==row.requestId||a.expectedRevision!==row.revision)return false;row={...row,status:'read_connected',customerId:a.customerId,revision:row.revision+1};return true}};
+ const service=createConnectionService({verifySession:async t=>actors[t],verifyOperator:async u=>u===op,verifyOwnershipEvidence:async x=>x.evidenceRef===evidence,resolveAccount,store:conStore});
+ assert.equal((await service.approve('customer',connection,evidence)).code,'forbidden');
+ assert.equal((await service.approve('operator',connection,evidence)).status,'read_connected');
+ const catalog=async(_token,input)=>({ok:true,items:[{id:input.action==='keywordCampaigns'?'cmp-test':input.action==='keywordGroups'?'grp-test':'nkw-test'}]});
+ const read=createPerformanceService({verifySession:async t=>actors[t],memberAllowed:async()=>true,getBinding:async u=>u===row.userId?row:null,catalog,statsForCustomer:()=>({read:async input=>({status:'observed',targetId:input.targetId,period:{since:input.since,until:input.until},observedAt:'2026-11-25T00:00:00Z',metrics:{impressions:100,clicks:10,cost:500,clickThroughRate:10,averageClickCost:50}})})});
+ const input={connectionId:connection,kind:'keyword',campaignId:'cmp-test',groupId:'grp-test',targetId:'nkw-test',since:'2026-11-01',until:'2026-11-02'};
+ const result=await read('customer',input);assert.equal(result.status,'observed');assert.equal(result.metrics.clicks,10);assert.equal((await read('other',input)).reason,'connection_required');
+});
