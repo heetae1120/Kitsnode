@@ -14,7 +14,6 @@
 .dw-landing-scene { position: absolute; inset: 0; display: grid; align-items: center; visibility: hidden; opacity: 0; transition: opacity .45s ease, visibility 0s linear .45s; }
 .dw-landing-scene[data-active=true] { visibility: visible; opacity: 1; transition-delay: 0s; }
 .dw-landing-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.dw-landing-scene:first-child .dw-landing-image { object-fit: contain; object-position: 85% 50%; background: #000; }
 .dw-landing-scene::after {
   content: "";
   position: absolute;
@@ -24,7 +23,7 @@
 .dw-landing-copy { position: relative; z-index: 1; max-width: 720px; padding: 32px clamp(28px,6vw,94px) 98px; }
 .profit-tool .about-gallery-page .dw-landing-copy h2 { color: #f5f2eb; font-size: clamp(36px,6vw,82px); font-weight: 800; line-height: 1.12; letter-spacing: -.065em; margin: 0; word-break: keep-all; }
 .profit-tool .about-gallery-page .dw-landing-copy p { color: #eee8df; font-size: clamp(15px,1.8vw,19px); line-height: 1.65; margin: 16px 0 0; word-break: keep-all; }
-.dw-landing-controls { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; padding: 20px clamp(24px,6vw,94px) 26px; }
+.dw-landing-controls { padding: 20px clamp(24px,6vw,94px) 26px; }
 .dw-disciplines { display: flex; align-items: center; gap: clamp(14px,2.7vw,32px); }
 .profit-tool .about-gallery-page .dw-discipline {
   border: 0;
@@ -39,13 +38,11 @@
   transition: border-color .2s ease;
 }
 .profit-tool .about-gallery-page .dw-discipline[aria-pressed=true] { border-bottom-color: #48d394; }
-.profit-tool .about-gallery-page .dw-rotation { background: #0b0b0b; color: #f5f2eb; border: 1px solid #63605b; padding: 8px 12px; min-height: 42px; cursor: pointer; font-size: 13px; }
 .dw-landing-controls button:focus-visible { outline: 2px solid #f5f2eb; outline-offset: 4px; }
 .profit-tool .about-gallery-page .dw-copy { max-width: 1000px; margin: 48px auto 0; text-align: center; }
 .profit-tool .about-gallery-page .dw-eyebrow { display: block; font-size: 10px; letter-spacing: .17em; font-weight: 700; margin-bottom: 20px; }
 .profit-tool .about-gallery-page .dw-copy h1 { font-size: clamp(42px,5.6vw,80px); line-height: 1.13; letter-spacing: -.065em; font-weight: 850; margin: 0; color: #f5f2eb; }
 .profit-tool .about-gallery-page .dw-copy h1 em { font-style: normal; color: #ff5a1f; }
-.profit-tool .about-gallery-page .dw-copy > p { margin: 24px 0 18px; font-size: 14px; line-height: 1.8; color: #aaa7a0; }
 .profit-tool .about-gallery-page .kp-section { padding-top: 100px; padding-bottom: 100px; }
 .profit-tool .about-gallery-page .kp-contrast { gap: 24px; }
 .profit-tool .about-gallery-page .kp-contrast > div { border-radius: 18px; }
@@ -57,14 +54,13 @@ html body .profit-tool .about-gallery-page .kp-contrast > div:first-child li s {
   .dw-landing-copy { padding: 24px 20px 115px; }
   .dw-landing-controls { padding: 16px 20px; }
   .dw-landing-scene::after { background: linear-gradient(0deg,#0b0b0b 0%,#0b0b0bcf 42%,#0b0b0b2e 95%); }
-  .dw-landing-scene:first-child .dw-landing-image { object-position: center 24%; }
+  .dw-landing-scene:first-child .dw-landing-image { object-position: 60% center; }
   .profit-tool .about-gallery-page .dw-copy { margin-top: 34px; padding: 0 8px; }
   .profit-tool .about-gallery-page .dw-copy h1 { font-size: clamp(32px,8.3vw,54px); }
   .profit-tool .about-gallery-page .kp-section { padding-top: 65px; padding-bottom: 65px; }
 }
 @media (prefers-reduced-motion:reduce) {
   .dw-landing-scene, .profit-tool .about-gallery-page .dw-discipline { transition: none; }
-  .dw-rotation { display: none; }
 }
 @media print {
   .dw-landing { display: none; }
