@@ -1,5 +1,5 @@
-export type ShoppingAdDetails = {rating:number|null;reviewCount:string;wishCount:string;originalPrice:number|null;couponPrice:number|null;promotion:string;shipping:string;category:string;specifications:string;registeredAt:string};
-export type ShoppingAd = Partial<ShoppingAdDetails> & {rank:number;ad:true;title:string;mall:string;price:number|null;image:string|null};
+export type ShoppingAdDetails = {purchaseCount?:string;dailySales?:number|null;weeklySales?:number|null;rating:number|null;reviewCount:string;wishCount:string;originalPrice:number|null;couponPrice:number|null;promotion:string;shipping:string;category:string;specifications:string;registeredAt:string};
+export type ShoppingAd = Partial<ShoppingAdDetails> & {rank:number;ad:true;title:string;mall:string;price:number|null;image:string|null;url?:string|null;capture?:string|null};
 export type ShoppingAdSnapshot = {keyword:string;device:'PC';sourceUrl:string;observedAt:string;context:string;complete:boolean;items:ShoppingAd[]};
 const normalize=(value:string)=>value.replace(/\s+/g,'').toLowerCase();
 export const shoppingSearchUrl=(keyword:string)=>`https://search.shopping.naver.com/search/all?query=${encodeURIComponent(keyword)}`;

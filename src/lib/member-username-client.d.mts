@@ -1,0 +1,1 @@
+export function createUsernameClient(options:{url:string;key:string;auth:any;fetchImpl?:typeof fetch}):{checkUsername:(username:string)=>Promise<{ok:boolean;code:string}>;signIn:(username:string,password:string)=>Promise<{ok:boolean;code:string}>;resumeSignup:(email:string,password:string)=>Promise<{ok:boolean;code:string}>;dispose:()=>void};

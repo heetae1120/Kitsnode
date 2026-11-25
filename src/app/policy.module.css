@@ -1,0 +1,32 @@
+.policy {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 72px 24px 96px;
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.policy h1 {
+  margin: 0 0 20px;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  line-height: 1.25;
+}
+
+.policy section {
+  margin-top: 36px;
+}
+
+.policy h2 {
+  margin-bottom: 12px;
+  font-size: 1.15rem;
+}
+
+.policy p + p {
+  margin-top: 12px;
+}
+
+.policy a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -1,0 +1,3 @@
+type ExtensionRuntime = {sendMessage(extensionId: string, message: {type: string; nonce: string}): Promise<unknown>};
+export function startAdvertiserLogin(options?: {extensionId?: string; runtime?: ExtensionRuntime; crypto?: Pick<Crypto,'randomUUID'>; consent?: boolean}): Promise<{status: 'opened' | 'unavailable'}>;
+export function startAdvertiserLoginForMember(options: {getSession:()=>Promise<unknown>; currentUserId:string; isCurrent:(userId:string)=>boolean; start?:(options:{extensionId?:string; runtime?:ExtensionRuntime; crypto?:Pick<Crypto,'randomUUID'>; consent?:boolean})=>Promise<{status:'opened'|'unavailable'}>; extensionId?:string; runtime?:ExtensionRuntime; crypto?:Pick<Crypto,'randomUUID'>; consent?:boolean}): Promise<{status:'opened'|'unavailable'}>;

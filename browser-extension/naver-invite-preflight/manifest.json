@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "키츠노드 광고계정 연결",
+  "version": "0.3.1",
+  "description": "키츠노드 광고 분석을 위해 네이버 광고계정의 운영 조회 권한 연결을 돕습니다.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://ads.naver.com/*",
+    "https://bjpguxwqxlsteektkhwf.supabase.co/*"
+  ],
+  "externally_connectable": {
+    "matches": [
+      "https://heetae1120.github.io/*"
+    ]
+  },
+  "background": {
+    "service_worker": "web-start-worker.mjs",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

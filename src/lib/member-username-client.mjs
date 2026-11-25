@@ -1,0 +1,13 @@
+// Uses only the public Supabase URL and publishable key. The Edge Function
+// resolves usernames server-side; email addresses never reach the browser.
+export function createUsernameClient({url,key,auth,fetchImpl=fetch}={}) {
+ let target;try{target=new URL(url)}catch{throw TypeError('invalid_configuration')}
+ if(target.origin!==url||(target.protocol!=='https:'&&!(target.protocol==='http:'&&['127.0.0.1','localhost'].includes(target.hostname)))||typeof key!=='string'||!key||typeof auth?.getSession!=='function'||typeof auth?.setSession!=='function'||typeof auth?.onAuthStateChange!=='function'||typeof fetchImpl!=='function')throw TypeError('invalid_configuration');
+ let busy=false,generation=0,disposed=false;const fail=code=>({ok:false,code});
+ const subscription=auth.onAuthStateChange(()=>{generation++});
+ async function post(data){const response=await fetchImpl(url+'/functions/v1/kitsnode-username-login',{method:'POST',headers:{'content-type':'application/json',apikey:key,authorization:`Bearer ${key}`},body:JSON.stringify(data),credentials:'omit',redirect:'error'});if(!response.ok)return fail('unavailable');const result=await response.json();if(!result||typeof result.ok!=='boolean'||typeof result.code!=='string')return fail('unavailable');return result}
+ return Object.freeze({async checkUsername(username){try{const r=await post({action:'availability',username});return r.ok&&['available','unavailable'].includes(r.code)?r:fail('unavailable')}catch{return fail('unavailable')}},async signIn(username,password){return signIn({action:'login',username,password})},async resumeSignup(email,password){return signIn({action:'resume',email,password})},dispose(){disposed=true;generation++;subscription?.data?.subscription?.unsubscribe()}});
+ async function signIn(payload){
+  if(busy||disposed)return fail('unavailable');busy=true;try{const initial=await auth.getSession();if(initial?.error||initial?.data?.session)return fail('sign_in_failed');const epoch=generation;const r=await post(payload);if(!r.ok||r.code!=='signed_in'||typeof r.session?.access_token!=='string'||typeof r.session?.refresh_token!=='string')return fail('sign_in_failed');if(disposed||generation!==epoch)return fail('session_changed');const before=await auth.getSession();if(before?.error||before?.data?.session||disposed||generation!==epoch)return fail('session_changed');const installed=await auth.setSession({access_token:r.session.access_token,refresh_token:r.session.refresh_token});return !installed?.error&&installed?.data?.session?{ok:true,code:'signed_in'}:fail('unavailable')}catch{return fail('unavailable')}finally{busy=false}
+ }
+}
