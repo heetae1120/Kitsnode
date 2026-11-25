@@ -40,7 +40,6 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
   const signedIn = Boolean(currentUser);
   const [checking,setChecking] = useState(true);
   const [accountId,setAccountId] = useState('');
-  const [inviteAccountId,setInviteAccountId] = useState('');
   const [connections,setConnections] = useState<Connection[]>([]);
   const [connectionsLoaded,setConnectionsLoaded] = useState(false);
   const [message,setMessage] = useState('');
@@ -277,12 +276,16 @@ export function AdConnectionPanel({transport,onRefresh,manualEntry=false}: {tran
       {checking?<p>로그인 상태를 확인하고 있어요.</p>:!signedIn?<p><Link className="store-text-link" href="/store/login/" onClick={saveMemberReturn}>로그인 후 연결하기</Link></p>:<>{active.length?<ul>{active.map(c=><li key={c.requestId}><span>계정 <strong>{c.adAccountId}</strong> · {statusLabels[c.status]||'확인 필요'}</span><button type="button" className="store-text-link" disabled={busy} onClick={()=>void disconnect(c)}>연결 해제</button></li>)}</ul>:<p>연결된 광고계정이 없습니다.</p>}{transport&&<StoreButton type="button" disabled={busy} onClick={()=>{setRefreshKey(v=>v+1);onRefresh?.();}}>상태 새로고침</StoreButton>}</>}
     </details>
     <section className="ad-invitation-options" aria-labelledby="ad-invitation-title"><h3 id="ad-invitation-title">광고주 계정 초대</h3>
-      <ol><li>광고계정의 회원 관리 화면을 엽니다.</li><li><strong>회원 초대</strong>를 눌러 <strong>kitsnode</strong>를 <strong>운영 조회</strong> 권한으로 초대합니다.</li><li>키츠노드 측 초대 확인과 수락을 기다려 주세요.</li></ol>
-      {active.map(c=><p key={c.requestId}><a className="store-text-link" href={`https://ads.naver.com/manage/ad-accounts/${c.adAccountId}/settings/authorities/members/invited`} target="_blank" rel="noopener noreferrer">계정 {c.adAccountId} 회원 관리 열기 (새 창)</a></p>)}
-      <label htmlFor="invite-ad-account-id">광고계정 ID</label><input id="invite-ad-account-id" inputMode="numeric" autoComplete="off" maxLength={16} value={inviteAccountId} onChange={e=>setInviteAccountId(e.target.value)} placeholder="예: 1234567"/>
-      <p>네이버애즈에서 광고계정을 선택했을 때 주소의 /ad-accounts/ 뒤에 표시되는 숫자를 입력해 주세요.</p>
-      {/^[1-9]\d{0,15}$/.test(inviteAccountId)?<p><a className="store-text-link" href={`https://ads.naver.com/manage/ad-accounts/${inviteAccountId}/settings/authorities/members/invited`} target="_blank" rel="noopener noreferrer">네이버애즈 회원 관리 열기 (새 창)</a></p>:<p>광고계정 ID를 입력하면 회원 관리 화면을 열 수 있습니다.</p>}
-      <p><Link className="store-text-link" href="/store/ads/manual-request/">광고계정 연결 확인 요청</Link></p>
+      <p>네이버애즈에서 직접 키츠노드를 초대해 주세요.</p>
+      <ol className="ad-invitation-steps">
+        <li><a className="store-text-link" href="https://ads.naver.com/" target="_blank" rel="noopener noreferrer">네이버애즈 열기 (새 창)</a>를 누르고, 광고계정을 관리하는 네이버 아이디로 로그인합니다.</li>
+        <li>오른쪽 위의 네이버 ID를 눌러 <strong>광고 계정 관리</strong>로 이동한 뒤, 연결할 광고계정을 선택합니다.</li>
+        <li>선택한 계정에서 <strong>설정 → 권한 관리 → 회원 관리</strong>로 이동합니다.</li>
+        <li><strong>권한 받은 회원</strong> 화면에서 <strong>회원 초대</strong>를 누르고, 네이버의 회원 초대 정책을 확인한 뒤 동의합니다.</li>
+        <li>초대할 회원 ID에 <strong>kitsnode</strong>를 입력하고 <strong>가입 여부 조회</strong>를 누릅니다.</li>
+        <li>권한을 <strong>운영 조회</strong>로 선택하고 초대를 완료합니다. <strong>초대 중인 회원</strong>에서 발송 여부를 확인해 주세요.</li>
+      </ol>
+      {active.map(c=><p key={c.requestId}><a className="store-text-link" href={`https://ads.naver.com/manage/ad-accounts/${c.adAccountId}/settings/authorities/members/invited`} target="_blank" rel="noopener noreferrer">등록된 계정 {c.adAccountId} 회원 관리 바로가기 (새 창)</a></p>)}
       <p className="ad-invitation-footer">초대 발송 후 키츠노드에서 초대를 확인하고 수락해야 광고계정 연결이 완료됩니다. 연결 완료 후 광고 데이터를 조회할 수 있습니다.</p></section>
     {message&&<p role="status" aria-live="polite">{message}</p>}<AdPolicyDialog document={policyDocument} onClose={()=>setPolicyDocument(null)}/>
   </StoreCard>;

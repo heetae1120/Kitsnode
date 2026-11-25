@@ -51,6 +51,8 @@
 .ad-connection-compact ul { list-style:none; padding:0; }
 .ad-connection-compact li { display:flex; justify-content:space-between; gap:12px; padding:8px 0; }
 .ad-invitation-options h3 { margin-bottom:6px; }
+.ad-invitation-steps { list-style:decimal; padding-left:24px; line-height:1.7; }
+.ad-invitation-steps li + li { margin-top:10px; }
 .ad-invitation-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; margin:18px 0; }
 .ad-invitation-choice { padding:18px; border:1px solid #454545; background:#181818; min-width:0; }
 .ad-invitation-choice summary { cursor:pointer; font-weight:700; }
