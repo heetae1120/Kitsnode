@@ -3,7 +3,7 @@ import {useId,useState,type PointerEvent,type ReactNode} from 'react';
 import {stockAtDay,type reorderSchedule} from '@/lib/reorder-timeline';
 
 type Schedule=NonNullable<ReturnType<typeof reorderSchedule>>;
-type MilestoneKind='start'|'recommended'|'arrival'|'depletion';
+type MilestoneKind='recommended'|'arrival'|'depletion';
 type Milestone={kind:MilestoneKind;label:string;day:number;date:string};
 const stateCopy={safe:'안전',caution:'주의',risk:'위험',pending:'일정 확인'};
 const formatDate=(date:string)=>date.replaceAll('-','.');
@@ -16,10 +16,11 @@ function Milestones({schedule,quantity}:{schedule:Schedule;quantity:number}){
  const [pinned,setPinned]=useState<MilestoneKind|null>(null);
  const active=hovered??focused??pinned;
  const {duration,arrivalDay}=schedule;
- const horizon=Math.max(duration,arrivalDay??0);
- const percent=(day:number)=>day/horizon*100;
+ const firstDay=Math.min(schedule.recommendedDay,arrivalDay??schedule.recommendedDay);
+ const horizon=Math.max(duration,arrivalDay??duration);
+ const span=Math.max(1,horizon-firstDay);
+ const percent=(day:number)=>(day-firstDay)/span*100;
  const events:Milestone[]=[
-  {kind:'start',label:'판매 시작일',day:0,date:schedule.start},
   {kind:'recommended',label:'재발주 권장일',day:schedule.recommendedDay,date:schedule.recommended},
  ];
  if(schedule.arrival&&arrivalDay!==null)events.push({kind:'arrival',label:'예상 입고일',day:arrivalDay,date:schedule.arrival});
@@ -27,8 +28,8 @@ function Milestones({schedule,quantity}:{schedule:Schedule;quantity:number}){
  events.sort((a,b)=>a.day-b.day);
 
  // 가까운 날짜는 같은 가로 좌표를 유지하고 세로 위치만 분리합니다.
- const laneEnds=[-Infinity,-Infinity,-Infinity,-Infinity,-Infinity];
- const laneOffsets=[0,-18,18,-36,36];
+ const laneEnds=[-Infinity,-Infinity,-Infinity];
+ const laneOffsets=[0,-25,25];
  const points=events.map(event=>{
   const x=percent(event.day);
   const lane=laneEnds.findIndex(last=>x-last>=5);
@@ -36,11 +37,11 @@ function Milestones({schedule,quantity}:{schedule:Schedule;quantity:number}){
   return {...event,x,y:laneOffsets[lane]};
  });
  const segments=[
-  {kind:'neutral',start:0,end:schedule.recommendedDay},
+  {kind:'neutral',start:firstDay,end:schedule.recommendedDay},
   {kind:'buffer',start:schedule.recommendedDay,end:schedule.deadlineDay},
   {kind:'risk',start:schedule.deadlineDay,end:duration},
   {kind:'shortage',start:duration,end:horizon},
- ];
+ ].filter(segment=>segment.end>segment.start);
 
  function toggle(kind:MilestoneKind){
   setHovered(null);
@@ -52,9 +53,10 @@ function Milestones({schedule,quantity}:{schedule:Schedule;quantity:number}){
  return <div className="ds-reorder-timeline" onPointerLeave={()=>setHovered(null)} onKeyDown={event=>{
   if(event.key==='Escape'){setHovered(null);setFocused(null);setPinned(null);}
  }}>
+  <h4 className="ds-reorder-chart-title">재발주부터 재고 소진까지</h4>
   <div className="ds-reorder-axis" aria-hidden="true">
    <div className="ds-reorder-track">
-    {segments.map(segment=><i key={segment.kind} className={`is-${segment.kind}`} style={{left:percent(segment.start)+'%',width:percent(segment.end-segment.start)+'%'}}/>)}
+    {segments.map(segment=><i key={segment.kind} className={`is-${segment.kind}`} style={{left:percent(segment.start)+'%',width:(segment.end-segment.start)/span*100+'%'}}/>)}
    </div>
    {points.map(({kind,x,y})=><i key={kind} className="ds-reorder-stem" style={{left:x+'%',top:`calc(50% + ${Math.min(0,y)}px)`,height:Math.abs(y)}}/>)}
    {points.map(({kind,x,y})=><span key={kind} className={`ds-reorder-point is-${kind}`} style={{left:x+'%',top:`calc(50% + ${y}px)`}} onPointerEnter={event=>hover(event,kind)} onClick={()=>toggle(kind)}>
@@ -77,6 +79,7 @@ function Milestones({schedule,quantity}:{schedule:Schedule;quantity:number}){
   <div className="ds-reorder-windows">
    <span><i className="is-buffer"/>권장일 → 주문 마감 <b>{schedule.orderWindow}일 여유</b></span>
    <span><i className="is-risk"/>주문 마감 → 재고 소진 <b>{duration-schedule.deadlineDay}일</b></span>
+   {horizon>duration&&<span><i className="is-shortage"/>입고 전 예상 품절 <b>{horizon-duration}일</b></span>}
   </div>
   {duration>schedule.deadlineDay&&<p className="ds-reorder-legend-note">빨간 구간에 발주하면 입고 전 품절 위험이 있어요.</p>}
  </div>;

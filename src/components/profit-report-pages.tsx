@@ -7,22 +7,26 @@ type Props={
  months:number;
  initialAdIntro?:boolean;
  onAdCheck:()=>void;
+ introActions?:ReactNode;
  overview:(showAdIntro:()=>void)=>ReactNode;
 };
 
-export function ProfitReportPages({productName,months,initialAdIntro=false,onAdCheck,overview}:Props){
+export function ProfitReportPages({productName,months,initialAdIntro=false,onAdCheck,introActions,overview}:Props){
  const [introOpen,setIntroOpen]=useState(initialAdIntro);
  const report=useRef<HTMLDivElement>(null);
- function backToReport(){
-  setIntroOpen(false);
+ function showPage(showIntro:boolean){
+  setIntroOpen(showIntro);
   requestAnimationFrame(()=>{
    report.current?.focus({preventScroll:true});
    report.current?.scrollIntoView({behavior:'instant',block:'start'});
   });
  }
  return <div className="mp-report-pages" ref={report} tabIndex={-1}>
-  {introOpen&&<AdvertisingDiagnosisIntro productName={productName} months={months} onBack={backToReport} onContinue={onAdCheck}/>}
-  <div hidden={introOpen} inert={introOpen}>{overview(()=>setIntroOpen(true))}</div>
+  {introOpen&&<>
+   <AdvertisingDiagnosisIntro productName={productName} months={months} onBack={()=>showPage(false)} onContinue={onAdCheck}/>
+   {introActions}
+  </>}
+  <div hidden={introOpen} inert={introOpen}>{overview(()=>showPage(true))}</div>
  </div>;
 }
 

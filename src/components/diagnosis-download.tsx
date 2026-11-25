@@ -6,9 +6,14 @@ import {downloadDiagnosis,type DiagnosisDocument} from '@/lib/diagnosis-document
 import {saveMemberReturn} from '@/lib/member-return';
 import {isDraftPreviewMode} from '@/lib/draft-preview-stage';
 import {encodeDiagnoses,decodeDiagnoses} from '@/lib/diagnosis-storage';
-export function DiagnosisDownload({report,trailingAction,libraryTrigger,onLibraryOpenChange,onCountChange}:{libraryTrigger?:ReactNode;onCountChange?:(count:number|null)=>void;onLibraryOpenChange?:(open:boolean)=>void;report?:Omit<DiagnosisDocument,'version'|'id'|'createdAt'>;trailingAction?:ReactNode}){
- const [saved,setSaved]=useState<DiagnosisDocument[]>([]),[signedIn,setSignedIn]=useState(false),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
+export function useSavedDiagnoses(){
+ const [saved,setSaved]=useState<DiagnosisDocument[]>([]),[signedIn,setSignedIn]=useState(false);
  useEffect(()=>{if(isDraftPreviewMode())return;const client=memberBrowserClient();if(!client)return;let active=true,revision=0;const {data:{subscription}}=client.auth.onAuthStateChange((_event,session)=>{if(active){setSignedIn(!!session?.user);setSaved([]);const currentRevision=++revision;void decodeDiagnoses(session?.user.user_metadata?.kitsnode_diagnoses).then(rows=>{if(active&&revision===currentRevision)setSaved(rows);});}});return()=>{active=false;subscription.unsubscribe();};},[]);
+ return {saved,signedIn,setSaved};
+}
+export function DiagnosisDownload({report,trailingAction,libraryTrigger,onLibraryOpenChange,onCountChange}:{libraryTrigger?:ReactNode;onCountChange?:(count:number|null)=>void;onLibraryOpenChange?:(open:boolean)=>void;report?:Omit<DiagnosisDocument,'version'|'id'|'createdAt'>;trailingAction?:ReactNode}){
+ const {saved,signedIn,setSaved}=useSavedDiagnoses();
+ const [busy,setBusy]=useState(false),[message,setMessage]=useState('');
  useEffect(()=>{onCountChange?.(signedIn?saved.length:null);},[signedIn,saved.length,onCountChange]);
  const library=useRef<HTMLDialogElement>(null);
  const current=():DiagnosisDocument=>{if(!report)throw Error('진단 결과가 없습니다.');return {...report,version:1,id:crypto.randomUUID(),createdAt:new Date().toISOString()};};

@@ -12,7 +12,7 @@ export function GoalInvitation({months,profit,quantity}:{months:number;profit:nu
  const entered=useInView(root,{once:true,amount:.3});
  const amount=Math.abs(profit);
  const {target,targetMonths}=goalMotionFrame(0,months,amount);
- const outcome=profit<0?'예상 손실':profit>0?'예상 이익':'예상 손익';
+ const outcome=profit<0?'의 손실이 예상됩니다.':profit>0?'의 이익이 예상됩니다.':'으로 손익분기에 도달합니다.';
  const inventory=format(quantity)+'개를 모두 판매할 경우';
  useEffect(()=>{
   if(!entered||reduced)return;
@@ -28,7 +28,7 @@ export function GoalInvitation({months,profit,quantity}:{months:number;profit:nu
   return()=>cancelAnimationFrame(frame);
  },[entered,reduced,months,amount]);
  return <section ref={root} id="report-budget" className="mp-story-chapter mp-goal-invitation ds-goal-impact ds-goal-countup" aria-labelledby={id} data-phase={reduced?'complete':'ready'} style={{'--goal-digits':Math.max(format(target).length+1,8)} as CSSProperties}>
-  <h2 id={id} className="ds-sr-only">{targetMonths}개월 안에 {inventory} {outcome} {format(target)}원</h2>
+  <h2 id={id} className="ds-sr-only">{targetMonths}개월 안에 {inventory} {format(target)}원{outcome}</h2>
   <svg className="ds-goal-growth" viewBox="0 0 1000 560" preserveAspectRatio="none" aria-hidden="true">
    <defs><linearGradient id={id+'-growth'} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="currentColor" stopOpacity=".16"/><stop offset="100%" stopColor="currentColor" stopOpacity="0"/></linearGradient></defs>
    <path d="M40 510L125 480L210 425L295 450L380 360L465 395L550 300L635 330L720 225L805 245L880 155L960 40V560H40Z" fill={'url(#'+id+'-growth)'} stroke="none"/>

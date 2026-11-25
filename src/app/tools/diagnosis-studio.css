@@ -468,18 +468,19 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-reorder .mp-reorder-met
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard .ds-calendar-start[data-guide-active=true]::before{display:none}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard .ds-calendar-start input:focus{outline:1px solid var(--rd-orange)!important;outline-offset:1px!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard .ds-calendar-start input[aria-invalid=true]{outline:1px solid var(--rd-red)!important;outline-offset:1px!important}
-.ds-reorder-timeline{margin-top:6px}
-.ds-reorder-axis{position:relative;height:86px;margin:0 11px;isolation:isolate}
-.ds-reorder-track{position:absolute;top:calc(50% - 3px);inset-inline:0;height:6px;border-radius:3px;overflow:hidden;background:#4c4c4c;transform-origin:left center;animation:ds-reorder-fill .32s ease-out both}
+.ds-reorder-timeline{margin-top:22px;padding:clamp(14px,2.2vw,26px);border:1px solid var(--rd-border);background:#101010}
+.ds-reorder-chart-title{margin:0;font-size:clamp(17px,2vw,22px);color:var(--rd-text)}
+.ds-reorder-axis{position:relative;height:104px;margin:0 14px;isolation:isolate}
+.ds-reorder-track{position:absolute;top:calc(50% - 6px);inset-inline:0;height:12px;border-radius:6px;overflow:hidden;background:#4c4c4c;transform-origin:left center;animation:ds-reorder-fill .32s ease-out both}
 .ds-reorder-track i{position:absolute;inset-block:0;transition:left .28s ease,width .28s ease,background-color .24s ease}
 .ds-reorder-track .is-neutral{background:#595959}
 .ds-reorder-track .is-buffer,.ds-reorder-windows .is-buffer{background:var(--rd-orange)}
 .ds-reorder-track .is-risk,.ds-reorder-windows .is-risk{background:#843b3b}
-.ds-reorder-track .is-shortage{background:#3e2020;border-block:1px dashed #d76161}
+.ds-reorder-track .is-shortage,.ds-reorder-windows .is-shortage{background:#3e2020;border-block:1px dashed #d76161}
 .ds-reorder-dashboard[data-risk=caution] .ds-reorder-track .is-risk{background:#a8473c}
 .ds-reorder-dashboard[data-risk=risk] .ds-reorder-track .is-risk{background:#b74545}
 .ds-reorder-stem{position:absolute;width:1px;background:#696969;transition:top .28s ease,left .28s ease,height .28s ease}
-.ds-reorder-point{position:absolute;translate:-50% -50%;width:18px;height:18px;display:grid;place-items:center;border-radius:50%;background:var(--rd-surface);cursor:pointer;transition:top .28s ease,left .28s ease;z-index:1}
+.ds-reorder-point{position:absolute;translate:-50% -50%;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:var(--rd-surface);cursor:pointer;transition:top .28s ease,left .28s ease;z-index:1}
 .ds-reorder-point:hover{z-index:2;outline:1px solid currentColor}
 .ds-reorder-symbol{display:block;width:9px;height:9px;border-radius:50%;background:#b4b4b4;flex-shrink:0}
 .is-recommended>.ds-reorder-symbol,.is-recommended>button>.ds-reorder-symbol{background:var(--rd-orange);border-radius:1px;rotate:45deg}
@@ -491,8 +492,8 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard 
 .ds-reorder-events button{width:100%;display:flex;justify-content:flex-start;align-items:baseline;gap:8px;padding:7px 4px;border:0;background:none;color:var(--rd-text);font:inherit;text-align:left;cursor:pointer}
 .ds-reorder-events button[aria-expanded=true]{background:#222}
 @media(hover:hover){.ds-reorder-events button:hover{background:#222}}
-.ds-reorder-events button>span{min-width:0;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
-.ds-reorder-events time{display:block;margin-top:3px;color:var(--rd-muted);font-size:12px;font-variant-numeric:tabular-nums}
+.ds-reorder-events button>span{min-width:0;font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+.ds-reorder-events time{display:block;margin-top:5px;color:var(--rd-text);font-size:clamp(15px,2.1vw,23px);font-weight:700;font-variant-numeric:tabular-nums}
 .ds-reorder-tooltip{position:absolute;bottom:calc(100% + 7px);left:50%;translate:-50% 0;display:grid;gap:4px;width:184px;max-width:calc(100vw - 60px);z-index:4;padding:9px 12px;border:1px solid #444;border-radius:4px;background:#202020;color:var(--rd-muted);font-size:12px;line-height:1.5;animation:ds-reorder-number .2s ease-out both}
 .ds-reorder-events>li:first-child .ds-reorder-tooltip{left:0;translate:none}
 .ds-reorder-events>li:last-child .ds-reorder-tooltip{left:auto;right:0;translate:none}
@@ -512,8 +513,7 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard 
 @keyframes ds-reorder-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes ds-reorder-number{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:800px){
- .ds-reorder-axis{height:6px;margin:16px 2px 0}
- .ds-reorder-axis :is(.ds-reorder-point,.ds-reorder-stem){display:none}
+ .ds-reorder-axis{height:82px;margin:0 12px}
  .ds-reorder-events{grid-auto-flow:row;grid-auto-columns:initial;gap:0;margin:14px 0 0;padding-inline-start:8px;border-inline-start:1px solid #444}
  .ds-reorder-events button{min-height:44px;align-items:center;padding-inline:2px 4px}
  .ds-reorder-events button>span{display:flex;flex:1;justify-content:space-between;flex-wrap:wrap;gap:2px 8px}
@@ -672,6 +672,32 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story .mp-keyword-candi
 .ds-library-links>a:is(.mp-primary,.mp-secondary){display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 8px;text-decoration:none}
 .ds-library-dialog li{margin-top:12px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
 .ds-library-dialog li button{padding:8px}
+.ds-ad-diagnosis{margin:24px 0 32px;padding:clamp(16px,3vw,32px);background:#151515;border:1px solid #383838}
+.ds-ad-diagnosis header,.ds-ad-diagnosis-import{display:flex;align-items:center;justify-content:space-between;gap:10px 18px;flex-wrap:wrap}
+.ds-ad-diagnosis header{margin-bottom:20px}
+.ds-ad-diagnosis h2{margin:0;font-size:clamp(20px,3vw,30px)}
+.ds-ad-diagnosis h3{margin:0 0 12px;font-size:18px}
+.ds-ad-diagnosis-import a{font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.ds-ad-diagnosis :is(select,input){min-width:0;max-width:100%;min-height:44px;padding:8px 12px;color:#f5f2eb;background:#0d0d0d;border:1px solid #666;border-radius:6px;color-scheme:dark}
+.ds-ad-diagnosis select{max-width:min(100%,280px)}
+.ds-ad-diagnosis :is(a,button,select,input):focus-visible{outline:2px solid #ff784b;outline-offset:3px}
+.ds-ad-diagnosis-metrics,.ds-ad-diagnosis-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ds-ad-diagnosis-metrics{grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));margin:0 0 14px}
+.ds-ad-diagnosis-metrics>div{padding:12px;background:#0e0e0e;border-top:1px solid #3d3d3d}
+.ds-ad-diagnosis-metrics dt{font-size:13px;color:#c4c0b9}
+.ds-ad-diagnosis-metrics dd{margin:4px 0 0;font-size:clamp(17px,2.2vw,26px);font-weight:750;overflow-wrap:anywhere}
+.ds-ad-diagnosis p{font-size:14px;color:#c4c0b9}
+.ds-ad-diagnosis-inputs{max-width:520px;margin:14px 0}
+.ds-ad-diagnosis-inputs label{display:grid;gap:6px;font-size:14px}
+.ds-ad-diagnosis-verdict{padding:14px;border-inline-start:3px solid #aaa;background:#1b1b1b}
+.ds-ad-diagnosis-verdict p{margin:6px 0 0}
+.ds-ad-diagnosis-verdict[data-status=safe]{border-color:#48d69a;color:#48d69a}
+.ds-ad-diagnosis-verdict[data-status=caution]{border-color:#ffb76b;color:#ffb76b}
+.ds-ad-diagnosis-verdict[data-status=risk]{border-color:#ff818a;color:#ff818a}
+.ds-ad-diagnosis-locked{position:relative;display:grid;min-height:132px;align-items:center}
+.ds-ad-diagnosis-locked dl{filter:blur(6px);opacity:.55;pointer-events:none;user-select:none;margin:0}
+.ds-ad-diagnosis-unlock{position:absolute;inset:0;display:grid;place-items:center;padding:12px;text-align:center}
+.ds-ad-diagnosis-unlock button{white-space:normal;min-height:44px;max-width:100%}
 .ds-ad-check-form{max-width:680px;margin:24px 0 36px}
 .ds-ad-check-form label{display:block;margin-bottom:12px;font-size:16px}
 .ds-ad-check-form>div{display:flex;gap:12px}

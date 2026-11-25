@@ -44,15 +44,15 @@ export function BeginnerProfitReport({initialAdIntro,initialSlide,name,months,on
  const extraCosts=r.reserved-stockCost;
  const finalActions=months>0?<div className="ds-report-download-stack">
   <DiagnosisDownload
-   report={{name,months,price:input.price,quantity:input.quantity,sales:r.sales,costs:r.reserved,profit:r.profitRoom,margin:unitProfit,marketing:r.marketing,breakEven:r.breakEvenUnits,priority:priority.title,action:priority.action,examples:exampleFields.length>0}}
+   report={{name,months,price:input.price,productCost:input.cost,quantity:input.quantity,sales:r.sales,costs:r.reserved,profit:r.profitRoom,margin:unitProfit,marketing:r.marketing,breakEven:r.breakEvenUnits,priority:priority.title,action:priority.action,examples:exampleFields.length>0}}
   />
  </div>:null;
  return <article className="mp-story">
-  <ProfitReportPages productName={name} months={months} initialAdIntro={initialAdIntro} onAdCheck={()=>onAdCheck(name)} overview={showAdIntro=>
+  <ProfitReportPages productName={name} months={months} initialAdIntro={initialAdIntro} onAdCheck={()=>onAdCheck(name)} introActions={finalActions} overview={showAdIntro=>
   <section id="report-funds" aria-label="금액 정리와 재고 계획">
    <div className="ds-open-report">
     <ReportTabletSlides
-     initialPage={initialSlide} beforeNext={beforeMonths} onBack={onEdit} onFinish={showAdIntro} finalActions={finalActions}
+     initialPage={initialSlide} beforeNext={beforeMonths} onBack={onEdit} onFinish={showAdIntro}
     heading={page=><div className="ds-result-heading"><h1>{reportTitles[page]}</h1></div>}>
      <div className="mp-tablet-budget">
       <dl className="mp-plan-recap sd-result-summary" aria-label="판매 구조">

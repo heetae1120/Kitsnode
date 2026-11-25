@@ -3,7 +3,7 @@ import {Children,useRef,useState,type ReactNode} from "react";
 import {AnimatePresence,motion,useReducedMotion} from "framer-motion";
 import {ArrowLeft,ArrowRight} from "lucide-react";
 import '@/app/tools/report-motion.css';
-export function ReportTabletSlides({children,heading,beforeNext,onBack,onFinish,initialPage=0,finalActions}:{children:ReactNode;heading:(page:number)=>ReactNode;beforeNext?:(proceed:()=>void)=>void;onBack:()=>void;onFinish:()=>void;initialPage?:0|2;finalActions?:ReactNode}){
+export function ReportTabletSlides({children,heading,beforeNext,onBack,onFinish,initialPage=0}:{children:ReactNode;heading:(page:number)=>ReactNode;beforeNext?:(proceed:()=>void)=>void;onBack:()=>void;onFinish:()=>void;initialPage?:0|2}){
  const slides=Children.toArray(children),[page,setPage]=useState<number>(initialPage),[direction,setDirection]=useState(1);
  const root=useRef<HTMLDivElement>(null),screen=useRef<HTMLDivElement>(null);
  const reduced=useReducedMotion(),last=page===slides.length-1;
@@ -26,8 +26,7 @@ export function ReportTabletSlides({children,heading,beforeNext,onBack,onFinish,
   </div>
   <nav className="kn-tablet-slide-actions" aria-label="진단 결과 넘기기">
    <button type="button" className="mp-secondary ds-report-previous" data-diagnosis-back onClick={page===0?onBack:()=>move(page-1)}><ArrowLeft size={16}/>{page===0?'비용 수정':'이전 결과'}</button>
-   <button type="button" className="mp-primary" onClick={next}>{last?'광고 분석 안내 보기':page===0?'재고 일정 보기':'판매 계획 보기'}<ArrowRight size={16}/></button>
+   <button type="button" className="mp-primary" onClick={next}>{last?'다음':page===0?'재고 일정 보기':'판매 계획 보기'}<ArrowRight size={16}/></button>
   </nav>
-  {last&&finalActions}
  </div>;
 }

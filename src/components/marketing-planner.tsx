@@ -11,6 +11,7 @@ import {BeginnerProfitReport} from './beginner-profit-report';
 import {useDiagnosisBack} from './use-diagnosis-back';
 import {KeywordBudgetReport} from './keyword-budget-report';
 import {DiagnosisDownload} from './diagnosis-download';
+import {AdDiagnosisCheck} from './ad-diagnosis-check';
 import {PlannerCostHelp} from './planner-cost-help';
 import {marketingPlan,budgetPurchaseCapacity,type MarketingPlanInput} from '@/lib/marketing-plan';
 import {plannerExamples} from '@/lib/planner-examples';
@@ -204,6 +205,14 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
    <button type="button" className="mp-secondary" onClick={closeAdCheck}>이전 · 진단 메뉴</button>
    <h1>{AD_KEYWORD_LABEL}</h1>
    <AdvertisingToolNavigation active="ad-check"/>
+   <AdDiagnosisCheck current={report&&!previewStage?{
+    name:report.name,
+    price:report.input.price,
+    productCost:report.input.cost,
+    unitCost:report.result.reserved/report.input.quantity,
+    margin:report.result.profitRoom/report.input.quantity,
+    examples:report.examples.length>0,
+   }:null} keyword={adKeyword} onImport={name=>{setKeywordInput(name);setAdKeyword(name);}} onStart={closeAdCheck}/>
    <form className="ds-ad-check-form" onSubmit={event=>{event.preventDefault();setAdKeyword(keywordInput.trim());}}>
     <label htmlFor="ds-ad-keyword">키워드를 입력하세요</label>
     <div><input id="ds-ad-keyword" ref={adCheckInput} required maxLength={100} value={keywordInput} onChange={event=>setKeywordInput(event.target.value)}/><button type="submit" className="mp-primary" disabled={!keywordInput.trim()}>분석하기</button></div>

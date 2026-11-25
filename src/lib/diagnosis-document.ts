@@ -1,5 +1,5 @@
 import type {ReportEvidence} from './diagnosis-analysis';
-export type DiagnosisDocument={version:1;price?:number;analysis?:ReportEvidence;id:string;createdAt:string;name:string;months:number;quantity:number;sales:number;costs:number;profit:number;margin:number;marketing:number;breakEven:number|null;priority:string;action:string;examples:boolean};
+export type DiagnosisDocument={version:1;price?:number;productCost?:number;analysis?:ReportEvidence;id:string;createdAt:string;name:string;months:number;quantity:number;sales:number;costs:number;profit:number;margin:number;marketing:number;breakEven:number|null;priority:string;action:string;examples:boolean};
 export function readSavedDiagnoses(raw:unknown):DiagnosisDocument[]{
  if(!Array.isArray(raw))return [];
  return raw.filter((r):r is DiagnosisDocument=>!!r&&r.version===1&&typeof r.id==='string'&&typeof r.createdAt==='string'&&typeof r.name==='string'&&typeof r.priority==='string'&&typeof r.action==='string'&&['months','quantity','sales','costs','profit','margin','marketing'].every(k=>Number.isFinite(r[k]))&&(r.breakEven===null||Number.isFinite(r.breakEven))).slice(0,3);
