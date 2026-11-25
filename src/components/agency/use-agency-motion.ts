@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useRef,useState} from 'react';
+import {useRef} from 'react';
 import gsap from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
 import {useGSAP} from '@gsap/react';
@@ -7,101 +7,47 @@ import {useGSAP} from '@gsap/react';
 gsap.registerPlugin(ScrollTrigger,useGSAP);
 
 export function useAgencyMotion(){
-  const root=useRef<HTMLDivElement>(null);
-  const heroTimeline=useRef<gsap.core.Timeline>(null);
-  const focusDiagnosis=useRef(false);
-  const [scene,setScene]=useState(0);
-  const [enhanced,setEnhanced]=useState(false);
-  const [showShortcut,setShowShortcut]=useState(false);
-  const [shortcutDocked,setShortcutDocked]=useState(false);
-
-  function jumpToDiagnosis(){
-    const timeline=heroTimeline.current;
-    const trigger=timeline?.scrollTrigger;
-    if(!timeline||!trigger)return false;
-    const link=root.current?.querySelector<HTMLElement>('.as-conversion-cta');
-    const alreadyActive=link?.closest('#diagnosis')?.getAttribute('aria-hidden')==='false';
-    focusDiagnosis.current=!alreadyActive;
-    window.scrollTo({top:trigger.end,behavior:'instant'});
-    trigger.update();
-    timeline.progress(1);
-    if(alreadyActive)link?.focus({preventScroll:true});
-    return true;
-  }
-
-  useEffect(()=>{
-    if(scene===2&&focusDiagnosis.current){
-      focusDiagnosis.current=false;
-      root.current?.querySelector<HTMLElement>('.as-conversion-cta')?.focus({preventScroll:true});
-    }
-  },[scene]);
+  const hero=useRef<HTMLElement>(null);
 
   useGSAP(()=>{
-    const el=root.current;
-    const hero=el?.querySelector<HTMLElement>('.as-hero');
-    const pin=hero?.querySelector<HTMLElement>('.as-pin');
-    const diagnosis=pin?.querySelector<HTMLElement>('#diagnosis');
-    const diagnosisLink=diagnosis?.querySelector('.as-conversion-cta');
-    if(!hero||!pin||!diagnosis||!diagnosisLink)return;
+    const story=hero.current;
+    if(!story)return;
+    const stage=story.querySelector<HTMLElement>('.as-story-stage');
+    if(!stage)return;
 
     const media=gsap.matchMedia();
-    media.add('(prefers-reduced-motion: no-preference)',()=>{
-      hero.dataset.motion='on';
-      const strategy=pin.querySelector('.as-scene-03');
-      const progress=pin.querySelector('.as-progress-fill');
-      const strategyStart=1.15;
-      const sceneTransition=.85;
-      const diagnosisStart=2.85;
-      const duration=4.15;
-
-      gsap.set([strategy,diagnosis],{yPercent:100});
-      gsap.from('.as-scene-01 .as-word',{yPercent:110,duration:.8,stagger:.11,ease:'power4.out',clearProps:'transform'});
+    media.add('(prefers-reduced-motion: no-preference) and (min-height: 590px)',()=>{
+      story.dataset.motion='on';
       const timeline=gsap.timeline({
         defaults:{ease:'power2.inOut'},
-        onUpdate(this:gsap.core.Timeline){
-          const time=this.time();
-          setScene(time<strategyStart+.4?0:time<diagnosisStart+.4?1:2);
-          setShortcutDocked(time>=strategyStart+sceneTransition);
-        },
-        scrollTrigger:{
-          trigger:hero,pin,start:'top top',
-          end:()=>`+=${pin.clientHeight*(window.innerWidth<=760?2.2:2.7)}`,
-          scrub:.4,anticipatePin:1,invalidateOnRefresh:true,
-        },
+        scrollTrigger:{trigger:story,start:'top top',end:'bottom bottom',scrub:true},
       });
       timeline
-        .to('.as-portal',{scale:1.65,rotation:32,duration:.9},.55)
-        .to('.as-scene-01 .as-scene-type',{y:-40,duration:.55},strategyStart)
-        .to(strategy,{yPercent:0,duration:sceneTransition},strategyStart)
-        .from('.as-scene-03 .as-word',{yPercent:90,stagger:.07,duration:.6},strategyStart+.18)
-        .from('.as-grid-mark',{rotation:-50,scale:.72,duration:.95},strategyStart+.15)
-        .to(strategy,{yPercent:-100,duration:sceneTransition},diagnosisStart)
-        .to(diagnosis,{yPercent:0,duration:sceneTransition},diagnosisStart)
-        .from('.as-conversion-copy',{y:36,duration:.7},diagnosisStart+.12)
-        .from(diagnosisLink,{y:28,duration:.6},diagnosisStart+.35)
-        .to(progress,{scaleX:1,duration,ease:'none'},0);
-      heroTimeline.current=timeline;
-      setEnhanced(true);
-      const jumpFrame=location.hash==='#diagnosis'?requestAnimationFrame(()=>{
-        ScrollTrigger.refresh();
-        jumpToDiagnosis();
-      }):0;
-      return ()=>{
-        cancelAnimationFrame(jumpFrame);
-        heroTimeline.current=null;
-        delete hero.dataset.motion;
-        setEnhanced(false);
-        setShortcutDocked(false);
-        setScene(0);
-      };
+        .from('.as-question .as-story-line',{yPercent:(index)=>index===0?0:14,opacity:(index)=>index===0?1:.76,duration:.24},0)
+        .from('.as-market-series path',{strokeDashoffset:.27,duration:.49,stagger:.04},0)
+        .from('.as-market-points',{opacity:.25,duration:.4},.12)
+        .to('.as-question .as-story-copy',{yPercent:-24,autoAlpha:0,duration:.48},.56)
+        .to('.as-market-graphic',{scale:1.09,xPercent:-12,autoAlpha:0,duration:.59},.51)
+        .set('.as-question',{visibility:'hidden'},1.1)
+        .from('.as-essence',{autoAlpha:0,duration:.41},.72)
+        .from('.as-essence .as-story-line',{yPercent:108,duration:.47,stagger:.12},.75)
+        .from('.as-essence .as-story-note',{y:18,autoAlpha:0,duration:.32},1.13)
+        .to('.as-essence .as-story-copy',{yPercent:-22,autoAlpha:0,duration:.46},1.59)
+        .set('.as-essence',{visibility:'hidden'},2.05)
+        .from('.as-answer',{autoAlpha:0,duration:.4},1.73)
+        .from('.as-answer .as-story-line',{yPercent:110,duration:.43,stagger:.12},1.75)
+        .from('.as-network-orbit',{opacity:0,scale:.76,transformOrigin:'50% 50%',duration:.63},1.74)
+        .from('.as-network-node',{x:(index)=>index%2===0?-34:42,y:(index)=>index%3===0?33:-32,opacity:0,duration:.58,stagger:.022},1.72)
+        .from('.as-network-edges path',{strokeDashoffset:1,duration:.63,stagger:.06,ease:'power2.out'},1.91)
+        .from('.as-network-labels',{autoAlpha:0,duration:.32},2.16)
+        .from('.as-cta-reveal',{y:20,autoAlpha:0,duration:.32},2.28)
+        .to('.as-scroll-hint',{autoAlpha:0,duration:.28},2.4)
+        .to('.as-story-track i',{scaleX:1,duration:3,ease:'none'},0);
+
+      return ()=>{delete story.dataset.motion;};
     });
-    const syncShortcut=()=>setShowShortcut(window.scrollY>=48);
-    window.addEventListener('scroll',syncShortcut,{passive:true});
-    syncShortcut();
-    return ()=>{
-      window.removeEventListener('scroll',syncShortcut);
-      media.revert();
-    };
-  },{scope:root});
-  return {root,scene,enhanced,shortcutDocked,jumpToDiagnosis,showFloatingDiagnosis:enhanced&&showShortcut&&!shortcutDocked};
+    return ()=>media.revert();
+  },{scope:hero});
+
+  return hero;
 }
