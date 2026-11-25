@@ -152,7 +152,7 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
  }
  function openAdCheck(productName?:string){
   if(productName!==undefined)setKeywordInput(productName);
-  setAdKeyword('');setSelectedMode(null);setShowPlayerIntro(false);
+  setAdKeyword(productName?.trim()??'');setSelectedMode(null);setShowPlayerIntro(false);
   if(initialMode)setAdCheck(true);
   else {
    const url=new URL(window.location.href);
@@ -208,12 +208,23 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
     unitCost:report.result.reserved/report.input.quantity,
     margin:report.result.profitRoom/report.input.quantity,
     examples:report.examples.length>0,
-   }:null} keyword={adKeyword} onImport={name=>{setKeywordInput(name);setAdKeyword(name);}} onStart={closeAdCheck}/>
-   <form className="ds-ad-check-form" onSubmit={event=>{event.preventDefault();setAdKeyword(keywordInput.trim());}}>
+   }:null} onImport={name=>{setKeywordInput(name);setAdKeyword(name);}} onStart={closeAdCheck}>{diagnosis=><>
+   <form className="ds-ad-check-form" onSubmit={event=>{
+    event.preventDefault();
+    const keyword=keywordInput.trim();
+    if(!keyword)return;
+    setAdKeyword(keyword);
+    requestAnimationFrame(()=>{
+     const results=document.getElementById('ds-keyword-cost-results');
+     results?.focus({preventScroll:true});
+     results?.scrollIntoView({behavior:'instant',block:'start'});
+    });
+   }}>
     <label htmlFor="ds-ad-keyword">키워드를 입력하세요</label>
     <div><input id="ds-ad-keyword" ref={adCheckInput} required maxLength={100} value={keywordInput} onChange={event=>setKeywordInput(event.target.value)}/><button type="submit" className="mp-primary" disabled={!keywordInput.trim()}>분석하기</button></div>
    </form>
-   {adKeyword&&<article className="mp-story"><KeywordBudgetReport key={adKeyword} productName={adKeyword} keywordOnly/></article>}
+   {adKeyword&&<article className="mp-story"><KeywordBudgetReport key={adKeyword} productName={adKeyword} keywordOnly diagnosis={diagnosis}/></article>}
+   </>}</AdDiagnosisCheck>
   </main>
  </div>;
  if(selectedMode===null&&(!previewStage||previewStage==='choice'))return <div className="finance-dashboard mp-shell diagnosis-studio selling-diagnosis" data-preview-stage="choice" data-diagnosis-stage="choose">

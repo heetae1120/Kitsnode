@@ -7,11 +7,11 @@ import {shoppingVolumeReferences,calibrateShoppingVolume,estimateShoppingVolume}
 import {keywordEconomics} from '@/lib/keyword-budget';
 import {KeywordGoalCheck} from './keyword-goal-check';
 import {breakEvenConversion,type GoalBudgetContext} from '@/lib/keyword-goal';
-import {ShoppingAdPodium} from './shopping-ad-podium';
+import {AdEstimate,type AdDiagnosis} from './ad-diagnosis-check';
 import {FormattedNumberInput} from './formatted-number-input';
 const money=(v:number)=>`${Math.round(v).toLocaleString('ko-KR')}원`;
 const estimateMoney=(v:number)=>v<10?'10원 미만':money(Math.round(v/10)*10);
-export function AutomaticKeywordDiscovery({productName,perOrder,budget,quantity,months,budgetContext,keywordOnly=false}:{keywordOnly?:boolean;productName:string;perOrder:number;budget:number;quantity:number;months:number;budgetContext?:GoalBudgetContext}){
+export function AutomaticKeywordDiscovery({productName,perOrder,budget,quantity,months,budgetContext,keywordOnly=false,diagnosis}:{keywordOnly?:boolean;productName:string;perOrder:number;budget:number;quantity:number;months:number;budgetContext?:GoalBudgetContext;diagnosis?:AdDiagnosis|null}){
  const [rows,setRows]=useState<KeywordRow[]>([]);const [sourceRows,setSourceRows]=useState<KeywordRow[]>([]);
  const [busy,setBusy]=useState(true);const [error,setError]=useState('');const [retry,setRetry]=useState(0);const [cvr,setCvr]=useState('');
  useEffect(()=>{
@@ -43,7 +43,9 @@ export function AutomaticKeywordDiscovery({productName,perOrder,budget,quantity,
  return <div><p className="mp-keyword-source">품목 ‘{productName}’의 검색량을 기준 상품 자료와 비교해 쇼핑광고 가격을 추정해요.</p>
  <button type="button" className="mp-secondary" disabled={busy} onClick={()=>setRetry(v=>v+1)}>{busy?'검색어 찾는 중…':'다시 찾기'}</button>
  {error&&<p role="alert" className="mp-error">{error}</p>}
+ {!busy&&!main&&diagnosis&&<AdEstimate diagnosis={diagnosis} keyword={productName}/>}
  {main&&<><div className="mp-keyword-main"><div><span>대표 검색어</span><h4>{main.keyword}</h4><p>한 달 검색량 {formatRange(rowVolume(main,'all'))}회 · PC+모바일</p><p>계산에 쓴 PC 검색량 {formatRange(rowVolume(main,'pc'))}회</p></div><div><span className="mp-estimate-badge">기준 자료로 추정 · PC</span><strong>{mainEstimate?estimateMoney(mainEstimate.bids[0]):'검색량 자료 부족'}</strong><p>쇼핑광고 1위 추정 가격 · 세금 별도</p>{mainEstimate&&<p>기준 PC 검색량의 {mainEstimate.ratio.toLocaleString('ko-KR',{maximumFractionDigits:2})}배</p>}</div></div>
+ {!busy&&diagnosis&&<AdEstimate key={main.keyword} diagnosis={diagnosis} keyword={main.keyword} reference={mainEstimate?{cpc:Math.round(mainEstimate.bids[0]*110)/100,source:'검색량으로 환산한 쇼핑광고 1위 추정 클릭 비용을 적용했어요. PC 기준 · 세금 포함.'}:undefined}/>}
  {mainEstimate&&<><div className="mp-rank-reference mp-volume-ranks">{mainEstimate.bids.map((bid,i)=><div key={i}><span>{i+1}위 추정 입찰가</span><strong>{estimateMoney(bid)}</strong><small>두 상품으로 계산한 범위<br/>{estimateMoney(mainEstimate.ranges[i].min)}–{estimateMoney(mainEstimate.ranges[i].max)}</small></div>)}</div></>}
  {!keywordOnly&&mainEstimate&&<KeywordGoalCheck primary conversionBasis={cvr===''?'break-even':'user'} keyword={main.keyword} source="공개 검색량과 기준 자료로 환산한 추정 CPC · 실제 견적 아님" conversion={conversion} budgetContext={budgetContext} cpc={mainEstimate.bids[0]*1.1} perOrder={perOrder} budget={budget} quantity={quantity} months={months} cvr={scenario} volume={rowVolume(main,'pc')} device="PC"/>}
  {!mainEstimate&&<p className="mp-keyword-source">내 품목과 기준 두 상품의 정확한 PC 검색량이 필요해요. 자료가 없으면 가격을 만들지 않아요.</p>}

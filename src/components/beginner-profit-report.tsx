@@ -21,7 +21,7 @@ function ProfitComparison({before,after,extraCosts}:{before:number;after:number;
   {label:'추가 비용까지 반영',value:after},
  ];
  return <figure className="ds-profit-chart">
-  <figcaption><p className="ds-profit-gap">추가 비용 합계 <strong>{money(extraCosts)}</strong></p><div className="sd-chart-caption"><b>추가 비용 전후 손익</b><small>0원 기준 · 왼쪽 손실, 오른쪽 이익</small></div></figcaption>
+  <figcaption><p className="ds-profit-gap">추가 비용 합계 <strong>{money(extraCosts)}</strong></p><b>추가 비용 전후 손익</b></figcaption>
   {rows.map(({label,value},index)=><div key={label} className="ds-profit-row">
    <div className="ds-profit-label"><span>{label}</span><strong className={value<0?'is-loss':undefined}>{money(value)}</strong></div>
    <div className="ds-profit-track" aria-hidden="true">

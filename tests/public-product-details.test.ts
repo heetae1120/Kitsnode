@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {matchingPublicProduct,publicProductUrl,publicAdProductDetails} from '../keyword-api/src/integrated-ad-details.mjs';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
-import {shoppingAdVisitUrl} from '../src/lib/shopping-ad-snapshot';
+import {shoppingAdPublicSearchUrl} from '../src/lib/shopping-ad-snapshot';
 import {normalizeObservedAds} from '../keyword-api/src/browser-shopping-ads.mjs';
 test('review supplements require an exact product and seller and exclude ads and bundles',()=>{
  const ad={title:'케어팟 X55V 가습기',mall:'carepod'};
@@ -17,9 +17,13 @@ test('public links remove tracking parameters and never send product visits to s
  assert.equal(publicProductUrl(product+'?NaPm=tracking'),product);
  for(const url of ['https://ader.naver.com/v1/session','https://cr3.shopping.naver.com/v2/bridge/searchGate?nv_mid=1','https://nid.naver.com/nidlogin.login','https://smartstore.naver.com.evil.test/a/products/1']){
   assert.equal(publicProductUrl(url),null);
-  assert.equal(shoppingAdVisitUrl({title:'정확한 상품명',url}),null);
  }
- assert.equal(shoppingAdVisitUrl({title:'상품',url:product+'?tracking=1'}),product);
+});
+test('public visit uses an anonymous search URL and treats the product title only as a search term',()=>{
+ const title='정확한 상품명 & NaPm=1';
+ const url=new URL(shoppingAdPublicSearchUrl(title));
+ assert.equal(url.origin+url.pathname,'https://search.naver.com/search.naver');
+ assert.deepEqual([...url.searchParams],[['query',title]]);
 });
 test('public ad metadata resolves the exact selling product even when creative copy differs from its title',()=>{
  const row={nvMid:'91315987137',title:'케어팟 원격으로 쉽고 위생적인 가습기 관리',productData:{nvMid:91315987137,channelProductId:'13771475773',productUrl:'https://smartstore.naver.com/main/products/13771475773?tracking=1',rating:4.84,reviewCount:1383,purchaseCount:4392,wishCount:4617}};

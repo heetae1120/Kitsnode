@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useState} from 'react';
-import {keywordEconomics,inferProductCategory,type KeywordBenchmark} from '@/lib/keyword-budget';
+import {keywordEconomics,inferProductCategory,matchKeywordCategory,normalizeKeyword,type KeywordBenchmark} from '@/lib/keyword-budget';
 import {AutomaticKeywordDiscovery} from './automatic-keyword-discovery';
 import {KeywordGoalCheck} from './keyword-goal-check';
 import {breakEvenConversion,type GoalBudgetContext} from '@/lib/keyword-goal';
@@ -8,22 +8,24 @@ import {formatRange,rowVolume,validateKeywordResponse,type KeywordRow,type Devic
 import {ShoppingAdPodium} from './shopping-ad-podium';
 import {FormattedNumberInput} from './formatted-number-input';
 import {isDraftPreviewMode} from '@/lib/draft-preview-stage';
+import {AdEstimate,type AdDiagnosis} from './ad-diagnosis-check';
 const money=(v:number)=>`${Math.round(v).toLocaleString('ko-KR')}원`;
-export function KeywordBudgetReport({productName,perOrder=0,budget=0,quantity=0,months=0,budgetContext,keywordOnly=false}:{productName:string;perOrder?:number;budget?:number;quantity?:number;months?:number;keywordOnly?:boolean;budgetContext?:GoalBudgetContext}){
- const category=inferProductCategory(productName);
- const keyword=category?.main.keyword||productName;
+export function KeywordBudgetReport({productName,perOrder=0,budget=0,quantity=0,months=0,budgetContext,keywordOnly=false,diagnosis}:{productName:string;perOrder?:number;budget?:number;quantity?:number;months?:number;keywordOnly?:boolean;budgetContext?:GoalBudgetContext;diagnosis?:AdDiagnosis|null}){
+ const category=matchKeywordCategory(productName)??inferProductCategory(productName);
+ const benchmarks=category?[category.main,...category.alternatives]:[];
+ const main=benchmarks.find(row=>normalizeKeyword(row.keyword)===normalizeKeyword(productName))??category?.main??null;
+ const keyword=main?.keyword||productName;
+ const alternatives=benchmarks.filter(row=>row!==main).sort((a,b)=>a.cpc-b.cpc).slice(0,3);
  const [cvr,setCvr]=useState('');
  const [volumes,setVolumes]=useState<KeywordRow[]>([]);
  const [volumeError,setVolumeError]=useState('');
- const seeds=category?[category.main,...category.alternatives.slice().sort((a,b)=>a.cpc-b.cpc).slice(0,3)].map(r=>r.keyword).join(','):'';
+ const seeds=main?[main,...alternatives].map(row=>row.keyword).join(','):'';
  useEffect(()=>{
   setVolumes([]);setVolumeError('');if(isDraftPreviewMode()){setVolumeError('편집 미리보기에서는 실제 검색량을 조회하지 않습니다.');return;}if(!seeds)return;
   const controller=new AbortController();let active=true;const timeout=setTimeout(()=>controller.abort(),15000);
   void(async()=>{try{const url=new URL(process.env.NEXT_PUBLIC_KEYWORD_API_URL||'https://kitsnode.vercel.app/api/keywords');url.searchParams.set('keywords',seeds);const response=await fetch(url,{signal:controller.signal,credentials:'omit',cache:'no-store'});if(!response.ok)throw Error();const data=validateKeywordResponse(await response.json());if(active)setVolumes(data.keywords);}catch{if(active)setVolumeError('검색량을 불러오지 못했어요. 목표 기간은 아직 판단할 수 없어요.');}finally{clearTimeout(timeout);}})();
   return()=>{active=false;controller.abort();clearTimeout(timeout);};
  },[seeds]);
- const main=category?.main??null;
- const alternatives=category?[category.main,...category.alternatives].filter(k=>k!==main).sort((a,b)=>a.cpc-b.cpc).slice(0,3):[];
  const neededCvr=main?breakEvenConversion(main.cpc,perOrder):null;
  const scenario=cvr===''?(neededCvr!==null&&neededCvr<=100?Math.ceil(neededCvr*100)/100:0):Number(cvr);
  const conversion=<div className="mp-conversion-input"><label>구매 비율<div className="mp-conversion-entry"><FormattedNumberInput aria-label="키워드 클릭 후 구매 비율" value={cvr===''&&scenario>0?String(scenario):cvr} onValueChange={setCvr}/><span>%</span></div></label><small>본전 기준 {neededCvr===null?'계산 불가':(Math.ceil(neededCvr*100)/100).toLocaleString('ko-KR')+'% 이상'}</small></div>;
@@ -31,10 +33,12 @@ export function KeywordBudgetReport({productName,perOrder=0,budget=0,quantity=0,
  const economy=(row:KeywordBenchmark)=>keywordEconomics(row.cpc,scenario,perOrder,budget);
  return <section className="mp-report-section mp-keywords" aria-label="키워드별 광고비 검토"><span className="mp-eyebrow">KEYWORD COST CHECK</span><h3>검색어와 클릭 비용</h3>
  <ShoppingAdPodium keyword={productName}/>
- {!category||!main?<AutomaticKeywordDiscovery keywordOnly={keywordOnly} budgetContext={budgetContext} productName={productName} perOrder={perOrder} budget={budget} quantity={quantity} months={months}/>:<>
+ <div className="mp-keyword-cost-results" id="ds-keyword-cost-results" tabIndex={-1} role="region" aria-label="검색어와 클릭 비용 결과">
+ {!category||!main?<AutomaticKeywordDiscovery keywordOnly={keywordOnly} budgetContext={budgetContext} productName={productName} perOrder={perOrder} budget={budget} quantity={quantity} months={months} diagnosis={diagnosis}/>:<>
  <p className="mp-keyword-source">품목 ‘{productName}’ → {keyword} 관련 검색어</p>
  <p className="mp-keyword-source">쇼핑검색 관련 광고 기록 · 2026.10.01–10.31 · 11월 3일 확인</p>
  <div className="mp-keyword-main"><div><span>대표 검색어</span><h4>{keyword}</h4><span>관련 광고의 평균 클릭 비용 · 세금 포함 · {main.device}</span><strong>{money(main.cpc)}<small> / 클릭</small></strong></div></div>
+ {diagnosis&&<AdEstimate diagnosis={diagnosis} keyword={keyword} reference={{cpc:main.cpc,source:`2026년 10월 관련 광고의 평균 클릭 비용을 적용했어요. ${main.device} 기준 · 세금 포함.`}}/>}
 
  {!keywordOnly&&economy(main)&&<p className={`mp-keyword-verdict ${economy(main)!.affordable?'':'is-over'}`}>구매 비율 {scenario.toLocaleString('ko-KR',{maximumFractionDigits:2})}% 가정 · {economy(main)!.affordable?'이 비율이면 한도 안이에요. 적은 금액으로 확인하세요.':`이 비율이면 한 건당 광고비가 한도보다 ${money(-economy(main)!.contribution)} 많아요. 다른 검색어도 보세요.`}</p>}
  {volumeError&&<p role="status">{volumeError}</p>}{keywordOnly?<KeywordVolume keyword={keyword} device={main.device} rows={volumes}/>:goal(main)}
@@ -44,6 +48,7 @@ export function KeywordBudgetReport({productName,perOrder=0,budget=0,quantity=0,
  <details className="mp-shopping-reference"><summary>쇼핑광고 1·2·3위 예상 가격</summary><h4>쇼핑광고 예상 입찰가</h4><p>{category.rankProduct} 소재 · {category.rankDevice==='PC'?'PC 통합검색':'모바일 검색'} · 2026.11.03 조회 · 세금 별도</p><div className="mp-rank-reference">{category.shoppingRanks.map((bid,i)=><div key={i}><span>{i+1}위 평균 입찰가</span><strong>{money(bid)}</strong></div>)}</div><p>광고 소재 전체의 예상 가격이에요. 검색어별 가격이나 실제 클릭 비용과 달라요. 입찰을 바꾸지는 않아요.</p></details>
 
  </>}
+ </div>
  </section>;
 }
 

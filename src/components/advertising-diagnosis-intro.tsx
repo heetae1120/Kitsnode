@@ -7,12 +7,12 @@ export function AdvertisingReviewGuide({months,onContinue,onBack}:{months:number
  const id=useId();
  return <section className="ds-ad-review-guide" aria-labelledby={id}>
   <header>
-   <h2 id={id} tabIndex={-1}>네이버 검색광고는<br/><em>언제 살펴볼 만할까요?</em></h2>
-   <p>{months>0?`${months}개월 판매 목표`:'판매 목표'}에 비해 유입이 부족하다면, 상품을 검색하는 고객에게 닿는 방법으로 네이버 검색광고를 검토해 볼 수 있어요.</p>
+   <h2 id={id} tabIndex={-1}>스마트스토어에서<br/><em>목표 기간 안에 팔려면?</em></h2>
+   <p>온라인 판매를 시작한다면 네이버 스마트스토어를 판매 채널로 고려해 보세요. {months>0?`목표한 ${months}개월 안에`:'목표 기간 안에'} 재고를 판매하기에 방문이 부족하다면, 네이버 검색광고로 상품을 찾는 고객에게 닿을 수 있을지 살펴보세요.</p>
   </header>
   <dl>
-   <div><dt>검색하는 고객에게 닿을 수 있어요</dt><dd>상품과 관련된 검색 결과에 노출될 수 있어요. 검색량을 살펴 어떤 검색어에 수요가 있는지 확인해 보세요.</dd></div>
-   <div><dt>예상 광고비를 판매 이익과 비교할 수 있어요</dt><dd>클릭당 비용과 구매 전환율로 주문 한 건을 얻는 데 드는 광고비를 추정해요. 상품 1개당 이익과 비교하면 집행 여부를 판단할 수 있어요.</dd></div>
+   <div><dt>내 상품을 찾는 검색어가 있나요?</dt><dd>고객이 어떤 말로 비슷한 상품을 찾는지, 그 검색어에 수요가 있는지 확인해 보세요.</dd></div>
+   <div><dt>더 빨리 팔아도 이익이 남을까요?</dt><dd>클릭당 비용과 구매 전환율로 주문 한 건을 얻는 데 드는 광고비를 추정하고, 상품 1개당 이익과 비교해 보세요.</dd></div>
   </dl>
   <p className="ds-ad-review-note">예상 광고비가 개당 이익을 넘거나 상품 페이지의 구매 전환율이 낮다면, 가격이나 상품 페이지부터 점검해 보세요.</p>
   <div className="ds-ad-intro-actions">
