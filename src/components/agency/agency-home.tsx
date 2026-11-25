@@ -1,6 +1,6 @@
 "use client";
 import Link from 'next/link';
-import {ArrowDown,ArrowUp,ArrowUpRight} from 'lucide-react';
+import {ArrowUpRight} from 'lucide-react';
 import {agencyContent as content} from '@/data/agency-content';
 import {useAgencyMotion} from './use-agency-motion';
 import {MemberMenu} from './member-menu';
@@ -21,7 +21,6 @@ export function AgencyHome(){
     <a className="as-skip" href="#main-content" onClick={()=>{if(scene===0)showScene(1);}}>본문으로 건너뛰기</a>
     <header className="as-header">
       <Link href="/" className="as-wordmark" aria-label="kitsnode 홈" onClick={()=>showScene(0)}><BrandWordmark/></Link>
-      <span className="as-header-note">브랜드의 다음을<br/>함께 만듭니다.</span>
       <PublicCategories/>
       <MemberMenu/>
     </header>
@@ -55,8 +54,8 @@ export function AgencyHome(){
         </div>
         <nav className="as-story-indicator" aria-label="히어로 장면 이동">
           <div className="as-story-controls">
-            <button type="button" onClick={()=>step(-1)} aria-disabled={scene===0} aria-label="이전 장면"><ArrowUp size={17} aria-hidden="true"/></button>
-            <button type="button" onClick={()=>step(1)} aria-disabled={scene===lastScene} aria-label="다음 장면"><ArrowDown size={17} aria-hidden="true"/></button>
+            <button type="button" onClick={()=>step(-1)} aria-disabled={scene===0} aria-label="이전 장면">이전 장면</button>
+            <button type="button" onClick={()=>step(1)} aria-disabled={scene===lastScene} aria-label="다음 장면">다음 장면</button>
           </div>
           <progress className="as-story-track" aria-label="히어로 진행" max={lastScene} value={scene}/>
         </nav>

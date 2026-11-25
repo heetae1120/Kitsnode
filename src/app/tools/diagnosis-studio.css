@@ -73,7 +73,7 @@ body:has(.diagnosis-studio)>.kn-colophon{display:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-market-options button[aria-pressed=true]{background:#2e1a13;color:#ff5a1f;border-color:#ff5a1f;box-shadow:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-market-options small{color:#aaa7a0}
 .profit-tool .mp-shell.diagnosis-studio .mp-market-icon{border-radius:0}
-.profit-tool .mp-shell.diagnosis-studio .mp-hint-button{color:#aaa7a0;background:none}
+.profit-tool .mp-shell.diagnosis-studio .mp-hint-button{color:#ff875c;background:none}
 .profit-tool .mp-shell.diagnosis-studio .mp-help-content{background:#282828;color:#f5f2eb;border:1px solid #ffffff40;border-radius:0;box-shadow:0 16px 48px #0008}
 .profit-tool .mp-shell.diagnosis-studio .mp-help-content :is(b,a){color:#ff5a1f}
 .profit-tool .mp-shell.diagnosis-studio :is(.mp-negative,.mp-error,.mp-story-alert,.mp-reorder-warning,.mp-keyword-over){color:#ff5a1f}
@@ -415,7 +415,7 @@ body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-chapters :is(.mp
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]{position:relative;isolation:isolate;background:transparent!important;background-image:none!important;color:#0b0b0b!important;outline:0!important;box-shadow:none!important;border-radius:0!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]::before{content:'';position:absolute;inset:-16px -14px;background:#ff5a1f;border-radius:10px;box-shadow:0 12px 32px #0005;z-index:-1;pointer-events:none}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] :is(.ds-group-index,.mp-field-label,.mp-field-label>label,.mp-field-label>span,.mp-quantity-capacity,.mp-quantity-capacity small,.mp-market-applied,.mp-return-handling>p){color:#0b0b0b!important}
-body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] .mp-hint-button{color:#0b0b0b!important}
+body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] .mp-hint-button{color:#ff875c!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true] .mp-quick-costs button{background:#0b0b0b;color:#f5f2eb;border-color:#0b0b0b}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-idle=true] .mp-quick-costs::after{color:#0b0b0b!important}
 @media(max-width:700px){body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]::before{inset:-12px -9px;border-radius:8px}}
@@ -509,17 +509,6 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard 
 .ds-reorder-kpis dt{font-size:12px;line-height:1.45}
 .ds-reorder-kpis dd{margin:5px 0 0;font-size:clamp(17px,2.1vw,27px);font-weight:750;line-height:1.25;letter-spacing:-.035em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 .ds-reorder-kpis dd>span{display:block;animation:ds-reorder-number .26s ease-out both}
-.ds-reorder-risk{--rd-status:var(--rd-muted);display:flex;align-items:flex-start;gap:9px;padding:10px 12px;background:#1a1a1a;border-inline-start:2px solid var(--rd-status);font-size:13px;transition:border-color .24s ease}
-.ds-reorder-dashboard[data-risk=safe] .ds-reorder-risk{--rd-status:var(--rd-green)}
-.ds-reorder-dashboard[data-risk=caution] .ds-reorder-risk{--rd-status:#ffad69}
-.ds-reorder-dashboard[data-risk=risk] .ds-reorder-risk{--rd-status:#ff7171}
-.profit-tool .mp-reorder .ds-reorder-risk>svg{color:var(--rd-status);width:19px;height:19px;margin:0;flex-shrink:0}
-.ds-reorder-risk>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;min-width:0;animation:ds-reorder-number .23s ease-out both}
-.ds-reorder-risk strong,.ds-reorder-risk b{color:var(--rd-status)}
-.ds-reorder-risk span{color:var(--rd-text)}
-.ds-reorder-dashboard:is([data-risk=safe],[data-risk=risk]) .ds-reorder-risk{font-size:clamp(16px,1.7vw,23px);line-height:1.4;padding:14px 16px}
-.ds-reorder-dashboard:is([data-risk=safe],[data-risk=risk]) .ds-reorder-risk span{color:var(--rd-status);font-weight:650}
-.ds-reorder-dashboard:is([data-risk=safe],[data-risk=risk]) .ds-reorder-risk>svg{width:23px;height:23px}
 @keyframes ds-reorder-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes ds-reorder-number{from{opacity:.35;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:800px){
@@ -534,7 +523,7 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-reorder-dashboard 
  .ds-reorder-kpis>div:nth-child(odd){border-inline-start:0;padding-inline-start:0}
 }
 @media(prefers-reduced-motion:reduce){
- .ds-reorder-dashboard :is(.ds-reorder-track,.ds-reorder-track i,.ds-reorder-point,.ds-reorder-stem,.ds-reorder-headline time,.ds-reorder-kpis dd>span,.ds-reorder-risk,.ds-reorder-risk>div,.ds-reorder-tooltip){animation:none;transition:none}
+ .ds-reorder-dashboard :is(.ds-reorder-track,.ds-reorder-track i,.ds-reorder-point,.ds-reorder-stem,.ds-reorder-headline time,.ds-reorder-kpis dd>span,.ds-reorder-tooltip){animation:none;transition:none}
 }
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow input{background:#0b0b0b!important;color:#f5f2eb!important;box-shadow:none!important}
 body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-calendar-start input[type=date]{width:190px!important;max-width:100%;padding:12px!important;border:1px solid #444!important;color-scheme:dark}

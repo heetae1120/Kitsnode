@@ -1,17 +1,11 @@
 "use client";
 import {useId,useState,type PointerEvent,type ReactNode} from 'react';
-import {CircleCheck,Clock3,TriangleAlert} from 'lucide-react';
 import {stockAtDay,type reorderSchedule} from '@/lib/reorder-timeline';
 
 type Schedule=NonNullable<ReturnType<typeof reorderSchedule>>;
-type MilestoneKind='start'|'recommended'|'deadline'|'arrival'|'depletion';
+type MilestoneKind='start'|'recommended'|'arrival'|'depletion';
 type Milestone={kind:MilestoneKind;label:string;day:number;date:string};
-const stateCopy={
- safe:{title:'안전',text:'재고 소진 전에 입고가 예상됩니다.',icon:CircleCheck},
- caution:{title:'주의',text:'입고 일정에 여유가 부족합니다.',icon:Clock3},
- risk:{title:'위험',text:'입고 전 재고 소진이 예상됩니다.',icon:TriangleAlert},
- pending:{title:'일정 확인',text:'판매 시작일과 재발주일을 확인해 주세요.',icon:Clock3},
-};
+const stateCopy={safe:'안전',caution:'주의',risk:'위험',pending:'일정 확인'};
 const formatDate=(date:string)=>date.replaceAll('-','.');
 const formatStock=(quantity:number)=>quantity.toLocaleString('ko-KR')+'개';
 
@@ -27,7 +21,6 @@ function Milestones({schedule,quantity}:{schedule:Schedule;quantity:number}){
  const events:Milestone[]=[
   {kind:'start',label:'판매 시작일',day:0,date:schedule.start},
   {kind:'recommended',label:'재발주 권장일',day:schedule.recommendedDay,date:schedule.recommended},
-  {kind:'deadline',label:'주문 마감일',day:schedule.deadlineDay,date:schedule.deadline},
  ];
  if(schedule.arrival&&arrivalDay!==null)events.push({kind:'arrival',label:'예상 입고일',day:arrivalDay,date:schedule.arrival});
  events.push({kind:'depletion',label:'예상 재고 소진일',day:duration,date:schedule.depletion});
@@ -94,7 +87,6 @@ export function ReorderCalendar({schedule,quantity,controls,statusId,invalidMess
  const days=schedule?.daysAtArrival??null;
  const arrivalDay=schedule?.arrivalDay??null;
  const state=schedule?.risk??'pending';
- const {title,text,icon:Icon}=stateCopy[state];
  const metrics=schedule?[
   {label:'예상 입고일',value:schedule.arrival?formatDate(schedule.arrival):'—',date:schedule.arrival},
   {label:'입고 소요 기간',value:schedule.leadDays+'일'},
@@ -116,9 +108,8 @@ export function ReorderCalendar({schedule,quantity,controls,statusId,invalidMess
     {metrics.map(({label,value,date})=><div key={label}><dt>{label}</dt><dd><span key={value}>{date?<time dateTime={date}>{value}</time>:value}</span></dd></div>)}
    </dl>
   </>}
-  <div className="ds-reorder-risk" id={statusId} role="status" aria-live="polite">
-   <Icon size={19} aria-hidden="true"/>
-   <div key={state}><strong>{title}</strong><span>{invalidMessage??text}</span>{days!==null&&days<0&&<b>예상 품절 기간 {(-days).toLocaleString('ko-KR')}일</b>}</div>
-  </div>
+  {invalidMessage
+   ? <p className="mp-error" id={statusId} role="alert">{invalidMessage}</p>
+   : <span id={statusId} className="ds-sr-only" role="status">{stateCopy[state]}{days!==null&&days<0&&` · 예상 품절 기간 ${-days}일`}</span>}
  </section>;
 }

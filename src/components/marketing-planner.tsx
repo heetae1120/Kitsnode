@@ -24,7 +24,7 @@ import '@/app/tools/diagnosis-studio.css';
 import '@/app/tools/selling-diagnosis.css';
 
 const basics=[
- ['price','예상 판매가','원/개'],
+ ['price','판매가','원/개'],
  ['cost','상품 원가','원/개'],
  ['quantity','재고','개'],
 ] as const;
@@ -34,9 +34,10 @@ const extras=[
  ['feePercent','판매 수수료','%'],
  ['returnRate','예상 반품률','%'],
  ['creativeCost','상세페이지·썸네일 제작비','원'],
+ ['certification','인증비','원'],
 ] as const;
-type Draft={months:string;name:string;available:string;price:string;cost:string;quantity:string;feePercent:string;logistics:string;packaging:string;returnRate:string;returnHandling:string;creativeCost:string};
-const empty:Draft={months:'',name:'',available:'',price:'',cost:'',quantity:'',feePercent:'',logistics:'',packaging:'',returnRate:'',returnHandling:'',creativeCost:''};
+type Draft={months:string;name:string;available:string;price:string;cost:string;quantity:string;feePercent:string;logistics:string;packaging:string;returnRate:string;returnHandling:string;creativeCost:string;certification:string};
+const empty:Draft={months:'',name:'',available:'',price:'',cost:'',quantity:'',feePercent:'',logistics:'',packaging:'',returnRate:'',returnHandling:'',creativeCost:'',certification:''};
 const sampleInput:MarketingPlanInput={price:30000,cost:12000,quantity:100,available:3000000,feePercent:5,logistics:3000,packaging:1000,returns:0,certification:0,fixed:0};
 const previewReport={name:'미리보기 예시',months:3,input:sampleInput,result:marketingPlan(sampleInput),examples:[]};
 const money=(value:number)=>`${Math.round(value).toLocaleString('ko-KR')}원`;
@@ -59,7 +60,6 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
  const [draft,setDraft]=useState<Draft>(empty);
  const [step,setStep]=useState(1);
  const [market,setMarket]=useState('');
- const selectedMarket=plannerMarketFees.find(item=>item.id===market);
  const [direction,setDirection]=useState(1);
  const reducedMotion=useReducedMotion();
  const [error,setError]=useState('');
@@ -81,9 +81,16 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
  const costReady=draft.cost!==''&&draft.quantity!==''&&Number.isSafeInteger(Number(draft.quantity))&&Number(draft.quantity)>0;
  const stockCost=costReady?Number(draft.cost)*Number(draft.quantity):null;
  let live:ReturnType<typeof plannerLiveCosts>|null=null;
- if(basicReady){try{live=plannerLiveCosts({price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returnRate:Number(draft.returnRate),returnHandling:Number(draft.returnHandling),fixed:Number(draft.creativeCost)});}catch{}}
+ if(basicReady){try{live=plannerLiveCosts({price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returnRate:Number(draft.returnRate),returnHandling:Number(draft.returnHandling),fixed:Number(draft.creativeCost)+Number(draft.certification)});}catch{}}
  const [exampleFields,setExampleFields]=useState<string[]>([]);
- const useExample=(key:keyof typeof plannerExamples)=>{setDraft(d=>({...d,[key]:plannerExamples[key],...(key==='returnRate'&&d.returnHandling===''?{returnHandling:plannerExamples.returnHandling}:{})}));setExampleFields(keys=>[...new Set([...keys,key,...(key==='returnRate'?['returnHandling']:[])])]);setError('');setInvalidField(null);};
+ function applyExamples(){
+  const examples={...plannerExamples,creativeCost:'0',certification:'0'};
+  const keys=(Object.keys(examples) as (keyof typeof examples)[]).filter(key=>draft[key]===''&&(key!=='returnHandling'||draft.returnRate===''||Number(draft.returnRate)>0));
+  setDraft({...draft,...Object.fromEntries(keys.map(key=>[key,examples[key]]))});
+  if(!market)setMarket('other');
+  setExampleFields(previous=>[...new Set([...previous,...keys])]);
+  setError('');setInvalidField(null);
+ }
  const returnCostMissing=Number(draft.returnRate)>0&&draft.returnHandling==='';
  const overBudget=hasBudget&&stockCost!==null&&stockCost>Number(draft.available);
  function move(next:number){if(next===3)setReturnToGoal(step===4);setDirection(next>step?1:-1);setStep(next);setError('');setInvalidField(null);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});const target=next===3?(focus.current?.querySelector('.mp-scroll-card')??focus.current):focus.current;target?.scrollIntoView({behavior:reducedMotion?'instant':'smooth',block:'start'});});}
@@ -104,10 +111,10 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
   event.preventDefault();
   if(step===1){
    if(!draft.name.trim()){validationError('name','상품명을 입력해 주세요.');return;}
-   if(!hasBudget||!Number.isFinite(Number(draft.available))||Number(draft.available)<0){validationError('available','판매 준비 예산을 0원 이상으로 입력해 주세요.');return;}
+   if(!hasBudget||!Number.isFinite(Number(draft.available))||Number(draft.available)<0){validationError('available','총예산을 0원 이상으로 입력해 주세요.');return;}
    if(!basicReady){
     const price=enteredNumber(draft.price),cost=enteredNumber(draft.cost);
-    if(price===null||price<=0)validationError('price','예상 판매가를 0원보다 크게 입력해 주세요.');
+    if(price===null||price<=0)validationError('price','판매가를 0원보다 크게 입력해 주세요.');
     else if(cost===null||cost<0)validationError('cost','상품 원가를 0원 이상으로 입력해 주세요.');
     else validationError('quantity','재고를 1개 이상의 정수로 입력해 주세요.');
     return;
@@ -121,7 +128,7 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
   if(!live){setError('금액을 다시 확인해 주세요. 수수료와 반품률은 0~100%로 입력하세요.');return;}
   try{
    goalDialog.current?.close();setGoalOpen(false);
-   const input:MarketingPlanInput={price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returns:live.returns,returnRate:Number(draft.returnRate),returnHandling:Number(draft.returnHandling),certification:0,fixed:Number(draft.creativeCost)};
+   const input:MarketingPlanInput={price:Number(draft.price),cost:Number(draft.cost),quantity:Number(draft.quantity),available:Number(draft.available),feePercent:Number(draft.feePercent),logistics:Number(draft.logistics),packaging:Number(draft.packaging),returns:live.returns,returnRate:Number(draft.returnRate),returnHandling:Number(draft.returnHandling),certification:Number(draft.certification??0),fixed:Number(draft.creativeCost)};
    setReport({name:draft.name.trim(),months:0,input,result:marketingPlan(input),examples:[...exampleFields]});move(3);
   }catch(e){setError(e instanceof Error?e.message:'입력값을 확인해 주세요.');}
  }
@@ -261,11 +268,11 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
    <section ref={focus} tabIndex={-1} className={`mp-workspace ${step>=3?'mp-workspace-report':'mp-ipad'}`} aria-label={step>=3?'수익성 평가 보고서':'수익성 분석 입력'}>
     {step<3&&<span className="mp-ipad-camera" aria-hidden="true"/>}
     {step<3?<AnimatePresence mode="wait" initial={false} custom={direction}><motion.form key={step} custom={direction} initial="enter" animate="center" exit="leave" variants={{enter:(d:number)=>({x:reducedMotion?0:d*80,opacity:reducedMotion?1:0,filter:reducedMotion?'none':'blur(4px)'}),center:{x:0,opacity:1,filter:'blur(0px)'},leave:(d:number)=>({x:reducedMotion?0:-d*60,opacity:reducedMotion?1:0,filter:reducedMotion?'none':'blur(3px)',pointerEvents:'none' as const})}} transition={{duration:reducedMotion?0:0.17,ease:[0.22,1,0.36,1]}} onSubmit={submit} noValidate>
-     <div className="mp-section-heading"><div><motion.h1 initial={reducedMotion?false:{opacity:.65,y:7}} animate={{opacity:1,y:0}} transition={{duration:reducedMotion?0:.23,ease:[.22,1,.36,1]}}>{step===1?'어떤 상품을 판매하시나요?':'판매에 드는 비용을 입력해 주세요.'}</motion.h1>{step===2&&<p>금액을 모르면 참고값을 사용하세요. 비용이 없으면 0으로 표시할 수 있어요.</p>}</div><motion.svg className="ds-flow-symbol" viewBox="0 0 120 120" aria-hidden="true" initial={reducedMotion?false:{rotate:-65,scale:.85}} animate={{rotate:0,scale:1}} transition={{duration:reducedMotion?0:.33,ease:[.22,1,.36,1]}}><circle cx="60" cy="60" r="43" fill="none" stroke="currentColor" strokeWidth="18" strokeDasharray="43 24"/><circle cx="60" cy="60" r="11" fill="currentColor"/></motion.svg></div>
+     <div className="mp-section-heading"><div><motion.h1 initial={reducedMotion?false:{opacity:.65,y:7}} animate={{opacity:1,y:0}} transition={{duration:reducedMotion?0:.23,ease:[.22,1,.36,1]}}>{step===1?'어떤 상품을 판매하시나요?':'판매에 드는 비용을 입력해 주세요.'}</motion.h1>{step===2&&<p>금액을 모르면 ‘참고값 적용’을 눌러 비어 있는 비용칸을 한꺼번에 채우세요.</p>}</div>{step===2?<button type="button" className="mp-secondary sd-apply-examples" onClick={applyExamples}>참고값 적용</button>:<motion.svg className="ds-flow-symbol" viewBox="0 0 120 120" aria-hidden="true" initial={reducedMotion?false:{rotate:-65,scale:.85}} animate={{rotate:0,scale:1}} transition={{duration:reducedMotion?0:.33,ease:[.22,1,.36,1]}}><circle cx="60" cy="60" r="43" fill="none" stroke="currentColor" strokeWidth="18" strokeDasharray="43 24"/><circle cx="60" cy="60" r="11" fill="currentColor"/></motion.svg>}</div>
      {step===1&&<>
       <div className="ds-product-capital"><label className="mp-name">상품명<input id="mp-name" {...inputStatus('name')} value={draft.name} onChange={event=>update('name',event.target.value)} placeholder="예: 가습기" required maxLength={100}/></label>
       <div className="mp-plan-row mp-plan-budget-only">
-       <div className="mp-budget-input"><div className="mp-field"><div className="mp-field-label"><label htmlFor="mp-available">판매 준비 예산</label><PlannerCostHelp field="available" label="판매 준비 예산"/></div><div className="mp-input-wrap"><FormattedNumberInput {...inputStatus('available')} id="mp-available" required value={draft.available} onValueChange={value=>update('available',value)} placeholder="금액 입력"/><span>원</span></div></div></div>
+       <div className="mp-budget-input"><div className="mp-field"><div className="mp-field-label"><label htmlFor="mp-available">총예산</label><PlannerCostHelp field="available" label="총예산"/></div><div className="mp-input-wrap"><FormattedNumberInput {...inputStatus('available')} id="mp-available" required value={draft.available} onValueChange={value=>update('available',value)} placeholder="금액 입력"/><span>원</span></div></div></div>
       </div></div>
      </>}
      <div className="ds-input-group">{step===1&&<h2 className="sd-input-heading">가격과 재고</h2>}<div className={`mp-fields ${step===1?'mp-fields-basic':''}`}>
@@ -275,18 +282,15 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
        {key!=='feePercent'&&key!=='creativeCost'&&<div className="mp-input-wrap"><FormattedNumberInput id={`mp-${key}`} required {...inputStatus(key)} value={draft[key]} onValueChange={value=>update(key,value)} placeholder={key==='quantity'?'수량 입력':unit==='%'?'비율 입력':'금액 입력'}/><span>{unit}</span></div>}
        {key==='creativeCost'&&<div className="mp-creative-input-row"><div className="mp-input-wrap"><FormattedNumberInput id="mp-creativeCost" required {...inputStatus('creativeCost')} value={draft.creativeCost} onValueChange={value=>update('creativeCost',value)} placeholder="총 제작비 입력"/><span>원</span></div><output id="mp-creative-unit" aria-live="polite"><span>상품 1개당 제작비</span><b>{draft.creativeCost!==''&&Number(draft.quantity)>0?money(Number(draft.creativeCost)/Number(draft.quantity)):'—'}<small> / 개</small></b></output></div>}
        {key==='quantity'&&<p id="mp-quantity-capacity" className="mp-quantity-capacity" aria-live="polite">{purchaseCapacity!==null?<>예산으로 최대 <b>{purchaseCapacity.toLocaleString('ko-KR')}개</b> 구매 가능<small>상품 원가만 반영</small></>:draft.cost!==''&&Number(draft.cost)===0?'원가가 0원이면 구매 가능 수량을 계산할 수 없어요.':null}</p>}
-       {step===2&&key==='feePercent'&&<div className="mp-quick-costs"><button type="button" data-guide-example onClick={()=>{setMarket('other');useExample('feePercent');}}>참고값 넣기</button><small className="mp-market-applied">{selectedMarket?<>{selectedMarket.name} 참고율 <strong>{draft.feePercent}%</strong> 적용</>:'참고 수수료 7%는 실제 요율과 다를 수 있어요.'}</small></div>}
-       {step===2&&key!=='feePercent'&&key!=='creativeCost'&&<div className="mp-quick-costs"><button type="button" onClick={()=>useExample(key as keyof typeof plannerExamples)}>참고값 넣기</button><button type="button" onClick={()=>update(key,'0')}>{key==='returnRate'?'반품 없음':'비용 없음'}</button>{exampleFields.includes(key)&&<small>참고값 적용</small>}</div>}
-       {step===2&&key==='creativeCost'&&<div className="mp-creative-actions"><button type="button" className="mp-secondary" onClick={()=>update('creativeCost','0')}>제작비 없음</button></div>}
+       {key==='returnRate'&&Number(draft.returnRate)>0&&<div className="mp-field sd-return-handling"><div className="mp-field-label"><label htmlFor="mp-returnHandling">반품 한 건 처리비</label><PlannerCostHelp field="returnHandling" label="반품 한 건 처리비"/></div><div className="mp-input-wrap"><FormattedNumberInput {...inputStatus('returnHandling')} id="mp-returnHandling" required value={draft.returnHandling} onValueChange={value=>update('returnHandling',value)} placeholder="처리비 입력"/><span>원/건</span></div><p>개당 반품 비용: {returnCostMissing?'처리비 입력 필요':live?money(live.returns):'—'}</p></div>}
       </div>)}
-       {step===2&&Number(draft.returnRate)>0&&<div className="mp-field mp-return-cost"><div className="mp-field-label"><label htmlFor="mp-returnHandling">반품 한 건 처리비</label><PlannerCostHelp field="returnHandling" label="반품 한 건 처리비"/></div><div className="mp-input-wrap"><FormattedNumberInput {...inputStatus('returnHandling')} id="mp-returnHandling" required value={draft.returnHandling} onValueChange={value=>update('returnHandling',value)} placeholder="처리비 입력"/><span>원/건</span></div><div className="mp-quick-costs"><button type="button" data-guide-example onClick={()=>useExample('returnHandling')}>참고값 넣기</button><button type="button" onClick={()=>update('returnHandling','0')}>비용 없음</button></div><p>개당 반품 비용: {returnCostMissing?'처리비 입력 필요':live?money(live.returns):'—'}</p></div>}
      </div>
      </div>
      {guideMessage&&!guideMessage.startsWith('다음 입력:')&&<p className="sd-form-tip" role="status">{guideMessage}</p>}
      {step===1&&overBudget&&<p className="mp-error" role="alert">재고를 모두 구매하면 예산을 초과해요.</p>}
      {error&&<p id="mp-form-error" className="mp-error" role="alert">{error}</p>}
      <div className="mp-actions">{step===2&&<button type="button" className="mp-secondary" onClick={()=>move(1)}>이전 단계</button>}<button type="submit" className="mp-primary">{step===1?'다음: 추가 비용':'진단 결과 보기'}<ArrowRight size={17}/></button></div>
-    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport key={previewStage||'visitor'} initialAdIntro={previewStage==='3-keywords'} initialSlide={returnToGoal?2:0} onAdCheck={openAdCheck} onRequestMonths={requestMonths} name={report.name} months={report.months} input={report.input} exampleFields={report.examples} onEdit={()=>move(2)}/>)}
+    </motion.form></AnimatePresence>:report&&(step===4?<SellingPreparation quantity={report.input.quantity} months={report.months} onBack={()=>move(3)}/>:<BeginnerProfitReport key={previewStage||'visitor'} initialAdIntro={previewStage==='3-keywords'} initialSlide={returnToGoal?2:0} onAdCheck={openAdCheck} onRequestMonths={requestMonths} name={report.name} months={report.months} onMonthsChange={months=>{update('months',String(months));setReport(previous=>previous?{...previous,months}:previous);}} input={report.input} exampleFields={report.examples} onEdit={()=>move(2)}/>)}
     {step<3&&<span className="mp-ipad-home" aria-hidden="true"/>}
    </section>
   </main>

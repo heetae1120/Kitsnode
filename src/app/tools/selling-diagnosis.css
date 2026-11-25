@@ -82,7 +82,6 @@ html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-quantity-capacity { color: var(--sd-muted) !important; font-size: 13px; line-height: 1.55; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow [data-guide-active=true]::before { content: none; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow [data-guide-active=true] :is(.mp-field-label, .mp-field-label>label, .mp-name, .mp-market-applied, .mp-quantity-capacity, .mp-quantity-capacity small) { color: inherit !important; }
-html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow [data-guide-active=true] .mp-hint-button { color: var(--sd-muted) !important; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow [data-guide-active=true] { color: #f5f2eb !important; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow [data-guide-active=true] :is(.mp-input-wrap, input) { border-color: #b86143 !important; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow [data-guide-active=true] .mp-quick-costs button { border-color: #555; }
@@ -108,7 +107,6 @@ html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .mp-plan-recap dt { font-size: 14px; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .mp-plan-recap dd { font-size: clamp(20px, 3vw, 34px); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .selling-diagnosis .ds-profit-chart { padding: clamp(13px, 2.2vw, 22px); }
-.selling-diagnosis .ds-profit-chart figcaption { gap: 5px 12px; flex-wrap: wrap; }
 .selling-diagnosis .ds-profit-label { align-items: baseline; gap: 5px 12px; flex-wrap: wrap; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .ds-profit-gap { flex-wrap: wrap; gap: 4px 12px; font-size: 15px !important; }
 html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .ds-profit-gap strong { font-size: clamp(23px, 3vw, 32px) !important; overflow-wrap: anywhere; }
@@ -144,3 +142,96 @@ html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-
   .sd-landing-mark { animation: none; }
 }
 
+
+html body .profit-tool .selling-diagnosis .mp-hint-button {
+  color:#ff875c !important;
+}
+.selling-diagnosis .sd-apply-examples {
+  flex-shrink:0;
+  white-space:nowrap;
+}
+.selling-diagnosis .sd-return-handling {
+  margin-top:18px;
+}
+.selling-diagnosis .sd-return-handling p {
+  color:var(--sd-muted);
+  font-size:13px;
+  margin:8px 0 0;
+}
+html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .sd-result-summary {
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  background:#151515;
+  padding-block:12px;
+}
+html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .sd-result-summary > div {
+  background:transparent !important;
+  border:0;
+  border-inline-start:1px solid #353535;
+}
+html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .sd-result-summary > div:first-child {
+  border-inline-start:3px solid var(--sd-orange);
+}
+html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .sd-result-summary dd {
+  font-size:clamp(17px,3.7vw,47px);
+  line-height:1.15;
+  letter-spacing:-.035em;
+}
+html body .profit-tool .selling-diagnosis .sd-result-summary dd.is-loss {
+  color:#ff848c !important;
+}
+.selling-diagnosis .ds-profit-chart figcaption {
+  display:grid;
+  gap:12px;
+}
+.selling-diagnosis .sd-chart-caption {
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:6px 14px;
+  flex-wrap:wrap;
+}
+html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .ds-profit-chart .ds-profit-gap {
+  padding:0 0 12px;
+  border:0;
+  border-bottom:1px solid #3b3b3b;
+}
+html body .profit-tool .selling-diagnosis .ds-reorder-dashboard[data-risk="safe"] { border-color:#48d394; }
+html body .profit-tool .selling-diagnosis .ds-reorder-dashboard[data-risk="caution"] { border-color:#ffad69; }
+html body .profit-tool .selling-diagnosis .ds-reorder-dashboard[data-risk="risk"] { border-color:#ff7171; }
+.selling-diagnosis .ds-reorder-dashboard { transition:border-color .2s ease; }
+.selling-diagnosis .sd-stock-targets { margin:0 0 18px; }
+.selling-diagnosis .sd-stock-number {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin-top:4px;
+}
+.selling-diagnosis .sd-stock-number input {
+  width:5.5rem;
+  min-width:0;
+  min-height:42px;
+  padding:6px 8px;
+  border:1px solid #444;
+  border-radius:6px;
+  background:#0b0b0b;
+  color:#f5f2eb;
+  color-scheme:dark;
+  font:inherit;
+  font-weight:650;
+}
+.selling-diagnosis .ds-calendar-controls .ds-calendar-start {
+  flex:1 1 150px;
+  align-items:flex-start;
+  flex-direction:column;
+}
+.selling-diagnosis .ds-calendar-controls .sd-stock-number { margin:0; }
+.selling-diagnosis .ds-calendar-controls .sd-stock-number input { min-height:46px; }
+.selling-diagnosis .ds-calendar-controls > .mp-error { flex:1 0 100%; }
+
+@media(max-width:700px) {
+  html body .profit-tool .selling-diagnosis[data-diagnosis-stage="2"] .mp-section-heading {
+    flex-wrap:wrap;
+  }
+  .selling-diagnosis .sd-result-summary small { display:none; }
+  html body .profit-tool .mp-shell.diagnosis-studio.selling-diagnosis.ds-flow .mp-tablet-budget .sd-result-summary dt { font-size:12px; }
+}
