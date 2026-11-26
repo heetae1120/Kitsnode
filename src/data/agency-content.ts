@@ -1,16 +1,18 @@
 export const agencyContent = {
   heroCta: {label:'상품 진단하기',href:'/tools/'},
-  question: {
-    lead:'상위노출, 광고 효율, 매출 상승.',
-    lines:['광고는 잘되고 있는데,','왜 남는 게 없을까요?'],
-    description:'우리는 광고의 성과에 대해 다시 질문합니다.',
+  opening: {
+    lines:['성장의 시작부터','성공의 순간까지.'],
+    description:'사업과 브랜드를 위한 전략적 파트너.',
   },
-  essence: {
-    lines:['매출보다 중요한 건,','실제로 남는 이익.'],
-    description:'당신의 상품은 팔릴 준비가 되어 있나요?',
+  precision: {
+    lines:['불필요한 지출 없이,','필요한 곳에 정확하게.'],
+    description:'사업 단계에 맞춘 효율적인 비용 설계.',
   },
-  answer: {
-    lead:'광고보다 먼저, 본질부터.',
-    lines:['문제를 분석하고.','원인을 찾고.','성장의 방향을 설계합니다.'],
+  expansion: {
+    lines:['좋은 상품을 넘어,','성공하는 브랜드로.'],
+    description:'상품 분석부터 광고 전략까지.',
+  },
+  closing: {
+    lines:['당신의 다음 성장,','지금부터.'],
   },
 } as const;
