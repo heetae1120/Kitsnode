@@ -227,7 +227,7 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
    </>}</AdDiagnosisCheck>
   </main>
  </div>;
- if(selectedMode===null&&(!previewStage||previewStage==='choice'))return <div className="finance-dashboard mp-shell diagnosis-studio selling-diagnosis" data-preview-stage="choice" data-diagnosis-stage="choose">
+ if(selectedMode===null&&(!previewStage||previewStage==='choice'))return <div className="finance-dashboard mp-shell diagnosis-studio selling-diagnosis" data-preview-stage="choice" data-diagnosis-stage="choose" data-kn="">
   <DiagnosisHeader/>
   <main className="ds-choice" aria-labelledby="ds-choice-title">
    <h1 id="ds-choice-title" ref={choiceHeading} tabIndex={-1}>판매 진단 유형 선택</h1>
@@ -250,7 +250,7 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
   </main>
  </div>;
  if(selectedMode==='player'&&showPlayerIntro&&!previewStage){
-  return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow selling-diagnosis"><DiagnosisHeader mode="player" onChoose={backToChoice}/><PlayerIntroduction onStart={()=>{setShowPlayerIntro(false);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/></div>;
+  return <div className="finance-dashboard mp-shell diagnosis-studio ds-flow selling-diagnosis" data-kn="" data-kn-player=""><DiagnosisHeader mode="player" onChoose={backToChoice}/><PlayerIntroduction onStart={()=>{setShowPlayerIntro(false);requestAnimationFrame(()=>{focus.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/></div>;
  }
  const completedReport=step>=3?report:null;
  const summaryInput=completedReport?.input;
@@ -264,7 +264,7 @@ export function MarketingPlanner({mode:initialMode,adCheckRoute=false}:{mode?:'s
  const unitProfit=price!==null&&unitCost!==null?price-unitCost:null;
  const itemName=completedReport?.name??draft.name.trim();
  const hasLoss=unitProfit!==null&&unitProfit<0;
- return <div ref={guideRoot} className="finance-dashboard mp-shell diagnosis-studio ds-flow selling-diagnosis" data-preview-stage={step===3&&report&&previewStage==='3-keywords'?'3-keywords':String(step)} data-diagnosis-stage={step}>
+ return <div ref={guideRoot} className="finance-dashboard mp-shell diagnosis-studio ds-flow selling-diagnosis" data-kn={mode==='player'?'':undefined} data-kn-player={mode==='player'?'':undefined} data-preview-stage={step===3&&report&&previewStage==='3-keywords'?'3-keywords':String(step)} data-diagnosis-stage={step}>
   <div className="ds-sticky-summary" ref={stickySummary}>
   <DiagnosisHeader mode={mode} onChoose={()=>{setSelectedMode(null);requestAnimationFrame(()=>{choiceHeading.current?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});});}}/>
   {(step<3||mode==='starter')&&<aside className={`mp-live-bar ${hasLoss?'is-loss':''}`} aria-label="실시간 상품 손익" aria-live="polite">

@@ -1,11 +1,17 @@
-/* Every survey step uses the same black surface and white text. */
-html body .profit-tool .survey-page .sv-card{background:#f2f0e7!important;color:#fff!important;border-color:#d8d6cd!important;--kp-ink:#fff;--kp-ink-2:#fff;--kp-muted:#fff;--kp-sheet:#f2f0e7;--kp-sheet-2:#f2f0e7;--kp-accent:#2525e8}
-html body .profit-tool .survey-page .sv-card :is(fieldset,input,textarea,select,button,.sv-progress){background:#f2f0e7!important;background-image:none!important;color:#fff!important;border-color:#555!important;color-scheme:light}
-html body .profit-tool .survey-page .sv-card :is(h2,p,small,label,span,legend,button,input,textarea,select,a){color:#fff!important}
-html body .profit-tool .survey-page .sv-card :is(input,textarea)::placeholder{color:#ffffffb3!important;opacity:1}
-html body .profit-tool .survey-page .sv-options button:is(:hover,[aria-checked=true]){background:#f2f0e7!important;border-color:#2525e8!important;box-shadow:inset 3px 0 #2525e8}
-html body .profit-tool .survey-page .sv-card .kp-button.primary{border:1px solid #2525e8!important;background:#f2f0e7!important;color:#fff!important}
-html body .profit-tool .survey-page .sv-card :is(.sv-dot,.sv-box){background:#f2f0e7!important;border-color:#aaa!important}
-html body .profit-tool .survey-page .sv-options button[aria-checked=true] :is(.sv-dot,.sv-box){background:#f2f0e7!important;border-color:#2525e8!important;color:#fff!important}
-html body .profit-tool .survey-page .sv-card .sv-progress i{background:#2525e8!important}
-html body .profit-tool .survey-page .sv-card :is(input,textarea,select):focus-visible{outline:none!important;border-color:#2525e8!important;box-shadow:inset 3px 0 #2525e8}
+/* Survey steps share one light card: paper surface, ink text, blue for the current choice. */
+html body .profit-tool .survey-page .sv-card{background:#fcfbf7!important;color:#171717!important;border:1px solid #d8d3c8!important;border-radius:22px!important;--kp-ink:#171717;--kp-ink-2:#2b2a27;--kp-muted:#625e55;--kp-sheet:#fcfbf7;--kp-sheet-2:#f8f5ee;--kp-accent:#3448df}
+html body .profit-tool .survey-page .sv-card :is(fieldset,.sv-progress){background:transparent!important;background-image:none!important;border-color:#d8d3c8!important}
+html body .profit-tool .survey-page .sv-card :is(input,textarea,select){background:#fff!important;color:#171717!important;border:1px solid #817c72!important;border-radius:10px!important;color-scheme:light}
+html body .profit-tool .survey-page .sv-card :is(h2,label,span,legend,button,a){color:#171717!important}
+html body .profit-tool .survey-page .sv-card :is(p,small){color:#625e55!important}
+html body .profit-tool .survey-page .sv-card :is(input,textarea)::placeholder{color:#8a857b!important;opacity:1}
+html body .profit-tool .survey-page .sv-options button{background:#fff!important;border:1px solid #d8d3c8!important;border-radius:12px!important}
+html body .profit-tool .survey-page .sv-options button:is(:hover,[aria-checked=true]){background:#e9ecff!important;border-color:#3448df!important;box-shadow:none}
+html body .profit-tool .survey-page .sv-card .kp-button.primary{border:1px solid #3448df!important;background:#3448df!important;color:#fff!important;border-radius:999px!important}
+html body .profit-tool .survey-page .sv-card .kp-button.primary:hover{background:#2638c0!important}
+html body .profit-tool .survey-page .sv-card .kp-button:not(.primary){background:transparent!important;border:1px solid #817c72!important;border-radius:999px!important}
+html body .profit-tool .survey-page .sv-card :is(.sv-dot,.sv-box){background:#fff!important;border-color:#817c72!important}
+html body .profit-tool .survey-page .sv-options button[aria-checked=true] :is(.sv-dot,.sv-box){background:#3448df!important;border-color:#3448df!important;color:#fff!important}
+html body .profit-tool .survey-page .sv-card .sv-progress{background:#ebe7dd!important}
+html body .profit-tool .survey-page .sv-card .sv-progress i{background:#3448df!important}
+html body .profit-tool .survey-page .sv-card :is(input,textarea,select):focus-visible{outline:none!important;border-color:#3448df!important;box-shadow:0 0 0 3px rgb(52 72 223 / .18)}

@@ -12,7 +12,7 @@ export default function KeywordsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="keyword-page finance-dashboard">
+    <div className="keyword-page finance-dashboard" data-kn="">
       {children}
     </div>
   );

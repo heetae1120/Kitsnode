@@ -4,7 +4,7 @@ import styles from '../../policy.module.css';
 export const metadata: Metadata = { title: '이용약관 | 키츠노드' };
 
 export default function TermsPage() {
-  return <main className={styles.policy}>
+  return <main className={styles.policy} data-kn="">
     <h1>키츠노드 이용약관</h1>
     <p>시행일: 2026년 11월 14일</p>
     <section><h2>제1조 목적</h2><p>이 약관은 kits가 운영하는 키츠노드의 회원가입과 서비스 이용에 관한 사항을 정합니다.</p></section>
