@@ -1,11 +1,11 @@
 /* Every survey step uses the same black surface and white text. */
-html body .profit-tool .survey-page .sv-card{background:#0b0b0b!important;color:#fff!important;border-color:#353535!important;--kp-ink:#fff;--kp-ink-2:#fff;--kp-muted:#fff;--kp-sheet:#0b0b0b;--kp-sheet-2:#0b0b0b;--kp-accent:#ff5a1f}
-html body .profit-tool .survey-page .sv-card :is(fieldset,input,textarea,select,button,.sv-progress){background:#0b0b0b!important;background-image:none!important;color:#fff!important;border-color:#555!important;color-scheme:dark}
+html body .profit-tool .survey-page .sv-card{background:#f2f0e7!important;color:#fff!important;border-color:#d8d6cd!important;--kp-ink:#fff;--kp-ink-2:#fff;--kp-muted:#fff;--kp-sheet:#f2f0e7;--kp-sheet-2:#f2f0e7;--kp-accent:#2525e8}
+html body .profit-tool .survey-page .sv-card :is(fieldset,input,textarea,select,button,.sv-progress){background:#f2f0e7!important;background-image:none!important;color:#fff!important;border-color:#555!important;color-scheme:light}
 html body .profit-tool .survey-page .sv-card :is(h2,p,small,label,span,legend,button,input,textarea,select,a){color:#fff!important}
 html body .profit-tool .survey-page .sv-card :is(input,textarea)::placeholder{color:#ffffffb3!important;opacity:1}
-html body .profit-tool .survey-page .sv-options button:is(:hover,[aria-checked=true]){background:#0b0b0b!important;border-color:#ff5a1f!important;box-shadow:inset 3px 0 #ff5a1f}
-html body .profit-tool .survey-page .sv-card .kp-button.primary{border:1px solid #ff5a1f!important;background:#0b0b0b!important;color:#fff!important}
-html body .profit-tool .survey-page .sv-card :is(.sv-dot,.sv-box){background:#0b0b0b!important;border-color:#aaa!important}
-html body .profit-tool .survey-page .sv-options button[aria-checked=true] :is(.sv-dot,.sv-box){background:#0b0b0b!important;border-color:#ff5a1f!important;color:#fff!important}
-html body .profit-tool .survey-page .sv-card .sv-progress i{background:#ff5a1f!important}
-html body .profit-tool .survey-page .sv-card :is(input,textarea,select):focus-visible{outline:none!important;border-color:#ff5a1f!important;box-shadow:inset 3px 0 #ff5a1f}
+html body .profit-tool .survey-page .sv-options button:is(:hover,[aria-checked=true]){background:#f2f0e7!important;border-color:#2525e8!important;box-shadow:inset 3px 0 #2525e8}
+html body .profit-tool .survey-page .sv-card .kp-button.primary{border:1px solid #2525e8!important;background:#f2f0e7!important;color:#fff!important}
+html body .profit-tool .survey-page .sv-card :is(.sv-dot,.sv-box){background:#f2f0e7!important;border-color:#aaa!important}
+html body .profit-tool .survey-page .sv-options button[aria-checked=true] :is(.sv-dot,.sv-box){background:#f2f0e7!important;border-color:#2525e8!important;color:#fff!important}
+html body .profit-tool .survey-page .sv-card .sv-progress i{background:#2525e8!important}
+html body .profit-tool .survey-page .sv-card :is(input,textarea,select):focus-visible{outline:none!important;border-color:#2525e8!important;box-shadow:inset 3px 0 #2525e8}

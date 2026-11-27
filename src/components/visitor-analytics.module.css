@@ -1,15 +1,15 @@
-.banner { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 19px clamp(20px, 6vw, 80px); background: #111111; color: #f5f2eb; box-shadow: 0 8px 28px #0b0b0b24; font-family: var(--font-pretendard), sans-serif; }
+.banner { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 19px clamp(20px, 6vw, 80px); background: #f2f0e7; color: #171717; box-shadow: 0 8px 28px #f2f0e724; font-family: var(--font-pretendard), sans-serif; }
 .content { min-width: 0; }
 .content h2 { margin: 0; font-size: 16px; line-height: 1.45; font-weight: 750; letter-spacing: -.02em; }
-.content p { margin: 5px 0 0; color: #aaa7a0; font-size: 14px; line-height: 1.55; word-break: keep-all; }
-.content a { color: #ff8c61; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.content p { margin: 5px 0 0; color: #55554f; font-size: 14px; line-height: 1.55; word-break: keep-all; }
+.content a { color: #2525e8; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
 .content .warning { color: #ff9a83; font-size: 13px; }
 .actions { display: flex; flex-shrink: 0; gap: 8px; }
-.actions button { min-height: 44px; border: 1px solid #9d988e; border-radius: 8px; padding: 10px 18px; background: transparent; color: #f5f2eb; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
-.actions .accept { border-color: #ff5a1f; background: #ff5a1f; color: #0b0b0b; }
-.actions .accept:hover { background: #ff8052; }
-.actions .reject:hover { background: #252525; }
-.actions button:focus-visible, .content a:focus-visible { outline: 3px solid #ff5a1f; outline-offset: 3px; }
+.actions button { min-height: 44px; border: 1px solid #9d988e; border-radius: 8px; padding: 10px 18px; background: transparent; color: #171717; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.actions .accept { border-color: #2525e8; background: #2525e8; color: #ffffff; }
+.actions .accept:hover { background: #2525e8; }
+.actions .reject:hover { background: #d8d6cd; }
+.actions button:focus-visible, .content a:focus-visible { outline: 3px solid #2525e8; outline-offset: 3px; }
 @media (max-width: 700px) { .banner { align-items: stretch; flex-direction: column; gap: 14px; padding: 18px 20px; } .content h2 { font-size: 15px; } .content p { font-size: 13px; } .actions button { flex: 1; padding-inline: 10px; } }
 
-.saveWarning { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; margin: 0; padding: 12px 20px; background: #111111; color: #ff9a83; font-size: 13px; }
+.saveWarning { position: fixed; top: 0; left: 0; right: 0; z-index: 3000; margin: 0; padding: 12px 20px; background: #f2f0e7; color: #ff9a83; font-size: 13px; }

@@ -35,7 +35,7 @@
 .store-theme .store-badge { display:inline-flex; align-items:center; min-height:26px; padding:3px 8px; border-radius:8px; font-size:12px; font-weight:600; line-height:20px; background:var(--store-surface-subtle); color:var(--store-text-secondary); }
 .store-theme .store-badge--primary { background:var(--store-primary-soft); color:var(--store-primary-hover); }
 .store-theme .store-badge--warning { background:var(--store-warning-soft); color:var(--store-warning); }
-.store-theme .store-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 16px; border:1px solid transparent; border-radius:var(--store-radius-md); font-size:14px; font-weight:600; line-height:22px; background:var(--store-primary); color:#0b0b0b; text-align:center; }
+.store-theme .store-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 16px; border:1px solid transparent; border-radius:var(--store-radius-md); font-size:14px; font-weight:600; line-height:22px; background:var(--store-primary); color:#ffffff; text-align:center; }
 .store-theme .store-button:hover:not(:disabled):not(.store-button--secondary) { background:var(--store-primary-hover); }
 .store-theme .store-button--secondary { color:var(--store-text); background:var(--store-surface-subtle); border-color:var(--store-border); }
 .store-theme .store-button--secondary:hover { background:var(--store-selected); }
@@ -155,13 +155,13 @@
 .store-theme .ad-performance-chart { margin:20px 0; padding:20px; border:1px solid #ddd; }
 .store-theme .ad-performance-chart h4 { margin:0 0 4px; }.store-theme .ad-performance-chart p { color:var(--store-text-secondary); font-size:13px; }
 .store-theme .ad-performance-chart > div { display:grid; gap:8px; margin-top:14px; font-size:13px; }
-.store-theme .ad-analysis .ad-performance-heading { border-color:#353535; }
-.store-theme .ad-analysis .ad-performance-heading p,.store-theme .ad-analysis .ad-performance-section > p,.store-theme .ad-analysis .ad-performance-actions p,.store-theme .ad-analysis .ad-performance-result > p,.store-theme .ad-analysis .ad-performance-chart p { color:#aaa7a0; }
-.store-theme .ad-analysis .ad-performance-section legend span { background:#321b12; color:#ff9a75; }
-.store-theme .ad-analysis .ad-performance-field,.store-theme .ad-analysis .ad-performance-metrics > div { border-color:#353535; background:#191919; }
-.store-theme .ad-analysis .ad-performance-field :is(select,input) { border-color:#666; color:#f5f2eb; background:#101010; color-scheme:dark; }
+.store-theme .ad-analysis .ad-performance-heading { border-color:#d8d6cd; }
+.store-theme .ad-analysis .ad-performance-heading p,.store-theme .ad-analysis .ad-performance-section > p,.store-theme .ad-analysis .ad-performance-actions p,.store-theme .ad-analysis .ad-performance-result > p,.store-theme .ad-analysis .ad-performance-chart p { color:#55554f; }
+.store-theme .ad-analysis .ad-performance-section legend span { background:#e8ee9c; color:#ff9a75; }
+.store-theme .ad-analysis .ad-performance-field,.store-theme .ad-analysis .ad-performance-metrics > div { border-color:#d8d6cd; background:#191919; }
+.store-theme .ad-analysis .ad-performance-field :is(select,input) { border-color:#666; color:#171717; background:#101010; color-scheme:light; }
 .store-theme .ad-analysis .ad-performance-field :is(select,input):disabled { color:#aaa; background:#242424; }
-.store-theme .ad-analysis .ad-performance-result,.store-theme .ad-analysis .ad-performance-chart { border-color:#353535; }
+.store-theme .ad-analysis .ad-performance-result,.store-theme .ad-analysis .ad-performance-chart { border-color:#d8d6cd; }
 @media(max-width:600px) {
  .store-theme .ad-performance-grid { grid-template-columns:1fr; }
  .store-theme .ad-performance-actions { align-items:stretch; flex-direction:column; }
@@ -181,10 +181,10 @@
 .store-theme .ad-performance-select__option { display:flex; justify-content:space-between; gap:12px; padding:10px 12px; color:#191919; font-size:14px; line-height:1.5; overflow-wrap:anywhere; cursor:pointer; }
 .store-theme .ad-performance-select__option.is-active { background:#f3e3db; }
 .store-theme .ad-performance-select__option[aria-selected="true"] { font-weight:700; }
-.store-theme .ad-analysis .ad-performance-select__button { border-color:#666; color:#f5f2eb; background:#101010; }
+.store-theme .ad-analysis .ad-performance-select__button { border-color:#666; color:#171717; background:#101010; }
 .store-theme .ad-analysis .ad-performance-select__button:disabled { color:#aaa; background:#242424; }
 .store-theme .ad-analysis .ad-performance-select__list { border-color:#555; background:#202020; }
-.store-theme .ad-analysis .ad-performance-select__option { color:#f5f2eb; }
+.store-theme .ad-analysis .ad-performance-select__option { color:#171717; }
 .store-theme .ad-analysis .ad-performance-select__option.is-active { background:#713317; }
 
 /* Date selection for the ad analysis panel */
@@ -195,19 +195,19 @@
 .store-theme .ad-date-modes button { padding:9px 18px; border:1px solid #666; border-radius:3px; background:transparent; color:inherit; cursor:pointer; font:inherit; }
 .store-theme .ad-date-modes button[aria-pressed=true] { background:#f35d2e; border-color:#f35d2e; color:#fff; font-weight:700; }
 .store-theme .ad-date-layout { display:grid; grid-template-columns:minmax(240px,360px) minmax(200px,1fr); gap:20px; align-items:start; }
-.store-theme .ad-calendar { padding:16px; border:1px solid #555; background:#191919; color:#f5f2eb; }
+.store-theme .ad-calendar { padding:16px; border:1px solid #555; background:#191919; color:#171717; }
 .store-theme .ad-calendar-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
 .store-theme .ad-calendar-head button,.store-theme .ad-calendar-grid button { border:0; background:transparent; color:inherit; cursor:pointer; font:inherit; }
 .store-theme .ad-calendar-head button { width:36px; height:36px; font-size:24px; }
 .store-theme .ad-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:3px; text-align:center; }
-.store-theme .ad-calendar-weekday { padding:8px 0; color:#aaa7a0; font-size:12px; }
+.store-theme .ad-calendar-weekday { padding:8px 0; color:#55554f; font-size:12px; }
 .store-theme .ad-calendar-grid button { aspect-ratio:1; min-height:36px; border-radius:3px; }
 .store-theme .ad-calendar-grid button:hover,.store-theme .ad-calendar-grid button[data-in-range] { background:#573022; }
 .store-theme .ad-calendar-grid button[aria-pressed=true] { background:#f35d2e; color:#fff; font-weight:700; }
 .store-theme .ad-calendar button:focus-visible,.store-theme .ad-date-modes button:focus-visible { outline:3px solid #ff875a; outline-offset:2px; }
 .store-theme .ad-calendar button:disabled,.store-theme .ad-date-modes button:disabled { opacity:.5; cursor:not-allowed; }
 .store-theme .ad-date-options { display:grid; gap:12px; }
-.store-theme .ad-date-options p { margin:0; color:#aaa7a0; font-size:13px; }
+.store-theme .ad-date-options p { margin:0; color:#55554f; font-size:13px; }
 .store-theme .ad-hour-range { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
 .store-theme .ad-date-options > button { justify-content:center; }
 @media(max-width:700px) { .store-theme .ad-date-layout { grid-template-columns:1fr; } }

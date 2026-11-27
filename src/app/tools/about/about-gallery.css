@@ -1,4 +1,4 @@
-.profit-tool .about-gallery-page { background: #0b0b0b; }
+.profit-tool .about-gallery-page { background: #f2f0e7; }
 .profit-tool .about-gallery-page .dw-hero { padding: 18px 18px 72px; }
 .dw-landing {
   isolation: isolate;
@@ -7,8 +7,8 @@
   align-items: end;
   min-height: clamp(440px, 68svh, 780px);
   overflow: hidden;
-  border: 1px solid #353535;
-  background: #0b0b0b;
+  border: 1px solid #d8d6cd;
+  background: #f2f0e7;
 }
 .dw-landing-scenes { z-index: -1; position: absolute; inset: 0; }
 .dw-landing-scene { position: absolute; inset: 0; display: grid; align-items: center; visibility: hidden; opacity: 0; transition: opacity .45s ease, visibility 0s linear .45s; }
@@ -18,19 +18,19 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg,#0b0b0bf5,#0b0b0ba8 46%,#0b0b0b1f 82%), linear-gradient(0deg,#0b0b0b 0%,transparent 32%);
+  background: linear-gradient(90deg,#f2f0e7f5,#f2f0e7a8 46%,#f2f0e71f 82%), linear-gradient(0deg,#f2f0e7 0%,transparent 32%);
 }
 .dw-landing-copy { position: relative; z-index: 1; max-width: 720px; padding: 32px clamp(28px,6vw,94px) 98px; }
-.profit-tool .about-gallery-page .dw-landing-copy h2 { color: #f5f2eb; font-size: clamp(36px,6vw,82px); font-weight: 800; line-height: 1.12; letter-spacing: -.065em; margin: 0; word-break: keep-all; }
-.profit-tool .about-gallery-page .dw-landing-copy p { color: #eee8df; font-size: clamp(15px,1.8vw,19px); line-height: 1.65; margin: 16px 0 0; word-break: keep-all; }
+.profit-tool .about-gallery-page .dw-landing-copy h2 { color: #171717; font-size: clamp(36px,6vw,82px); font-weight: 800; line-height: 1.12; letter-spacing: -.065em; margin: 0; word-break: keep-all; }
+.profit-tool .about-gallery-page .dw-landing-copy p { color: #171717; font-size: clamp(15px,1.8vw,19px); line-height: 1.65; margin: 16px 0 0; word-break: keep-all; }
 .dw-landing-controls { padding: 20px clamp(24px,6vw,94px) 26px; }
 .dw-disciplines { display: flex; align-items: center; gap: clamp(14px,2.7vw,32px); }
 .profit-tool .about-gallery-page .dw-discipline {
   border: 0;
-  border-bottom: 2px solid #ff5a1f;
+  border-bottom: 2px solid #2525e8;
   padding: 4px 0 7px;
   background: transparent;
-  color: #f5f2eb;
+  color: #171717;
   font-size: clamp(18px,2.5vw,34px);
   font-weight: 650;
   letter-spacing: -.05em;
@@ -38,22 +38,22 @@
   transition: border-color .2s ease;
 }
 .profit-tool .about-gallery-page .dw-discipline[aria-pressed=true] { border-bottom-color: #48d394; }
-.dw-landing-controls button:focus-visible { outline: 2px solid #f5f2eb; outline-offset: 4px; }
+.dw-landing-controls button:focus-visible { outline: 2px solid #171717; outline-offset: 4px; }
 .profit-tool .about-gallery-page .dw-copy { max-width: 1000px; margin: 48px auto 0; text-align: center; }
 .profit-tool .about-gallery-page .dw-eyebrow { display: block; font-size: 10px; letter-spacing: .17em; font-weight: 700; margin-bottom: 20px; }
-.profit-tool .about-gallery-page .dw-copy h1 { font-size: clamp(42px,5.6vw,80px); line-height: 1.13; letter-spacing: -.065em; font-weight: 850; margin: 0; color: #f5f2eb; }
-.profit-tool .about-gallery-page .dw-copy h1 em { font-style: normal; color: #ff5a1f; }
+.profit-tool .about-gallery-page .dw-copy h1 { font-size: clamp(42px,5.6vw,80px); line-height: 1.13; letter-spacing: -.065em; font-weight: 850; margin: 0; color: #171717; }
+.profit-tool .about-gallery-page .dw-copy h1 em { font-style: normal; color: #2525e8; }
 .profit-tool .about-gallery-page .kp-section { padding-top: 100px; padding-bottom: 100px; }
 .profit-tool .about-gallery-page .kp-contrast { gap: 24px; }
 .profit-tool .about-gallery-page .kp-contrast > div { border-radius: 18px; }
-html body .profit-tool .about-gallery-page .kp-contrast > div:first-child li s { color: #ff5a1f !important; text-decoration-color: #ff5a1f; }
+html body .profit-tool .about-gallery-page .kp-contrast > div:first-child li s { color: #2525e8 !important; text-decoration-color: #2525e8; }
 .profit-tool .about-gallery-page .kp-proof { scroll-margin-top: 80px; }
 @media (max-width:700px) {
   .profit-tool .about-gallery-page .dw-hero { padding: 10px 10px 48px; }
   .dw-landing { min-height: clamp(420px,60svh,620px); }
   .dw-landing-copy { padding: 24px 20px 115px; }
   .dw-landing-controls { padding: 16px 20px; }
-  .dw-landing-scene::after { background: linear-gradient(0deg,#0b0b0b 0%,#0b0b0bcf 42%,#0b0b0b2e 95%); }
+  .dw-landing-scene::after { background: linear-gradient(0deg,#f2f0e7 0%,#f2f0e7cf 42%,#f2f0e72e 95%); }
   .dw-landing-scene:first-child .dw-landing-image { object-position: 60% center; }
   .profit-tool .about-gallery-page .dw-copy { margin-top: 34px; padding: 0 8px; }
   .profit-tool .about-gallery-page .dw-copy h1 { font-size: clamp(32px,8.3vw,54px); }

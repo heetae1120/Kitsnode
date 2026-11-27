@@ -64,7 +64,7 @@
 .hc-shell .hc-cinema-message h1 {color:#fff;font-size:clamp(31px,4vw,64px);letter-spacing:-.055em;line-height:1.13;word-break:keep-all}
 .hc-shell .hc-cinema-message h2,.hc-cinema-message h1 em {color:#a1ffe0}
 .hc-shell .hc-cinema-message p {color:#ebf9fb}
-.hc-shell .hc-cinema-message .hc-primary {margin-top:18px;background:#91fbd6;border-color:#91fbd6;color:#073f48}
+.hc-shell .hc-cinema-message .hc-primary {margin-top:18px;background:#2525e8;border-color:#2525e8;color:#073f48}
 .hc-cinema-slide {animation:hc-cinema-enter .65s ease both}
 @keyframes hc-cinema-enter {from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .hc-cinema-player .lscp-progress-chapters {margin:0;padding:14px;gap:8px;background:#073849}

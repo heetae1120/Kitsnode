@@ -1,14 +1,14 @@
 /* Shared public-site palette. Component geometry and semantic status colours stay local. */
-:root{--brand-secondary:#f5f2eb;--brand-secondary-wash:#122131;--brand-secondary-line:#3c607f}
-:root{--brand-mint:#ff5a1f;--brand-accent:#ff5a1f;--paper:#0b0b0b;--ink:#f5f2eb;--muted:#aaa7a0;--line:#353535;--kn-ink:#f5f2eb;--kn-rule:#353535;--kits-field-radius:13px;color-scheme:dark}
-html body{--kn-ink:#f5f2eb;--kn-rule:#353535;--kn-wash:#171717;background:#0b0b0b;color:#f5f2eb}
-body .profit-tool,body .profit-tool .finance-dashboard{--ink:#f5f2eb;--muted:#aaa7a0;--line:#353535;--green:#ff5a1f;--blue:#ff5a1f;--soft:#1b1b1b;--background:#0b0b0b;--foreground:#f5f2eb;background:#0b0b0b;color:#f5f2eb;color-scheme:dark}
-body .kn-colophon{background:#0b0b0b;color:#f5f2eb;border-color:#353535}
-body .kn-colophon p{color:#aaa7a0}body .kn-colophon strong span{color:#ff5a1f}
+:root{--brand-secondary:#2525e8;--brand-secondary-wash:#e8ee9c;--brand-secondary-line:#d8d6cd}
+:root{--brand-mint:#2525e8;--brand-accent:#2525e8;--paper:#f2f0e7;--ink:#171717;--muted:#55554f;--line:#d8d6cd;--kn-ink:#171717;--kn-rule:#d8d6cd;--kits-field-radius:13px;color-scheme:light}
+html body{--kn-ink:#171717;--kn-rule:#d8d6cd;--kn-wash:#d8d6cd;background:#f2f0e7;color:#171717}
+body .profit-tool,body .profit-tool .finance-dashboard{--ink:#171717;--muted:#55554f;--line:#d8d6cd;--green:#2525e8;--blue:#2525e8;--soft:#d8d6cd;--background:#f2f0e7;--foreground:#171717;background:#f2f0e7;color:#171717;color-scheme:light}
+body .kn-colophon{background:#f2f0e7;color:#171717;border-color:#d8d6cd}
+body .kn-colophon p{color:#55554f}body .kn-colophon strong span{color:#2525e8}
 body .store-theme .store-topbar{background:var(--store-canvas);border-color:var(--store-divider)}
-body .store-theme .nimbus-item span{color:#f5f2eb!important}
-body .store-theme .nimbus-item[aria-current] span{color:#ff8c61!important}
-body :is(.member-page,.store-theme) input:autofill{box-shadow:0 0 0 1000px #171717 inset;-webkit-text-fill-color:#f5f2eb;caret-color:#f5f2eb}
+body .store-theme .nimbus-item span{color:#171717!important}
+body .store-theme .nimbus-item[aria-current] span{color:#2525e8!important}
+body :is(.member-page,.store-theme) input:autofill{box-shadow:0 0 0 1000px #d8d6cd inset;-webkit-text-fill-color:#171717;caret-color:#171717}
 /* The return-rate field supplies one shared shape for public input surfaces. */
 html body :is(.profit-tool,.member-page,.store-theme) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=hidden]),select,textarea,.mp-field,.mp-input-wrap,.mp-return-handling,.mp-target-input,.hc-field,.kw-search-field,.mp-conversion-input){border-radius:var(--kits-field-radius)!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.mp-field,.mp-input-wrap,.mp-input-wrap input,.mp-name input,.mp-return-handling,.mp-target-input,.mp-conversion-input){border-radius:var(--kits-field-radius)!important}
@@ -16,35 +16,35 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(.mp-goal-dialog,.d
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow [data-guide-active=true]::before{border-radius:var(--kits-field-radius)!important}
 
 /* Legacy tool surfaces share the hero palette; the diagnosis and four brand scenes keep their own styles. */
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(main,section,article,aside,fieldset,dialog,.tool-workspace,.tool-topbar,.tool-card,.tool-panel,.tool-inputs,.tool-results,.pr-workspace,.pr-input-panel,.bid-rank-lookup,.kn-tablet-slides,.kn-tablet-slide-screen,.kn-tablet-slide-actions){background-color:#0b0b0b!important;color:#f5f2eb;border-color:#353535!important;box-shadow:none}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.hc-shell,.hc-card,.hc-hero-card,.tool-details,.tool-summary,.keyword-panel,.tool-table-wrap,.tool-chart,.hc-stage-card,.hc-cinema-stage,.hc-cinema-still,.lscp-progress-chapters,.about-gallery-page){--ink:#f5f2eb;--muted:#aaa7a0;--line:#353535;--blue:#ff5a1f;background-color:#0b0b0b!important;color:#f5f2eb;border-color:#353535!important}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(h1,h2,h3,h4,label,th,dd,a,button,span,li,strong,b,summary,td){color:#f5f2eb!important}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(p,small,dt,.tool-brand-caption){color:#aaa7a0!important}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(input,select,textarea){background:#171717!important;color:#f5f2eb!important;border-color:#555!important;color-scheme:dark}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(input,select,textarea)::placeholder{color:#aaa7a0}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.mp-primary,.hc-primary,.pr-primary,.bid-rank-submit,.kp-button.primary,.ag-primary){background:#ff5a1f!important;color:#0b0b0b!important;border-color:#ff5a1f!important}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.hc-secondary,.hc-choice,.hc-upload,.mp-secondary,.tool-details button,.lscp-progress-chapters button){background:#1b1b1b!important;color:#f5f2eb!important;border-color:#555!important}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(em,.hc-eyebrow,.tool-eyebrow,.hc-brand-copy>span,.hc-text){color:#ff5a1f!important}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(a,button,input,select,textarea):focus-visible{outline-color:#ff5a1f}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.mp-primary,.hc-primary,.pr-primary,.bid-rank-submit,.kp-button.primary,.ag-primary,.kw-search-submit){background:#ff5a1f!important;color:#0b0b0b!important;border-color:#ff5a1f!important}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.mp-primary,.hc-primary,.pr-primary,.bid-rank-submit,.kp-button.primary,.ag-primary,.kw-search-submit) :is(span,b,strong){color:#0b0b0b!important}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) .ag-stage{background:#0b0b0b!important}
-body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.sv-card,.kp-contrast){background:#111111!important;color:#f5f2eb;border-color:#353535!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(main,section,article,aside,fieldset,dialog,.tool-workspace,.tool-topbar,.tool-card,.tool-panel,.tool-inputs,.tool-results,.pr-workspace,.pr-input-panel,.bid-rank-lookup,.kn-tablet-slides,.kn-tablet-slide-screen,.kn-tablet-slide-actions){background-color:#f2f0e7!important;color:#171717;border-color:#d8d6cd!important;box-shadow:none}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.hc-shell,.hc-card,.hc-hero-card,.tool-details,.tool-summary,.keyword-panel,.tool-table-wrap,.tool-chart,.hc-stage-card,.hc-cinema-stage,.hc-cinema-still,.lscp-progress-chapters,.about-gallery-page){--ink:#171717;--muted:#55554f;--line:#d8d6cd;--blue:#2525e8;background-color:#f2f0e7!important;color:#171717;border-color:#d8d6cd!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(h1,h2,h3,h4,label,th,dd,a,button,span,li,strong,b,summary,td){color:#171717!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(p,small,dt,.tool-brand-caption){color:#55554f!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(input,select,textarea){background:#d8d6cd!important;color:#171717!important;border-color:#555!important;color-scheme:light}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(input,select,textarea)::placeholder{color:#55554f}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.mp-primary,.hc-primary,.pr-primary,.bid-rank-submit,.kp-button.primary,.ag-primary){background:#2525e8!important;color:#ffffff!important;border-color:#2525e8!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.hc-secondary,.hc-choice,.hc-upload,.mp-secondary,.tool-details button,.lscp-progress-chapters button){background:#d8d6cd!important;color:#171717!important;border-color:#555!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(em,.hc-eyebrow,.tool-eyebrow,.hc-brand-copy>span,.hc-text){color:#2525e8!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(a,button,input,select,textarea):focus-visible{outline-color:#2525e8}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.mp-primary,.hc-primary,.pr-primary,.bid-rank-submit,.kp-button.primary,.ag-primary,.kw-search-submit){background:#2525e8!important;color:#ffffff!important;border-color:#2525e8!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.mp-primary,.hc-primary,.pr-primary,.bid-rank-submit,.kp-button.primary,.ag-primary,.kw-search-submit) :is(span,b,strong){color:#ffffff!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) .ag-stage{background:#f2f0e7!important}
+body .profit-tool:not(:has(.diagnosis-studio,.agency-site)) :is(.sv-card,.kp-contrast){background:#f2f0e7!important;color:#171717;border-color:#d8d6cd!important}
 @media print{html body,body .profit-tool,body .store-theme{background:white;color:black}}
 
-html body .profit-tool .mp-prep-note{background:#0b0b0b!important;color:#f5f2eb!important;border-color:#353535!important}
-html body .profit-tool .mp-prep-card :is(svg,strong,a){color:#ff5a1f!important}
-html body #tools-navigation{background:#0b0b0b!important;background-image:none!important;backdrop-filter:none!important;box-shadow:none!important;border:1px solid #353535}
-html body #tools-navigation :is(.nimbus-item,.nv-bg,.nv-glass){background-color:#0b0b0b!important;background-image:none!important;color:#f5f2eb!important}
-.ds-reorder-lead{margin:18px 0 0;color:#f5f2eb;font-size:16px;text-align:left}
-.public-categories{margin-left:auto;display:flex;gap:24px;align-items:center;background:#0b0b0b;color:#f5f2eb}
+html body .profit-tool .mp-prep-note{background:#f2f0e7!important;color:#171717!important;border-color:#d8d6cd!important}
+html body .profit-tool .mp-prep-card :is(svg,strong,a){color:#2525e8!important}
+html body #tools-navigation{background:#f2f0e7!important;background-image:none!important;backdrop-filter:none!important;box-shadow:none!important;border:1px solid #d8d6cd}
+html body #tools-navigation :is(.nimbus-item,.nv-bg,.nv-glass){background-color:#f2f0e7!important;background-image:none!important;color:#171717!important}
+.ds-reorder-lead{margin:18px 0 0;color:#171717;font-size:16px;text-align:left}
+.public-categories{margin-left:auto;display:flex;gap:24px;align-items:center;background:#f2f0e7;color:#171717}
 .public-categories a{font-size:13px;white-space:nowrap;text-decoration:none;padding:12px 0}
-.public-categories a:hover,.public-categories a:focus-visible{color:#ff5a1f}
+.public-categories a:hover,.public-categories a:focus-visible{color:#2525e8}
 .public-categories a[aria-current=page]{text-decoration:underline;text-underline-offset:5px}
 .public-categories a{color:inherit}
 html body :is(.profit-tool,.store-theme) .tool-topbar.shared-tools-header{
  display:flex;align-items:center;gap:clamp(18px,3.3vw,54px);height:88px;padding:0 6vw;
- position:sticky;top:0;z-index:40;background:#0b0b0b;color:#f5f2eb;border-bottom:1px solid #353535
+ position:sticky;top:0;z-index:40;background:#f2f0e7;color:#171717;border-bottom:1px solid #d8d6cd
 }
 .shared-tools-note{font-size:11px;line-height:1.7;white-space:nowrap}
 .shared-tools-header .as-header-login{display:inline-flex;align-items:center;gap:4px;color:inherit;border:0;background:none;font:inherit;font-size:13px;white-space:nowrap;padding:10px 0;text-decoration:none;cursor:pointer}
@@ -52,11 +52,11 @@ html body :is(.profit-tool,.store-theme) .tool-topbar.shared-tools-header{
 .shared-ads-shell .ad-analysis-header{display:none}
 html body .profit-tool .mp-shell.diagnosis-studio .ds-header>.public-categories{gap:24px}
 html body .profit-tool .mp-shell.diagnosis-studio .ds-header>.ds-header-actions{margin-left:0}
-.advertising-tool-nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px 22px;margin:18px 0 24px;border-bottom:1px solid #353535}
-.advertising-tool-nav a{display:inline-flex;align-items:center;min-height:42px;padding:8px 0;color:#aaa7a0;border-bottom:2px solid transparent;text-decoration:none;font-size:15px}
-.advertising-tool-nav a[aria-current=page]{color:#f5f2eb;border-bottom-color:#ff5a1f;font-weight:700}
-.advertising-tool-nav a:hover{color:#f5f2eb}
-.advertising-tool-nav a:focus-visible{outline:2px solid #ff8c61;outline-offset:2px}
+.advertising-tool-nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px 22px;margin:18px 0 24px;border-bottom:1px solid #d8d6cd}
+.advertising-tool-nav a{display:inline-flex;align-items:center;min-height:42px;padding:8px 0;color:#55554f;border-bottom:2px solid transparent;text-decoration:none;font-size:15px}
+.advertising-tool-nav a[aria-current=page]{color:#171717;border-bottom-color:#2525e8;font-weight:700}
+.advertising-tool-nav a:hover{color:#171717}
+.advertising-tool-nav a:focus-visible{outline:2px solid #2525e8;outline-offset:2px}
 .ds-ad-keyword-title{font-size:clamp(28px,3.75vw,55px);overflow-wrap:anywhere}
 .ds-ad-check .mp-main>h1{margin-top:20px}
 .about-gallery-page #survey{scroll-margin-top:133px}
@@ -77,15 +77,15 @@ html body .profit-tool .mp-shell.diagnosis-studio .ds-header>.ds-header-actions{
  .ds-header-actions>button{white-space:nowrap}
 }
 @media(max-width:850px){.as-header:has(.public-categories){height:120px;gap:18px;flex-wrap:wrap;align-content:center;padding-top:10px;padding-bottom:10px}.as-header:has(.public-categories) .as-header-login{margin-left:auto}.public-categories{order:3;flex-basis:100%;justify-content:space-between;gap:12px}.public-categories a{font-size:12px;padding:5px 0}}
-html body .ds-diagnosis-download{flex-basis:100%;width:100%;padding:24px 0;border-top:1px solid #353535}
+html body .ds-diagnosis-download{flex-basis:100%;width:100%;padding:24px 0;border-top:1px solid #d8d6cd}
 html body .ds-diagnosis-download .mp-actions{justify-content:flex-start;gap:12px}
 html body .ds-diagnosis-download p{font-size:13px;line-height:1.8}
 html body .ds-diagnosis-download ul{padding:0;list-style:none}
-html body .ds-diagnosis-download li{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-top:1px solid #353535;padding:16px 0}
-html body .ds-diagnosis-download li button{padding:10px;background:#171717;border:1px solid #353535;color:#f5f2eb}
+html body .ds-diagnosis-download li{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border-top:1px solid #d8d6cd;padding:16px 0}
+html body .ds-diagnosis-download li button{padding:10px;background:#d8d6cd;border:1px solid #d8d6cd;color:#171717}
 html body .profit-tool .mp-auto-ad-captures li{display:grid;grid-template-columns:90px 150px minmax(0,1fr);gap:20px;align-items:center}
-html body .profit-tool .mp-auto-ad-captures li>img{width:150px;height:150px;object-fit:contain;grid-column:auto;grid-row:auto;background:#171717}
-html body .profit-tool .mp-auto-ad-captures li>b{grid-column:auto;grid-row:auto;color:#ff5a1f}
+html body .profit-tool .mp-auto-ad-captures li>img{width:150px;height:150px;object-fit:contain;grid-column:auto;grid-row:auto;background:#d8d6cd}
+html body .profit-tool .mp-auto-ad-captures li>b{grid-column:auto;grid-row:auto;color:#2525e8}
 html body .profit-tool .mp-auto-ad-captures h5{font-size:18px;line-height:1.5;margin:0 0 14px}
 @media(max-width:650px){html body .profit-tool .mp-auto-ad-captures li{grid-template-columns:80px minmax(0,1fr);gap:12px}html body .profit-tool .mp-auto-ad-captures li>img{width:80px;height:90px}html body .profit-tool .mp-auto-ad-captures li>b{grid-column:1/-1}html body .profit-tool .mp-auto-ad-captures h5{font-size:15px}}
 @media(max-width:850px){.agency-site.as-diagnosis-landing .as-header:has(.public-categories){height:120px;padding:12px 22px;gap:12px 18px;align-content:center}.agency-site.as-diagnosis-landing .as-header-note{display:none}}
@@ -109,23 +109,23 @@ html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(input,select,texta
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is([data-guide-active=true],.ds-goal-overlay .mp-input-wrap,.mp-goal-dialog .mp-input-wrap) :is(input,select,textarea):focus-visible{outline:2px solid var(--brand-secondary)!important;outline-offset:2px!important}
 
 /* Browser feedback: plain black navigation and a persistent four-value summary. */
-html body #tools-navigation{background:#0b0b0b!important;background-image:none!important;box-shadow:none!important;border-color:#353535!important}
+html body #tools-navigation{background:#f2f0e7!important;background-image:none!important;box-shadow:none!important;border-color:#d8d6cd!important}
 html body #tools-navigation :is(.nimbus-glass,.nimbus-water,.nimbus-drop){display:none!important;background:none!important;box-shadow:none!important;backdrop-filter:none!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-bar{position:sticky!important;top:88px;z-index:49}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry{position:relative;display:flex;width:fit-content;align-items:center;gap:8px;padding:8px;border-radius:13px}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry[data-guide-active=true]{border-radius:13px!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry[data-guide-active=true]::before{inset:0!important;border-radius:13px!important}
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-check>p.mp-compact-risk{font-size:clamp(18px,2.2vw,26px)!important;font-weight:800!important;line-height:1.6!important;margin:26px 0!important;color:#ff5a1f!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-goal-check>p.mp-compact-risk{font-size:clamp(18px,2.2vw,26px)!important;font-weight:800!important;line-height:1.6!important;margin:26px 0!important;color:#2525e8!important}
 @media(max-width:650px){html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-values{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px;overflow:visible}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-values>span{min-width:0}html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-live-bar{padding:10px 22px}}
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary{position:sticky;top:0;z-index:100;background:#0b0b0b}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary{position:sticky;top:0;z-index:100;background:#f2f0e7}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-sticky-summary :is(.ds-header,.mp-live-bar){position:static!important}
 
 /* Follow-up browser review: transparent menus, input treatment and report actions. */
 html body .public-categories{background:transparent!important;background-image:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-goal-overlay .mp-input-wrap input:is(:focus,:focus-visible){outline:0!important;box-shadow:none!important;border:0!important}
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story .mp-reorder .ds-reorder-lead{color:#ff5a1f!important;font-weight:800!important;font-size:clamp(17px,1.6vw,22px)}
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-keyword-candidates.mp-candidates-concise>li{border:4px solid #454545!important;padding:20px!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story .mp-reorder .ds-reorder-lead{color:#2525e8!important;font-weight:800!important;font-size:clamp(17px,1.6vw,22px)}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-keyword-candidates.mp-candidates-concise>li{border:4px solid #d8d6cd!important;padding:20px!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-keyword-candidates.mp-candidates-concise>li:has(>.mp-goal-compact[data-feasibility=possible]){border:4px solid #38c77f!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-story ol.mp-keyword-candidates.mp-candidates-concise>li:has(>.mp-goal-compact[data-feasibility=unavailable]){border:4px solid #ff5a63!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-report-action-row{align-items:flex-start;gap:20px;flex-wrap:wrap}
@@ -139,33 +139,33 @@ html body .profit-tool .mp-ad-stats>span{display:inline-flex;align-items:center;
 html body .profit-tool .mp-ad-stats .mp-ad-rating{color:#ff737b!important}
 html body .profit-tool .mp-ad-stats .mp-ad-purchase{color:#48d394!important}
 html body .profit-tool .mp-ad-stats .mp-ad-wish{color:#91aaff!important}
-html body .profit-tool .mp-ad-stats small{color:#bdbab3!important;font-size:10px}
-html body .profit-tool .mp-ad-visit{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #666;color:#f5f2eb!important;text-decoration:none;font-size:13px}
-html body .profit-tool .mp-ad-visit:hover{border-color:#ff5a1f;color:#ff5a1f!important}
+html body .profit-tool .mp-ad-stats small{color:#55554f!important;font-size:10px}
+html body .profit-tool .mp-ad-visit{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #666;color:#171717!important;text-decoration:none;font-size:13px}
+html body .profit-tool .mp-ad-visit:hover{border-color:#2525e8;color:#2525e8!important}
 html body .public-categories{color:inherit}
 @media(max-width:650px){html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-more-considerations{padding:20px 16px;white-space:normal;line-height:1.6;font-size:13px;gap:12px}html body .mp-more-considerations svg{flex-shrink:0}}
-html body .profit-tool .mp-auto-ad-captures h5{color:#f5f2eb}
-html body .agency-site .as-header:is([data-tone=orange],[data-tone=light]) .public-categories a:is(:hover,:focus-visible){color:#0b0b0b!important;text-decoration:underline}
+html body .profit-tool .mp-auto-ad-captures h5{color:#171717}
+html body .agency-site .as-header:is([data-tone=orange],[data-tone=light]) .public-categories a:is(:hover,:focus-visible){color:#ffffff!important;text-decoration:underline}
 @media(max-width:650px){html body .ds-report-download-slot .ds-diagnosis-download .mp-actions{flex-direction:column;align-items:stretch}html body .ds-report-download-slot .ds-diagnosis-download .mp-actions>.mp-primary{width:100%;min-width:0}html body .ds-report-download-slot .ds-diagnosis-download .mp-actions>a{align-self:flex-start}}
 
 /* Review follow-up: editorial product evidence and compact report completion. */
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-tablet{padding:0!important;background:#0b0b0b!important;border:0!important;border-radius:0!important;box-shadow:none!important}
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-screen{padding:0!important;background:#0b0b0b!important;border:0!important;border-radius:0!important;min-height:0}
-html body .profit-tool .mp-ad-observed{padding:0 0 18px;border-bottom:1px solid #353535;color:#aaa7a0!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-tablet{padding:0!important;background:#f2f0e7!important;border:0!important;border-radius:0!important;box-shadow:none!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-ad-screen{padding:0!important;background:#f2f0e7!important;border:0!important;border-radius:0!important;min-height:0}
+html body .profit-tool .mp-ad-observed{padding:0 0 18px;border-bottom:1px solid #d8d6cd;color:#55554f!important}
 html body .profit-tool .mp-auto-ad-captures{padding:0!important;margin:0!important;gap:0!important}
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-auto-ad-captures li{grid-template-columns:64px 160px minmax(0,1fr);gap:26px;padding:30px 0!important;background:#0b0b0b!important;border:0!important;border-bottom:1px solid #353535!important;border-radius:0!important;box-shadow:none!important}
-html body .profit-tool .mp-auto-ad-captures li>img{width:160px;height:160px;background:#171717;border-radius:4px}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-auto-ad-captures li{grid-template-columns:64px 160px minmax(0,1fr);gap:26px;padding:30px 0!important;background:#f2f0e7!important;border:0!important;border-bottom:1px solid #d8d6cd!important;border-radius:0!important;box-shadow:none!important}
+html body .profit-tool .mp-auto-ad-captures li>img{width:160px;height:160px;background:#d8d6cd;border-radius:4px}
 html body .profit-tool .mp-auto-ad-captures li>b{align-self:start;font-size:13px;letter-spacing:.06em}
 html body .profit-tool .mp-auto-ad-captures h5{font-size:clamp(17px,1.5vw,22px);font-weight:750;line-height:1.5;margin-bottom:18px;max-width:680px}
 html body .profit-tool .mp-ad-stats{gap:16px 22px;align-items:flex-start;margin:0 0 12px}
-html body .profit-tool .mp-ad-stats>span{border:0!important;padding:0!important;font-size:13px;gap:6px;background:none!important;color:#f5f2eb!important}
-html body .profit-tool .mp-ad-stats :is(.mp-ad-rating,.mp-ad-purchase,.mp-ad-wish){color:#f5f2eb!important}
-html body .profit-tool .mp-ad-stats svg{color:#ff5a1f;flex-shrink:0}
-html body .profit-tool .mp-ad-stats .mp-ad-rating>span{padding-left:10px;border-left:1px solid #353535}
+html body .profit-tool .mp-ad-stats>span{border:0!important;padding:0!important;font-size:13px;gap:6px;background:none!important;color:#171717!important}
+html body .profit-tool .mp-ad-stats :is(.mp-ad-rating,.mp-ad-purchase,.mp-ad-wish){color:#171717!important}
+html body .profit-tool .mp-ad-stats svg{color:#2525e8;flex-shrink:0}
+html body .profit-tool .mp-ad-stats .mp-ad-rating>span{padding-left:10px;border-left:1px solid #d8d6cd}
 html body .profit-tool .mp-ad-stats b{font-variant-numeric:tabular-nums}
-html body .profit-tool .mp-ad-visit{margin-top:8px;padding:12px 0 8px;border:0;border-bottom:1px solid #ff5a1f;color:#f5f2eb!important;font-weight:750;gap:30px}
-html body .profit-tool .mp-ad-visit svg{color:#ff5a1f}
-html body .profit-tool .mp-ad-capture-placeholder{background:#111!important;border-color:#353535!important}
+html body .profit-tool .mp-ad-visit{margin-top:8px;padding:12px 0 8px;border:0;border-bottom:1px solid #2525e8;color:#171717!important;font-weight:750;gap:30px}
+html body .profit-tool .mp-ad-visit svg{color:#2525e8}
+html body .profit-tool .mp-ad-capture-placeholder{background:#d8d6cd!important;border-color:#d8d6cd!important}
 html body .ds-report-download-stack{display:flex;flex-direction:column;gap:22px;max-width:680px;margin-left:auto}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry{background:transparent!important;box-shadow:none!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .mp-conversion-entry::before{display:none!important}
@@ -176,8 +176,8 @@ html body :is(.as-wordmark,.ds-wordmark,.member-brand,.tool-brand,.kn-wordmark)>
 @media(max-width:760px){html body :is(.as-wordmark,.ds-wordmark,.member-brand,.tool-brand,.kn-wordmark){font-size:33px!important}html body :is(.as-wordmark,.ds-wordmark,.member-brand,.tool-brand,.kn-wordmark)>.kn-registered{font-size:10px!important}}
 @media(max-width:380px){html body :is(.as-wordmark,.ds-wordmark,.member-brand,.tool-brand,.kn-wordmark){font-size:27px!important}}
 /* Keep input focus free of white rings; retain the existing guide and caret. */
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(input,select,textarea):not([type=checkbox]):not([type=radio]):is(:focus,:focus-visible,:active){outline:0!important;box-shadow:none!important;border-color:#353535!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow :is(input,select,textarea):not([type=checkbox]):not([type=radio]):is(:focus,:focus-visible,:active){outline:0!important;box-shadow:none!important;border-color:#d8d6cd!important}
 html body .profit-tool .keyword-page .kw-main :is(input,select,textarea):not([type=checkbox]):not([type=radio]){border:0!important;outline:0!important;box-shadow:none!important}
-html body .profit-tool .keyword-page .kw-main :is(.kw-search-field,.kw-filter-field){border:1px solid #353535!important;box-shadow:none!important}
+html body .profit-tool .keyword-page .kw-main :is(.kw-search-field,.kw-filter-field){border:1px solid #d8d6cd!important;box-shadow:none!important}
 html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-player-opening h1 .ds-player-mask:last-child,
-html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-player-opening h1 .ds-player-mask:last-child>span{color:#ff5a1f!important}
+html body .profit-tool .mp-shell.diagnosis-studio.ds-flow .ds-player-opening h1 .ds-player-mask:last-child>span{color:#2525e8!important}

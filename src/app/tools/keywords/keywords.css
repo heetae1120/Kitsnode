@@ -9,31 +9,31 @@ html body .profit-tool .keyword-page .kr-shopping-button:disabled{opacity:1;curs
 
 .profit-tool .keyword-page {
   /* Wayfind, platform colourway: cool grey paper, blue-black ink, cobalt for data. */
-  --kw-paper: #0b0b0b;
-  --kw-sheet: #111111;
-  --kw-sheet-2: #1b1b1b;
-  --kw-active: #292929;
-  --kw-ink: #f5f2eb;
-  --kw-ink-2: #ded9d0;
-  --kw-muted: #aaa7a0;
-  --kw-rule: #454545;
-  --kw-rule-soft: #353535;
+  --kw-paper: #f2f0e7;
+  --kw-sheet: #f2f0e7;
+  --kw-sheet-2: #d8d6cd;
+  --kw-active: #e8ee9c;
+  --kw-ink: #171717;
+  --kw-ink-2: #171717;
+  --kw-muted: #55554f;
+  --kw-rule: #d8d6cd;
+  --kw-rule-soft: #d8d6cd;
   --kw-rule-strong: #666666;
   --kw-control: #666666;
-  --kw-grid: #353535;
-  --kw-accent: #ff5a1f;
-  --kw-accent-hover: #ff8052;
-  --kw-accent-soft: #ffb18f;
-  --kw-accent-wash: #321b12;
-  --kw-on-accent: #0b0b0b;
-  --kw-focus: #ff5a1f;
+  --kw-grid: #d8d6cd;
+  --kw-accent: #2525e8;
+  --kw-accent-hover: #2020bf;
+  --kw-accent-soft: #2525e8;
+  --kw-accent-wash: #e8ee9c;
+  --kw-on-accent: #ffffff;
+  --kw-focus: #2525e8;
   /* the ink plate that carries the search */
-  --kw-plate: #111111;
-  --kw-plate-2: #1b1b1b;
+  --kw-plate: #f2f0e7;
+  --kw-plate-2: #d8d6cd;
   --kw-plate-rule: #555555;
-  --kw-plate-ink: #f5f2eb;
-  --kw-plate-muted: #aaa7a0;
-  --kw-plate-focus: #ff8c61;
+  --kw-plate-ink: #171717;
+  --kw-plate-muted: #55554f;
+  --kw-plate-focus: #2525e8;
   /* status pairs */
   --kw-pos-bg: #14271d;
   --kw-pos-ink: #a8dab7;

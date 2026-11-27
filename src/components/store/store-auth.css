@@ -1,10 +1,10 @@
-.member-page{--member-bg:#0b0b0b;--member-paper:#f5f2eb;--member-orange:#ff5a1f;min-height:100svh;background:var(--member-bg);color:var(--member-paper);font-family:var(--font-pretendard),Arial,sans-serif;letter-spacing:-.025em}
+.member-page{--member-bg:#f2f0e7;--member-paper:#171717;--member-orange:#2525e8;min-height:100svh;background:var(--member-bg);color:var(--member-paper);font-family:var(--font-pretendard),Arial,sans-serif;letter-spacing:-.025em}
 .member-page *{box-sizing:border-box}
 .member-page :is(a,button,input):focus-visible{outline:2px solid var(--member-orange);outline-offset:4px}
 .member-page a{color:inherit;text-decoration:none}
-.member-skip{position:fixed;z-index:2000;top:-100px;left:20px;padding:14px;background:var(--member-orange);color:#0b0b0b!important}
+.member-skip{position:fixed;z-index:2000;top:-100px;left:20px;padding:14px;background:var(--member-orange);color:#ffffff!important}
 .member-skip:focus{top:15px}
-.member-header{height:88px;padding:0 6vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff25}
+.member-header{height:88px;padding:0 6vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #d8d6cd}
 .member-brand{font-size:39px;font-weight:850;letter-spacing:-2.7px;line-height:1}
 .member-brand span{font-size:12px;vertical-align:top;margin:4px 0 0 5px;display:inline-block;letter-spacing:0}
 .member-back{display:inline-flex;align-items:center;gap:9px;font-size:13px;font-weight:600}
@@ -16,67 +16,67 @@
 .member-intro h1 em{font-style:normal;color:var(--member-orange)}
 .member-intro p{margin:0;color:#bdbbb6;font-size:15px;line-height:1.8;word-break:keep-all}
 .member-mark{position:absolute;right:8%;bottom:0;color:var(--member-orange);font-size:clamp(110px,13vw,190px);line-height:1;pointer-events:none}
-.member-panel{padding:42px;background:var(--member-bg);color:var(--member-paper);min-width:0;border:1px solid #353535;color-scheme:dark}
+.member-panel{padding:42px;background:var(--member-bg);color:var(--member-paper);min-width:0;border:1px solid #d8d6cd;color-scheme:light}
 .member-panel :is(h2,p){margin:0}
 .member-panel h2{font-size:28px;line-height:1.25;letter-spacing:-.055em;font-weight:750;margin-bottom:12px}
-.member-panel p{font-size:13px;line-height:1.75;color:#aaa7a0;word-break:keep-all;margin:12px 0}
+.member-panel p{font-size:13px;line-height:1.75;color:#55554f;word-break:keep-all;margin:12px 0}
 .member-panel form{display:grid;gap:18px;margin:28px 0 20px}
 .member-panel form>label{display:grid;gap:9px;font-size:13px;font-weight:650}
-.member-panel input:not([type=checkbox]){width:100%;min-height:52px;padding:12px 14px;border:1px solid #555;border-radius:0;background:#171717;color:#f5f2eb;font:inherit;font-size:16px}
-.member-panel input:not([type=checkbox]):focus{border-color:#ff5a1f}
-.member-panel fieldset{min-width:0;padding:16px;border:1px solid #353535;display:grid;gap:12px}
+.member-panel input:not([type=checkbox]){width:100%;min-height:52px;padding:12px 14px;border:1px solid #555;border-radius:0;background:#d8d6cd;color:#171717;font:inherit;font-size:16px}
+.member-panel input:not([type=checkbox]):focus{border-color:#2525e8}
+.member-panel fieldset{min-width:0;padding:16px;border:1px solid #d8d6cd;display:grid;gap:12px}
 .member-panel legend{font-size:12px;font-weight:700;padding:0 5px}
 .member-panel :is(fieldset,form)>label:has(input[type=checkbox]){display:flex;align-items:baseline;flex-wrap:wrap;gap:4px;font-size:12px;font-weight:500;line-height:1.6}
-.member-panel input[type=checkbox]{accent-color:#ff5a1f;width:17px;height:17px;flex:0 0 17px;vertical-align:middle}
+.member-panel input[type=checkbox]{accent-color:#2525e8;width:17px;height:17px;flex:0 0 17px;vertical-align:middle}
 .member-panel label a,.member-panel p a{text-decoration:underline;text-underline-offset:3px}
 .member-panel button{font-family:inherit;cursor:pointer}
-.member-panel form>button[type=submit]{width:100%;min-height:54px;background:#ff5a1f;color:#0b0b0b;border:1px solid #ff5a1f;font-size:14px;font-weight:750}
-.member-panel form>button[type=submit]:hover:not(:disabled){background:#ff7442;color:#0b0b0b;border-color:#ff7442}
+.member-panel form>button[type=submit]{width:100%;min-height:54px;background:#2525e8;color:#ffffff;border:1px solid #2525e8;font-size:14px;font-weight:750}
+.member-panel form>button[type=submit]:hover:not(:disabled){background:#2020bf;color:#ffffff;border-color:#2020bf}
 .member-panel button:disabled{opacity:.45;cursor:not-allowed}
 .member-panel nav[aria-label="회원 인증 메뉴"]{display:flex;flex-wrap:wrap;gap:8px 18px;margin:20px 0}
-.member-panel nav button,.member-panel section>button{padding:6px 0;background:none;border:0;color:#f5f2eb;text-decoration:underline;text-underline-offset:4px;font-size:13px;font-weight:600}
+.member-panel nav button,.member-panel section>button{padding:6px 0;background:none;border:0;color:#171717;text-decoration:underline;text-underline-offset:4px;font-size:13px;font-weight:600}
 .member-panel [role=alert]{color:#ff9a83}
 .member-panel [role=status]{color:#a8dab7}
 .member-panel img{max-width:100%;height:auto}
-.member-panel section[aria-label="키츠노드 동의 관리"]{margin-top:28px;padding-top:20px;border-top:1px solid #353535}
-.member-panel section[aria-label="키츠노드 동의 관리"] div button{margin:4px 12px 4px 0;padding:7px;border:1px solid #555;background:transparent;color:#f5f2eb}
+.member-panel section[aria-label="키츠노드 동의 관리"]{margin-top:28px;padding-top:20px;border-top:1px solid #d8d6cd}
+.member-panel section[aria-label="키츠노드 동의 관리"] div button{margin:4px 12px 4px 0;padding:7px;border:1px solid #555;background:transparent;color:#171717}
 @media(max-width:760px){.member-header{height:72px;padding:0 22px}.member-brand{font-size:32px}.member-back{font-size:12px}.member-main{display:block;padding:54px 22px 80px}.member-intro{min-height:0;padding:0 0 38px}.member-intro h1{font-size:clamp(37px,9vw,55px);margin:20px 0 14px}.member-intro p{font-size:13px}.member-mark{right:0;bottom:16px;font-size:80px;opacity:.6}.member-panel{padding:30px 24px}}
 @media(max-width:370px){.member-mark{display:none}.member-panel{padding:26px 18px}}
 
 .member-panel:has(.member-signed-in) > .member-account-heading{display:none}
-.member-welcome,.member-diagnoses,.member-naver-card{margin-top:24px;padding:24px;border:1px solid #454545;border-radius:16px;background:#191919}
+.member-welcome,.member-diagnoses,.member-naver-card{margin-top:24px;padding:24px;border:1px solid #d8d6cd;border-radius:16px;background:#191919}
 .member-welcome{display:flex;align-items:flex-start;gap:16px;margin-top:0}
-.member-welcome__icon{display:grid;place-items:center;width:48px;height:48px;flex-shrink:0;border-radius:50%;background:#321b12;color:#ff8052}
+.member-welcome__icon{display:grid;place-items:center;width:48px;height:48px;flex-shrink:0;border-radius:50%;background:#e8ee9c;color:#2525e8}
 .member-welcome__content{min-width:0;overflow-wrap:anywhere}
 .member-panel .member-welcome h2{margin:0;font-size:22px;line-height:1.4}
 .member-panel .member-welcome__status{margin:8px 0 0;color:#a8dab7;font-weight:700}
 .member-panel .member-welcome__email{margin:4px 0 0}
-.member-panel .member-welcome button{margin-top:12px;color:#c5c1b9}
+.member-panel .member-welcome button{margin-top:12px;color:#55554f}
 .member-panel .member-diagnoses h3,.member-panel .member-naver-card h2{margin:0 0 12px;font-size:18px}
 @media(max-width:370px){.member-welcome,.member-diagnoses,.member-naver-card{padding:16px}}
 .member-panel .member-account-title{margin:0 0 22px;font-size:26px}
-.member-profile{position:relative;display:flex;align-items:center;gap:14px;padding:20px;border:1px solid #454545;border-radius:14px;background:#191919}
+.member-profile{position:relative;display:flex;align-items:center;gap:14px;padding:20px;border:1px solid #d8d6cd;border-radius:14px;background:#191919}
 .member-profile--naver{padding-top:32px}
 .member-profile__naver{position:absolute;top:9px;right:12px;display:grid;place-items:center;width:19px;height:19px;border-radius:4px;background:#03c75a;color:#fff;font-size:12px;font-weight:900;line-height:1}
-.member-profile__avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#321b12;color:#ff8052}
+.member-profile__avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:50%;background:#e8ee9c;color:#2525e8}
 .member-profile__info{min-width:0;flex:1;overflow-wrap:anywhere}
 .member-profile__info h3{margin:0;font-family:var(--font-pretendard),Arial,sans-serif;font-size:18px;font-weight:800;line-height:1.4}
-.member-panel .member-profile__info p{margin:3px 0 0;font-size:12px;color:#aaa7a0}
+.member-panel .member-profile__info p{margin:3px 0 0;font-size:12px;color:#55554f}
 .member-profile__status{flex:none;color:#a8dab7;font-size:11px;font-weight:700}
 .member-menu{margin-top:32px}
-.member-menu>h3{margin:0 0 10px;color:#aaa7a0;font-size:12px;font-weight:700}
-.member-panel .member-menu .member-menu__row{display:flex;align-items:center;gap:13px;width:100%;min-height:62px;padding:10px 2px;border:0;border-bottom:1px solid #353535;background:transparent;color:#f5f2eb;font:inherit;font-size:15px;font-weight:600;text-align:left;text-decoration:none;cursor:pointer}
-.member-menu__row:hover{color:#ff8052!important}
+.member-menu>h3{margin:0 0 10px;color:#55554f;font-size:12px;font-weight:700}
+.member-panel .member-menu .member-menu__row{display:flex;align-items:center;gap:13px;width:100%;min-height:62px;padding:10px 2px;border:0;border-bottom:1px solid #d8d6cd;background:transparent;color:#171717;font:inherit;font-size:15px;font-weight:600;text-align:left;text-decoration:none;cursor:pointer}
+.member-menu__row:hover{color:#2525e8!important}
 .member-menu__row>svg:last-child{color:#8d8b85;flex:none}
-.member-menu__icon{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;background:#252525;color:#ff8052}
+.member-menu__icon{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;background:#d8d6cd;color:#2525e8}
 .member-menu__icon--naver{background:#123b25;color:#55df8c;font-weight:800}
 .member-menu__label{flex:1;min-width:0}
-.member-menu__meta{color:#aaa7a0;font-size:12px;font-weight:500}
+.member-menu__meta{color:#55554f;font-size:12px;font-weight:500}
 .member-menu__details summary{list-style:none}.member-menu__details summary::-webkit-details-marker{display:none}.member-menu__details[open] summary>svg:last-child{transform:rotate(90deg)}
 .member-menu__expanded{padding:12px 4px 18px}.member-menu__expanded .ds-diagnosis-download h3{font-size:15px}.member-menu__expanded .ds-diagnosis-download ul{padding-left:20px}.member-menu__expanded .ds-diagnosis-download button{margin:4px 8px 4px 0}
 .member-menu>section[aria-label="회원 탈퇴"]{margin-top:20px}.member-menu>section[aria-label="회원 탈퇴"] h2{font-size:14px}
 @media(max-width:370px){.member-profile{padding:16px;gap:10px}.member-profile--naver{padding-top:32px}.member-profile__status{font-size:10px}}
-.member-profile-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(480px,calc(100% - 32px));max-height:calc(100dvh - 32px);padding:24px;border:1px solid #555;border-radius:16px;background:#191919;color:#f5f2eb;box-shadow:0 24px 80px #0009}
+.member-profile-dialog{position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(480px,calc(100% - 32px));max-height:calc(100dvh - 32px);padding:24px;border:1px solid #555;border-radius:16px;background:#191919;color:#171717;box-shadow:0 24px 80px #0009}
 .member-profile-dialog::backdrop{background:#000b}.member-profile-dialog__heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.member-panel .member-profile-dialog__heading h2{margin:0;font-size:21px}.member-profile-dialog__heading button{border:0;background:transparent;color:inherit;font-size:28px;cursor:pointer}.member-panel .member-profile-dialog form{margin:20px 0 0}.member-profile-dialog input[readonly]{opacity:.7}.member-panel .member-profile-dialog p{margin:8px 0}
 
-.member-profile-dialog__password{margin-top:24px;padding-top:20px;border-top:1px solid #454545}.member-profile-dialog__password h3{margin:0;font-size:16px}.member-panel .member-profile-dialog__password button{min-height:44px;margin-top:8px;padding:10px 14px;border:1px solid #777;border-radius:8px;background:#252525;color:#f5f2eb;text-decoration:none;font-weight:700}.member-profile-dialog__password button:disabled{opacity:.5}
+.member-profile-dialog__password{margin-top:24px;padding-top:20px;border-top:1px solid #d8d6cd}.member-profile-dialog__password h3{margin:0;font-size:16px}.member-panel .member-profile-dialog__password button{min-height:44px;margin-top:8px;padding:10px 14px;border:1px solid #777;border-radius:8px;background:#d8d6cd;color:#171717;text-decoration:none;font-weight:700}.member-profile-dialog__password button:disabled{opacity:.5}
