@@ -452,7 +452,7 @@ export function BusinessIntake() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   return (
-    <div className="finance-dashboard tools-workspace business-intake" data-preview-stage={marketStageFor(answers, Boolean(report))}>
+    <div className="finance-dashboard tools-workspace business-intake" data-kn="" data-preview-stage={marketStageFor(answers, Boolean(report))}>
       <ToolsHeader active="start" />
       <main>
         <section className="intake-hero">

@@ -1,66 +1,67 @@
-.profit-tool .about-gallery-page { background: #0b0b0b; }
-.profit-tool .about-gallery-page .dw-hero { padding: 18px 18px 72px; }
+/* About page. The discipline panel is typographic: each field takes the light of a
+   different hour (morning, dusk, night) instead of a photograph. */
+.profit-tool .about-gallery-page { background: #f5f1e8; }
+.profit-tool .about-gallery-page .dw-hero { padding: 16px clamp(12px,4.6vw,76px) clamp(56px,8vw,112px); }
 .dw-landing {
+  --dw-bg: #fcfbf7;
+  --dw-ink: #171717;
+  --dw-sub: #5e5a51;
+  --dw-glow: rgb(255 181 46 / .3);
   isolation: isolate;
   position: relative;
   display: grid;
   align-items: end;
-  min-height: clamp(440px, 68svh, 780px);
+  min-height: clamp(420px, 64svh, 720px);
   overflow: hidden;
-  border: 1px solid #353535;
-  background: #0b0b0b;
+  border-radius: 28px;
+  background: radial-gradient(70% 90% at 92% 8%, var(--dw-glow), transparent 62%), var(--dw-bg);
+  color: var(--dw-ink);
+  transition: background-color .6s ease, color .6s ease;
 }
-.dw-landing-scenes { z-index: -1; position: absolute; inset: 0; }
+.dw-landing:has(.dw-landing-scene:nth-child(2)[data-active=true]) { --dw-bg: #f2e6da; --dw-glow: rgb(255 120 73 / .34); --dw-sub: #594f47; }
+.dw-landing:has(.dw-landing-scene:nth-child(3)[data-active=true]) { --dw-bg: #181b32; --dw-ink: #f4f5fa; --dw-sub: #c3c6dc; --dw-glow: rgb(52 72 223 / .5); }
+.dw-landing-scenes { z-index: 0; position: absolute; inset: 0; }
 .dw-landing-scene { position: absolute; inset: 0; display: grid; align-items: center; visibility: hidden; opacity: 0; transition: opacity .45s ease, visibility 0s linear .45s; }
 .dw-landing-scene[data-active=true] { visibility: visible; opacity: 1; transition-delay: 0s; }
-.dw-landing-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.dw-landing-scene::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg,#0b0b0bf5,#0b0b0ba8 46%,#0b0b0b1f 82%), linear-gradient(0deg,#0b0b0b 0%,transparent 32%);
-}
-.dw-landing-copy { position: relative; z-index: 1; max-width: 720px; padding: 32px clamp(28px,6vw,94px) 98px; }
-.profit-tool .about-gallery-page .dw-landing-copy h2 { color: #f5f2eb; font-size: clamp(36px,6vw,82px); font-weight: 800; line-height: 1.12; letter-spacing: -.065em; margin: 0; word-break: keep-all; }
-.profit-tool .about-gallery-page .dw-landing-copy p { color: #eee8df; font-size: clamp(15px,1.8vw,19px); line-height: 1.65; margin: 16px 0 0; word-break: keep-all; }
-.dw-landing-controls { padding: 20px clamp(24px,6vw,94px) 26px; }
-.dw-disciplines { display: flex; align-items: center; gap: clamp(14px,2.7vw,32px); }
-.profit-tool .about-gallery-page .dw-discipline {
-  border: 0;
-  border-bottom: 2px solid #ff5a1f;
-  padding: 4px 0 7px;
-  background: transparent;
-  color: #f5f2eb;
-  font-size: clamp(18px,2.5vw,34px);
-  font-weight: 650;
-  letter-spacing: -.05em;
+.dw-landing-copy { position: relative; z-index: 1; max-width: 860px; padding: 40px clamp(28px,6vw,96px) 112px; }
+html body .profit-tool .about-gallery-page .dw-landing-copy h2 { color: var(--dw-ink) !important; font-size: clamp(36px,5.6vw,84px); font-weight: 720; line-height: 1.1; letter-spacing: -.055em; margin: 0; word-break: keep-all; }
+html body .profit-tool .about-gallery-page .dw-landing-copy p { color: var(--dw-sub) !important; font-size: clamp(16px,1.5vw,20px); line-height: 1.6; margin: 22px 0 0; max-width: 36ch; word-break: keep-all; }
+.dw-landing-controls { position: relative; z-index: 1; padding: 0 clamp(28px,6vw,96px) 32px; }
+.dw-disciplines { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+html body .profit-tool .about-gallery-page .dw-discipline {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: transparent !important;
+  color: var(--dw-ink) !important;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -.01em;
   cursor: pointer;
-  transition: border-color .2s ease;
+  opacity: .72;
+  transition: opacity .2s ease, background-color .2s ease, color .2s ease;
 }
-.profit-tool .about-gallery-page .dw-discipline[aria-pressed=true] { border-bottom-color: #48d394; }
-.dw-landing-controls button:focus-visible { outline: 2px solid #f5f2eb; outline-offset: 4px; }
-.profit-tool .about-gallery-page .dw-copy { max-width: 1000px; margin: 48px auto 0; text-align: center; }
-.profit-tool .about-gallery-page .dw-eyebrow { display: block; font-size: 10px; letter-spacing: .17em; font-weight: 700; margin-bottom: 20px; }
-.profit-tool .about-gallery-page .dw-copy h1 { font-size: clamp(42px,5.6vw,80px); line-height: 1.13; letter-spacing: -.065em; font-weight: 850; margin: 0; color: #f5f2eb; }
-.profit-tool .about-gallery-page .dw-copy h1 em { font-style: normal; color: #ff5a1f; }
-.profit-tool .about-gallery-page .kp-section { padding-top: 100px; padding-bottom: 100px; }
-.profit-tool .about-gallery-page .kp-contrast { gap: 24px; }
-.profit-tool .about-gallery-page .kp-contrast > div { border-radius: 18px; }
-html body .profit-tool .about-gallery-page .kp-contrast > div:first-child li s { color: #ff5a1f !important; text-decoration-color: #ff5a1f; }
+html body .profit-tool .about-gallery-page .dw-discipline:hover { opacity: 1; }
+html body .profit-tool .about-gallery-page .dw-discipline[aria-pressed=true] { opacity: 1; background: var(--dw-ink) !important; color: var(--dw-bg) !important; border-color: var(--dw-ink); }
+.dw-landing-controls button:focus-visible { outline: 2px solid var(--dw-ink); outline-offset: 4px; }
+.profit-tool .about-gallery-page .dw-copy { max-width: 1240px; margin: clamp(64px,9vw,128px) auto 0; text-align: left; }
+.profit-tool .about-gallery-page .dw-eyebrow { display: none; }
+html body .profit-tool .about-gallery-page .dw-copy h1 { font-size: clamp(40px,6vw,88px); line-height: 1.1; letter-spacing: -.055em; font-weight: 720; margin: 0; color: #171717 !important; }
+html body .profit-tool .about-gallery-page .dw-copy h1 em { font-style: normal; color: #171717 !important; }
+.profit-tool .about-gallery-page .kp-section { padding-top: clamp(64px,8vw,112px); padding-bottom: clamp(64px,8vw,112px); }
+.profit-tool .about-gallery-page .kp-contrast { gap: 16px; }
+.profit-tool .about-gallery-page .kp-contrast > div { border-radius: 22px; }
 .profit-tool .about-gallery-page .kp-proof { scroll-margin-top: 80px; }
 @media (max-width:700px) {
   .profit-tool .about-gallery-page .dw-hero { padding: 10px 10px 48px; }
-  .dw-landing { min-height: clamp(420px,60svh,620px); }
-  .dw-landing-copy { padding: 24px 20px 115px; }
-  .dw-landing-controls { padding: 16px 20px; }
-  .dw-landing-scene::after { background: linear-gradient(0deg,#0b0b0b 0%,#0b0b0bcf 42%,#0b0b0b2e 95%); }
-  .dw-landing-scene:first-child .dw-landing-image { object-position: 60% center; }
-  .profit-tool .about-gallery-page .dw-copy { margin-top: 34px; padding: 0 8px; }
-  .profit-tool .about-gallery-page .dw-copy h1 { font-size: clamp(32px,8.3vw,54px); }
-  .profit-tool .about-gallery-page .kp-section { padding-top: 65px; padding-bottom: 65px; }
+  .dw-landing { min-height: clamp(400px,58svh,600px); border-radius: 20px; }
+  .dw-landing-copy { padding: 28px 22px 112px; }
+  .dw-landing-controls { padding: 0 22px 22px; }
+  .profit-tool .about-gallery-page .dw-copy { margin-top: 48px; padding: 0 10px; }
 }
 @media (prefers-reduced-motion:reduce) {
-  .dw-landing-scene, .profit-tool .about-gallery-page .dw-discipline { transition: none; }
+  .dw-landing, .dw-landing-scene, html body .profit-tool .about-gallery-page .dw-discipline { transition: none; }
 }
 @media print {
   .dw-landing { display: none; }

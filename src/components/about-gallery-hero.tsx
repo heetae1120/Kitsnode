@@ -1,11 +1,10 @@
 'use client';
 import {useState} from 'react';
 
-const base=process.env.NEXT_PUBLIC_BASE_PATH||'';
 const disciplines=[
-  {label:'Product', title:'팔리는 상품의 조건을 찾습니다.', description:'검색 수요와 판매 비용을 살펴, 상품의 가격과 판매 방향을 정합니다.', image:'/about-gallery/product-packaging.webp'},
-  {label:'Pop-up', title:'고객이 브랜드를 만나는 공간.', description:'상품을 직접 경험하고 기억할 수 있는 팝업을 기획합니다.', image:'/about-gallery/brand-people.webp'},
-  {label:'Branding', title:'다시 찾는 브랜드를 만듭니다.', description:'상품, 메시지, 디자인에 하나의 방향을 담습니다.', image:'/about-gallery/brand-making.webp'},
+  {label:'Product', title:'팔리는 상품의 조건을 찾습니다.', description:'검색 수요와 판매 비용을 살펴, 상품의 가격과 판매 방향을 정합니다.'},
+  {label:'Pop-up', title:'고객이 브랜드를 만나는 공간.', description:'상품을 직접 경험하고 기억할 수 있는 팝업을 기획합니다.'},
+  {label:'Branding', title:'다시 찾는 브랜드를 만듭니다.', description:'상품, 메시지, 디자인에 하나의 방향을 담습니다.'},
 ] as const;
 
 export function AboutGalleryHero(){
@@ -15,7 +14,6 @@ export function AboutGalleryHero(){
       <div className="dw-landing-scenes">
         {disciplines.map((item,index)=><div key={item.label} id={'about-discipline-'+index} className="dw-landing-scene" data-active={current===index}
           aria-hidden={current!==index}>
-          <img className="dw-landing-image" src={base+item.image} alt="" fetchPriority={index===0?'high':undefined} decoding="async"/>
           <div className="dw-landing-copy">
             <h2>{item.title}</h2>
             <p>{item.description}</p>

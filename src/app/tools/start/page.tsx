@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <div className="finance-dashboard mp-shell diagnosis-studio selling-diagnosis">
+    <div className="finance-dashboard mp-shell diagnosis-studio selling-diagnosis" data-kn="">
       <DiagnosisHeader active="profit" />
       <main className="sd-landing">
         <div className="sd-landing-hero">

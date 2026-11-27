@@ -5,7 +5,7 @@ import styles from '../../policy.module.css';
 export const metadata: Metadata = { title: '임시 개인정보 처리방침 | 키츠노드' };
 
 export default function PrivacyPage() {
-  return <main className={styles.policy}>
+  return <main className={styles.policy} data-kn="">
     <h1>키츠노드 임시 개인정보 처리방침</h1>
     <p>시행일: 2026년 11월 23일 · 방침 버전: 2026-11-23</p>
     <p>kits는 키츠노드 서비스를 운영하며 아래와 같이 개인정보를 처리합니다. 이전 상담 자료와 외부 설문의 일부 처리 현황을 확인 중이므로 이 방침을 임시로 게시하며, 확인되는 내용은 반영해 안내하겠습니다.</p>
